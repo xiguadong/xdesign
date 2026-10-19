@@ -1,6 +1,7 @@
 # SimpleFlow implementation plan
 
-> Status: active. Scope: one executable run of the gated four-stage
+> Status: first executable slice completed; results in [P08](03_simple_flow_execution_record.md#p08).
+> Scope: one executable run of the gated four-stage
 > `designedSimpleFlow`, with fixed syntactic checks, a semantic judge boundary,
 > revision-bound records, and tests. The complete V-model application is later work.
 
@@ -79,6 +80,8 @@ judgment supplied by a permitted actor; a passing script does not manufacture it
 
 The [case matrix](../details/simple_flow/07_file_plan_and_verification.md#d54)
 defines inputs, expected outcomes, and the model behavior each case exercises.
+The [execution record](03_simple_flow_execution_record.md#p08) distinguishes
+observed results from these planned expectations.
 Run the pinned compiler on `mbse/model/` alone and with `mbse/wishes/`; keep the
 parse/check JSON, stderr, and counts of unevaluated constraints. Run
 `python3 tools/check_documentation.py --json`, regenerate and verify diagrams,

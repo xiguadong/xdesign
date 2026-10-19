@@ -60,7 +60,7 @@ package XDesignDetailedDesign {
             }
             item everyStageGated : CheckerRule subsets rules {
                 attribute redefines ruleId = "every-stage-gated";
-                attribute redefines condition = "Every stage names nonempty exit gates declared by this flow and typed by SimpleFlowCheckpoint.";
+                attribute redefines condition = "Every stage names nonempty exit gates declared by this flow and typed by SimpleFlowCheckpoint; each syntactic exit binds its designated one of the four fixed SimpleFlow checkers.";
                 attribute redefines reads = "mbse/model/detailedDesign.sysml";
             }
             item designElementsCarryDocSections : CheckerRule subsets rules {
@@ -75,17 +75,17 @@ package XDesignDetailedDesign {
             }
             item checkerRulesAreDeclared : CheckerRule subsets rules {
                 attribute redefines ruleId = "checker-rules-are-declared";
-                attribute redefines condition = "Every SimpleFlow checker declares at least one rule with a nonempty ID, condition and reads value.";
+                attribute redefines condition = "All four fixed SimpleFlow checkers are declared, each with at least one rule with a nonempty ID, condition and reads value.";
                 attribute redefines reads = "mbse/model/detailedDesign.sysml";
             }
             item ruleSetsAgreeWithCommands : CheckerRule subsets rules {
                 attribute redefines ruleId = "rule-sets-agree-with-commands";
-                attribute redefines condition = "Each checker's declared rule IDs exactly equal its command's rule ID list.";
+                attribute redefines condition = "Each of the four fixed checkers' declared rule IDs exactly equal its command's rule ID list.";
                 attribute redefines reads = ("mbse/model/detailedDesign.sysml", "tools/checks/");
             }
             item structureGraphsAreCarried : CheckerRule subsets rules {
                 attribute redefines ruleId = "structure-graphs-are-carried";
-                attribute redefines condition = "Every required SimpleFlow model figure exists and is embedded in the document named by its DocFigure annotation.";
+                attribute redefines condition = "Each of the nine primary SimpleFlow views names a distinct model figure, and every required figure exists and is embedded in the document named by its DocFigure annotation.";
                 attribute redefines reads = ("mbse/model/detailedDesign.sysml", "docs/");
             }
         }
@@ -124,8 +124,8 @@ package XDesignDetailedDesign {
             }
             item completedVisitsAuthorized : CheckerRule subsets rules {
                 attribute redefines ruleId = "completed-visits-authorized";
-                attribute redefines condition = "For every completed visit, the latest assessment of each required exit gate passed at that visit's artifact revision.";
-                attribute redefines reads = "runtime run record JSON";
+                attribute redefines condition = "For every completed visit, the latest assessment of each required exit gate passed at that visit's artifact revision and snapshot digest, and every recorded artifact still matches its file digest.";
+                attribute redefines reads = ("runtime run record JSON", "recorded artifact URIs");
             }
             item assessmentsNameExitGates : CheckerRule subsets rules {
                 attribute redefines ruleId = "assessments-name-exit-gates";

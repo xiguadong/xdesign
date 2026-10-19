@@ -63,8 +63,8 @@ selection guidance and the applicability contract
   projections carrying a UML question (renderable-now), labelled tables
   (table-substitute), planned views, or explicitly sourced external-tool figures
   ([U10](01_c4_and_uml_guide.md#u10)). No dedicated UML renderer exists.
-- One module UML design exists: the SimpleFlow Rust design, which is designed-only —
-  no Rust code, build or test exists ([D44](../details/simple_flow/06_rust_uml_design.md#d44)).
+- One module UML design exists: the SimpleFlow Rust design, with an executable
+  first slice and behavior tests ([D44](../details/simple_flow/06_rust_uml_design.md#d44)).
   Its class-and-function level is the [simpflow API reference](simpflow/00_overview.md#u13):
   a complete grouped inventory with one page per API, each carrying its full Rust
   signature, parameter/return/error contracts, stepwise logic and example.

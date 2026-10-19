@@ -1,6 +1,6 @@
 # `RsJudge::review`
 
-> ports · trait method · designed-only · realizes the `JudgmentExchange` invocation ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
+> ports · trait method · implemented SimpleFlow slice · realizes the `JudgmentExchange` invocation ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
 
 <a id="u24"></a>
 
@@ -12,8 +12,9 @@ fn review(&self, criteria: &[String], evidence_uris: &[String])
 ```
 
 Present a semantic gate's criteria and the visit's artifact and evidence URIs to a
-permitted judge; return the verdict and its rationale. This is the out-of-band path:
-a human judge may answer long after the call was issued.
+permitted judge; return the verdict and its rationale. The trait is synchronous in
+this slice. The local [`RsSuppliedJudge`](43_supplied_judge.md#u59) returns a caller's
+supplied verdict without independently reviewing those inputs.
 
 **Parameters**
 

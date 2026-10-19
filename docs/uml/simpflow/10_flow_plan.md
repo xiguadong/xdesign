@@ -1,6 +1,6 @@
 # `RsFlowPlan`
 
-> plan · struct · designed-only · realizes `designedSimpleFlow` ([D01](../../details/simple_flow/01_run_design.md#d01))
+> plan · struct · implemented SimpleFlow slice · realizes `designedSimpleFlow` ([D01](../../details/simple_flow/01_run_design.md#d01))
 
 <a id="u25"></a>
 
@@ -40,6 +40,7 @@ hashed file, in this runtime value and the run record. The plan is validated by
 
 | Method | Kind | Page |
 | --- | --- | --- |
+| [`freeze`](37_freeze_plan.md#u53) | public, writes the frozen plan | full entry |
 | [`validate`](11_flow_plan_validate.md#u26) | public | full entry |
 | `initial_stage() -> &RsStageSpec` | public getter | trivial |
 | `stages() -> &[RsStageSpec]` | public getter | trivial |

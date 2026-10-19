@@ -1,6 +1,6 @@
 # `RsCheckerSpec`
 
-> plan · struct · designed-only · realizes `Checker` ([F02](../../details/01_flows_and_checkpoints.md#f02))
+> plan · struct · implemented SimpleFlow slice · realizes `Checker` ([F02](../../details/01_flows_and_checkpoints.md#f02))
 
 <a id="u35"></a>
 

@@ -1,7 +1,8 @@
 # SimpleFlow file plan and verification cases
 
-> Scope: first executable `designedSimpleFlow` slice | Status: planned file layout and
-> verification design. A declared case is not an executed result.
+> Scope: first executable `designedSimpleFlow` slice | Status: implemented source
+> layout and verification design. A declared case is not an executed result;
+> [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) records actual runs.
 
 This file connects the project requirements and [run design](01_run_design.md#d01) to
 the Rust [module/API design](06_rust_uml_design.md#d44), the [fixed gate rules](02_gates_and_rules.md#d06),
@@ -20,7 +21,7 @@ flow and command set ([A10](../../00_index.md#a10)).
 > **Question:** Which repository files carry the run, its fixed checks, and its verification?  
 > **Model view:** Focused file-plan projection of `XDesignDetailedDesign::simpleFlowFilePlanView`, exposing the native `simpleFlowFilePlan` item and its `repositoryPath` and `responsibility` values.  
 > **Companions:** [D45](06_rust_uml_design.md#d45) for module dependencies, [D06](02_gates_and_rules.md#d06) for the four checker rule sets, and [D54](#d54) for verification.  
-> **Status:** renderable-now; model-declared file plan, with implementation and executable results checked separately.  
+> **Status:** renderable-now; model-declared file plan, with source and executable results checked separately.  
 > **Reading:** Application sources, fixed checker commands, and tests are separate groups. The `repositoryPath` values below give exact filenames; labels in the figure stay short.  
 > **Limits:** A planned path does not prove that a file exists, compiles, or fulfills its contract.
 
@@ -42,13 +43,14 @@ caches, and local development environments belong under ignored `cache/` as the 
 
 <a id="d54"></a>
 
-## D54 Planned verification cases
+## D54 Verification case contract
 
 `XDesignVerification::SimpleFlowGateBehaviorVerification`,
 `SimpleFlowRecoveryVerification`, and `SimpleFlowFilePlanVerification` are case
 definitions in `mbse/model/verification.sysml`. Their objectives trace to the named
 project requirements. The following inputs and expected results make those definitions
-executable; a case is passed only when its commands and retained reports exist.
+executable; actual case results are recorded in
+[P08](../../prj_manage/03_simple_flow_execution_record.md#p08).
 
 | Case | Input or operation | Expected result |
 | --- | --- | --- |

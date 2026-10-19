@@ -1,6 +1,6 @@
 # `evaluate_checkpoint`
 
-> gate · function · designed-only · realizes `EvaluateSimpleFlowCheckpoint` ([D11](../../details/simple_flow/02_gates_and_rules.md#d11))
+> gate · function · implemented SimpleFlow slice · realizes `EvaluateSimpleFlowCheckpoint` ([D11](../../details/simple_flow/02_gates_and_rules.md#d11))
 
 <a id="u20"></a>
 
@@ -52,10 +52,10 @@ most one assessment, cited at the visit's current `artifact_revision`.
 | Variant | Raised when | Caller action |
 | --- | --- | --- |
 | `RsGateError::CheckerMissing` | syntactic spec with `checker == None` | Reject the plan earlier via `validate`; treat as plan defect |
-| `RsGateError::CommandFailed` | `run_check` returned `Err` | Record `Unevaluated`; investigate the command |
-| `RsGateError::JudgmentRefused` | judge returned `Unevaluated` | Record `Unevaluated`; route to another permitted judge |
-| `RsGateError::JudgeNotPermitted` | judge authority is not allowed by the gate | Record `Unevaluated`; use a permitted judge |
-| `RsGateError::MissingEvidence` | semantic verdict passed without cited evidence | Record `Unevaluated`; supply evidence before judging |
+| `RsGateError::CommandFailed` | artifact bytes differ from the visit snapshot, command failed, report file is absent, or report invariants fail | Record `Unevaluated`; inspect the command and inputs |
+| `RsGateError::JudgmentRefused` | judge returned `Unevaluated` or supplied no rationale | Record `Unevaluated`; route to a reasoned judgment |
+| `RsGateError::JudgeNotPermitted` | judge authority is not allowed or its identity is empty | Record `Unevaluated`; use a permitted, identified judge |
+| `RsGateError::MissingEvidence` | semantic pass has no current visit artifact, cites no evidence, or cites a missing file | Record `Unevaluated`; supply a retained verification artifact before judging |
 
 Panics: none. A rule that does not hold is `RsRuleReport { holds: false }` data, not
 an error.
@@ -63,7 +63,8 @@ an error.
 **Logic**
 
 ```
-1. match spec.kind:
+1. if !visit.verify_artifacts(): return Err(GateError::CommandFailed)
+   match spec.kind:
 2.   Syntactic:
 3.     checker := spec.checker.ok_or(GateError::CheckerMissing)?
 4.     report  := check.run_check(checker, plan_id, plan_uri,
@@ -73,8 +74,10 @@ an error.
                      .map_err(|_| GateError::CommandFailed)?
 5.     if report.artifact_revision != visit.artifact_revision or
        report.artifact_snapshot_digest != visit.artifact_snapshot_digest or
-       report.report_uri is empty or the report's rule IDs are not exactly
-       the checker's distinct rule IDs, or report.holds != every(rule.holds):
+       report.report_uri is not a valid relative path to an existing file,
+       or the report's rule IDs are not exactly the checker's distinct rule IDs,
+       or any failed rule has no nonempty diagnostic,
+       or report.holds != every(rule.holds):
            return Err(GateError::CommandFailed)
        holds := report.holds
 6.     return Ok(AssessmentEntry {
@@ -86,11 +89,14 @@ an error.
 8.     authority := judge.authority()
        if (authority == Agent and not spec.agent_may_judge) or
           (authority == Human and not spec.human_may_judge) or
-          authority == Script: return Err(GateError::JudgeNotPermitted)
+          authority == Script or judge.identity() is empty:
+              return Err(GateError::JudgeNotPermitted)
 9.     evidence := visit.evidence_uris()
        (outcome, rationale) := judge.review(&spec.criteria, &evidence)
-10.    if outcome == Unevaluated { return Err(GateError::JudgmentRefused) }
-       if outcome == Passed and evidence.is_empty() {
+10.    if outcome == Unevaluated or rationale is empty:
+           return Err(GateError::JudgmentRefused)
+       if outcome == Passed and (visit.artifact_digests is empty or
+           evidence.is_empty() or any cited file is missing) {
            return Err(GateError::MissingEvidence)
        }
 11.    return Ok(AssessmentEntry {
@@ -107,7 +113,7 @@ an error.
 | Complexity | O(rules) for the scripted path; the judged path is out of band |
 | Thread safety | Shared references only; re-entrant |
 
-**Example** (designed-only)
+**Example** (illustrative)
 
 ```rust
 let entry = evaluate_checkpoint(spec, visit, plan_id, plan_uri, plan_sha256,

@@ -56,8 +56,11 @@ The revision is what keeps evidence honest:
   (`StageRecord::checkpointsSatisfied`).
 - A completed stage must stay authorized (`completedStageIsAuthorized`), so new evidence
   is recorded as a further assessment; an existing passed assessment is never edited.
-- Rework at the same stage appends a new visit (`visitIndex` + 1); earlier visits and
-  their evidence stay.
+- Corrective work on a blocked SimpleFlow visit stays in that visit and increments
+  its artifact revision when content changes. Explicitly revisiting a completed
+  terminal stage appends the next visit (`visitIndex` + 1); earlier visits and
+  their evidence stay. The generic model does not yet define downstream
+  invalidation for reopening an earlier completed stage.
 
 Worked example, wish-0002: verification was assessed three times — revision 1 failed (the
 export showed only one of two permitted judges), revision 2 passed after one flag per
@@ -77,8 +80,10 @@ An assessment is the only thing that authorizes progress, and it carries its rea
 - `judgedBy` must match the checkpoint's kind: a script may only judge a syntactic
   checkpoint, an agent or a human only a semantic one
   (`judgmentMatchesCheckpointKind`, see [F02](01_flows_and_checkpoints.md#f02)).
-- `evidenceUris` point at retained files under `cache/` — logs, exports, rendered figures
-  — so a later reader can re-examine the judgment, not just its conclusion.
+- `evidenceUris` point at retained files — logs, exports, rendered figures — so a
+  later reader can re-examine the judgment, not just its conclusion. Current local
+  examples use ignored `cache/`; durable delivery requires a separate retention
+  location and access policy.
 
 <a id="e05"></a>
 
@@ -95,14 +100,14 @@ A delivered wish has come all the way through, and the model says so in four pla
 
 The compiler does not evaluate these constraint bodies ([T04](03_toolchain.md#t04)),
 so they are obligations verified by reading; each wish's verification activity says how.
-For runs on the designed simple flow, the record gate is designed to establish the record
-invariants — at least one visit per stage (a reworked stage appends a visit), assessments
-cited at the visited revision, evidence that exists, the run typed by the design's class —
-once implementation supplies its checker and command
+For runs on the designed simple flow, the declared `simpleRecordCheck` gate checks
+its D06 rule set: at least one visit per stage, authorization of completed visits
+at their recorded revision and artifact bytes, evidence that exists, and the run
+typed by the design's class. It does not establish every generic delivery
+invariant above or validate all historical wish SysML records
 ([D06](simple_flow/02_gates_and_rules.md#d06), [D07](simple_flow/02_gates_and_rules.md#d07)).
-That checker is not declared yet: implementation is a later stage and no language is
-selected, so the model-level constraints and the record are read at the design stage; the
-early Python prototype is research under `cache/research/checks/`.
+Its command is `tools/checks/simple_record.py`; executed results and limits are
+recorded in the [SimpleFlow implementation plan](../prj_manage/02_simple_flow_implementation_plan.md#p06).
 
 <a id="e06"></a>
 

@@ -1,6 +1,6 @@
 # `RsSimpleFlowRun::advance`
 
-> run · method · designed-only · realizes `AdvanceSimpleFlowRun` ([D04](../../details/simple_flow/01_run_design.md#d04))
+> run · method · implemented SimpleFlow slice · realizes `AdvanceSimpleFlowRun` ([D04](../../details/simple_flow/01_run_design.md#d04))
 
 <a id="u19"></a>
 
@@ -30,22 +30,25 @@ previously completed terminal stage is a separate operation
 
 **Errors** — none; the decision is total over the run's states.
 Calling it again after completion returns `CompleteRun` without changing the record.
+A failed plan validation, changed artifact bytes, unresolved record-write failure,
+or missing latest pass keeps the run blocked.
 
 **Logic**
 
 ```
 1. if self.status == Completed: return CompleteRun  // idempotent
-2. visit := self.current()
+2. require plan.validate(), current().verify_artifacts(), and a durable
+   current record; otherwise retain the current visit as Blocked
 3. if visit.completion_authorized(&self.plan):
 4.     if self.plan.stage(visit.stage_id()).completes_flow:
 4.         current_mut().status := Completed
 5.         self.status         := Completed
-6.         return CompleteRun
+6.         persist the new state; return CompleteRun only if it was written
 7.     next := plan.next_stage(visit.stage_id())
 8.     current_mut().status := Completed
 9.     self.current_visit  := index_of_pending(next)
 10.    current_mut().status := Active        // artifact_revision unchanged
-11.    return EnterNextStage
+11.    persist the new state; return EnterNextStage only if it was written
 12. else:
 13.    current_mut().status := Blocked       // same visit retained ([D48])
 14.    self.status := Blocked
@@ -56,11 +59,11 @@ Calling it again after completion returns `CompleteRun` without changing the rec
 
 | Item | Value |
 | --- | --- |
-| Side effects | Mutates visit statuses, `current_visit`, possibly `status`; no I/O |
+| Side effects | Rehashes current artifacts, mutates visit statuses and `current_visit`, writes the JSON record; a failed transition write rolls back the in-memory transition |
 | Complexity | O(gates + visits) via `completion_authorized` |
 | Thread safety | `&mut self` — caller serializes |
 
-**Example** (designed-only)
+**Example** (illustrative)
 
 ```rust
 match run.advance() {

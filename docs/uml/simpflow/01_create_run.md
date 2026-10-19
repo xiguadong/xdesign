@@ -1,6 +1,6 @@
 # `create_run`
 
-> factory · function · designed-only · realizes `SimpleFlowRunFactory::createRun` ([D03](../../details/simple_flow/01_run_design.md#d03))
+> factory · function · implemented SimpleFlow slice · realizes `SimpleFlowRunFactory::createRun` ([D03](../../details/simple_flow/01_run_design.md#d03))
 
 <a id="u16"></a>
 
@@ -27,8 +27,8 @@ stay with the controller; this function produces the run value it holds.
 | Name | Type | Constraint | Description |
 | --- | --- | --- | --- |
 | `plan` | `RsFlowPlan` | must pass [`RsFlowPlan::validate`](11_flow_plan_validate.md#u26) | Read-only plan data for the run's whole life |
-| `wish_model_uri` | `String` | non-empty, repository-relative SysML trace path | Independent trace identity |
-| `run_record_uri` | `String` | non-empty, repository-relative JSON record path | Passed to each fixed checker invocation |
+| `wish_model_uri` | `String` | existing repository-relative `.sysml` trace file with normal path components | Independent trace identity |
+| `run_record_uri` | `String` | repository-relative JSON record path with normal path components | Passed to each fixed checker invocation |
 | `check` | `Box<dyn RsCheckCommand>` | handles every checker spec in the plan | Fixed-check boundary owned by the run |
 | `judgment` | `Box<dyn RsJudge>` | identifies an agent or human | Semantic judgment boundary owned by the run |
 
@@ -48,8 +48,8 @@ stay with the controller; this function produces the run value it holds.
 | `RsPlanError::UnknownStageReference` | a `next_stage_ids` entry matches no stage | Fix the flow definition data |
 | `RsPlanError::SyntacticSpecWithoutChecker` | a syntactic gate has no checker | Supply the checker or reclassify the gate |
 | `RsPlanError::SemanticSpecWithChecker` | a semantic gate names a checker | Remove the checker or reclassify the gate |
-| `RsPlanError::MissingWishModelUri` | the wish model path is empty | Supply the independent wish trace path |
-| `RsPlanError::MissingRunRecordUri` | the run record path is empty | Supply the runtime JSON record path |
+| `RsPlanError::MissingWishModelUri` | the wish path is invalid, not a `.sysml` file, or does not exist | Supply an existing repository-relative trace file |
+| `RsPlanError::MissingRunRecordUri` | the run record path is empty, absolute, or contains a parent/current directory component | Supply a repository-relative JSON path |
 
 Panics: none.
 
@@ -57,8 +57,9 @@ Panics: none.
 
 ```
 1. plan.validate()?            — reject an inconsistent plan
-   if wish_model_uri.is_empty() → MissingWishModelUri
-   if run_record_uri.is_empty() → MissingRunRecordUri
+   if !valid_relative_path(wish_model_uri) or !ends_with('.sysml')
+      or !file_exists(wish_model_uri) → MissingWishModelUri
+   if !valid_relative_path(run_record_uri) → MissingRunRecordUri
 2. run := RsSimpleFlowRun {
        run_id: new_uuid(),
        plan_id: plan.plan_id.clone(), plan_uri: plan.plan_uri.clone(),
@@ -83,7 +84,7 @@ Panics: none.
 | Complexity | O(number of stages) = O(4) for the designed flow |
 | Thread safety | Returns an owned value; `RsSimpleFlowRun: Send` because both trait objects require `Send` |
 
-**Example** (designed-only)
+**Example** (illustrative)
 
 ```rust
 let plan = designed_simple_flow_plan();

@@ -79,14 +79,14 @@ assessment, its rationale and its evidence URIs are recorded in
 | Item | Where it stands |
 | --- | --- |
 | `VModel`'s three checkers (`tools/checks/requirement_trace.py`, `implementation_artifacts.py`, `delivery_record.py`) do not exist and declare no rules | Their syntactic checkpoints cannot pass until the commands exist and their rules are declared ([R03](../requirements/01_baseline.md#r03)) |
-| The designed simple flow declares no checkers yet | Its four checks are documented in [D06](../details/simple_flow/02_gates_and_rules.md#d06); checker declarations, commands and rule lists are supplied at implementation ([D07](../details/simple_flow/02_gates_and_rules.md#d07)) |
-| `runRecordIsScriptChecked` has no satisfier | The record gate is designed but no record checker is declared or implemented ([R01](../requirements/01_baseline.md#r01), [R03](../requirements/01_baseline.md#r03)) |
+| Default V-model and historical wish records lack executable checks | Four SimpleFlow checkers and their rule lists now execute for the new JSON run, but do not judge `VModel` or old SysML records ([D07](../details/simple_flow/02_gates_and_rules.md#d07), [R03](../requirements/01_baseline.md#r03)) |
+| `runRecordIsScriptChecked` has no project-wide satisfier | `simpleRecordCheck` now checks the new SimpleFlow JSON run; broader records remain outside its scope ([R01](../requirements/01_baseline.md#r01), [R03](../requirements/01_baseline.md#r03)) |
 | `wishProductsAreRetained`, `modelStandsWithoutWishes` have no satisfier | Kept by hand; wish-0003 aligned the files with them, nothing enforces them ([R01](../requirements/01_baseline.md#r01)) |
 | May one requirement have two satisfiers? | Unsettled — wish-0004's first question, raised because the compiler's export cannot attribute two `satisfy` usages of one requirement to their requirement. Nothing should be built on that attribution until it is answered. Later requirements with model satisfiers each name one; four later documentation requirements have no SysML satisfier ([R02](../requirements/01_baseline.md#r02)). |
 | Mechanical documentation links still require an engineering reading | `tools/check_documentation.py --json` audits directory layout, section targets, assets, embeds, and figure blocks ([D31](../details/05_documentation_contract.md#d31)); wish-0008 has separate agent readings at revisions 1, 2, 3, and 4, and every later change needs its own review of meaning ([V07](#v07)). The early `simple_flow_design.py` prototype remains research under `cache/research/checks/`. |
 | wish-0005's passed assessment cites documentation paths renamed by later work | The record is read as it stood; no project checker judges `wishVerifyFlow` records, so the dangling evidence is disclosed here, not prevented ([V03](#v03)) |
 | wish-0001's named artifacts and evidence are not retained here | Its recorded URIs point at files this repository does not contain; the early record-check prototype fails on exactly that — no project checker judges it ([V02](#v02)) |
-| Earlier visits' artifact paths are read as written | Documents and figures were renamed after earlier wish visits; those visits retain their original URIs, while the revision-4 record names the current paths. No project gate re-fails history. |
+| Earlier SysML wish visits' artifact paths are read as written | Documents and figures were renamed after earlier wish visits; those visits retain their original URIs, while the revision-4 record names the current paths. The new JSON-run record checker does not re-audit this historical SysML wish history. |
 | The docs numbering rule is per directory | Every prose subdirectory has `00_overview.md`, followed by contiguous numbered topics (`docs/AGENTS.md`); the `directory-layout` audit checks the filesystem rule, while topic suitability remains a review judgment. |
 
 <a id="v05"></a>
@@ -140,12 +140,14 @@ classes and documentation details are present, and the rules that implementation
 are documented. Recorded with its rationale and evidence
 `cache/evidence/wish-0006/design-deliverable-check.md`.
 
-**Not implemented, stated.** The four designed checks have no checkers, commands or rule
-lists yet: the design stage keeps the rules as documentation
+**At original delivery, not implemented.** The four designed checks then had no checkers,
+commands or rule lists: that design stage kept the rules as documentation
 ([D06](../details/simple_flow/02_gates_and_rules.md#d06),
 [D07](../details/simple_flow/02_gates_and_rules.md#d07)). The early Python checkers are
-research conclusions under `cache/research/checks/`, not project implementation; the
-earlier script-based rounds of this wish are superseded by this corrected record.
+research conclusions under `cache/research/checks/`, not project implementation at
+that time; the earlier script-based rounds of this wish are superseded by this
+corrected record. The later implementation is recorded separately in
+[P08](../prj_manage/03_simple_flow_execution_record.md#p08).
 
 **Nine-diagram correction, visit 1 / revision 2.** The requester reopened the wish on
 19 October 2026 because the three structure graphs did not deliver all nine SysML diagram
@@ -409,7 +411,9 @@ figures and strict site build pass again; evidence is under
 `cache/evidence/wish-0009/revision-3/`. Adoption of the convention by future
 modules cannot be established by this wish and is not claimed.
 
-This is a design-stage delivery of a software design: the crate, its types and its
-functions are designed-only, `RustUmlDesignReview` is declared but not executed, and
-the workflow application and planned gate commands remain unimplemented
-([V04](#v04)).
+At that revision this was a design-stage delivery: the crate, its types and its
+functions were designed-only, `RustUmlDesignReview` was declared but not executed,
+and the workflow application and gate commands were unimplemented. The later
+executable SimpleFlow slice has its own evidence record in
+[P08](../prj_manage/03_simple_flow_execution_record.md#p08); it does not retroactively
+change wish-0009's historical assessment.

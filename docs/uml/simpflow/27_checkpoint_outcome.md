@@ -1,6 +1,6 @@
 # `RsCheckpointOutcome`
 
-> status · enum · designed-only · mirrors `CheckpointOutcome` ([E04](../../details/02_records_and_evidence.md#e04))
+> status · enum · implemented SimpleFlow slice · mirrors `CheckpointOutcome` ([E04](../../details/02_records_and_evidence.md#e04))
 
 <a id="u42"></a>
 

@@ -1,6 +1,6 @@
 # `RsStageVisit`
 
-> record · struct · designed-only · realizes `StageRecord` ([E03](../../details/02_records_and_evidence.md#e03))
+> record · struct · implemented SimpleFlow slice · realizes `StageRecord` ([E03](../../details/02_records_and_evidence.md#e03))
 
 <a id="u27"></a>
 
@@ -43,7 +43,9 @@ reopening a completed terminal stage appends a new visit at the next index.
 | [`record_activity`](13_record_activity.md#u28) | crate-visible, mutating | full entry |
 | [`append_assessment`](14_append_assessment.md#u29) | crate-visible, mutating | full entry |
 | [`completion_authorized`](15_completion_authorized.md#u30) | public query | full entry |
+| [`verify_artifacts`](39_verify_artifacts.md#u55) | public query and file read | full entry |
+| [`evidence_uris`](47_evidence_uris.md#u63) | public query | full entry |
 | `pending(stage_id: String, visit_index: u32) -> Self` | crate-visible constructor | trivial: starts at revision 0 with empty artifact set; used by `create_run` and terminal reopen |
-| `stage_id()`, `visit_index()`, `status()`, `artifact_revision()`, `artifact_snapshot_digest()`, `activities()`, `assessments()`, `evidence_uris()` | getters | trivial; `evidence_uris()` returns current artifact URIs and evidence from assessments at this revision |
+| `stage_id()`, `visit_index()`, `status()`, `artifact_revision()`, `artifact_snapshot_digest()`, `artifact_digests()`, `activities()`, `assessments()` | getters | trivial |
 
 **See also:** [`RsSimpleFlowRun`](02_simple_flow_run.md#u17), [`RsActivityEntry`](16_activity_entry.md#u31), [`RsAssessmentEntry`](17_assessment_entry.md#u32), [records E03](../../details/02_records_and_evidence.md#e03).

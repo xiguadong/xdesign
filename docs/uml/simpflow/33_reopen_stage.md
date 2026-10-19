@@ -1,6 +1,6 @@
 # `RsSimpleFlowRun::reopen_stage`
 
-> run · method · designed-only · realizes `ReopenSimpleFlowStage`
+> run · method · implemented SimpleFlow slice · realizes `ReopenSimpleFlowStage`
 > ([D04](../../details/simple_flow/01_run_design.md#d04))
 
 <a id="u49"></a>
@@ -43,14 +43,15 @@ is not completed returns `false` without mutation.
 4. new visit.status := Active
    self.current_visit := index of new visit
    self.status := Active
-5. return true
+5. persist the appended visit and active status; return true only if written,
+   otherwise restore the completed in-memory run and return false
 ```
 
 **Other**
 
 | Item | Value |
 | --- | --- |
-| Side effects | Appends one visit and changes run status; no I/O |
+| Side effects | Appends one visit, changes run status, and writes the JSON record; a write failure rolls back the in-memory reopen |
 | Complexity | O(visits) to find the latest visit |
 | Thread safety | `&mut self`; caller serializes |
 

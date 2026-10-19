@@ -1,6 +1,6 @@
 # `RsJudgeAuthority`
 
-> status · enum · designed-only · mirrors `JudgeAuthority` ([F02](../../details/01_flows_and_checkpoints.md#f02))
+> status · enum · implemented SimpleFlow slice · mirrors `JudgeAuthority` ([F02](../../details/01_flows_and_checkpoints.md#f02))
 
 <a id="u43"></a>
 

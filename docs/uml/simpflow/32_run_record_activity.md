@@ -1,6 +1,6 @@
 # `RsSimpleFlowRun::record_activity`
 
-> run · method · designed-only · realizes the run's corrective activity path
+> run · method · implemented SimpleFlow slice · realizes the run's corrective activity path
 > ([F04](../../details/01_flows_and_checkpoints.md#f04))
 
 <a id="u48"></a>
@@ -8,7 +8,7 @@
 ## U48 record_activity
 
 ```rust
-pub fn record_activity(&mut self, activity: RsActivityEntry)
+pub fn record_activity(&mut self, activity: RsActivityEntry) -> Result<(), String>
 ```
 
 Record work on the current visit. A blocked visit remains the current visit;
@@ -24,26 +24,35 @@ snapshot. The run does not create a new visit on gate failure.
 | --- | --- | --- | --- |
 | `activity` | `RsActivityEntry` | identifies the work and any changed artifact bytes | Work to retain in the current visit |
 
-**Returns** — `()`; activity and any revision change are retained in the visit.
+**Returns** — `Ok(())` after the updated JSON record is written.
 
-**Errors** — none for an active or blocked run. The controller does not call
-this on a completed run; it first calls [`reopen_stage`](33_reopen_stage.md#u49).
+**Errors** — `Err(String)` when the run is completed, required activity metadata
+is empty, a change declaration conflicts with its digest or removal list, a
+digest does not match actual file bytes, a removal names an absent prior artifact,
+an artifact path is invalid, or JSON record persistence fails. The controller
+must call [`reopen_stage`](33_reopen_stage.md#u49) before work on a completed run.
+An unsuccessful write is retained in `last_error()` and blocks advancement.
+The activity may already have changed the in-memory visit when a later JSON
+write fails; the caller must resolve persistence before treating that event as
+retained evidence.
 
 **Logic**
 
 ```
-1. current_mut().record_activity(activity)
-2. if self.status == Blocked:
+1. reject completed run or invalid activity metadata, paths, content digests,
+   change declaration, or removals
+2. current_mut().record_activity(activity)
+3. if self.status == Blocked:
        current_mut().status := Active
        self.status := Active
-3. return
+4. persist the updated JSON record; return Ok only when written
 ```
 
 **Other**
 
 | Item | Value |
 | --- | --- |
-| Side effects | Appends activity, may update the artifact snapshot and revision, may resume the run and visit; no I/O |
+| Side effects | Reads changed artifact bytes for digest validation; appends activity, may update the artifact snapshot and revision, may resume the run and visit, and writes the JSON record |
 | Complexity | O(artifacts in the current snapshot) when digests change |
 | Thread safety | `&mut self`; caller serializes |
 

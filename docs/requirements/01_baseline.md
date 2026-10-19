@@ -138,7 +138,7 @@ template. [R11](#r11) identifies that gap.
 | Requirement | What it demands | Why it exists | Satisfied by | Status |
 | --- | --- | --- | --- | --- |
 | `checkpointKindIsDeclared` | Every checkpoint declares whether its criteria are established syntactically or semantically | A flow can route a check to the right executor only if the checkpoint says which kind it is | `Checkpoint::kind` | met in the model |
-| `syntacticCheckIsFixed` | A syntactic checkpoint names at least one checker whose command fixes the check | Repeating criteria by hand invites drift; one fixed command is reproducible and comparable across revisions | `Checkpoint::checkers` | met by `designFlow`'s compiler checker; the designed flow's gates declare no checker yet |
+| `syntacticCheckIsFixed` | A syntactic checkpoint names at least one checker whose command fixes the check | Repeating criteria by hand invites drift; one fixed command is reproducible and comparable across revisions | `Checkpoint::checkers` | met by `designFlow` and the four declared SimpleFlow syntactic gates; `VModel` commands remain absent |
 | `syntacticAssessmentIsScripted` | An assessment of a syntactic checkpoint is judged by a script, and its output for the assessed revision is the evidence | A script cannot rationalize a result, and its output can be re-examined | `CheckpointAssessment::judgedBy` | met in the model |
 | `semanticCheckNamesItsJudges` | A semantic checkpoint names no checker and states whether an agent or a human may judge it | Criteria that no command can establish need a stated competent judge | `Checkpoint::agentMayJudge`, `Checkpoint::humanMayJudge` | met in the model |
 | `checkerStatesItsConformance` | A checker states which kinds of conformance it establishes: artifact presence, identifier conformance, definition coverage, trace conformance | Knowing what a check covers is knowing what it leaves uncovered | `Checker::establishes` | met in the model |
@@ -146,12 +146,12 @@ template. [R11](#r11) identifies that gap.
 | `modelStandsWithoutWishes` | The project model resolves and checks on its own; no model element names a wish or carries its identity | A model that needed wish records to check would make those records load-bearing | — | unmet, maintained by hand |
 | `flowRunIsRealizedByDesign` | A flow's run is realized by design elements: a class for the run, a factory that creates it, and the functions that evaluate its gates and advance it | The architecture says what a flow is made of; only a design says what it is made into | `SimpleFlowRun` | met for the designed flow ([D02](../details/simple_flow/01_run_design.md#d02)) |
 | `designedFlowGatesEveryStage` | Every stage of a designed flow declares the exit checkpoint that must pass before the flow leaves it | A stage left without a gate completes on the mere passage of work | `designedSimpleFlow` | met for the designed flow ([D01](../details/simple_flow/01_run_design.md#d01)) |
-| `gateSyntaxIsRunnable` | Every syntactic gate's checker names a command that exists in the repository; its output for the assessed revision is the evidence | A gate whose command does not exist can never pass by its own rule, and the work would stall or fall back to unrecorded judgment | `designFlow` | met by `designFlow`'s syntactic checkpoint, whose checker is the pinned compiler command ([F03](../details/01_flows_and_checkpoints.md#f03)); the designed flow's gates declare no checker yet and are supplied at implementation ([D06](../details/simple_flow/02_gates_and_rules.md#d06), [R03](#r03)); unmet for `VModel` |
-| `runRecordIsScriptChecked` | The conformance of a run's record — one visit per stage, assessments cited at the visited revision, evidence that exists — is established by a checker, not by reading | These invariants were kept by reading; reading does not re-run per revision and does not fail a record | — (checker not declared yet) | unmet: the record checker is designed but no checker is declared or implemented ([D06](../details/simple_flow/02_gates_and_rules.md#d06), [R03](#r03)) |
-| `designCarriesItsDocSections` | Every element of the detailed design carries the documentation section that covers it, and the design's checker establishes the sections are present and well formed | A design read from declarations alone forces the reader to reconstruct the reasoning; a checker keeps the map from rotting | `DocSection` | the stand-alone documentation audit checks targets; the planned `simpleDesignCheck` gate is not implemented ([D31](../details/05_documentation_contract.md#d31)) |
-| `checkerRulesAreDeclared` | Every checker of a designed flow declares the rules by which its outcome is determined — each rule's exact condition and what it reads — and its command reports each rule's verdict; a check establishes the declared rules and the command's rule list agree | A checker that only names a command hides its logic in code, and the model cannot say why a gate passed or what would make it fail | `CheckerRule` | rules documented for the designed flow ([D06](../details/simple_flow/02_gates_and_rules.md#d06)); checkers not declared yet; `VModel`'s checkers declare none |
-| `structureGraphsAreDocumented` | Nine views of one model cover block definitions, internal blocks, requirements, parameters, use cases, activities, sequences, states, and packages; each locates a rendered figure and its documentation section | Three overview graphs leave goals, traceability, constraints, lifecycle conditions, and model dependencies unexplained | `DocFigure` | nine views and figures have prior design and presentation review; the new audit checks locators, while the planned flow checker remains unimplemented ([D12](../details/simple_flow/04_sysml_diagrams.md#d12), [D31](../details/05_documentation_contract.md#d31)) |
-| `runRealizesItsDesign` | A run of a designed flow is recorded with the design's class, so the design is realized by the run rather than declared beside it | A class nothing is typed by is a picture of a run, not a run's design | `SimpleFlowRun` | met for the designed flow by reading at the design stage; its check is a research prototype, not implemented |
+| `gateSyntaxIsRunnable` | Every syntactic gate's checker names a command that exists in the repository; its output for the assessed revision is the evidence | A gate whose command does not exist can never pass by its own rule, and the work would stall or fall back to unrecorded judgment | `designFlow` | pinned compiler and all four SimpleFlow commands exist and have executed with retained reports ([D06](../details/simple_flow/02_gates_and_rules.md#d06), [R03](#r03)); unmet for `VModel` |
+| `runRecordIsScriptChecked` | The conformance of a run's record — one visit per stage, assessments cited at the visited revision, evidence that exists — is established by a checker, not by reading | These invariants were kept by reading; reading does not re-run per revision and does not fail a record | — (no project-wide satisfier) | `simpleRecordCheck` is declared and executed for the new SimpleFlow JSON run; default V-model and historical SysML wish records remain outside it ([D06](../details/simple_flow/02_gates_and_rules.md#d06), [R03](#r03)) |
+| `designCarriesItsDocSections` | Every element of the detailed design carries the documentation section that covers it, and the design's checker establishes the sections are present and well formed | A design read from declarations alone forces the reader to reconstruct the reasoning; a checker keeps the map from rotting | `DocSection` | documentation audit and `simpleDesignCheck` execute locator checks; semantic adequacy still needs reading ([D31](../details/05_documentation_contract.md#d31)) |
+| `checkerRulesAreDeclared` | Every checker of a designed flow declares the rules by which its outcome is determined — each rule's exact condition and what it reads — and its command reports each rule's verdict; a check establishes the declared rules and the command's rule list agree | A checker that only names a command hides its logic in code, and the model cannot say why a gate passed or what would make it fail | `CheckerRule` | 18 rules declared and reported by the four SimpleFlow commands ([D06](../details/simple_flow/02_gates_and_rules.md#d06)); `VModel`'s checkers declare none |
+| `structureGraphsAreDocumented` | Nine views of one model cover block definitions, internal blocks, requirements, parameters, use cases, activities, sequences, states, and packages; each locates a rendered figure and its documentation section | Three overview graphs leave goals, traceability, constraints, lifecycle conditions, and model dependencies unexplained | `DocFigure` | nine views and figures have design and presentation review; the audit and SimpleFlow design checker now check locators and embeds ([D12](../details/simple_flow/04_sysml_diagrams.md#d12), [D31](../details/05_documentation_contract.md#d31)) |
+| `runRealizesItsDesign` | A run of a designed flow is recorded with the design's class, so the design is realized by the run rather than declared beside it | A class nothing is typed by is a picture of a run, not a run's design | `SimpleFlowRun` | the SimpleFlow JSON run records `execution_type = SimpleFlowRun`; the record checker tests it for new runs, while historical SysML records are not migrated |
 | `diagramViewsAreReadable` | The nine primary views remain legible at a 900-pixel article width with text at least 11 pixels; boundaries, ports, labels, and relationship endpoints remain clear | A correct model inventory can still produce unusable diagrams | `DiagramDocumentationRenderer` | implemented; final figures and built-article evidence are reviewed separately ([D24](../details/04_diagram_presentation.md#d24), [V06](../review/01_wish_status.md#v06)) |
 | `diagramPresentationRetainsSourceIdentity` | Short model-owned labels preserve native identities and full source details; final SVGs and previews have matching provenance | Presentation needs concise text without creating a disconnected second model or accepting stale previews | `DiagramDocumentationRenderer` | implemented by metadata, native SVG references, and hash-bound final-figure evidence ([D23](../details/04_diagram_presentation.md#d23), [D26](../details/04_diagram_presentation.md#d26)) |
 | `documentationEntryMapsDesign` | One entry gives each reader a path through the current documents and maps model modules and current design concerns to detailed sections | A reader should not have to reconstruct the document set or its relationship to the model | documentation set (no SysML satisfier) | [A09–A11](../00_index.md#a09); stage paths were reviewed at wish-0008 revision 2, and revision 3 adds directory overviews ([V07](../review/01_wish_status.md#v07)) |
@@ -159,8 +159,8 @@ template. [R11](#r11) identifies that gap.
 | `figuresStayWithDesignExplanation` | Each model-derived design figure appears beside its question, source view, companions, status, reading, and limits | An image catalog separated from its design claim is hard to interpret or audit | `DocFigure` | local figure blocks are covered by the [D28](../details/05_documentation_contract.md#d28) audit; nine primary figures moved to stage-owned sections at revision 2, revision 3 renamed them with their documents, and revision 4 colocates them in each directory's `assets/` ([V07](../review/01_wish_status.md#v07)) |
 | `modelDocumentationLinksResolve` | Every `DocSection` anchor and `DocFigure` asset and embed resolves; the module-level reverse index agrees with the annotated modules and sections it lists | A locator to a missing section or figure gives a false explanation path | `DocSection` | [D31](../details/05_documentation_contract.md#d31) checks the current revision-4 paths; prior relocation reviews remain historical ([V07](../review/01_wish_status.md#v07)) |
 | `viewAndViewpointRolesAreSpecified` | The viewpoint question and stakeholder, native view selection, rendered figure, and carrying section have distinct roles; nine reference concerns have flow-specific applicability | A figure needs an explicit concern and coverage decision to make omissions understandable | `DocumentationViewpoint` | nine SimpleFlow viewpoint usages and [D12](../details/simple_flow/04_sysml_diagrams.md#d12) applicability reasons were reviewed at revision 2 with [D29](../details/05_documentation_contract.md#d29); their current stage locations are indexed at revision 3 |
-| `checkerRulesAreImplementationReady` | Each documented design-stage checker rule states inputs, exact pass condition, failure diagnostic, evidence output, and implementation status | A later implementer should reproduce the intended check without inventing its verdict | `CheckerRule` | planned SimpleFlow contracts in [D06](../details/simple_flow/02_gates_and_rules.md#d06) and implemented documentation audit in [D31](../details/05_documentation_contract.md#d31) were reviewed at revision 2; planned flow commands remain unimplemented |
-| `rustUmlDesignMapsEveryDesignElement` | A Rust software design of a designed flow names one Rust element per design element — run, factory, checkpoint class and adaptations, gate and advance functions, records, statuses, ports — and records what each realizes | An unmapped design lets an implementation re-decide fixed structure and hides coverage gaps | `SimpflowCrate` | mapped in `SimpleFlowRustUml` with realization dependencies ([D46](../details/simple_flow/06_rust_uml_design.md#d46)); designed-only |
+| `checkerRulesAreImplementationReady` | Each documented design-stage checker rule states inputs, exact pass condition, failure diagnostic, evidence output, and implementation status | A later implementer should reproduce the intended check without inventing its verdict | `CheckerRule` | SimpleFlow contracts in [D06](../details/simple_flow/02_gates_and_rules.md#d06) now have command implementations and targeted rule tests; the broader V-model remains open |
+| `rustUmlDesignMapsEveryDesignElement` | A Rust software design of a designed flow names one Rust element per design element — run, factory, checkpoint class and adaptations, gate and advance functions, records, statuses, ports — and records what each realizes | An unmapped design lets an implementation re-decide fixed structure and hides coverage gaps | `SimpflowCrate` | mapped in `SimpleFlowRustUml` with realization dependencies ([D46](../details/simple_flow/06_rust_uml_design.md#d46)); first executable crate now implements that slice |
 | `umlViewsAreSelectedWithReasons` | Every UML view of the guide is required, recommended, or not applicable with a reason; adopted views embed with figure block and honest status | A view set without stated applicability hides whether omissions were considered | documentation set (no SysML satisfier) | guide in [U09](../uml/01_c4_and_uml_guide.md#u09); first applicability table in [D52](../details/simple_flow/06_rust_uml_design.md#d52) |
 | `softwareDesignClaimsNoImplementation` | A software design distinguishes designed elements from implemented code and claims no implementation, test or build the repository lacks | A design read as a finished product hides remaining work | documentation set (no SysML satisfier) | stated in [D44](../details/simple_flow/06_rust_uml_design.md#d44) and reviewed per [U12](../uml/01_c4_and_uml_guide.md#u12) |
 
@@ -181,8 +181,8 @@ been set.
 
 Current requirements address correctness of stage advancement, evidence freshness, and
 record completeness, especially `runRecordIsScriptChecked`. No service availability,
-recovery-time, redundancy, or failure-budget requirement has been set. The planned record
-checker remains unimplemented ([R03](#r03)).
+recovery-time, redundancy, or failure-budget requirement has been set. The SimpleFlow
+record checker covers only its new JSON run format ([R03](#r03)).
 
 ### Safety, security, and compliance
 
@@ -328,8 +328,10 @@ model holds a wish's products to the model, and nothing keeps wish identity out 
 They are the two requirements this project keeps by hand — the first is what moved
 requirements out of wish-0002's file ([V02](../review/01_wish_status.md#v02)), the
 second is what lets the model check without the wish directory.
-`runRecordIsScriptChecked` has no satisfier either: the designed flow's record gate is
-designed, but no checker is declared or implemented yet ([R03](#r03)).
+`runRecordIsScriptChecked` has no project-wide SysML satisfier either. The new
+`simpleRecordCheck` is a declared and executable checker for a SimpleFlow JSON run,
+but it does not cover the default V-model or historical wish SysML records
+([R03](#r03)).
 
 `documentationEntryMapsDesign`, `documentationSupportsMultipleFlows`,
 `umlViewsAreSelectedWithReasons`, and `softwareDesignClaimsNoImplementation` have no SysML
@@ -434,17 +436,18 @@ retention, and interface contracts as needed; and hold an explicit requirements 
 
 ## R03 Enforcement status
 
-Three checkers are declared in `VModel`, none of which declares rules. The designed
-`designedSimpleFlow` declares no checkers at the design stage: its syntactic gates' rules
-are documented in [D06](../details/simple_flow/02_gates_and_rules.md#d06) and
-[D07](../details/simple_flow/02_gates_and_rules.md#d07), and the checker, the command and its
-rule list are supplied at implementation. The early Python checkers are research conclusions
-kept under `cache/research/checks/`; their logs are not project evidence.
+Three checkers are declared in `VModel`, none of which declares rules or has an
+implemented command. The separate `designedSimpleFlow` declares four checkers and
+18 rules in [D06](../details/simple_flow/02_gates_and_rules.md#d06). Their commands
+under `tools/checks/` now run against a revision-bound JSON record and file
+snapshot; [D07](../details/simple_flow/02_gates_and_rules.md#d07) defines their
+exchange. Research prototypes under `cache/research/checks/` remain historical
+work and are not this implementation.
 
 The stand-alone `tools/check_documentation.py --json` command audits documentation
 targets, embeds, and figure-block fields ([D31](../details/05_documentation_contract.md#d31)).
-It is project code, but is not a `Checker` on `VModel` or `designedSimpleFlow`, and it
-does not implement the planned gate commands below. A clean result cannot decide whether
+It is project code, but is not a `Checker` on `VModel` or `designedSimpleFlow`.
+A clean result cannot decide whether
 the explanatory text and selected model content agree.
 
 | Checker | Command | Establishes | Rules | Implemented |
@@ -453,16 +456,21 @@ the explanatory text and selected model content agree.
 | `implementationArtifactCheck` | intended `tools/checks/implementation_artifacts.py` (not project code) | artifact presence, definition coverage | none | no |
 | `deliveryRecordCheck` | intended `tools/checks/delivery_record.py` (not project code) | artifact presence, trace conformance | none | no |
 
+The four implemented SimpleFlow checkers are listed with their exact rule sets in
+[D06](../details/simple_flow/02_gates_and_rules.md#d06). A successful example run
+retains one report per syntactic gate under `cache/implementation/demo/reports/`.
+
 Consequences, stated rather than papered over:
 
 - `VModel`'s three syntactic checkpoints that name checkers (`requirementsAccepted`,
   `implementationReady`, `deliveryAccepted`, see
   [F03](../details/01_flows_and_checkpoints.md#f03)) cannot pass until the commands exist;
   `gateSyntaxIsRunnable` ([R01](#r01)) stands unmet for `VModel`.
-- The designed flow's four planned syntactic checks have documented rules but no declared
-  checkers; their gates cannot run until implementation supplies the commands.
-- The only fixed syntactic check available now is the pinned SysML compiler; the design-stage
-  syntactic checkpoint uses it, and the design's meaning is read by the agent for the
-  semantic judgment.
+- The designed SimpleFlow's four syntactic checks now have declared rules and
+  commands. Their success establishes those rules for the checked snapshots,
+  subject to the explicit semantic verification judgment.
+- The pinned SysML compiler remains a separate fixed check. Its clean result does
+  not decide the engineering meaning of the model or the 26 unevaluated constraints.
 - The two project/model boundary requirements without satisfiers in [R01](#r01) remain
-  maintained by hand; `runRecordIsScriptChecked` awaits the record checker's implementation.
+  maintained by hand; the new record checker covers the designed SimpleFlow slice
+  only.

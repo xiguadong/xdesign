@@ -1,6 +1,6 @@
 # `RsStageVisit::record_activity`
 
-> record · method · designed-only · realizes the activity-recording half of `StageWork` and `Controller::recordActivity` ([F04](../../details/01_flows_and_checkpoints.md#f04))
+> record · method · implemented SimpleFlow slice · realizes the activity-recording half of `StageWork` and `Controller::recordActivity` ([F04](../../details/01_flows_and_checkpoints.md#f04))
 
 <a id="u28"></a>
 
@@ -53,7 +53,7 @@ concern, not this type's.)
 | Complexity | O(artifact count × log artifact count) for canonical sorting on a change |
 | Thread safety | `&mut self` — caller serializes |
 
-**Example** (designed-only)
+**Example** (illustrative)
 
 ```rust
 let rev = visit.artifact_revision();

@@ -1,6 +1,6 @@
 # `RsActivityEntry`
 
-> record · struct · designed-only · realizes `ActivityRecord` ([E02](../../details/02_records_and_evidence.md#e02))
+> record · struct · implemented SimpleFlow slice · realizes `ActivityRecord` ([E02](../../details/02_records_and_evidence.md#e02))
 
 <a id="u31"></a>
 

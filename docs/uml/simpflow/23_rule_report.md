@@ -1,6 +1,6 @@
 # `RsRuleReport`
 
-> ports · struct · designed-only · part of the `CheckCommandExchange` report ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
+> ports · struct · implemented SimpleFlow slice · part of the `CheckCommandExchange` report ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
 
 <a id="u38"></a>
 

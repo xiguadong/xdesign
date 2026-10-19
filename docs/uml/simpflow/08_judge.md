@@ -1,6 +1,6 @@
 # `RsJudge`
 
-> ports · trait · designed-only · realizes `Judge` ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
+> ports · trait · implemented SimpleFlow slice · realizes `Judge` ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
 
 <a id="u23"></a>
 
@@ -34,7 +34,9 @@ and comes back as an outcome with a rationale.
    evaluator checks that identity against its `agent_may_judge` / `human_may_judge`
    flags before presenting criteria.
 2. **Reasoned verdicts:** a `Passed` or `Failed` outcome always comes with a
-   non-empty rationale a later reader can re-examine.
+   non-empty rationale and judge identity a later reader can re-examine. A
+   semantic pass cites existing evidence files and at least one current
+   verify-stage artifact; the record-check report alone does not meet this rule.
 3. **Refusal is honest:** when the evidence is insufficient to judge, return
    `Unevaluated` rather than guessing — the run records it as
    [`RsGateError::JudgmentRefused`](31_gate_error.md#u46).

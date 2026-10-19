@@ -1,6 +1,6 @@
 # `RsConformanceKind`
 
-> plan · enum · designed-only · mirrors `ConformanceKind`
+> plan · enum · implemented SimpleFlow slice · mirrors `ConformanceKind`
 > ([F02](../../details/01_flows_and_checkpoints.md#f02))
 
 <a id="u50"></a>

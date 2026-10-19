@@ -14,7 +14,7 @@ what a clean run does not establish.
 | SHA-256 | `674fce28512a772d1886ff2397f5f02dda66265299c67c01f5cc36eaf00207f6` |
 | Toolchain record | `tools/sysml_web/toolchain.json` |
 | Workbench | `tools/sysml_web/server.py` — a local UI that runs the compiler against submitted sources and projects the views the model declares |
-| The designed flow's planned checks | The model declares no checkers at the design stage; the rules are documented in [D06](simple_flow/02_gates_and_rules.md#d06) and the checkers, commands and rule lists are supplied at implementation. The early Python prototypes are research under `cache/research/checks/` ([D07](simple_flow/02_gates_and_rules.md#d07)) |
+| The designed flow's fixed checks | Four checkers and 18 rules are declared in the model and implemented under `tools/checks/`; a SimpleFlow run invokes them through a JSON command report ([D06](simple_flow/02_gates_and_rules.md#d06), [D07](simple_flow/02_gates_and_rules.md#d07)). Earlier prototypes under `cache/research/checks/` are separate research. |
 | Figure renderer | `tools/render_docs.py` — projects declared views and model-owned presentation metadata, uses Graphviz for graph layout and SVG, and uses a compact ordered layout for the primary sequence; historical native exports remain supported ([D22–D26](04_diagram_presentation.md#d22)) |
 | Documentation audit | `tools/check_documentation.py --json` — checks model documentation targets, Markdown SVG embeds, and adjacent figure explanations ([D31](05_documentation_contract.md#d31)) |
 | Documentation website | `tools/docs.py` — builds or previews these Markdown documents with MkDocs Material; configuration lives in `mkdocs.yml` |

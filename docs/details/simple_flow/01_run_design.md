@@ -36,7 +36,7 @@ below.
 > **Question:** Which stages and exit gates make up the designed flow usage?  
 > **Model view:** `XDesignDetailedDesign::designedFlowTree`, a browser view of `designedSimpleFlow`.  
 > **Companions:** [D05](02_gates_and_rules.md#d05) for gate criteria and [F03](../01_flows_and_checkpoints.md#f03) for selectable flows.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** Four stages retain the SimpleFlow order and the usage adds gates to their exits. The table below distinguishes the four declared fixed checks from the final semantic judgment.  
 > **Limits:** The figure does not show implemented checker commands or a run that passed these gates.
 
@@ -75,7 +75,7 @@ configuration as a usage, the same way `nestedFlowExample` states a nested one
 > **Question:** Which classes and functions realize one run of the designed flow?  
 > **Model view:** `XDesignDetailedDesign::designTree`, a browser view of the run design.  
 > **Companions:** [D03](#d03) for creation and [D11](02_gates_and_rules.md#d11) for checkpoint evaluation.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** The run class specializes `FlowExecution` and names its visits, ports, events, and operations. The factory and action definitions provide the creation, assessment, and advancement roles.  
 > **Limits:** Declared members do not establish an implemented class or an executed run.
 
@@ -111,7 +111,7 @@ controller's rules are what keep it true.
 > **Question:** How does the factory initialize a designed run?  
 > **Model view:** `XDesignDetailedDesign::factoryFlow`, an action-flow view of `SimpleFlowRunFactory::createRun`.  
 > **Companions:** [D02](#d02) for the run's members and [F04](../01_flows_and_checkpoints.md#f04) for registration.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** Creation opens the run, adds planned stage visits, enters the first stage, and activates the run. Those steps shape the execution record the controller will own.  
 > **Limits:** The figure is an operation specification and does not show a completed registration test.
 
@@ -143,7 +143,7 @@ run itself.
 > **Question:** How does a run obtain checkpoint assessments before advancing?  
 > **Model view:** `XDesignDetailedDesign::gateEvaluationFlow`, an action-flow view of `EvaluateSimpleFlowGate`.  
 > **Companions:** [D11](02_gates_and_rules.md#d11) for the checkpoint class and [E04](../02_records_and_evidence.md#e04) for assessment records.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** The function takes the current visit's exit gates and delegates each assessment to its checkpoint class. It records the outcome before the separate advance function tests authorization.  
 > **Limits:** The figure does not make an absent checker command runnable or establish a pass.
 

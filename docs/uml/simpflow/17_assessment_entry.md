@@ -1,6 +1,6 @@
 # `RsAssessmentEntry`
 
-> record · struct · designed-only · realizes `CheckpointAssessment` ([E04](../../details/02_records_and_evidence.md#e04))
+> record · struct · implemented SimpleFlow slice · realizes `CheckpointAssessment` ([E04](../../details/02_records_and_evidence.md#e04))
 
 <a id="u32"></a>
 
@@ -29,7 +29,7 @@ authorization is counted.
 | # | Field | Type | Visibility | Constraint | Description |
 | --- | --- | --- | --- | --- | --- |
 | 1 | `checkpoint_id` | `String` | `pub` | resolves against the plan | Which gate was judged |
-| 2 | `evaluated_revision` | `u32` | `pub` | ≥ 1; the revision judged | Freshness anchor for authorization |
+| 2 | `evaluated_revision` | `u32` | `pub` | starts at 0; equals the revision judged | Freshness anchor for authorization |
 | 3 | `evaluated_snapshot_digest` | `String` | `pub` | SHA-256 of exact artifact bytes judged | Freshness anchor beyond the revision counter |
 | 4 | `outcome` | `RsCheckpointOutcome` | `pub` | — | The verdict |
 | 5 | `judged_by` | `RsJudgeAuthority` | `pub` | `Script` for syntactic gates; `Agent`/`Human` for semantic | Judging authority |
@@ -41,6 +41,6 @@ authorization is counted.
 
 | Function | Kind | Page |
 | --- | --- | --- |
-| `unevaluated(checkpoint_id: String, revision: u32, snapshot_digest: String, error: RsGateError) -> Self` | constructor | trivial: builds the entry [`evaluate_gates`](03_evaluate_gates.md#u18) records when a gate cannot conclude; `outcome == Unevaluated`, `rationale` names the error |
+| `unevaluated(id: String, revision: u32, digest: String, error: RsGateError, authority: RsJudgeAuthority) -> Self` | constructor | trivial: builds the entry [`evaluate_gates`](03_evaluate_gates.md#u18) records when a gate cannot conclude; `outcome == Unevaluated`, `judged_by` names the channel, and `rationale` names the error |
 
 **See also:** [`append_assessment`](14_append_assessment.md#u29), [`completion_authorized`](15_completion_authorized.md#u30), [`RsGateError`](31_gate_error.md#u46), [assessments E04](../../details/02_records_and_evidence.md#e04).

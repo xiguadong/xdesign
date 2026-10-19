@@ -1,7 +1,8 @@
 # SimpleFlow Rust UML design
 
 > Module: simpflow crate (SimpleFlow workflow automation) | Version: v0.1 | Status:
-> draft, designed-only — no Rust source exists in this repository.
+> implemented four-stage slice in `src/`, exercised by `tests/simple_flow.rs`
+> and the fixed-command tests; model views remain design projections.
 > Audience: module implementers, integrators, verifiers, and reviewers.
 > Relation: [module design](05_module_design.md#d32) | requirements
 > [R01](../../requirements/01_baseline.md#r01) (`rustUmlDesignMapsEveryDesignElement`,
@@ -15,23 +16,26 @@
 | Version | Date | Author | Change summary | Reviewed by |
 | --- | --- | --- | --- | --- |
 | v0.1 | 2026-10-19 | kimi-agent | First draft: crate layout, types, gate interaction, run states | wish-0009 `outcomeAccepted` assessment ([V16](../../review/01_wish_status.md#v16)) |
+| v0.1 implementation alignment | 2026-10-20 | Codex | Reconciled the crate, API, local record writes, and executable test points with the model design | [SimpleFlow implementation plan](../../prj_manage/02_simple_flow_implementation_plan.md#p06) |
 
 <a id="d44"></a>
 
 ## D44 Purpose, scope and reading order
 
 This document is the UML software design of the designed simple flow
-([D01](01_run_design.md#d01)) for a future Rust implementation, the `simpflow` crate.
+([D01](01_run_design.md#d01)) realized by the Rust `simpflow` crate.
 The SysML detailed design fixes what a run is made of; this design decides what a Rust
-program would declare to realize it — modules, structs, enums, traits and functions —
+program declares to realize it — modules, structs, enums, traits and functions —
 and records which SysML design element each Rust element realizes. The design model is
 `SimpleFlowRustUml` in `mbse/model/uml.sysml`; its UML views are SysML projections
 rendered by the pinned toolchain ([U10](../../uml/01_c4_and_uml_guide.md#u10)).
 
-Out of scope: Rust code, crate manifests, async runtimes, persistence, and any build or
-test execution. Nothing in this document claims an implementation; per
-`softwareDesignClaimsNoImplementation` every element here is designed-only
-([R01](../../requirements/01_baseline.md#r01)).
+The source files and executable tests now exist. This document explains their
+design relationship, while the [project implementation plan](../../prj_manage/02_simple_flow_implementation_plan.md#p06)
+records executed results. Async runtimes, durable multi-user persistence, generic
+controller integration, and the default V-model remain outside this crate's scope.
+The local JSON record under `cache/` supports the fixed checkers but is not a
+durable product evidence store.
 
 Reading order: [crate layout](#d45) -> [types](#d46) -> [interactions](#d47) ->
 [states](#d48) -> [interfaces](#d49) -> [errors and performance](#d50) ->
@@ -44,11 +48,12 @@ one page per API in the style of the PyTorch API reference.
 
 ## D45 Crate and module structure
 
-The `simpflow` crate is one component with seven modules. One module owns one concern,
-and dependencies point toward the data definitions: `status` depends on nothing;
-`record` and `plan` depend on `status`; `ports` adds the trait boundaries; `gate`
-combines records, plan and ports; `run` owns behavior; `factory` builds runs. No module
-reaches upward, so the run behavior never depends on its caller.
+The `simpflow` crate is one component with seven modules. One module owns one concern:
+`status` defines vocabulary, `plan` and `record` hold data and hash identities,
+`ports` adapts commands and judgments, `gate` evaluates one checkpoint, `run` owns
+state changes, and `factory` builds the designed plan and run. The source imports
+include `record -> plan` and `ports -> record` for validation; the diagram is the
+modeled module relationship, not an exhaustive import graph.
 
 ![Module layout of the simpflow crate and its allowed dependencies](assets/06_crate_modules.svg)
 
@@ -56,16 +61,16 @@ reaches upward, so the run behavior never depends on its caller.
 > **Question:** How is the simpflow crate organized, and which module dependencies are allowed?  
 > **Model view:** Package projection of `SimpleFlowRustUml::rustModuleLayout`.  
 > **Companions:** [class structure](#d46), [package rules U11](../../uml/01_c4_and_uml_guide.md#u11), [module design D32](05_module_design.md#d32).  
-> **Status:** renderable-now; designed-only.  
+> **Status:** renderable-now; crate modules implemented.  
 > **Reading:** Each box is one Rust module; an arrow is an allowed `use` dependency. `status` sits at the bottom with no dependencies, `factory` and `run` at the top.  
-> **Limits:** Shows design-time module dependencies only; not a deployment view, and no crate exists to compile.
+> **Limits:** Shows design-time module dependencies only; not a complete Rust import graph or deployment view.
 
 | Module | Responsibility | Depends on |
 | --- | --- | --- |
 | `status` | Flow, stage, check-kind, outcome and judge-authority enums | — |
-| `record` | Visit, activity and assessment entries | `status` |
+| `record` | Visit, activity and assessment entries; artifact hashing | `status`, `plan` |
 | `plan` | Stage, checkpoint, checker and rule specifications | `status` |
-| `ports` | `CheckCommand` and `Judge` trait boundaries | `status`, `plan` |
+| `ports` | `CheckCommand` and `Judge` traits; process check and supplied judge adapters | `status`, `plan`, `record` |
 | `gate` | Gate evaluation and visit authorization | `record`, `plan`, `ports` |
 | `run` | The run type, its state handling and advancement | `record`, `plan`, `gate`, `ports` |
 | `factory` | Run construction | `run`, `plan` |
@@ -97,10 +102,10 @@ code it hard-codes. **Traits** are the two automation boundaries, `CheckCommand`
 ![Structs, enums and traits of the simpflow crate](assets/06_class_structure.svg)
 
 > **Figure D46-1 — Rust type structure.**  
-> **Question:** Which structs, enums and traits would the crate declare, and what does each realize?  
+> **Question:** Which structs, enums and traits does the crate declare, and what does each realize?  
 > **Model view:** Block-definition projection of `SimpleFlowRustUml::rustClassStructure`.  
 > **Companions:** [gate interaction](#d47), [run states](#d48), [block definition D13](05_module_design.md#d13).  
-> **Status:** renderable-now; designed-only.  
+> **Status:** renderable-now; core types implemented.  
 > **Reading:** Each card is one Rust type with its fields; the `Rs` prefix marks the crate's own vocabulary. Composition (`Vec`-owned entries) runs from visit to activity and assessment entries and from plan to its specifications.  
 > **Limits:** Field types are design-level (strings, integers, enums); concrete Rust generics, lifetimes and serialization derives are implementation decisions.
 
@@ -113,7 +118,7 @@ Core data structures:
 | `RsArtifactDigest` | struct; artifact URI and SHA-256 | lowercase 64-digit hash | Changes at the same URI invalidate the former byte identity ([U51](../../uml/simpflow/35_artifact_digest.md#u51)) |
 | `RsCheckpointSpec` | struct; `kind` enum, `checker` option | — | `checker` is present exactly when `kind = syntactic`; a semantic spec names judge flags and no checker |
 | `RsFlowPlan` | struct; 4 stage specs and frozen plan URI/SHA-256 | exact plan file bytes | Stage order and exit gates equal `designedSimpleFlow` ([D01](01_run_design.md#d01)) |
-| `RsSimpleFlowRun` | struct; `visits: Vec<RsStageVisit>` | ≥ 4 visits | One pending visit per stage at creation; current visit indexes active, blocked, or completed state |
+| `RsSimpleFlowRun` | struct; `visits: Vec<RsStageVisit>` | ≥ 4 visits | One initial visit per stage at creation; requirements is active and the others pending |
 
 Every type realizes a named SysML design element, recorded as a `dependency` in
 `SimpleFlowRustUml` (for example `rsSimpleFlowRunRealizes` from `RsSimpleFlowRun` to
@@ -143,11 +148,11 @@ paths because it specifies the operation, not one execution.
 > **Question:** Which Rust objects exchange which calls when one gate is evaluated?  
 > **Model view:** Sequence projection of `SimpleFlowRustUml::RsGateEvaluationInteraction`.  
 > **Companions:** [type structure](#d46), [interface implementation](#d49), [activity view D18](05_module_design.md#d18).  
-> **Status:** renderable-now; designed-only.  
+> **Status:** renderable-now; gate evaluation implemented.  
 > **Reading:** Lifelines are the run, the checkpoint spec, the check command and the judge. The middle four messages are the kind branch: check invocation and report for a syntactic spec, judgment request and verdict for a semantic one.  
 > **Limits:** One gate only; `evaluateGates` repeats it per exit checkpoint. No timeouts, retries or concurrency are designed — see [D50](#d50).
 
-The four functions of the design map onto the model's operations (full signatures,
+The run and gate functions map onto the model's operations (full signatures,
 contracts and stepwise logic: the linked API pages):
 
 | Rust function | Realizes | Decides | API entry |
@@ -156,7 +161,7 @@ contracts and stepwise logic: the linked API pages):
 | `run.evaluate_gates()` | `EvaluateSimpleFlowGate` ([D04](01_run_design.md#d04)) | One assessment per exit gate of the current visit | [U18](../../uml/simpflow/03_evaluate_gates.md#u18) |
 | `evaluate_checkpoint(...) -> Result<RsAssessmentEntry, RsGateError>` | `EvaluateSimpleFlowCheckpoint` ([D11](02_gates_and_rules.md#d11)) | Scripted report or permitted judgment, by `kind` | [U20](../../uml/simpflow/05_evaluate_checkpoint.md#u20) |
 | `run.advance() -> RsAdvanceOutcome` | `AdvanceSimpleFlowRun` ([D04](01_run_design.md#d04)) | Enter next stage, complete, or retain a blocked visit | [U19](../../uml/simpflow/04_advance.md#u19) |
-| `run.record_activity(activity)` | `Controller::recordActivity` ([F04](../01_flows_and_checkpoints.md#f04)) | Correct the same blocked visit | [U48](../../uml/simpflow/32_run_record_activity.md#u48) |
+| `run.record_activity(activity) -> Result<(), String>` | `Controller::recordActivity` ([F04](../01_flows_and_checkpoints.md#f04)) | Validate artifact bytes and correct the same blocked visit | [U48](../../uml/simpflow/32_run_record_activity.md#u48) |
 | `run.reopen_stage(stage_id) -> bool` | `ReopenSimpleFlowStage` ([D04](01_run_design.md#d04)) | Append a new terminal-stage visit after completion | [U49](../../uml/simpflow/33_reopen_stage.md#u49) |
 
 <a id="d48"></a>
@@ -168,7 +173,7 @@ The run's state handling mirrors `SimpleFlowRunLifecycle`
 maintain: `create_run` moves pending to active; a gate that is not authorized blocks the
 run and its current visit; corrective work resumes that same visit and increments
 its revision when artifact bytes change; an authorized nonterminal
-visit advances within active; an authorized terminal visit completes it; and a delivered
+visit advances within active; an authorized terminal visit completes it; and a completed
 run can reopen its terminal stage as a new revision-zero visit without erasing history.
 
 ![Run state machine of the Rust design](assets/06_run_states.svg)
@@ -177,7 +182,7 @@ run can reopen its terminal stage as a new revision-zero visit without erasing h
 > **Question:** When does the Rust run activate, block, resume, complete or reopen?  
 > **Model view:** State-machine projection of `SimpleFlowRustUml::RsRunLifecycle`.  
 > **Companions:** [gate interaction](#d47), [lifecycle D20](05_module_design.md#d20).  
-> **Status:** renderable-now; designed-only.  
+> **Status:** renderable-now; run states implemented.  
 > **Reading:** Four states with transitions keyed on `run.status`, which `create_run`, `evaluate_gates`, `advance`, `record_activity` and `reopen_stage` set. Blocked correction keeps the current visit; terminal reopening appends one.  
 > **Limits:** This view's guards are status projections weakened for compiler support; they do not encode the full authorization and current-visit conditions in [D16](05_module_design.md#d16) and the API methods.
 
@@ -192,15 +197,17 @@ Field-level contracts stay in the interface control document
 
 | Interface | Role | Signature or message | Timeout / retry / idempotency | Interface contract |
 | --- | --- | --- | --- | --- |
-| `CheckCommand` trait ↔ `CheckCommandExchange` | consumer (run invokes a checker) | `run_check(checker, plan identity/digest, wish model URI, run record URI, stage, revision, snapshot digest) -> Result<RsGateReport, RsGateError>` | One synchronous call per gate evaluation; timeout and retry policy open | [U22](../../uml/simpflow/07_run_check.md#u22), [I04](../../icd/01_interfaces.md#i04) |
-| `Judge` trait ↔ `JudgmentExchange` | consumer (run presents to a judge) | `review(criteria, evidence_uris) -> (outcome, rationale)` after authority check | A human judge answers out of band; timeout and retry policy open | [U24](../../uml/simpflow/09_review.md#u24), [I05](../../icd/01_interfaces.md#i05) |
+| `CheckCommand` trait ↔ `CheckCommandExchange` | consumer (run invokes a checker) | `run_check(checker, plan identity/digest, wish model URI, run record URI, stage, revision, snapshot digest) -> Result<RsGateReport, RsGateError>` | One synchronous subprocess per gate; no timeout or automatic retry in this slice | [U22](../../uml/simpflow/07_run_check.md#u22), [U58](../../uml/simpflow/42_process_check.md#u58), [I04](../../icd/01_interfaces.md#i04) |
+| `Judge` trait ↔ `JudgmentExchange` | consumer (run presents to a judge) | `review(criteria, evidence_uris) -> (outcome, rationale)` after authority check | Synchronous caller-supplied verdict; no timeout or automatic retry | [U24](../../uml/simpflow/09_review.md#u24), [U59](../../uml/simpflow/43_supplied_judge.md#u59), [I05](../../icd/01_interfaces.md#i05) |
 
-Ordering assumption: a gate's assessment is appended only after its command report or
-judgment returns; `advance()` reads the latest appended assessment per gate.
-The checker verifies the frozen plan file and artifact SHA-256 values, then
-returns the byte snapshot digest the assessment records. Delivery and failure of
-the command process itself are deployment concerns no view in this document covers
-([D52](#d52)).
+Ordering in the implementation: the run writes its JSON record before each checker,
+appends that gate's assessment, and writes again before the next gate. The verify
+judge therefore receives the preceding record-check report as evidence. The
+checker verifies the frozen plan file, current run snapshot, and artifact SHA-256
+values; `advance()` rechecks the current bytes and latest assessments. A failed
+record write blocks advancement. Subprocess failure becomes an `Unevaluated`
+assessment; the project CLI configures the process adapter to retain stdout
+and stderr logs under `cache/`.
 
 <a id="d50"></a>
 
@@ -213,9 +220,9 @@ the command process itself are deployment concerns no view in this document cove
 - Retry, degradation and recovery: none designed. A blocked run resumes through
   corrective work and a new assessment at the new revision ([D48](#d48)); the design
   adds no automatic retry of commands or judgments.
-- Logging: the record is the log. Activities and assessments with timestamps and
-  evidence URIs are the audit trail ([E03](../02_records_and_evidence.md#e03)); no
-  separate telemetry is designed.
+- Logging: the local JSON run record retains activities and assessments; each
+  fixed-command report has stdout and stderr logs. No separate telemetry or
+  durable product evidence store is implemented.
 - Performance: no budget is set. Gate evaluation is linear in the stage's exit
   checkpoints and their rules; authorization counting is linear in a visit's
   assessments. No measurement exists, and none is claimed.
@@ -224,19 +231,22 @@ the command process itself are deployment concerns no view in this document cove
 
 ## D51 Test points and traceability
 
-Test focus for a later implementation, stated now so the design's obligations are
-checkable; all cases are planned, none exists.
+The crate has executable Rust cases in `tests/simple_flow.rs` and fixed-command
+cases in `tests/test_simple_flow_checkers.py`, mapped to the [SF verification
+matrix](07_file_plan_and_verification.md#d54). The `TC-UML` identifiers below remain
+design review points, not separately executed case records. Source tests cover
+the behavioral rows named in the last column; model-view review remains separate.
 
-| Requirement | UML element(s) | Test focus | Case id |
+| Requirement | UML element(s) | Design review point | Executable source coverage |
 | --- | --- | --- | --- |
-| `rustUmlDesignMapsEveryDesignElement` | `RsSimpleFlowRun`, `RsCheckpointSpec`, `RsFlowPlan` | property: every plan checkpoint of the designed flow resolves to a spec | TC-UML-01 (planned) |
-| `rustUmlDesignMapsEveryDesignElement` | `create_run` | unit: four pending visits in stage order, initial visit active | TC-UML-02 (planned) |
-| `umlViewsAreSelectedWithReasons` | this document's [D52](#d52) table | review: every view has applicability and a reason | TC-UML-03 (planned, review) |
-| `softwareDesignClaimsNoImplementation` | whole document | review: no code, build or test claim without a repository artifact | TC-UML-04 (planned, review) |
-| Gate authorization ([D16](05_module_design.md#d16)) | `RsEvaluateCheckpoint`, `RsAdvanceOutcome` | unit: the latest verdict of every gate must pass at the current revision and artifact snapshot; missing, failed, stale and duplicate passes do not authorize | TC-UML-05 (planned) |
-| Lifecycle ([D48](#d48)) | `RsRunLifecycle`, `RsReopenStage` | unit: failed gates retain the blocked visit, corrective content changes advance its revision, and reopening a completed terminal stage appends a revision-zero visit while retaining history | TC-UML-06 (planned) |
-| Frozen plan and evidence ([D47](#d47)) | `RsFlowPlan`, `RsArtifactDigest`, `RsGateReport` | integration: the exact plan file hash and every artifact hash match the run snapshot; changed bytes at an unchanged URI invalidate an earlier pass | TC-UML-07 (planned) |
-| Gate authority and report validity ([D49](#d49)) | `RsJudge`, `RsCheckCommand`, `RsEvaluateCheckpoint` | unit: forbidden judge identities, omitted criteria, mismatched rule sets, revision, or snapshot digest cannot produce a pass | TC-UML-08 (planned) |
+| `rustUmlDesignMapsEveryDesignElement` | `RsSimpleFlowRun`, `RsCheckpointSpec`, `RsFlowPlan` | TC-UML-01: every designed checkpoint resolves to a spec | `malformed_plans_are_rejected_before_run` checks plan shape; mapping review remains planned |
+| `rustUmlDesignMapsEveryDesignElement` | `create_run` | TC-UML-02: initial stage and planned visits | `initial_visits_stage_scope_and_mixed_verify_gates` |
+| `umlViewsAreSelectedWithReasons` | [D52](#d52) table | TC-UML-03: each view has applicability and reason | Design review remains planned |
+| `softwareDesignClaimsNoImplementation` | whole document | TC-UML-04: claims match repository artifacts | Documentation review remains planned |
+| Gate authorization ([D16](05_module_design.md#d16)) | `evaluate_checkpoint`, `RsAdvanceOutcome` | TC-UML-05: latest verdict and snapshot control authorization | `latest_verdict_and_revision_control_authorization`; `later_unevaluated_supersedes_pass_at_same_revision` |
+| Lifecycle ([D48](#d48)) | `RsSimpleFlowRun::reopen_stage` | TC-UML-06: blocked correction and terminal reopen preserve history | `failed_correction_reuses_visit_and_completed_run_needs_reopen` |
+| Frozen plan and evidence ([D47](#d47)) | `RsFlowPlan`, `RsArtifactDigest`, `RsGateReport` | TC-UML-07: exact plan and artifact hashes reject drift | `malformed_plans_are_rejected_before_run`; `latest_verdict_and_revision_control_authorization` |
+| Gate authority and report validity ([D49](#d49)) | `RsJudge`, `RsCheckCommand`, `evaluate_checkpoint` | TC-UML-08: invalid report or judge cannot pass | `malformed_reports_never_pass_but_rule_failure_is_failed`; `unauthorized_or_unreasoned_semantic_judge_cannot_complete` |
 
 <a id="d52"></a>
 
@@ -262,9 +272,10 @@ each UML 2.5 view is required, recommended, or not applicable with a reason.
 | interaction overview | not applicable — one scenario; no fragment composition to show | — |
 | timing | not applicable — no time constraint is set on gates or judgments ([D50](#d50)) | — |
 
-Design limits, stated once for the whole document: the crate, its modules, types,
-traits and functions are designed-only; the verification case
-`XDesignVerification::RustUmlDesignReview` declares the acceptance reading but is not
-executed; and this design neither selects async or persistence technology nor produces
-a buildable crate. A CDR for this module would still need the evidence package the
+Design limits, stated once for the whole document: the crate implements the gated
+four-stage slice and writes local JSON evidence, while
+`XDesignVerification::RustUmlDesignReview` remains a declared design review case,
+not an executed formal review. The crate has no async workflow, default V-model
+controller integration, or durable multi-user persistence. A CDR for this module
+would still need the evidence package the
 checklist lists ([V08](../../review/02_checklist.md#v08)).

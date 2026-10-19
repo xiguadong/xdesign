@@ -1,6 +1,6 @@
 # `RsFlowStatus`
 
-> status · enum · designed-only · mirrors `FlowStatus` ([E01](../../details/02_records_and_evidence.md#e01))
+> status · enum · implemented SimpleFlow slice · mirrors `FlowStatus` ([E01](../../details/02_records_and_evidence.md#e01))
 
 <a id="u39"></a>
 

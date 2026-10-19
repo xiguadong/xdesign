@@ -53,7 +53,7 @@ still requires execution ([D07](#d07)).
 
 For every rule, `Reads` is the input set and `Condition` is the pass condition. The
 implementer evaluates the condition against the checked revision, emits one record with
-`ruleId`, `verdict`, `inputs`, `observed`, and `failures`, and sets `verdict = passed` only
+`rule_id`, `verdict`, `inputs`, `observed`, and `failures`, and sets `verdict = passed` only
 when the condition holds. The report names the checker ID, stage, assessed artifact
 revision, all declared rule IDs once each, the per-rule results, and a retained report
 URI. A missing input or unparseable snapshot means no trustworthy report and records
@@ -62,6 +62,16 @@ missing, extra, duplicate, stale or contradictory rule results is rejected befor
 creating an assessment. [D31](../05_documentation_contract.md#d31) defines the project
 documentation rule contract; the specific expected diagnostics and observed evidence for
 these planned SimpleFlow rules follow the conditions below.
+
+The invocation checks plan identity, the current visit, and recorded artifact
+bytes before reporting rules. If that preflight fails, it returns no trusted report:
+a wrong plan hash, an absent current visit, or a missing recorded file is
+`Unevaluated`. These conditions overlap `flow-is-supported`, `visit-exists`, and
+artifact existence. Their rule rows still describe the required conditions. An
+empty current implementation artifact set is an evaluated `Failed` result, while
+an unreadable file named in that set is an unevaluated input failure. Missing
+documentation figures, checker command targets, or retained evidence discovered
+after preflight can produce evaluated `Failed` rules with diagnostics below.
 
 | Planned checker | Rules |
 | --- | --- |
@@ -82,12 +92,12 @@ these planned SimpleFlow rules follow the conditions below.
 | Rule id | Planned pass condition | Reads |
 | --- | --- | --- |
 | `design-declarations-present` | The run, factory, gate, advance, designed flow, checkpoint class, both adaptations, and checkpoint evaluation action are declared. | `mbse/model/detailedDesign.sysml` |
-| `every-stage-gated` | Every stage names nonempty exit gates declared by this flow and typed by `SimpleFlowCheckpoint`. | `mbse/model/detailedDesign.sysml` |
+| `every-stage-gated` | Every stage names nonempty exit gates declared by this flow and typed by `SimpleFlowCheckpoint`; each syntactic exit binds its designated one of the four fixed SimpleFlow checkers. | `mbse/model/detailedDesign.sysml` |
 | `design-elements-carry-doc-sections` | Every top-level detailed design element has a `DocSection` that resolves to a document and section. | `mbse/model/detailedDesign.sysml`, `docs/` |
 | `checker-commands-exist` | Every declared SimpleFlow checker command URI names an existing repository file. | `mbse/model/detailedDesign.sysml`, `tools/checks/` |
-| `checker-rules-are-declared` | Every SimpleFlow checker declares at least one rule with a nonempty ID, condition, and reads value. | `mbse/model/detailedDesign.sysml` |
-| `rule-sets-agree-with-commands` | Each checker's declared rule IDs exactly equal its command's rule ID list. | `mbse/model/detailedDesign.sysml`, `tools/checks/` |
-| `structure-graphs-are-carried` | Every required SimpleFlow model figure exists and is embedded in the document named by its `DocFigure` annotation. This includes the nine question views and the supporting run and interface views. | `mbse/model/detailedDesign.sysml`, `docs/` |
+| `checker-rules-are-declared` | All four fixed SimpleFlow checkers are declared, each with at least one rule with a nonempty ID, condition, and reads value. | `mbse/model/detailedDesign.sysml` |
+| `rule-sets-agree-with-commands` | Each of the four fixed checkers' declared rule IDs exactly equal its command's rule ID list. | `mbse/model/detailedDesign.sysml`, `tools/checks/` |
+| `structure-graphs-are-carried` | Each of the nine primary SimpleFlow views names a distinct model figure, and every required figure exists and is embedded in the document named by its `DocFigure` annotation. Supporting run and interface views are included. | `mbse/model/detailedDesign.sysml`, `docs/` |
 
 The nine views and their source-model elements are inventoried in
 [D12](04_sysml_diagrams.md#d12). This rule requires each named view to be declared and its
@@ -108,7 +118,7 @@ through the planned `SimpleFlowViewReview` case ([D15](../../requirements/01_bas
 | --- | --- | --- |
 | `flow-is-supported` | The run record has `plan_id = designedSimpleFlow` and `plan_sha256` equal to the SHA-256 of the retained frozen plan serialization. | runtime run record JSON, retained plan serialization |
 | `every-stage-visited` | Every planned stage has at least one visit and every visit names a stage in that plan. | runtime run record JSON |
-| `completed-visits-authorized` | For every completed visit, the latest assessment of each required exit gate passed at that visit's artifact revision. | runtime run record JSON |
+| `completed-visits-authorized` | For every completed visit, the latest assessment of each required exit gate passed at that visit's artifact revision and snapshot digest, and every recorded artifact still matches its file digest. | runtime run record JSON, recorded artifact URIs |
 | `assessments-name-exit-gates` | Every passed assessment names an exit gate of its visit's stage. | runtime run record JSON |
 | `passed-assessments-carry-evidence` | Every passed assessment names at least one evidence URI. | runtime run record JSON |
 | `evidence-exists` | Every evidence URI of every passed assessment on current or completed visits resolves to retained evidence. | runtime run record JSON, recorded evidence URIs |
@@ -122,19 +132,19 @@ offenders, `failures` is empty. Every row is a model-declared condition. Passing
 | Rule id | Failure diagnostic when the condition is false | Required `observed` evidence | Status |
 | --- | --- | --- | --- |
 | `requirements-carry-rationale` | Requirement `<id>` has no rationale attribute. | Inspected requirement IDs and IDs missing rationale. | model-declared |
-| `satisfy-links-resolve` | Satisfy link `<id>` targets undeclared requirement `<id>`. | Inspected satisfy links and resolved target IDs. | model-declared |
+| `satisfy-links-resolve` | Satisfy link `<id>` targets an undeclared requirement or a requirement outside `XDesignRequirements`. | Inspected satisfy links, their qualified targets, and resolved project requirement IDs. | model-declared |
 | `design-declarations-present` | Required design declaration `<name>` is missing. | Presence result for each named run, factory, function, flow, checkpoint class, adaptation, and action. | model-declared |
-| `every-stage-gated` | Stage `<name>` has no exit checkpoint, or checkpoint `<name>` is not a declared `SimpleFlowCheckpoint` instance in this flow. | Stage-to-gate map and each gate's declaration and type. | model-declared |
+| `every-stage-gated` | Stage `<name>` has no exit checkpoint; checkpoint `<name>` is not a declared `SimpleFlowCheckpoint` instance or its syntactic exit lacks the designated checker binding. | Stage-to-gate map, each gate's declaration and type, and syntactic gate-to-checker bindings. | model-declared |
 | `design-elements-carry-doc-sections` | Design element `<name>` has no resolvable `DocSection` document and anchor. | Every inspected top-level element, declared target, and path/anchor resolution result. | model-declared |
 | `checker-commands-exist` | Checker `<name>` names missing command `<path>`. | Checker IDs, command URIs, and existence results. | model-declared |
-| `checker-rules-are-declared` | Checker `<name>` has no rule, or rule `<id>` lacks an ID, condition, or reads value. | Checker-to-rule map and completeness result for each required field. | model-declared |
-| `rule-sets-agree-with-commands` | Checker `<name>` declares a rule ID absent from its command list, or the command lists an undeclared ID. | Declared and command-reported rule ID sets, with their symmetric difference. | model-declared |
-| `structure-graphs-are-carried` | `DocFigure` asset `<path>` is missing or is not embedded in its declared document; named view `<name>` lacks its figure. | View-to-asset and asset-to-document map, existence and embed results for the three overviews and nine question views. | model-declared |
+| `checker-rules-are-declared` | A fixed checker `<name>` is missing, has no rule, or rule `<id>` lacks an ID, condition, or reads value. | Four required checker IDs, checker-to-rule map, and completeness result for each required field. | model-declared |
+| `rule-sets-agree-with-commands` | A fixed checker `<name>` is missing, declares a rule ID absent from its command list, or the command lists an undeclared ID. | Four required checker IDs and declared/command rule ID sets, with their symmetric difference. | model-declared |
+| `structure-graphs-are-carried` | `DocFigure` asset `<path>` is missing or is not embedded in its declared document; named view `<name>` lacks its figure or reuses another primary view's asset. | View-to-asset and asset-to-document map, distinctness, existence and embed results for the supporting overviews and nine question views. | model-declared |
 | `visit-exists` | Checked stage `<name>` has no visit. | Checked stage ID and matching visit IDs. | model-declared |
 | `artifacts-of-current-visit-exist` | Current implementation visit `<id>` records no artifact, or cites missing artifact `<URI>`. | Visit ID, nonempty recorded artifact URI list, and existence results. | model-declared |
 | `flow-is-supported` | Run record names another flow plan, omits its hash, or its hash differs from the retained frozen plan serialization. | `plan_id`, `plan_sha256`, and independently computed plan hash. | model-declared |
 | `every-stage-visited` | Flow stage `<name>` lacks a visit, or visit `<id>` names a stage outside the assigned flow. | Assigned stage IDs and all visit-to-stage links. | model-declared |
-| `completed-visits-authorized` | Completed visit `<id>` has a missing, failed, unevaluated, or stale latest assessment of exit gate `<name>`. | Each completed visit's revision, required gate IDs, and latest assessment per gate in append order. | model-declared |
+| `completed-visits-authorized` | Completed visit `<id>` has a missing, failed, unevaluated, or stale latest assessment of exit gate `<name>`, or artifact `<URI>` no longer matches its recorded file digest. | Each completed visit's revision and snapshot digest, required gate IDs, latest assessment per gate in append order, and independently computed file digests. | model-declared |
 | `assessments-name-exit-gates` | Passed assessment `<id>` names a gate outside visit `<id>`'s stage exits. | Passed assessment-to-gate links and the stage's exit gate IDs. | model-declared |
 | `passed-assessments-carry-evidence` | Passed assessment `<id>` has no evidence URI. | Passed assessment IDs and their evidence URI lists. | model-declared |
 | `evidence-exists` | Passed assessment `<id>` on current or completed visit `<id>` cites missing evidence `<URI>`. | Those visits' passed assessments, evidence URIs, and retrieval results. | model-declared |
@@ -150,7 +160,10 @@ conditions. The first executable slice reads both an independent SysML wish trac
 (`wishModel`) and an executable JSON run-record snapshot URI (`recordUri`). The former
 preserves the per-wish trace identity; the latter carries visit and assessment data that
 the first implementation can check. A separate adapter is needed before the commands
-can audit all historical `mbse/wishes/*.sysml` records.
+can audit all historical `mbse/wishes/*.sysml` records. The commands require an
+existing SysML wish file as a control precondition, but the four D06 rule sets do
+not validate that file's internal trace relationships. The wish path therefore
+identifies the run; it is not itself a passing per-wish trace check.
 
 The invocation also carries `checkerId`, `planId`, `planSha256`, `stage`,
 `artifactRevision`, and `snapshotDigest`. The last value is the SHA-256 digest of the
@@ -160,6 +173,17 @@ files against the requested digest before it can pass. Its report returns the as
 revision and artifact-set digest, exact rule IDs once each, per-rule verdicts and
 diagnostics, overall verdict, and retained report URI. The caller rejects a stale or
 malformed report; one successful command process is not itself a passing gate.
+
+For the requirements and design commands, every repository file actually read to
+decide a rule must also be listed in the current visit's artifact set with its exact
+file digest. This includes the model sources, documentation sources and figures, and
+checker commands that a rule inspects. Otherwise the command cannot establish that
+its answer belongs to the visited snapshot and returns an unevaluated command error.
+The frozen plan, executable run-record input, and newly written report are separate
+exchange artifacts: including the run record or its own report in the visit digest
+would make the check circular. A raw report may additionally list its read-file
+digests to make the decision auditable; the visit digest remains the authorization
+anchor for these repository inputs.
 
 | Planned checker | Designed command contract |
 | --- | --- |
@@ -205,7 +229,7 @@ remains a separate mechanical check with the limits in [T04](../03_toolchain.md#
 > **Question:** How does one checkpoint class handle fixed checks and semantic judgment?  
 > **Model view:** `XDesignDetailedDesign::checkpointEvaluationFlow`, an action-flow view of `EvaluateSimpleFlowCheckpoint`.  
 > **Companions:** [D06](#d06) for rule conditions and [D10](03_structure_graphs.md#d10) for checker and judge interfaces.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** The common evaluate operation chooses the syntactic or semantic adaptation by checkpoint kind. Both paths produce an assessment linked to the gate and the current visit.  
 > **Limits:** The diagram does not prove the declared command files exist, execute, or satisfy their rule conditions.
 

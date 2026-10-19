@@ -1,6 +1,6 @@
 # `RsSimpleFlowRun`
 
-> run · struct · designed-only · realizes `SimpleFlowRun` ([D02](../../details/simple_flow/01_run_design.md#d02))
+> run · struct · implemented SimpleFlow slice · realizes `SimpleFlowRun` ([D02](../../details/simple_flow/01_run_design.md#d02))
 
 <a id="u17"></a>
 
@@ -20,6 +20,8 @@ pub struct RsSimpleFlowRun {
     pub(crate) current_visit: usize,
     pub(crate) check: Box<dyn RsCheckCommand>,
     pub(crate) judgment: Box<dyn RsJudge>,
+    pub(crate) persistence_error: bool,
+    pub(crate) last_error: Option<String>,
 }
 ```
 
@@ -44,6 +46,8 @@ appends a new visit while preserving the completed one.
 | 10 | `current_visit` | `usize` | `pub(crate)` | always `< visits.len()`; indexes the current active, blocked, or completed visit | Current visit index |
 | 11 | `check` | `Box<dyn RsCheckCommand>` | `pub(crate)` | `Send` | Syntactic gate invocation boundary |
 | 12 | `judgment` | `Box<dyn RsJudge>` | `pub(crate)` | `Send` | Semantic gate judgment boundary |
+| 13 | `persistence_error` | `bool` | `pub(crate)` | blocks advancement while a failed record write remains unresolved | Record write failure latch |
+| 14 | `last_error` | `Option<String>` | `pub(crate)`; read via `last_error()` | set when a record write fails | Latest persistence diagnostic |
 
 **Class invariants**
 
@@ -61,7 +65,7 @@ appends a new visit while preserving the completed one.
 | [`advance`](04_advance.md#u19) | public, mutating | full entry |
 | [`record_activity`](32_run_record_activity.md#u48) | public, mutating | full entry |
 | [`reopen_stage`](33_reopen_stage.md#u49) | public, mutating | full entry |
-| `status() -> RsFlowStatus` | public getter | trivial ([U15](00_overview.md#u15)) |
-| `current() -> &RsStageVisit` | public getter | trivial |
+| [`write_record`](38_write_record.md#u54) | public, writes JSON | full entry |
+| `status() -> RsFlowStatus`, `current() -> &RsStageVisit`, `visits() -> &[RsStageVisit]`, `plan() -> &RsFlowPlan`, `run_id() -> &str`, `run_record_uri() -> &str`, `current_visit_index() -> usize`, `last_error() -> Option<&str>` | public getters | trivial ([U15](00_overview.md#u15)) |
 
 **See also:** [`create_run`](01_create_run.md#u16), [`RsStageVisit`](12_stage_visit.md#u27), [run states D48](../../details/simple_flow/06_rust_uml_design.md#d48).

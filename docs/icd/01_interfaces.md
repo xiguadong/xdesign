@@ -19,7 +19,7 @@ This document inventories four existing *draft modeled* exchanges at the workflo
 and within the designed SimpleFlow automation. IF-001 through IF-004 have definitions,
 typed ports, directions, and item flows; they are not missing interfaces. The provider
 and consumer names below are model roles, not deployed processes. Transport,
-serialization, timing, failure behavior, and version policy remain open in [I09](#i09),
+remote serialization, timing, failure behavior, and version policy remain open in [I09](#i09),
 so the ICD has no frozen implementation baseline. The
 [architecture interface view](../arch/01_system_composition.md#b02)
 and [SimpleFlow interface view](../details/simple_flow/03_structure_graphs.md#d10)
@@ -29,8 +29,8 @@ show the same connections.
 | --- | --- | --- | --- | --- | --- |
 | IF-001 | `XDesignWorkflow::WishInterface` | `WishRequester` submits; `WorkflowController` returns registration | Controller and requester in opposite directions | Workflow boundary | Modeled; implementation unverified |
 | IF-002 | `XDesignWorkflow::FlowInterface` | `WorkflowFlow` | `WorkflowController` | Internal flow selection | Modeled; implementation unverified |
-| IF-003 | `XDesignDetailedDesign::CheckCommandInterface` | `SimpleFlowRun` invokes; `CheckerCommand` reports | Command and run in opposite directions | Planned fixed check | Designed only; no gate command implemented |
-| IF-004 | `XDesignDetailedDesign::JudgmentInterface` | `SimpleFlowRun` presents criteria and artifacts; `Judge` returns assessment | Judge and run in opposite directions | Planned semantic judgment | Designed only; no automation implementation |
+| IF-003 | `XDesignDetailedDesign::CheckCommandInterface` | `SimpleFlowRun` invokes; `CheckerCommand` reports | Command and run in opposite directions | Local fixed check | Rust subprocess adapter and four Python commands execute the first JSON exchange; no remote baseline |
+| IF-004 | `XDesignDetailedDesign::JudgmentInterface` | `SimpleFlowRun` presents criteria and artifacts; `Judge` returns assessment | Judge and run in opposite directions | Supplied semantic judgment | Local trait and explicit supplied-judge adapter execute; identity proof and independent decision process remain open |
 
 Criticality has not been assigned for these interfaces. A modeled connection is not an
 acceptance result. Sections I02–I05 record existing draft fields and distinguish them
@@ -40,7 +40,7 @@ from operational details still to be decided.
 | --- | --- | --- | --- | --- |
 | Workflow boundary | IF-001 | Unassigned | Unassigned | Assign before an external interface baseline |
 | Internal flow selection | IF-002 | Unassigned | Unassigned | Assign before architecture review |
-| Fixed checker exchange | IF-003 | Unassigned | Unassigned | Assign before command implementation and CDR |
+| Fixed checker exchange | IF-003 | Unassigned | Unassigned | Assign before a controlled ICD baseline and CDR |
 | Semantic judgment exchange | IF-004 | Unassigned | Unassigned | Assign before identity and authority design |
 
 The model names communicating roles but no person or team that owns each contract or can
@@ -123,12 +123,12 @@ records their proposed argument and report contracts.
 | Operational contract field | Current state |
 | --- | --- |
 | Provider and consumer | `SimpleFlowRun` invokes; `CheckerCommand` returns report and verdict |
-| Protocol, transport, payload layout | Logical fields above are modeled; the first SimpleFlow slice uses a local command and a JSON report, without freezing a remote protocol |
+| Protocol, transport, payload layout | Logical fields above are modeled; the first SimpleFlow slice implements a local Python command with a JSON report, without freezing a remote protocol |
 | Direction and frequency | Request and response directions above; invocation rate open |
 | Timeout, retry, idempotency | Open |
 | Version and compatibility | Open |
 | Security and criticality | Command authority and rating open |
-| Error codes and caller action | Open; command failure must be distinguished from a failed criterion |
+| Error codes and caller action | In the local slice, process or input failure records `Unevaluated`; a trusted report with a false rule records `Failed`. Remote error codes remain open. |
 
 The caller rejects a report whose revision differs from `artifactRevision`, whose rule
 identifiers differ from the named checker's declarations, or whose aggregate verdict
@@ -194,8 +194,8 @@ controlled revision and an explicit migration decision. No such review is record
 | --- | --- | --- | --- | --- |
 | IF-001 | `mbse/model/workflow.sysml`: `WishExchange`, `WishInterface` | [B02](../arch/01_system_composition.md#b02) | Wish registration and the one-trace-per-wish invariant in [B01](../arch/01_system_composition.md#b01) | Model connection only; no interface test |
 | IF-002 | `mbse/model/workflow.sysml`: `FlowExchange`, `FlowInterface` | [B02](../arch/01_system_composition.md#b02) | Controller selection of the assigned flow in [F04](../details/01_flows_and_checkpoints.md#f04) | Model connection only; no interface test |
-| IF-003 | `mbse/model/detailedDesign.sysml`: `CheckCommandExchange`, `CheckCommandInterface` | [D10](../details/simple_flow/03_structure_graphs.md#d10), [D06–D07](../details/simple_flow/02_gates_and_rules.md#d06) | `checkerRulesAreImplementationReady` and planned syntactic gate execution in [R03](../requirements/01_baseline.md#r03) | Designed rules; command and contract tests pending |
-| IF-004 | `mbse/model/detailedDesign.sysml`: `JudgmentExchange`, `JudgmentInterface` | [D10](../details/simple_flow/03_structure_graphs.md#d10), [E04](../details/02_records_and_evidence.md#e04) | Judge authority and rationale in [R01](../requirements/01_baseline.md#r01) | Model role only; automation and contract tests pending |
+| IF-003 | `mbse/model/detailedDesign.sysml`: `CheckCommandExchange`, `CheckCommandInterface` | [D10](../details/simple_flow/03_structure_graphs.md#d10), [D06–D07](../details/simple_flow/02_gates_and_rules.md#d06) | `checkerRulesAreImplementationReady` and syntactic gate execution in [R03](../requirements/01_baseline.md#r03) | Local command and contract tests executed for SimpleFlow; [P08](../prj_manage/03_simple_flow_execution_record.md#p08) |
+| IF-004 | `mbse/model/detailedDesign.sysml`: `JudgmentExchange`, `JudgmentInterface` | [D10](../details/simple_flow/03_structure_graphs.md#d10), [E04](../details/02_records_and_evidence.md#e04) | Judge authority and rationale in [R01](../requirements/01_baseline.md#r01) | Local supplied-judge boundary and authority tests executed; identity proof and independent engineering judgment remain open |
 
 These are design-context links. The project model does not declare a dedicated
 requirement-to-interface `satisfy` relationship for each row. Verification must exercise
@@ -210,8 +210,9 @@ The four existing draft interface definitions, their port types, directions, and
 flows can be inspected in the bundled SysML source and in
 [B02](../arch/01_system_composition.md#b02) and
 [D10](../details/simple_flow/03_structure_graphs.md#d10). Their operational contracts
-have unresolved fields, and they have no frozen ICD baseline, implemented endpoints, or
-interface verification result. A compiler pass on the
+have unresolved fields and no frozen ICD baseline. IF-003 and IF-004 now have
+local command and supplied-judgment boundaries with targeted tests; IF-001 and
+IF-002 remain modeled only. There is no remote compatibility result. A compiler pass on the
 model establishes supported syntax and name resolution, not message delivery or
 compatibility ([T04](../details/03_toolchain.md#t04)).
 
@@ -221,11 +222,11 @@ compatibility ([T04](../details/03_toolchain.md#t04)).
 
 | Open field | Interfaces | Impact | Resolution needed |
 | --- | --- | --- | --- |
-| Transport, serialization, deployment boundary | IF-001–IF-004 | Cannot implement or test wire compatibility | Select at implementation or architecture review |
-| Timeout, retry, idempotency, error codes | IF-001–IF-004 | Failure behavior is undefined | Define with provider and consumer; add tests |
+| Remote transport, serialization, deployment boundary | IF-001–IF-004 | Cannot implement or test wire compatibility | Select at implementation or architecture review; IF-003 has only a local JSON command exchange |
+| Timeout, retry, idempotency, remote error codes | IF-001–IF-004 | Remote failure behavior is undefined | Define with provider and consumer; local IF-003 distinguishes failed rules from input/command errors |
 | Version scheme and compatibility window | IF-001–IF-004 | A breaking change has no migration rule | Decide before a frozen baseline |
 | Identity and access control | IF-001, IF-004; assess IF-002–IF-003 | Registration and judgment authority are not enforced by this model | Security design and verification |
-| Stage encoding and per-rule report schema | IF-003 | Planned checker implementers lack field-level interoperability | Define alongside [D07](../details/simple_flow/02_gates_and_rules.md#d07) commands |
+| Versioned stage encoding and per-rule remote schema | IF-003 | The local command schema is implemented but has no frozen remote compatibility contract | Baseline the [D07](../details/simple_flow/02_gates_and_rules.md#d07) fields and migration rules before a remote endpoint |
 | Contract owner and review authority | IF-001–IF-004 | No accountable approval or controlled baseline revision | Assign named owners and approvers before baseline review |
 | Criticality, quantitative budgets, test cases | IF-001–IF-004 | PDR/CDR evidence is incomplete | Allocate owners and verification methods |
 

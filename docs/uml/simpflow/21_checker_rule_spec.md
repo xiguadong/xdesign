@@ -1,6 +1,6 @@
 # `RsCheckerRuleSpec`
 
-> plan · struct · designed-only · realizes `CheckerRule` ([D06](../../details/simple_flow/02_gates_and_rules.md#d06))
+> plan · struct · implemented SimpleFlow slice · realizes `CheckerRule` ([D06](../../details/simple_flow/02_gates_and_rules.md#d06))
 
 <a id="u36"></a>
 

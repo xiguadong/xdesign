@@ -16,7 +16,7 @@ verify an implementation.
 
 | Document | Question it answers | Current state |
 | --- | --- | --- |
-| [Flows and checkpoints](01_flows_and_checkpoints.md#f01) | Which flows, stages, gates, and judge authorities are declared? | Model design; some planned checkers have no command |
+| [Flows and checkpoints](01_flows_and_checkpoints.md#f01) | Which flows, stages, gates, and judge authorities are declared? | Model design; the default V-model's planned checkers lack commands |
 | [Records and evidence](02_records_and_evidence.md#e01) | How do visits, revisions, assessments, and evidence retain a wish's history? | Model design; runtime record checker pending |
 | [Toolchain](03_toolchain.md#t01) | Which local compiler, renderer, audits, and site commands produce evidence? | Some standalone tools implemented; compiler limitations disclosed |
 | [Diagram presentation](04_diagram_presentation.md#d22) | How are model views rendered and checked for readability? | Nine primary views have presentation evidence |

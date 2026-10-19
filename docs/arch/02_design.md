@@ -433,5 +433,5 @@ address the requirements; this document records no passing assessment of it.
 | Storage lifecycle and security controls | Specify retention, backup, access, audit, and threat assumptions | [B16–B17](#b16) |
 | Interface baseline and integration checks | Complete the [draft ICD](../icd/01_interfaces.md#i01) with transport and verification criteria | [B26](#b26) |
 | Concept selection rationale | Record candidates, screening, trade criteria, and decision | [B23](#b23) |
-| Runnable workflow gates | Implement planned commands and keep rule lists aligned with the model | [R03](../requirements/01_baseline.md#r03) |
+| Runnable workflow gates | The four SimpleFlow checks now execute; implement the default V-model commands and keep all rule lists aligned with the model | [R03](../requirements/01_baseline.md#r03) |
 

@@ -1,6 +1,6 @@
 # `RsPlanError`
 
-> status · enum · designed-only · Rust-side addition with no SysML counterpart — the model assumes a well-formed flow definition; the crate makes plan validation typed
+> status · enum · implemented SimpleFlow slice · Rust-side addition with no SysML counterpart — the model assumes a well-formed flow definition; the crate makes plan validation typed
 
 <a id="u45"></a>
 
@@ -35,12 +35,12 @@ performs them.
 | `UnknownStageReference` | Dangling reference | A `next_stage_ids` or gate `stage_id` matches no stage |
 | `SyntacticSpecWithoutChecker` | Undecidable gate | Syntactic kind with `checker == None` |
 | `SemanticSpecWithChecker` | Contradictory gate | Semantic kind with `checker.is_some()` |
-| `MissingWishModelUri` | Unidentified independent trace | `create_run` received an empty wish model path |
-| `MissingRunRecordUri` | Unidentified runtime record | `create_run` received an empty JSON record path |
+| `MissingWishModelUri` | Unidentified independent trace | `create_run` received an invalid path, a nonexistent file, or a path not ending in `.sysml` |
+| `MissingRunRecordUri` | Unidentified runtime record | `create_run` received an invalid relative JSON record path |
 | `MissingCriteria` | Unstated gate basis | Any gate has no criterion |
 | `NoPermittedJudge` | Unjudgeable semantic gate | Neither agent nor human is permitted |
-| `InvalidDesignedFlow` | Plan differs from the modeled usage | Four-stage sequence, terminal flag, gate references or identities differ from `designedSimpleFlow` |
-| `InvalidChecker` | Fixed check is not executable as specified | Missing command URI, missing rule, duplicate rule ID, or missing rule input |
+| `InvalidDesignedFlow` | Plan differs from the modeled usage | Stage sequence, gate identities, criteria, judge flags, or other checkpoint fields differ from the built-in `designedSimpleFlow` blueprint |
+| `InvalidChecker` | Fixed check specification is invalid or differs from the blueprint | Missing or changed command URI, checker identity, conformance class, rule ID, condition, input, or order; file existence is checked at invocation |
 | `InvalidPlanFile` | Frozen plan is absent or inconsistent | Wrong plan ID, unreadable JSON, hash mismatch, or decoded content differs from the supplied plan |
 
 **See also:** [`RsFlowPlan::validate`](11_flow_plan_validate.md#u26), [`create_run`](01_create_run.md#u16), [`RsGateError`](31_gate_error.md#u46).

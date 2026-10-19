@@ -1,6 +1,6 @@
 # `RsCheckKind`
 
-> status · enum · designed-only · mirrors `CheckKind` ([F02](../../details/01_flows_and_checkpoints.md#f02))
+> status · enum · implemented SimpleFlow slice · mirrors `CheckKind` ([F02](../../details/01_flows_and_checkpoints.md#f02))
 
 <a id="u41"></a>
 

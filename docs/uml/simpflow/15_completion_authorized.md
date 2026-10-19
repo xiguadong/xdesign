@@ -1,6 +1,6 @@
 # `RsStageVisit::completion_authorized`
 
-> record · method · designed-only · realizes the authorization predicate bound in `SimpleFlowAuthorization` ([D16](../../details/simple_flow/05_module_design.md#d16))
+> record · method · implemented SimpleFlow slice · realizes the authorization predicate bound in `SimpleFlowAuthorization` ([D16](../../details/simple_flow/05_module_design.md#d16))
 
 <a id="u30"></a>
 
@@ -56,7 +56,7 @@ a flow with subflows would need that clause — stated here, not silently droppe
 | Complexity | O(gates + assessments) |
 | Thread safety | `&self`; re-entrant |
 
-**Example** (designed-only)
+**Example** (illustrative)
 
 ```rust
 let authorized = visit.completion_authorized(plan);

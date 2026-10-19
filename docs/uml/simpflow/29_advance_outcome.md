@@ -1,6 +1,6 @@
 # `RsAdvanceOutcome`
 
-> status · enum · designed-only · makes the three guarded paths of `AdvanceSimpleFlowRun` explicit ([D04](../../details/simple_flow/01_run_design.md#d04))
+> status · enum · implemented SimpleFlow slice · makes the three guarded paths of `AdvanceSimpleFlowRun` explicit ([D04](../../details/simple_flow/01_run_design.md#d04))
 
 <a id="u44"></a>
 

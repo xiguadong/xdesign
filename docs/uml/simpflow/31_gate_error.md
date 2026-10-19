@@ -1,6 +1,6 @@
 # `RsGateError`
 
-> status · enum · designed-only · Rust-side addition with no SysML counterpart — the model leaves failure channels to the exchanges; the crate makes them typed
+> status · enum · implemented SimpleFlow slice · Rust-side addition with no SysML counterpart — the model leaves failure channels to the exchanges; the crate makes them typed
 
 <a id="u46"></a>
 

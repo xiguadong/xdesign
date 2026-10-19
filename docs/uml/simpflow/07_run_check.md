@@ -1,6 +1,6 @@
 # `RsCheckCommand::run_check`
 
-> ports · trait method · designed-only · realizes the `CheckCommandExchange` invocation ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
+> ports · trait method · implemented SimpleFlow slice · realizes the `CheckCommandExchange` invocation ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
 
 <a id="u22"></a>
 
@@ -60,7 +60,9 @@ Panics: none.
    require the canonical artifact snapshot digest == snapshot_digest
 4. locate checker.command_uri and run its fixed rules with these inputs
 5. parse its per-rule output; require the rule IDs to equal checker.rules
-   exactly once each; holds := every(rule.holds)
+   exactly once each, `input_sha256` to match re-read files, and each
+   requirements/design input other than the wish identity to belong to the
+   visit artifact set; holds := every(rule.holds)
 6. retain the raw report; return Ok(GateReport {
        holds, artifact_revision,
        artifact_snapshot_digest: snapshot_digest,
@@ -72,7 +74,7 @@ Panics: none.
 
 | Item | Value |
 | --- | --- |
-| Side effects | Executes an external command; retains its report |
+| Side effects | Executes an external command; retains its JSON report and command stdout/stderr logs |
 | Complexity | Bound by the command, not the caller; no timeout is designed ([D50](../../details/simple_flow/06_rust_uml_design.md#d50)) |
 | Thread safety | `&self`; implementations must be `Send` and internally synchronized |
 

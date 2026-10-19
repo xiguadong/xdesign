@@ -1,6 +1,6 @@
 # `RsStageSpec`
 
-> plan · struct · designed-only · realizes the SimpleFlow subset of `Stage` ([F01](../../details/01_flows_and_checkpoints.md#f01))
+> plan · struct · implemented SimpleFlow slice · realizes the SimpleFlow subset of `Stage` ([F01](../../details/01_flows_and_checkpoints.md#f01))
 
 <a id="u33"></a>
 

@@ -1,6 +1,6 @@
 # `RsCheckpointSpec`
 
-> plan · struct · designed-only · realizes `SimpleFlowCheckpoint` and its two adaptations ([D11](../../details/simple_flow/02_gates_and_rules.md#d11))
+> plan · struct · implemented SimpleFlow slice · realizes `SimpleFlowCheckpoint` and its two adaptations ([D11](../../details/simple_flow/02_gates_and_rules.md#d11))
 
 <a id="u34"></a>
 

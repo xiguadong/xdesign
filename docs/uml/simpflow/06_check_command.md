@@ -1,6 +1,6 @@
 # `RsCheckCommand`
 
-> ports · trait · designed-only · realizes `CheckerCommand` ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
+> ports · trait · implemented SimpleFlow slice · realizes `CheckerCommand` ([D10](../../details/simple_flow/03_structure_graphs.md#d10))
 
 <a id="u21"></a>
 
@@ -31,8 +31,9 @@ changing.
 **Implementor contract** — an implementation must guarantee, and a review checks:
 
 1. **Reproducibility:** the same checker, frozen plan bytes, wish trace,
-   run record, stage, revision, and artifact snapshot bytes
-   yields the same report — the command runs its fixed rules unchanged.
+   run record, stage, revision, and artifact snapshot bytes yield the same
+   rule decisions. The process adapter gives each invocation a fresh report
+   URI, so retained report bytes and path need not be identical.
 2. **Rule coverage:** `RsGateReport.rules` answers every rule the gate's
    `RsCheckerSpec` declares, one `RsRuleReport` per rule, none missing, none extra.
    The command verifies the frozen plan file's SHA-256 and recomputes the

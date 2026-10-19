@@ -1,6 +1,6 @@
 # `RsArtifactDigest`
 
-> record · struct · designed-only · Rust-side evidence identity for the artifact
+> record · struct · implemented SimpleFlow slice · Rust-side evidence identity for the artifact
 > revision carried by `StageRecord` ([E03](../../details/02_records_and_evidence.md#e03))
 
 <a id="u51"></a>

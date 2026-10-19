@@ -12,10 +12,11 @@ package XDesignTraceability {
        so they live here; what a single wish derived, and why, stays with that wish.
 
        wishProductsAreRetained, modelStandsWithoutWishes and runRecordIsScriptChecked
-       have no satisfier yet. Nothing in the model holds a wish's products to the model,
-       nothing keeps wish identity out of it, and no record checker is declared: the
-       first two are maintained by hand, and the record check is designed (the designed
-       flow's record gate) but not implemented.
+       have no project-wide satisfier yet. Nothing in the model holds a wish's
+       products to the model or keeps wish identity out of it; the first two are
+       maintained by hand. The designed SimpleFlow declares a record checker, but
+       that narrower checker does not establish record conformance for the default
+       V-model or every historical wish trace.
 
        Each linked requirement below names one satisfier, except semanticCheckNamesItsJudges,
        which names two because a semantic checkpoint needs both judge flags. The export

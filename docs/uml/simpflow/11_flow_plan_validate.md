@@ -1,6 +1,6 @@
 # `RsFlowPlan::validate`
 
-> plan · method · designed-only · Rust-side addition with no SysML counterpart — the model assumes a well-formed flow definition; the crate makes plan validation typed and explicit
+> plan · method · implemented SimpleFlow slice · Rust-side addition with no SysML counterpart — the model assumes a well-formed flow definition; the crate makes plan validation typed and explicit
 
 <a id="u26"></a>
 
@@ -10,7 +10,8 @@
 pub fn validate(&self) -> Result<(), RsPlanError>
 ```
 
-Check the plan's internal consistency before any run is created from it. Called by
+Check the plan's internal consistency and agreement with the built-in
+`designed_simple_flow_plan()` blueprint before any run is created from it. Called by
 [`create_run`](01_create_run.md#u16) as its first step; may also be called standalone
 when a plan is loaded.
 
@@ -56,14 +57,12 @@ when a plan is loaded.
        if gate.kind == Syntactic and (checker.command_uri is empty or
            checker.rules is empty or rule IDs repeat or a rule has no reads):
            → InvalidChecker
-8. if stage IDs/order are not requirements, design, implement, verify;
-   or initial stage is not requirements; or successor edges are not the
-   linear chain; or any non-verify stage is terminal; or verify is not
-   terminal; or each stage's exit
-   checkpoint IDs do not match its declared checkpoints; or checkpoint
-   IDs repeat; or the five designed gate identities/kinds differ:
-       → InvalidDesignedFlow
-9. if plan_id != "designedSimpleFlow" or plan_uri is empty or
+8. compare the complete stage and checkpoint specifications to the built-in
+   designed_simple_flow_plan() blueprint: stage order, edges, terminal flag,
+   exit gates, gate IDs/kinds, criteria, judge flags, checker identities,
+   commands, conformance classes, and each rule's ID, condition, reads, and
+   order. Any difference → InvalidDesignedFlow or InvalidChecker
+9. if plan_id != "designedSimpleFlow" or plan_uri is invalid or
    plan_sha256 is not lowercase 64-digit hex → InvalidPlanFile
    read exact bytes at plan_uri; require sha256(bytes) == plan_sha256;
    decode frozen JSON and require its plan_id, initial_stage_id,
@@ -71,7 +70,8 @@ when a plan is loaded.
 10. return Ok(())
 ```
 
-The explicit gate and stage checks enforce the modeled plan even though the
+The exact blueprint comparison prevents a caller from weakening a rule while
+retaining its identifier. The explicit gate and stage checks enforce the modeled plan even though the
 SysML compiler does not evaluate its constraint bodies. `MissingRunRecordUri` is
 checked by `create_run`, because the wish path is not a plan field.
 

@@ -73,10 +73,23 @@ nav:
           - reopen_stage: uml/simpflow/33_reopen_stage.md
           - RsConformanceKind: uml/simpflow/34_conformance_kind.md
           - RsArtifactDigest: uml/simpflow/35_artifact_digest.md
+          - designed_simple_flow_plan: uml/simpflow/36_designed_simple_flow_plan.md
+          - RsFlowPlan::freeze: uml/simpflow/37_freeze_plan.md
+          - RsSimpleFlowRun::write_record: uml/simpflow/38_write_record.md
+          - RsStageVisit::verify_artifacts: uml/simpflow/39_verify_artifacts.md
+          - hash_artifact: uml/simpflow/40_hash_artifact.md
+          - snapshot_digest: uml/simpflow/41_snapshot_digest.md
+          - RsProcessCheck: uml/simpflow/42_process_check.md
+          - RsSuppliedJudge: uml/simpflow/43_supplied_judge.md
+          - sha256_bytes: uml/simpflow/44_sha256_bytes.md
+          - valid_digest: uml/simpflow/45_valid_digest.md
+          - valid_relative_path: uml/simpflow/46_valid_relative_path.md
+          - RsStageVisit::evidence_uris: uml/simpflow/47_evidence_uris.md
   - Project management:
       - Overview: prj_manage/00_overview.md
       - Review synthesis: prj_manage/01_review_synthesis.md
       - SimpleFlow implementation plan: prj_manage/02_simple_flow_implementation_plan.md
+      - SimpleFlow execution record: prj_manage/03_simple_flow_execution_record.md
   - Interface control:
       - Overview: icd/00_overview.md
       - Interface contracts: icd/01_interfaces.md

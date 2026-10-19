@@ -1,6 +1,6 @@
 # `RsStageStatus`
 
-> status · enum · designed-only · mirrors `StageStatus` ([E02](../../details/02_records_and_evidence.md#e02))
+> status · enum · implemented SimpleFlow slice · mirrors `StageStatus` ([E02](../../details/02_records_and_evidence.md#e02))
 
 <a id="u40"></a>
 

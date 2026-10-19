@@ -369,14 +369,16 @@ budget ([D24](../04_diagram_presentation.md#d24)).
 
 | Test focus | Requirement or rule | Method and expected evidence | Status |
 | --- | --- | --- | --- |
-| One assessment per required gate at the current revision | `designedFlowGatesEveryStage`, `GateAuthorization` | Model review, then executable checker and run tests when implemented | Design only |
-| Failed or stale gate blocks advancement | `gateSyntaxIsRunnable`, [D16](#d16) | Boundary tests against a run implementation and retained visit evidence | Planned |
-| Rework preserves prior visits | `runRecordIsScriptChecked`, [D20](#d20) | Record-check command and integration tests | Planned; command absent |
-| Correct checker and judge routing | `syntacticAssessmentIsScripted`, `semanticCheckNamesItsJudges` | Rule report for script checks and rationale/evidence for agent or human checks | Design contract |
+| One assessment per required gate at the current revision | `designedFlowGatesEveryStage`, `GateAuthorization` | Model review, Rust behavior tests, and a retained four-stage run | Tested for SimpleFlow; [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) |
+| Failed or stale gate blocks advancement | `gateSyntaxIsRunnable`, [D16](#d16) | Boundary tests against the run and retained visit evidence | Tested for the crate; [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) |
+| Correction preserves the blocked visit; explicit terminal reopen preserves the completed visit | `runRecordIsScriptChecked`, [D20](#d20) | Record-check command and recovery tests | Tested for the crate; [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) |
+| Correct checker and judge routing | `syntacticAssessmentIsScripted`, `semanticCheckNamesItsJudges` | Rule report for script checks and rationale/evidence for agent or human checks | Tested for the local command boundary; [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) |
 
 The requirements view in [D15](../../requirements/01_baseline.md#d15) shows a focused
-planned review case. It does not record executed module tests. The independent wish
-records contain the historical design-stage assessments that did occur.
+model review case. Its declaration does not record a pass. The separate SimpleFlow
+execution record [P08](../../prj_manage/03_simple_flow_execution_record.md#p08)
+identifies the tests that actually ran; historical wish design-stage assessments
+remain in the independent wish records.
 
 <a id="d40"></a>
 
@@ -386,8 +388,8 @@ records contain the historical design-stage assessments that did occur.
 | --- | --- |
 | Allocated types, gates, and interface definitions | Model and sections above describe them; the ICD is proposed, not frozen |
 | Every requirement's verification case, method, and phase | The selected model review is declared; full matrix and executable cases remain incomplete |
-| Build, assembly, integration, and test maturity | Workflow application and planned gate commands are not implemented |
-| Residual risks and waivers | Missing checker execution, unevaluated constraint bodies, and incomplete performance/interface behavior remain open |
+| Build, assembly, integration, and test maturity | The four-stage Rust crate, four commands, unit/integration tests, and local CLI example run; generic workflow application remains open |
+| Residual risks and waivers | Unevaluated constraint bodies, incomplete performance/interface behavior, historical evidence, and default V-model automation remain open |
 
 No CDR has frozen this module design. The template's checklist is used to expose the
 remaining evidence, not to imply a passed gate ([V08](../../review/02_checklist.md#v08)).

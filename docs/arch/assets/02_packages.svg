@@ -211,6 +211,7 @@ SimpleFlowRustUml::RsSimpleFlowRun
 SimpleFlowRustUml::RsStageVisit
 SimpleFlowRustUml::RsActivityEntry
 SimpleFlowRustUml::RsAssessmentEntry
+SimpleFlowRustUml::RsArtifactDigest
 SimpleFlowRustUml::RsFlowPlan
 SimpleFlowRustUml::RsStageSpec
 SimpleFlowRustUml::RsCheckpointSpec

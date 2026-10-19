@@ -1,6 +1,6 @@
 # `RsStageVisit::append_assessment`
 
-> record · method · designed-only · realizes the assessment-appending half of `EvaluateSimpleFlowGate` ([D04](../../details/simple_flow/01_run_design.md#d04))
+> record · method · implemented SimpleFlow slice · realizes the assessment-appending half of `EvaluateSimpleFlowGate` ([D04](../../details/simple_flow/01_run_design.md#d04))
 
 <a id="u29"></a>
 
@@ -22,9 +22,10 @@ every judgment.
 
 **Returns** — `()`.
 
-**Errors** — none. This crate-visible method accepts only entries produced by
-[`evaluate_checkpoint`](05_evaluate_checkpoint.md#u20); the public run API never
-accepts an arbitrary assessment from a caller.
+**Errors** — none. The run calls this crate-visible method for entries returned
+by [`evaluate_checkpoint`](05_evaluate_checkpoint.md#u20) or generated as
+`Unevaluated` when evaluation or record persistence fails. The public run API
+never accepts an arbitrary assessment from a caller.
 
 **Logic**
 

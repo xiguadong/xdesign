@@ -12,8 +12,8 @@ and located from the model by `DocFigure` annotations
 ([B04](../../arch/01_system_composition.md#b04)). The design states the check that each
 declared figure exists and is referenced by the document here
 ([02_gates_and_rules.md#d06](02_gates_and_rules.md#d06),
-`structure-graphs-are-carried`); its command is not implemented yet, so at the design stage
-the figures were read and re-rendered from the model. The requirement is
+`structure-graphs-are-carried`); `simpleDesignCheck` now executes that rule and
+reports the figure-to-document results for its checked snapshot. The requirement is
 `structureGraphsAreDocumented` ([R01](../../requirements/01_baseline.md#r01)).
 
 <a id="d08"></a>
@@ -26,7 +26,7 @@ the figures were read and re-rendered from the model. The requirement is
 > **Question:** In what order does the normal run enter stages and assess gates?  
 > **Model view:** Sequence projection of `XDesignDetailedDesign::SimpleFlowRunTimeline`.  
 > **Companions:** [D19](05_module_design.md#d19) for the focused sequence and [D20](05_module_design.md#d20) for blocked and rework paths.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** The controller creates a run, stages are entered in order, and each gate is assessed before the next entry. The terminal stage ends the run after authorization.  
 > **Limits:** This normal path omits the alternative visits and evidence of any actual wish.
 
@@ -73,7 +73,7 @@ ownership from package organization ([D21](../../arch/02_design.md#d21)).
 > **Question:** Which ports connect the run to a checker command and a judge?  
 > **Model view:** `XDesignDetailedDesign::interfaceStructure`, an interconnection view of `SimpleFlowAutomation`.  
 > **Companions:** [D14](05_module_design.md#d14) for the focused internal-block view and [D11](02_gates_and_rules.md#d11) for evaluation.  
-> **Status:** renderable-now; designed-only execution.  
+> **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** One exchange sends a fixed check request and returns a per-rule report. The other sends criteria and artifacts to a permitted judge and returns a reasoned outcome.  
 > **Limits:** Port and interface declarations do not prove an implementation honors the exchange contracts.
 
