@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="452pt" height="475pt" viewBox="0.00 0.00 452.00 475.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Actor goals</title><desc id="diagram-desc">Which goals belong to each external actor?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 457.27)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-457.27 433.78,-457.27 433.78,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="147.89" y="-409.37" font-family="Arial" font-weight="bold" font-size="22.00">Actor goals</text>
+<text xml:space="preserve" text-anchor="start" x="78.14" y="-381.02" font-family="Arial" font-size="14.00" fill="#52657a">Which goals belong to each external actor?</text>
+<g id="cluster_baa1dabce2f3c03738b9" class="cluster diagram-group" data-native-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>cluster_baa1dabce2f3c03738b9</title>
+<path fill="white" stroke="#91a9bd" stroke-width="1.3" d="M150.28,-38.01C150.28,-38.01 395.78,-38.01 395.78,-38.01 401.78,-38.01 407.78,-44.01 407.78,-50.01 407.78,-50.01 407.78,-345.01 407.78,-345.01 407.78,-351.01 401.78,-357.01 395.78,-357.01 395.78,-357.01 150.28,-357.01 150.28,-357.01 144.28,-357.01 138.28,-351.01 138.28,-345.01 138.28,-345.01 138.28,-50.01 138.28,-50.01 138.28,-44.01 144.28,-38.01 150.28,-38.01" />
+<text xml:space="preserve" text-anchor="middle" x="229.91" y="-337.81" font-family="Arial" font-size="16.00">Simple flow automation</text>
+</g>
+
+<g class="edge" data-native-id="d96cba74-815d-5d5a-bf00-feb9e6a17aaa" data-source-id="c7abcc1e-0487-5fab-a2c1-8aa52318fecb" data-target-id="9014ae56-444e-53d3-a143-e5436a59d3ef" data-edge-kind="connection">
+<title>
+
+d96cba74-815d-5d5a-bf00-feb9e6a17aaa</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M96.4,-278.66C115.12,-276.14 138.46,-272.99 161.96,-269.83" />
+</g>
+
+<g class="edge" data-native-id="5132a414-4c79-5665-a80d-f0bec4d8bbae" data-source-id="0257d258-f2ac-56db-93c7-22923863be5b" data-target-id="05969b4a-70af-59b2-a2e6-9b16a15c6742" data-edge-kind="connection">
+<title>
+
+5132a414-4c79-5665-a80d-f0bec4d8bbae</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M111.83,-91.44C130.9,-94.01 152.88,-96.97 174.32,-99.85" />
+</g>
+
+<g id="nbbb1cc78c819b638d206" class="node diagram-node shape-actor" data-native-id="c7abcc1e-0487-5fab-a2c1-8aa52318fecb" data-shape="actor">
+<title>XDesignDetailedDesign::Judge
+c7abcc1e-0487-5fab-a2c1-8aa52318fecb
+port judgment : JudgmentExchange
+c7abcc1e-0487-5fab-a2c1-8aa52318fecb</title>
+<rect fill="white" stroke="none" x="24.01" y="-362.26" width="63.25" height="156.5" /><text xml:space="preserve" text-anchor="start" x="53.39" y="-311.63" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+<text xml:space="preserve" text-anchor="start" x="40.64" y="-251.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">actor</text>
+<text xml:space="preserve" text-anchor="start" x="32.01" y="-218.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Judge</text>
+<circle cx="55.635" cy="-344.02" r="11" fill="white" stroke="#334B64" stroke-width="1.5" /><path d="M 55.635 -333.02 V -304.02 M 32.635 -322.02 H 78.63499999999999 M 55.635 -304.02 L 34.635 -280.02 M 55.635 -304.02 L 76.63499999999999 -280.02" fill="none" stroke="#334B64" stroke-width="1.7" /></g>
+
+<g id="n54723c177dfbee465706" class="node diagram-node shape-actor" data-native-id="0257d258-f2ac-56db-93c7-22923863be5b" data-shape="actor">
+<title>XDesignWorkflow::WishRequester
+0257d258-f2ac-56db-93c7-22923863be5b
+port wishPort : ~WishExchange
+0257d258-f2ac-56db-93c7-22923863be5b</title>
+<rect fill="white" stroke="none" x="8.64" y="-162.26" width="94.0" height="156.5" /><text xml:space="preserve" text-anchor="start" x="53.39" y="-111.64" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+<text xml:space="preserve" text-anchor="start" x="40.64" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">actor</text>
+<text xml:space="preserve" text-anchor="start" x="16.64" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Requester</text>
+<circle cx="55.64" cy="-144.02" r="11" fill="white" stroke="#334B64" stroke-width="1.5" /><path d="M 55.64 -133.02 V -104.02000000000001 M 32.64 -122.02000000000001 H 78.64 M 55.64 -104.02000000000001 L 34.64 -80.02000000000001 M 55.64 -104.02000000000001 L 76.64 -80.02000000000001" fill="none" stroke="#334B64" stroke-width="1.7" /></g>
+
+<g id="n5bffe30011e9a24ff264" class="node diagram-node shape-ellipse" data-native-id="05969b4a-70af-59b2-a2e6-9b16a15c6742" data-shape="ellipse" data-group-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>XDesignDetailedDesign::progressWish
+05969b4a-70af-59b2-a2e6-9b16a15c6742
+05969b4a-70af-59b2-a2e6-9b16a15c6742</title>
+<ellipse fill="white" stroke="#647a91" stroke-width="1.3" cx="273.03" cy="-113.01" rx="100.96" ry="55.17" />
+<rect fill="white" stroke="none" x="210.28" y="-146.26" width="125.49999999999997" height="66.49999999999999" class="node" /><text xml:space="preserve" text-anchor="start" x="246.03" y="-125.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">use case</text>
+<text xml:space="preserve" text-anchor="start" x="218.28" y="-92.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Progress wish</text>
+</g>
+
+<g id="n6593a32fc38773ac7fcc" class="node diagram-node shape-ellipse" data-native-id="9014ae56-444e-53d3-a143-e5436a59d3ef" data-shape="ellipse" data-group-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>XDesignDetailedDesign::reviewEvidence
+9014ae56-444e-53d3-a143-e5436a59d3ef
+9014ae56-444e-53d3-a143-e5436a59d3ef</title>
+<ellipse fill="white" stroke="#647a91" stroke-width="1.3" cx="273.03" cy="-255.01" rx="114.75" ry="55.17" />
+<rect fill="white" stroke="none" x="200.53" y="-288.26" width="144.99999999999997" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="246.03" y="-267.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">use case</text>
+<text xml:space="preserve" text-anchor="start" x="208.53" y="-234.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Review evidence</text>
+</g>
+</g>
+<g data-native-id="6904ffa4-c3f7-54c1-bcfb-3b557d581fb3" data-source-id="253aca7d-0df7-5eec-8653-a9d548523833" data-target-id="05969b4a-70af-59b2-a2e6-9b16a15c6742" data-representation="system boundary contains goal"><title>system boundary contains goal</title></g><g data-native-id="98e4b248-53f3-53e7-9acb-78dcc58c7788" data-source-id="253aca7d-0df7-5eec-8653-a9d548523833" data-target-id="9014ae56-444e-53d3-a143-e5436a59d3ef" data-representation="system boundary contains goal"><title>system boundary contains goal</title></g></svg>

@@ -1,0 +1,124 @@
+package Wish0005 {
+    @XDesignCommon::DocSection { document = "docs/review/01_wish_status.md"; section = "V03"; }
+    private import ScalarValues::*;
+    private import XDesignCommon::*;
+    private import XDesignArchitecture::*;
+    private import XDesignWorkflow::*;
+    private import StandardViewDefinitions::*;
+    private import Views::*;
+
+    doc /* The independent traceability model for wish-0005: documentation produced from
+       the model itself, each module and sub-module tied to the exact section that
+       covers it, diagrams carrying the explanation.
+
+       The wish was registered at intake on the default flow and re-assigned to
+       WishVerifyFlow before any work, at the requester's direction: the outcome is a
+       judged artifact, nothing had been attempted or assessed under the default flow
+       (every record stood at revision 0), and a requirements or implementation stage
+       would have produced claims no fixed check could establish. The model changes
+       this wish caused — the WishVerifyFlow definition, the DocSection metadata, the
+       record-structure view — are retained in mbse/model, not here. */
+
+    item wish0005 : Wish {
+        attribute redefines wishId = "wish-0005";
+        attribute redefines description = "Produce documentation under docs/ from the existing SysML model. Every module and sub-module resolves to the exact section that documents it, by a document id or link, instead of citing a document as a whole; diagrams drawn from SysML v2's view kinds are preferred to prose; and the expression stays concise, clear and unambiguous.";
+    }
+
+    part trace0005 : Trace {
+        doc /* One visit, one pass. The wish stage produced the documentation set, the
+           model changes and the figures; verification judged the outcome against the
+           flow's only checkpoint and is recorded once, at revision 1. Nothing was
+           handed back for corrective work, so no further assessment exists. */
+
+        ref item redefines wish = wish0005;
+        attribute redefines status = WishStatus::delivered;
+        attribute redefines traceabilityModelUri = "mbse/wishes/wish-0005.sysml";
+
+        part redefines execution : FlowExecution {
+            ref part redefines assignedFlow = wishVerifyFlow;
+            attribute redefines status = FlowStatus::completed;
+            part redefines stageRecords : StageRecord [2];
+            ref part redefines currentRecord = verifyRecord;
+
+            part wishRecord : StageRecord subsets stageRecords {
+                ref part redefines stage = wishVerifyFlow.wish;
+                attribute redefines visitIndex = 0;
+                attribute redefines status = StageStatus::completed;
+                attribute redefines artifactRevision = 1;
+
+                item documentationActivity : ActivityRecord subsets activities {
+                    attribute redefines description = "Wrote the documentation set: seven documents across arch, requirements, details and review, each section identified and anchored, every module and sub-module mapped to the section that covers it. No requirement was added: the work is a reading of the model, not a change to it.";
+                    attribute redefines performedBy = "zcode-agent";
+                    attribute redefines occurredAt = "2026-10-14T16:40:00Z";
+                    attribute redefines artifactUris = ("docs/arch/00_arch_overview.md", "docs/arch/01_arch_system_composition.md", "docs/requirements/02_requirements_baseline.md", "docs/details/03_details_flows_and_checkpoints.md", "docs/details/04_details_records_and_evidence.md", "docs/details/05_details_toolchain.md", "docs/review/06_review_wish_status.md", "docs/AGENTS.md");
+                }
+                item modelActivity : ActivityRecord subsets activities {
+                    attribute redefines description = "Made the model carry the documentation locations: added WishVerifyFlow, the DocSection metadata, the record-structure view, and one annotation per module and sub-module naming the document and section that covers it. Probed the compiler first — metadata application annotates the enclosing element, so each annotation sits inside the element it belongs to.";
+                    attribute redefines performedBy = "zcode-agent";
+                    attribute redefines occurredAt = "2026-10-14T16:45:00Z";
+                    attribute redefines artifactUris = ("mbse/model/common.sysml", "mbse/model/architecture.sysml", "mbse/model/workflow.sysml", "mbse/model/requirements.sysml", "mbse/model/traceability.sysml");
+                }
+                item renderActivity : ActivityRecord subsets activities {
+                    attribute redefines description = "Added tools/render_docs.py and rendered every figure from the model with the pinned compiler: definitions, internal structure, the model-declared views and two journeys. No figure is drawn by hand; each is regenerated by one command.";
+                    attribute redefines performedBy = "zcode-agent";
+                    attribute redefines occurredAt = "2026-10-14T16:50:00Z";
+                    attribute redefines artifactUris = ("tools/render_docs.py", "docs/assets/00_model_definitions.svg", "docs/assets/00_lifecycle.svg", "docs/assets/01_composition.svg", "docs/assets/01_interfaces.svg", "docs/assets/03_wish_verify_flow.svg", "docs/assets/03_controller.svg", "docs/assets/04_records.svg", "docs/assets/04_journey_rework.svg", "docs/assets/06_journey_wish0005.svg", "cache/docs-render/");
+                }
+            }
+
+            part verifyRecord : StageRecord subsets stageRecords {
+                ref part redefines stage = wishVerifyFlow.'verify';
+                attribute redefines visitIndex = 0;
+                attribute redefines status = StageStatus::completed;
+                attribute redefines artifactRevision = 1;
+
+                item verificationActivity : ActivityRecord subsets activities {
+                    attribute redefines description = "Read every document against the model it describes: section by section for accuracy, every claim checked to a definition, a record or a command; every module and sub-module looked up in both directions through the DocSection annotations; every figure opened and its content compared with the model; the model checked with the pinned compiler.";
+                    attribute redefines performedBy = "zcode-agent";
+                    attribute redefines occurredAt = "2026-10-14T16:55:00Z";
+                    attribute redefines artifactUris = ("cache/evidence/wish-0005/verification.md", "cache/sysml/check.json", "cache/sysml/parse.json", "cache/evidence/wish-0005/model.export.json");
+                }
+
+                item redefines assessments : CheckpointAssessment [1];
+                ref item redefines currentAssessments = verificationAssessment;
+
+                item verificationAssessment : CheckpointAssessment subsets assessments {
+                    ref part redefines checkpoint = wishVerifyFlow.outcomeAccepted;
+                    attribute redefines evaluatedRevision = 1;
+                    attribute redefines outcome = CheckpointOutcome::passed;
+                    attribute redefines judgedBy = JudgeAuthority::agent;
+                    attribute redefines assessor = "zcode-agent";
+                    attribute redefines rationale = "The documents let the requester see the current design from them: the overview names the two questions and the three models, the composition states what is owned and what is exchanged, the requirements table carries each reason and its enforcement status, and the records and flows are stated as the model states them. Every module and sub-module carries a DocSection annotation whose document and section exist and match the map read the other way; the added 58 annotations all resolve to the intended element in the export. The figures are rendered from the model by tools/render_docs.py, not drawn, so a reader can re-derive each one. Nothing beyond the model is asserted: absent artifacts (wish-0001's evidence) and unmet requirements are named as such rather than glossed. The two statements that rest on reading rather than on a tool are the ones no checker covers: the DocSection map and the 'no requirement was added' claim, both re-checked by hand against the model.";
+                    attribute redefines evidenceUris = ("docs/arch/00_arch_overview.md", "docs/arch/01_arch_system_composition.md", "docs/requirements/02_requirements_baseline.md", "docs/details/03_details_flows_and_checkpoints.md", "docs/details/04_details_records_and_evidence.md", "docs/details/05_details_toolchain.md", "docs/review/06_review_wish_status.md", "cache/evidence/wish-0005/verification.md", "cache/sysml/check.json", "cache/sysml/parse.json");
+                    ref item redefines activities = verificationActivity;
+                }
+            }
+        }
+    }
+
+    occurrence def Wish0005Journey {
+        doc /* This wish's journey as a sequence view on its own flow's lifelines: the
+           controller enters the wish stage, where the documents and the model changes
+           were produced, enters verification, assesses the flow's only checkpoint once,
+           and delivers the wish. There is no rework, so assessVerification appears once. */
+
+        ref part controller : Controller = workflow.controller;
+        ref part wish : Stage = wishVerifyFlow.wish;
+        ref part 'verify' : Stage = wishVerifyFlow.'verify';
+        ref part trace : Trace = trace0005;
+
+        message enterWish from controller.entering to wish.entered;
+        message enterVerification from controller.entering to 'verify'.entered;
+        message assessVerification from controller.assessing to 'verify'.assessed;
+        message deliverWish from controller.delivering to trace.delivered;
+    }
+
+    view wish0005Run : GeneralView {
+        doc /* The run's records, and the wish this documentation answers. */
+
+        expose Wish0005::wish0005;
+        expose Wish0005::trace0005;
+        expose Wish0005::trace0005::execution;
+        render asInterconnectionDiagram;
+    }
+}

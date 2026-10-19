@@ -1,0 +1,485 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2229pt" height="768pt" viewBox="0.00 0.00 2229.00 768.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Rust types</title><desc id="diagram-desc">Which structs, enums and traits would the crate declare, and what does each realize?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 749.5)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-749.5 2210.62,-749.5 2210.62,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="1040.44" y="-701.6" font-family="Arial" font-weight="bold" font-size="22.00">Rust types</text>
+<text xml:space="preserve" text-anchor="start" x="840.19" y="-673.25" font-family="Arial" font-size="14.00" fill="#52657a">Which structs, enums and traits would the crate declare, and what does each realize?</text>
+
+<g class="edge" data-native-id="f05dd569-3630-5e7c-a460-06371a50d83e" data-source-id="62b41d59-a3e3-5167-9c8b-cf0ad00e9576" data-target-id="82f1e8a2-0a9d-50c5-b1b3-a54fb5b4ed16" data-edge-kind="reference">
+<title>ref outcome
+FeatureTyping of native feature 797e601f-c46f-5b53-96d9-9734bdd429ca
+f05dd569-3630-5e7c-a460-06371a50d83e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M593.25,-326.45C583.48,-329.49 577,-331.5 577,-331.5 577,-331.5 179.5,-355.5 179.5,-355.5 179.5,-355.5 149.76,-383.23 127.12,-404.33" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="121.52,-409.55 124.92,-401.46 123.19,-407.79 127.27,-403.98 127.38,-404.09 127.48,-404.2 123.39,-408.01 129.83,-406.73 121.52,-409.55" />
+<text xml:space="preserve" text-anchor="middle" x="214.75" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref outcome</text>
+</g>
+
+<g class="edge" data-native-id="10f9089b-fda5-5a67-9dc1-cec677746d3c" data-source-id="62b41d59-a3e3-5167-9c8b-cf0ad00e9576" data-target-id="337a0c79-93f8-5bd8-b36f-421260af5d12" data-edge-kind="reference">
+<title>ref judged by
+FeatureTyping of native feature f3b38c25-7467-5fe1-9c1c-9422e2779646
+10f9089b-fda5-5a67-9dc1-cec677746d3c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M593.25,-326.45C583.48,-329.49 577,-331.5 577,-331.5 577,-331.5 258,-355.5 258,-355.5 258,-355.5 258,-370.5 258,-370.5 258,-370.5 276.62,-388.27 293.12,-404.01" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="298.85,-409.48 290.58,-406.56 297,-407.92 292.96,-404.07 293.06,-403.96 293.17,-403.85 297.21,-407.7 295.55,-401.35 298.85,-409.48" />
+<text xml:space="preserve" text-anchor="middle" x="297" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref judged by</text>
+</g>
+
+<g class="edge" data-native-id="cce16f3c-785e-5a77-8f90-9ebfc6183124" data-source-id="5aa6593e-b3b1-5741-a03d-ca822bb1819c" data-target-id="41c41ec8-5d33-512b-a731-dede91875b63" data-edge-kind="reference">
+<title>returns run
+
+cce16f3c-785e-5a77-8f90-9ebfc6183124</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1251,-526.24C1251,-509.8 1251,-489.73 1251,-472.17" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1251,-464.29 1254.6,-472.29 1251.15,-466.7 1251.15,-472.29 1251,-472.29 1250.85,-472.29 1250.85,-466.7 1247.4,-472.29 1251,-464.29" />
+<text xml:space="preserve" text-anchor="middle" x="1283.62" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">returns run</text>
+</g>
+
+<g class="edge" data-native-id="e59dbbb3-e828-583a-9304-6dad7bb2d0e1" data-source-id="3018f02b-d09a-5f51-b3e5-89ef05219ef0" data-target-id="9555441e-1541-5514-b312-48f3ceebb16a" data-edge-kind="composition">
+<title>owns rules [0..*]
+FeatureTyping of native feature 2e74a15c-b44a-5ba4-af5e-b8f80eb867cf
+e59dbbb3-e828-583a-9304-6dad7bb2d0e1</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M314,-120.8C314,-103.59 314,-84.18 314,-68.2" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="314,-120.96 317.2,-125.76 314,-130.56 310.8,-125.76 314,-120.96" />
+<text xml:space="preserve" text-anchor="middle" x="362" y="-95.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns rules [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="441f392d-a188-5cc2-8569-ede69294b354" data-source-id="3018f02b-d09a-5f51-b3e5-89ef05219ef0" data-target-id="d21b8333-81bc-50e2-a291-cc53aab58ddb" data-edge-kind="reference">
+<title>ref establishes [1..*]
+FeatureTyping of native feature 6731453e-60e2-5251-afcc-52b0b89d3ac0
+441f392d-a188-5cc2-8569-ede69294b354</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M387.95,-177.65C558.92,-202.85 967,-263 967,-263 967,-263 972,-355.5 972,-355.5 972,-355.5 972,-370.5 972,-370.5 972,-370.5 842.67,-485.64 786.04,-536.07" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="780.37,-541.11 783.95,-533.11 782.08,-539.39 786.25,-535.68 786.35,-535.79 786.45,-535.91 782.27,-539.62 788.74,-538.48 780.37,-541.11" />
+<text xml:space="preserve" text-anchor="middle" x="1031.25" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref establishes [1..*]</text>
+</g>
+
+<g class="edge" data-native-id="c515d7b6-b23b-5f08-8e9c-386ea9f5d1cf" data-source-id="1893c7b6-2d57-5382-97c1-4e616693d37f" data-target-id="72c2cd59-6a6a-57ea-a90a-4bbcb488d00b" data-edge-kind="reference">
+<title>ref kind
+FeatureTyping of native feature f575d344-ae2b-52e2-a0e5-0c2cecfb9cce
+c515d7b6-b23b-5f08-8e9c-386ea9f5d1cf</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M400.06,-326.3C409.62,-329.42 416,-331.5 416,-331.5 416,-331.5 1162,-355.5 1162,-355.5 1162,-355.5 1162,-370.5 1162,-370.5 1162,-370.5 1123.75,-394.5 1123.75,-394.5 1123.75,-394.5 1073.2,-487.29 1047.98,-533.59" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1044.19,-540.54 1044.86,-531.79 1045.22,-538.35 1047.89,-533.44 1048.02,-533.51 1048.15,-533.59 1045.48,-538.49 1051.18,-535.24 1044.19,-540.54" />
+<text xml:space="preserve" text-anchor="middle" x="1145.88" y="-423.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref kind</text>
+</g>
+
+<g class="edge" data-native-id="b8639602-cb73-5472-b1ad-f3327723383c" data-source-id="1893c7b6-2d57-5382-97c1-4e616693d37f" data-target-id="3018f02b-d09a-5f51-b3e5-89ef05219ef0" data-edge-kind="composition">
+<title>owns checker [0..1]
+FeatureTyping of native feature 8b5269bc-fcfe-5f70-9e36-6ebdb253c9be
+b8639602-cb73-5472-b1ad-f3327723383c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M314,-252.3C314,-235.09 314,-215.68 314,-199.7" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="314,-252.46 317.2,-257.26 314,-262.06 310.8,-257.26 314,-252.46" />
+<text xml:space="preserve" text-anchor="middle" x="372.12" y="-226.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns checker [0..1]</text>
+</g>
+
+<g class="edge" data-native-id="340a2c0c-fbc5-5939-87f1-f7fc5071370e" data-source-id="65ebd0c9-325f-5e8c-b927-5e6a16fd0b00" data-target-id="1893c7b6-2d57-5382-97c1-4e616693d37f" data-edge-kind="composition">
+<title>owns checkpoints [0..*]
+FeatureTyping of native feature 4a97b9b2-689f-5376-8249-687012f1adde
+340a2c0c-fbc5-5939-87f1-f7fc5071370e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M428.39,-399.59C420.94,-396.53 416,-394.5 416,-394.5 416,-394.5 351,-370.5 351,-370.5 351,-370.5 340.71,-350.41 330.98,-331.41" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="428.17,-399.5 433.82,-398.36 437.05,-403.14 431.39,-404.28 428.17,-399.5" />
+<text xml:space="preserve" text-anchor="middle" x="420" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns checkpoints [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="d02464b7-2afa-56e6-bc68-497ccdc56b5c" data-source-id="65ebd0c9-325f-5e8c-b927-5e6a16fd0b00" data-target-id="d11764b4-d769-5851-b859-ad6d08cb9357" data-edge-kind="composition">
+<title>owns stages
+FeatureTyping of native feature 8a3c82a4-ca91-57ba-b95f-e307a2e002b8
+d02464b7-2afa-56e6-bc68-497ccdc56b5c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M497,-383.8C497,-366.59 497,-347.18 497,-331.2" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="497,-383.96 500.2,-388.76 497,-393.56 493.8,-388.76 497,-383.96" />
+<text xml:space="preserve" text-anchor="middle" x="534.5" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns stages</text>
+</g>
+
+<g class="edge" data-native-id="d15aee22-fdd5-5ddb-8bd4-11036ef9e991" data-source-id="41c41ec8-5d33-512b-a731-dede91875b63" data-target-id="340b3203-6326-59f0-9ba6-ef804bb3d32c" data-edge-kind="composition">
+<title>owns rules [0..*]
+FeatureTyping of native feature 427f18d0-ee0f-5991-8648-3f9ece25aeb6
+d15aee22-fdd5-5ddb-8bd4-11036ef9e991</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M1251,-383.8C1251,-366.59 1251,-347.18 1251,-331.2" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1251,-383.96 1254.2,-388.76 1251,-393.56 1247.8,-388.76 1251,-383.96" />
+<text xml:space="preserve" text-anchor="middle" x="1299" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns rules [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="c421ccb7-b051-58e0-9a66-89185ee25bd9" data-source-id="11e98420-7778-5267-b797-cec89779c39d" data-target-id="82f1e8a2-0a9d-50c5-b1b3-a54fb5b4ed16" data-edge-kind="reference">
+<title>returns run
+
+c421ccb7-b051-58e0-9a66-89185ee25bd9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M204.07,-526.24C180,-503.48 148.58,-473.78 126.99,-453.37" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="121.22,-447.92 129.51,-450.8 123.08,-449.47 127.14,-453.31 127.03,-453.41 126.93,-453.52 122.87,-449.69 124.56,-456.03 121.22,-447.92" />
+<text xml:space="preserve" text-anchor="middle" x="207.23" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">returns run</text>
+</g>
+
+<g class="edge" data-native-id="2694eece-71b5-5ea4-9452-be847c3bc4e0" data-source-id="11e98420-7778-5267-b797-cec89779c39d" data-target-id="337a0c79-93f8-5bd8-b36f-421260af5d12" data-edge-kind="reference">
+<title>returns run
+
+2694eece-71b5-5ea4-9452-be847c3bc4e0</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M259.14,-526.24C272.66,-504.07 290.2,-475.32 302.6,-454.99" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="306.76,-448.18 305.66,-456.89 305.62,-450.32 302.72,-455.09 302.59,-455.01 302.46,-454.93 305.37,-450.17 299.52,-453.14 306.76,-448.18" />
+<text xml:space="preserve" text-anchor="middle" x="313.49" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">returns run</text>
+</g>
+
+<g class="edge" data-native-id="7729e9b7-57f3-547a-86ac-cdfb22e5080c" data-source-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-target-id="5aa6593e-b3b1-5741-a03d-ca822bb1819c" data-edge-kind="reference">
+<title>ref check
+FeatureTyping of native feature 35c4bedc-34ae-5058-801f-d66e247e9c36
+7729e9b7-57f3-547a-86ac-cdfb22e5080c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M619.65,-585.32C637.49,-590.54 651,-594.5 651,-594.5 651,-594.5 1013.62,-622.54 1013.62,-622.54 1013.62,-622.54 1068.38,-622.54 1068.38,-622.54 1068.38,-622.54 1111.37,-607.88 1155.64,-592.78" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1163,-590.27 1156.59,-596.26 1160.76,-591.19 1155.48,-592.99 1155.43,-592.85 1155.38,-592.71 1160.67,-590.9 1154.27,-589.44 1163,-590.27" />
+<text xml:space="preserve" text-anchor="middle" x="1041" y="-621.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref check</text>
+</g>
+
+<g class="edge" data-native-id="936c1741-d9ad-5a25-b547-b1a0d96b4a92" data-source-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-target-id="65ebd0c9-325f-5e8c-b927-5e6a16fd0b00" data-edge-kind="composition">
+<title>owns plan
+FeatureTyping of native feature 843edb21-5ca9-59e8-9960-5bf99d6a61eb
+936c1741-d9ad-5a25-b547-b1a0d96b4a92</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M521.58,-515.79C516.63,-498.46 511.02,-478.83 506.42,-462.7" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="521.61,-515.88 526,-519.62 524.25,-525.11 519.85,-521.37 521.61,-515.88" />
+<text xml:space="preserve" text-anchor="middle" x="546.98" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns plan</text>
+</g>
+
+<g class="edge" data-native-id="146aa956-9145-580e-93db-c6c07be039c2" data-source-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-target-id="a020394d-376f-54f7-a1e8-66cea7d1896b" data-edge-kind="reference">
+<title>ref status
+FeatureTyping of native feature 62cef38a-230d-53e6-bbfa-df10ece7a549
+146aa956-9145-580e-93db-c6c07be039c2</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M619.65,-585.32C637.49,-590.54 651,-594.5 651,-594.5 651,-594.5 853.25,-622.54 853.25,-622.54 853.25,-622.54 908.75,-622.54 908.75,-622.54 908.75,-622.54 1354,-594.5 1354,-594.5 1354,-594.5 1367.5,-588.86 1383.55,-582.16" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1390.66,-579.19 1384.66,-585.59 1388.49,-580.26 1383.33,-582.41 1383.28,-582.27 1383.22,-582.13 1388.37,-579.98 1381.89,-578.95 1390.66,-579.19" />
+<text xml:space="preserve" text-anchor="middle" x="881" y="-621.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref status</text>
+</g>
+
+<g class="edge" data-native-id="0c1d431b-ca96-53d1-b290-ac7bbd2dc4fa" data-source-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-target-id="11e98420-7778-5267-b797-cec89779c39d" data-edge-kind="reference">
+<title>ref judgment
+FeatureTyping of native feature ace74fba-8bf3-55be-905c-2e419749f999
+0c1d431b-ca96-53d1-b290-ac7bbd2dc4fa</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M448.32,-560.25C398.3,-560.25 336.71,-560.25 293.32,-560.25" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="285.39,-560.25 293.39,-556.65 287.8,-560.1 293.39,-560.1 293.39,-560.25 293.39,-560.4 287.8,-560.4 293.39,-563.85 285.39,-560.25" />
+<text xml:space="preserve" text-anchor="middle" x="366.06" y="-565.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref judgment</text>
+</g>
+
+<g class="edge" data-native-id="8c11ac8b-3450-5fbc-87fa-e4417d52b38f" data-source-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-target-id="d61652ef-ffff-53b0-a663-9e025939d261" data-edge-kind="composition">
+<title>owns visits [4..*]
+FeatureTyping of native feature 849000f1-09b7-52d1-a66c-a790d55804f2
+8c11ac8b-3450-5fbc-87fa-e4417d52b38f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M580.37,-519.22C601.28,-501.16 625.69,-480.09 645.57,-462.93" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="580.39,-519.2 578.85,-524.76 573.13,-525.47 574.67,-519.91 580.39,-519.2" />
+<text xml:space="preserve" text-anchor="middle" x="661.87" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns visits [4..*]</text>
+</g>
+
+<g class="edge" data-native-id="de33b8b5-b91e-558f-be7e-efdad716ee73" data-source-id="d61652ef-ffff-53b0-a663-9e025939d261" data-target-id="8af7f7af-3fb8-5539-89a7-4f2660f6b54a" data-edge-kind="composition">
+<title>owns activities [0..*]
+FeatureTyping of native feature 34b07262-1358-5083-b84a-11e3bb733b60
+de33b8b5-b91e-558f-be7e-efdad716ee73</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M756.5,-400.62C796.03,-385.83 837,-370.5 837,-370.5 837,-370.5 848.68,-350.41 859.72,-331.41" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="756.32,-400.69 752.95,-405.37 747.33,-404.05 750.7,-399.37 756.32,-400.69" />
+<text xml:space="preserve" text-anchor="middle" x="904.28" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns activities [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="2e8305fc-f25f-50ea-8e2f-9d627b5d652e" data-source-id="d61652ef-ffff-53b0-a663-9e025939d261" data-target-id="62b41d59-a3e3-5167-9c8b-cf0ad00e9576" data-edge-kind="composition">
+<title>owns assessments [0..*]
+FeatureTyping of native feature 20213aea-d43f-50d8-92ab-b4e52951b1bb
+2e8305fc-f25f-50ea-8e2f-9d627b5d652e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M684,-383.8C684,-366.59 684,-347.18 684,-331.2" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="684,-383.96 687.2,-388.76 684,-393.56 680.8,-388.76 684,-383.96" />
+<text xml:space="preserve" text-anchor="middle" x="756.38" y="-358.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns assessments [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="2c6ef1b4-a490-51c6-b9f2-e5238037f5f6" data-source-id="d61652ef-ffff-53b0-a663-9e025939d261" data-target-id="828299b3-0f08-5337-991f-7fe3efa8b9b3" data-edge-kind="reference">
+<title>ref status
+FeatureTyping of native feature 57cea6ff-2b38-57b0-918a-c9c7f2f2964b
+2c6ef1b4-a490-51c6-b9f2-e5238037f5f6</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M746.04,-435.69C845.85,-445.26 1031,-463 1031,-463 1031,-463 1324,-487 1324,-487 1324,-487 1518,-526 1518,-526 1518,-526 1533.02,-531.81 1550.51,-538.57" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1557.76,-541.37 1549,-541.84 1555.45,-540.64 1550.24,-538.63 1550.3,-538.49 1550.35,-538.35 1555.56,-540.36 1551.6,-535.13 1557.76,-541.37" />
+<text xml:space="preserve" text-anchor="middle" x="1425.67" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref status</text>
+</g>
+
+<g id="n85ddf41211cfe6db7dfc" class="node diagram-node shape-box" data-native-id="8af7f7af-3fb8-5539-89a7-4f2660f6b54a" data-shape="box">
+<title>SimpleFlowRustUml::RsActivityEntry
+8af7f7af-3fb8-5539-89a7-4f2660f6b54a
+attribute description
+attribute performedBy
+attribute occurredAt
+attribute artifactUris [0..*]
+attribute artifactsChanged
+part artifactDigests : RsArtifactDigest [0..*]
+attribute removedArtifactUris [0..*]
+8af7f7af-3fb8-5539-89a7-4f2660f6b54a</title>
+<rect fill="white" stroke="none" x="806.62" y="-331.5" width="144.76" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="806.62" y="-331.5" width="144.76" height="68.5" /><text xml:space="preserve" text-anchor="start" x="815.62" y="-309.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="815.62" y="-276.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Activity Entry</text>
+</g>
+
+<g id="nf3eb579e4a0528a0cc3f" class="node diagram-node shape-box" data-native-id="b4719c62-cd75-52e2-b8d7-042864cd6938" data-shape="box">
+<title>SimpleFlowRustUml::RsAdvanceOutcome
+b4719c62-cd75-52e2-b8d7-042864cd6938
+enum enterNextStage
+enum completeRun
+enum remainBlocked
+b4719c62-cd75-52e2-b8d7-042864cd6938</title>
+<rect fill="white" stroke="none" x="1705.5" y="-578.62" width="183.0" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="1705.5" y="-578.62" width="183.0" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="1714.5" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Advance Outcome</text>
+</g>
+
+<g id="n7658f4c65d3bef88ec1a" class="node diagram-node shape-box" data-native-id="62b41d59-a3e3-5167-9c8b-cf0ad00e9576" data-shape="box">
+<title>SimpleFlowRustUml::RsAssessmentEntry
+62b41d59-a3e3-5167-9c8b-cf0ad00e9576
+attribute checkpointId
+attribute evaluatedRevision
+attribute evaluatedSnapshotDigest
+attribute outcome : RsCheckpointOutcome
+attribute judgedBy : RsJudgeAuthority
+attribute assessor
+attribute rationale
+attribute evidenceUris [0..*]
+62b41d59-a3e3-5167-9c8b-cf0ad00e9576</title>
+<rect fill="white" stroke="none" x="593.25" y="-331.5" width="181.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="593.25" y="-331.5" width="181.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="602.25" y="-309.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="602.25" y="-276.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Assessment Entry</text>
+</g>
+
+<g id="na10fc46ccc34bf6167b0" class="node diagram-node shape-box" data-native-id="5aa6593e-b3b1-5741-a03d-ca822bb1819c" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckCommand
+5aa6593e-b3b1-5741-a03d-ca822bb1819c
+performaction runCheck
+eventoccurrence invoked
+eventoccurrence reported
+5aa6593e-b3b1-5741-a03d-ca822bb1819c</title>
+<rect fill="white" stroke="none" x="1164.38" y="-594.5" width="173.23999999999978" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="1164.38" y="-594.5" width="173.23999999999978" height="68.5" /><text xml:space="preserve" text-anchor="start" x="1173.38" y="-572.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="1173.38" y="-539.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Check Command</text>
+</g>
+
+<g id="na5340107e6bdbdb4a2d1" class="node diagram-node shape-box" data-native-id="72c2cd59-6a6a-57ea-a90a-4bbcb488d00b" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckKind
+72c2cd59-6a6a-57ea-a90a-4bbcb488d00b
+enum syntactic
+enum semantic
+72c2cd59-6a6a-57ea-a90a-4bbcb488d00b</title>
+<rect fill="white" stroke="none" x="968.75" y="-578.62" width="130.5" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="968.75" y="-578.62" width="130.5" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="977.75" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Check Kind</text>
+</g>
+
+<g id="nd8a7e4e93fa06d15b107" class="node diagram-node shape-box" data-native-id="9555441e-1541-5514-b312-48f3ceebb16a" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckerRuleSpec
+9555441e-1541-5514-b312-48f3ceebb16a
+attribute ruleId
+attribute condition
+attribute reads [1..*]
+9555441e-1541-5514-b312-48f3ceebb16a</title>
+<rect fill="white" stroke="none" x="220.25" y="-68.5" width="187.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="220.25" y="-68.5" width="187.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="229.25" y="-46.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="229.25" y="-13.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Checker Rule Spec</text>
+</g>
+
+<g id="n339358e078c3a0af6093" class="node diagram-node shape-box" data-native-id="3018f02b-d09a-5f51-b3e5-89ef05219ef0" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckerSpec
+3018f02b-d09a-5f51-b3e5-89ef05219ef0
+attribute checkerId
+attribute commandUri
+attribute establishes : RsConformanceKind [1..*]
+part rules : RsCheckerRuleSpec [0..*]
+3018f02b-d09a-5f51-b3e5-89ef05219ef0</title>
+<rect fill="white" stroke="none" x="239.75" y="-200.0" width="148.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="239.75" y="-200.0" width="148.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="248.75" y="-178.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="248.75" y="-145.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Checker Spec</text>
+</g>
+
+<g id="nad3d58005533c8a52189" class="node diagram-node shape-box" data-native-id="82f1e8a2-0a9d-50c5-b1b3-a54fb5b4ed16" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckpointOutcome
+82f1e8a2-0a9d-50c5-b1b3-a54fb5b4ed16
+enum unevaluated
+enum failed
+enum passed
+82f1e8a2-0a9d-50c5-b1b3-a54fb5b4ed16</title>
+<rect fill="white" stroke="none" x="0.0" y="-447.12" width="204.0" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="0.0" y="-447.12" width="204.0" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="9" y="-423.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Checkpoint Outcome</text>
+</g>
+
+<g id="nbcca3f243c1a4b0d29a3" class="node diagram-node shape-box" data-native-id="1893c7b6-2d57-5382-97c1-4e616693d37f" data-shape="box">
+<title>SimpleFlowRustUml::RsCheckpointSpec
+1893c7b6-2d57-5382-97c1-4e616693d37f
+attribute checkpointId
+attribute stageId
+attribute kind : RsCheckKind
+attribute criteria [1..*]
+part checker : RsCheckerSpec [0..1]
+attribute agentMayJudge
+attribute humanMayJudge
+eventoccurrence evaluationEntered
+eventoccurrence rulesRead
+eventoccurrence assessed
+1893c7b6-2d57-5382-97c1-4e616693d37f</title>
+<rect fill="white" stroke="none" x="227.75" y="-331.5" width="172.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="227.75" y="-331.5" width="172.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="236.75" y="-309.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="236.75" y="-276.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Checkpoint Spec</text>
+</g>
+
+<g id="n000ffe90ad4f37056f94" class="node diagram-node shape-box" data-native-id="d21b8333-81bc-50e2-a291-cc53aab58ddb" data-shape="box">
+<title>SimpleFlowRustUml::RsConformanceKind
+d21b8333-81bc-50e2-a291-cc53aab58ddb
+enum artifactPresence
+enum identifierConformance
+enum definitionCoverage
+enum traceConformance
+d21b8333-81bc-50e2-a291-cc53aab58ddb</title>
+<rect fill="white" stroke="none" x="667.38" y="-578.62" width="185.24" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="667.38" y="-578.62" width="185.24" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="676.38" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Conformance Kind</text>
+</g>
+
+<g id="na558118c9a0ff12824cf" class="node diagram-node shape-box" data-native-id="65ebd0c9-325f-5e8c-b927-5e6a16fd0b00" data-shape="box">
+<title>SimpleFlowRustUml::RsFlowPlan
+65ebd0c9-325f-5e8c-b927-5e6a16fd0b00
+attribute planId
+attribute planUri
+attribute planSha256
+attribute initialStageId
+part stages : RsStageSpec
+part checkpoints : RsCheckpointSpec [0..*]
+performaction validate : RsValidatePlan
+65ebd0c9-325f-5e8c-b927-5e6a16fd0b00</title>
+<rect fill="white" stroke="none" x="438.12" y="-463.0" width="117.75999999999999" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="438.12" y="-463.0" width="117.75999999999999" height="68.5" /><text xml:space="preserve" text-anchor="start" x="447.12" y="-441.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="447.12" y="-408.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Flow Plan</text>
+</g>
+
+<g id="n4267f030e53c0349b244" class="node diagram-node shape-box" data-native-id="a020394d-376f-54f7-a1e8-66cea7d1896b" data-shape="box">
+<title>SimpleFlowRustUml::RsFlowStatus
+a020394d-376f-54f7-a1e8-66cea7d1896b
+enum pending
+enum active
+enum blocked
+enum completed
+a020394d-376f-54f7-a1e8-66cea7d1896b</title>
+<rect fill="white" stroke="none" x="1369.62" y="-578.62" width="132.76000000000022" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="1369.62" y="-578.62" width="132.76000000000022" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="1378.62" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Flow Status</text>
+</g>
+
+<g id="n4bac2187044737fe3fd8" class="node diagram-node shape-box" data-native-id="7620000d-d0e1-56e2-8a3d-67702ced66ce" data-shape="box">
+<title>SimpleFlowRustUml::RsGateError
+7620000d-d0e1-56e2-8a3d-67702ced66ce
+enum checkerMissing
+enum commandFailed
+enum judgmentRefused
+enum judgeNotPermitted
+enum missingEvidence
+7620000d-d0e1-56e2-8a3d-67702ced66ce</title>
+<rect fill="white" stroke="none" x="1920.25" y="-578.62" width="121.5" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="1920.25" y="-578.62" width="121.5" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="1929.25" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Gate Error</text>
+</g>
+
+<g id="ndcfc52c5b2b73f9be586" class="node diagram-node shape-box" data-native-id="41c41ec8-5d33-512b-a731-dede91875b63" data-shape="box">
+<title>SimpleFlowRustUml::RsGateReport
+41c41ec8-5d33-512b-a731-dede91875b63
+attribute holds
+attribute artifactRevision
+attribute artifactSnapshotDigest
+attribute reportUri
+part rules : RsRuleReport [0..*]
+41c41ec8-5d33-512b-a731-dede91875b63</title>
+<rect fill="white" stroke="none" x="1183.88" y="-463.0" width="134.23999999999978" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="1183.88" y="-463.0" width="134.23999999999978" height="68.5" /><text xml:space="preserve" text-anchor="start" x="1192.88" y="-441.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="1192.88" y="-408.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Gate Report</text>
+</g>
+
+<g id="n69d568242dc07423718b" class="node diagram-node shape-box" data-native-id="11e98420-7778-5267-b797-cec89779c39d" data-shape="box">
+<title>SimpleFlowRustUml::RsJudge
+11e98420-7778-5267-b797-cec89779c39d
+performaction review
+performaction authority
+performaction identity
+eventoccurrence reviewRequested
+eventoccurrence verdictReturned
+11e98420-7778-5267-b797-cec89779c39d</title>
+<rect fill="white" stroke="none" x="194.0" y="-594.5" width="90.0" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="194.0" y="-594.5" width="90.0" height="68.5" /><text xml:space="preserve" text-anchor="start" x="203" y="-572.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="203" y="-539.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Judge</text>
+</g>
+
+<g id="nb79f4a404c69aa9cd573" class="node diagram-node shape-box" data-native-id="337a0c79-93f8-5bd8-b36f-421260af5d12" data-shape="box">
+<title>SimpleFlowRustUml::RsJudgeAuthority
+337a0c79-93f8-5bd8-b36f-421260af5d12
+enum script
+enum agent
+enum human
+337a0c79-93f8-5bd8-b36f-421260af5d12</title>
+<rect fill="white" stroke="none" x="235.88" y="-447.12" width="164.24" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="235.88" y="-447.12" width="164.24" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="244.88" y="-423.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Judge Authority</text>
+</g>
+
+<g id="nbc5a95372a71601ebdd8" class="node diagram-node shape-box" data-native-id="f5bc9dbe-b1a6-5976-8146-961c2ef7ba58" data-shape="box">
+<title>SimpleFlowRustUml::RsPlanError
+f5bc9dbe-b1a6-5976-8146-961c2ef7ba58
+enum missingInitialStage
+enum duplicateStageId
+enum unknownStageReference
+enum syntacticSpecWithoutChecker
+enum semanticSpecWithChecker
+enum missingWishModelUri
+enum missingRunRecordUri
+enum missingCriteria
+enum noPermittedJudge
+enum invalidDesignedFlow
+enum invalidChecker
+enum invalidPlanFile
+f5bc9dbe-b1a6-5976-8146-961c2ef7ba58</title>
+<rect fill="white" stroke="none" x="2073.38" y="-578.62" width="119.23999999999978" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="2073.38" y="-578.62" width="119.23999999999978" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="2082.38" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Plan Error</text>
+</g>
+
+<g id="n1205e56064cedd842591" class="node diagram-node shape-box" data-native-id="340b3203-6326-59f0-9ba6-ef804bb3d32c" data-shape="box">
+<title>SimpleFlowRustUml::RsRuleReport
+340b3203-6326-59f0-9ba6-ef804bb3d32c
+attribute ruleId
+attribute holds
+attribute diagnostic [0..1]
+340b3203-6326-59f0-9ba6-ef804bb3d32c</title>
+<rect fill="white" stroke="none" x="1184.62" y="-331.5" width="132.76000000000022" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="1184.62" y="-331.5" width="132.76000000000022" height="68.5" /><text xml:space="preserve" text-anchor="start" x="1193.62" y="-309.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="1193.62" y="-276.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Rule Report</text>
+</g>
+
+<g id="na523026f8124d0465e20" class="node diagram-node shape-box" data-native-id="1dd4a966-43c8-5a2f-95aa-ab01ee16f71d" data-shape="box">
+<title>SimpleFlowRustUml::RsSimpleFlowRun
+1dd4a966-43c8-5a2f-95aa-ab01ee16f71d
+attribute runId
+attribute planId
+attribute planUri
+attribute planSha256
+attribute wishModelUri
+attribute runRecordUri
+part plan : RsFlowPlan
+attribute status : RsFlowStatus
+part visits : RsStageVisit [4..*]
+attribute currentVisit
+ref part check : RsCheckCommand
+ref part judgment : RsJudge
+performaction evaluateGates : RsEvaluateGates
+performaction advance : RsAdvance
+performaction recordActivity : RsRunRecordActivity
+performaction reopenStage : RsReopenStage
+exhibitstate lifecycle : RsRunLifecycle
+eventoccurrence evaluationRequested
+eventoccurrence advanceRequested
+self
+1dd4a966-43c8-5a2f-95aa-ab01ee16f71d</title>
+<rect fill="white" stroke="none" x="448.12" y="-594.5" width="171.76" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="448.12" y="-594.5" width="171.76" height="68.5" /><text xml:space="preserve" text-anchor="start" x="457.12" y="-572.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="457.12" y="-539.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Simple Flow Run</text>
+</g>
+
+<g id="ncb5a27bb5cb195bcfc66" class="node diagram-node shape-box" data-native-id="d11764b4-d769-5851-b859-ad6d08cb9357" data-shape="box">
+<title>SimpleFlowRustUml::RsStageSpec
+d11764b4-d769-5851-b859-ad6d08cb9357
+attribute stageId
+attribute nextStageIds [0..*]
+attribute exitCheckpointIds [0..*]
+attribute completesFlow
+d11764b4-d769-5851-b859-ad6d08cb9357</title>
+<rect fill="white" stroke="none" x="432.5" y="-331.5" width="129.0" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="432.5" y="-331.5" width="129.0" height="68.5" /><text xml:space="preserve" text-anchor="start" x="441.5" y="-309.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="441.5" y="-276.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Stage Spec</text>
+</g>
+
+<g id="n135b58596d5dc5b611ed" class="node diagram-node shape-box" data-native-id="828299b3-0f08-5337-991f-7fe3efa8b9b3" data-shape="box">
+<title>SimpleFlowRustUml::RsStageStatus
+828299b3-0f08-5337-991f-7fe3efa8b9b3
+enum pending
+enum active
+enum blocked
+enum completed
+828299b3-0f08-5337-991f-7fe3efa8b9b3</title>
+<rect fill="white" stroke="none" x="1534.25" y="-578.62" width="139.5" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="1534.25" y="-578.62" width="139.5" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="1543.25" y="-555.42" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Stage Status</text>
+</g>
+
+<g id="n225a6d8d1beb1a879ca4" class="node diagram-node shape-box" data-native-id="d61652ef-ffff-53b0-a663-9e025939d261" data-shape="box">
+<title>SimpleFlowRustUml::RsStageVisit
+d61652ef-ffff-53b0-a663-9e025939d261
+attribute stageId
+attribute visitIndex
+attribute status : RsStageStatus
+attribute artifactRevision
+attribute artifactSnapshotDigest
+part artifactDigests : RsArtifactDigest [0..*]
+part activities : RsActivityEntry [0..*]
+part assessments : RsAssessmentEntry [0..*]
+performaction recordActivity : RsRecordActivity
+performaction appendAssessment : RsAppendAssessment
+performaction completionAuthorized : RsCompletionAuthorized
+d61652ef-ffff-53b0-a663-9e025939d261</title>
+<rect fill="white" stroke="none" x="621.75" y="-463.0" width="124.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="621.75" y="-463.0" width="124.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="630.75" y="-441.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="630.75" y="-408.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Stage Visit</text>
+</g>
+</g>
+</svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="508pt" height="467pt" viewBox="0.00 0.00 508.00 467.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Run states</title><desc id="diagram-desc">When does the Rust run activate, block, resume, complete or reopen?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 449.31)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-449.31 490,-449.31 490,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="180.12" y="-401.41" font-family="Arial" font-weight="bold" font-size="22.00">Run states</text>
+<text xml:space="preserve" text-anchor="start" x="25.62" y="-373.06" font-family="Arial" font-size="14.00" fill="#52657a">When does the Rust run activate, block, resume, complete or reopen?</text>
+
+<g class="edge" data-native-id="5f76dd95-85f2-5f41-8532-aaeb534ff9e8" data-source-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-target-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-edge-kind="directed">
+<title>Advance Stage
+advanceStage [run.status == RsFlowStatus::active]
+5f76dd95-85f2-5f41-8532-aaeb534ff9e8</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M253.32,-193.13C270.41,-194.04 284.89,-189.67 284.89,-180.03 284.89,-172.2 275.33,-167.85 262.58,-166.97" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="254.91,-166.93 262.92,-163.38 257.32,-166.8 262.91,-166.83 262.91,-166.98 262.9,-167.13 257.32,-167.1 262.89,-170.57 254.91,-166.93" />
+<text xml:space="preserve" text-anchor="middle" x="330.64" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Advance Stage</text>
+</g>
+
+<g class="edge" data-native-id="df2e10e1-0a8a-510f-a879-5ba036eeb390" data-source-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-target-id="669d29ae-64f7-59cd-96d2-694636394f43" data-edge-kind="directed">
+<title>Gate Blocked
+gateBlocked [run.status == RsFlowStatus::blocked]
+df2e10e1-0a8a-510f-a879-5ba036eeb390</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M171.07,-167C109.35,-148.97 0,-117.02 0,-117.02 0,-117.02 0,-102.02 0,-102.02 0,-102.02 7.32,-94.73 16.94,-85.15" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="22.41,-79.69 19.28,-87.89 20.81,-81.51 16.85,-85.45 16.74,-85.34 16.64,-85.23 20.59,-81.29 14.2,-82.79 22.41,-79.69" />
+<text xml:space="preserve" text-anchor="middle" x="40.12" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Gate Blocked</text>
+</g>
+
+<g class="edge" data-native-id="fb11556a-9f14-5d19-b161-4528c89db6b1" data-source-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-target-id="88c3cd0d-66e1-5980-bf7f-fe1106487745" data-edge-kind="directed">
+<title>Complete
+complete [run.status == RsFlowStatus::completed]
+fb11556a-9f14-5d19-b161-4528c89db6b1</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M250.6,-140.67C267.92,-123.35 288.49,-102.78 306.51,-84.75" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="311.9,-79.36 308.79,-87.56 310.3,-81.18 306.35,-85.12 306.25,-85.02 306.14,-84.91 310.09,-80.96 303.7,-82.47 311.9,-79.36" />
+<text xml:space="preserve" text-anchor="middle" x="314.42" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Complete</text>
+</g>
+
+<g class="edge" data-native-id="85acfafe-ff19-5ac7-9f22-89c5a7b2957a" data-source-id="669d29ae-64f7-59cd-96d2-694636394f43" data-target-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-edge-kind="directed">
+<title>Resume After Correction
+resumeAfterCorrection [run.status == RsFlowStatus::active]
+85acfafe-ff19-5ac7-9f22-89c5a7b2957a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M92.25,-78.51C107.25,-97.77 122.25,-117.02 122.25,-117.02 122.25,-117.02 142.25,-130.8 163.39,-145.37" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="169.9,-149.85 161.27,-148.27 167.82,-148.6 163.22,-145.43 163.31,-145.31 163.39,-145.19 167.99,-148.35 165.35,-142.34 169.9,-149.85" />
+<text xml:space="preserve" text-anchor="middle" x="195.75" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Resume After Correction</text>
+</g>
+
+<g class="edge" data-native-id="16395123-0614-5836-a977-7affdb2e6f8a" data-source-id="88c3cd0d-66e1-5980-bf7f-fe1106487745" data-target-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-edge-kind="directed">
+<title>Reopen For Rework
+reopenForRework [run.status == RsFlowStatus::active]
+16395123-0614-5836-a977-7affdb2e6f8a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M351.25,-78.51C351.25,-97.77 351.25,-117.02 351.25,-117.02 351.25,-117.02 301.74,-139.11 261.81,-156.92" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="254.65,-160.12 260.49,-153.57 256.79,-158.99 261.89,-156.72 261.96,-156.86 262.02,-156.99 256.92,-159.27 263.42,-160.14 254.65,-160.12" />
+<text xml:space="preserve" text-anchor="middle" x="411.62" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Reopen For Rework</text>
+</g>
+
+<g class="edge" data-native-id="46802633-c879-5426-9814-38bfbfb18af6" data-source-id="739b9f71-4a72-5755-a147-b312c0d6c864" data-target-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-edge-kind="directed">
+<title>Activate
+activate [run.status == RsFlowStatus::active]
+46802633-c879-5426-9814-38bfbfb18af6</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M212.25,-281.69C212.25,-265.28 212.25,-245.95 212.25,-228.64" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="212.25,-220.84 215.85,-228.84 212.4,-223.26 212.4,-228.84 212.25,-228.84 212.1,-228.84 212.1,-223.26 208.65,-228.84 212.25,-220.84" />
+<text xml:space="preserve" text-anchor="middle" x="236.25" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Activate</text>
+</g>
+
+<g id="n4a934702e19fbebf0605" class="node diagram-node shape-state" data-native-id="d8e82fe5-e3cc-5c39-8285-074802b1a0da" data-shape="state">
+<title>SimpleFlowRustUml::RsRunLifecycle::active
+d8e82fe5-e3cc-5c39-8285-074802b1a0da
+d8e82fe5-e3cc-5c39-8285-074802b1a0da</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M240.89,-219.04C240.89,-219.04 183.61,-219.04 183.61,-219.04 177.61,-219.04 171.61,-213.04 171.61,-207.04 171.61,-207.04 171.61,-153.02 171.61,-153.02 171.61,-147.02 177.61,-141.02 183.61,-141.02 183.61,-141.02 240.89,-141.02 240.89,-141.02 246.89,-141.02 252.89,-147.02 252.89,-153.02 252.89,-153.02 252.89,-207.04 252.89,-207.04 252.89,-213.04 246.89,-219.04 240.89,-219.04" />
+<rect fill="white" stroke="none" x="180.25" y="-213.28" width="64.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="197.62" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="188.25" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Active</text>
+</g>
+
+<g id="nd2d9fdceaebad7a39584" class="node diagram-node shape-state" data-native-id="669d29ae-64f7-59cd-96d2-694636394f43" data-shape="state">
+<title>SimpleFlowRustUml::RsRunLifecycle::blocked
+669d29ae-64f7-59cd-96d2-694636394f43
+669d29ae-64f7-59cd-96d2-694636394f43</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M98.02,-78.02C98.02,-78.02 26.48,-78.02 26.48,-78.02 20.48,-78.02 14.48,-72.02 14.48,-66.02 14.48,-66.02 14.48,-12 14.48,-12 14.48,-6 20.48,0 26.48,0 26.48,0 98.02,0 98.02,0 104.02,0 110.02,-6 110.02,-12 110.02,-12 110.02,-66.02 110.02,-66.02 110.02,-72.02 104.02,-78.02 98.02,-78.02" />
+<rect fill="white" stroke="none" x="23.12" y="-72.26" width="78.25999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="47.62" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="31.12" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Blocked</text>
+</g>
+
+<g id="n14f6338d8630b82a42bb" class="node diagram-node shape-state" data-native-id="88c3cd0d-66e1-5980-bf7f-fe1106487745" data-shape="state">
+<title>SimpleFlowRustUml::RsRunLifecycle::completed
+88c3cd0d-66e1-5980-bf7f-fe1106487745
+88c3cd0d-66e1-5980-bf7f-fe1106487745</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M397.14,-78.02C397.14,-78.02 305.36,-78.02 305.36,-78.02 299.36,-78.02 293.36,-72.02 293.36,-66.02 293.36,-66.02 293.36,-12 293.36,-12 293.36,-6 299.36,0 305.36,0 305.36,0 397.14,0 397.14,0 403.14,0 409.14,-6 409.14,-12 409.14,-12 409.14,-66.02 409.14,-66.02 409.14,-72.02 403.14,-78.02 397.14,-78.02" />
+<rect fill="white" stroke="none" x="302.0" y="-72.26" width="98.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="336.62" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="310" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Completed</text>
+</g>
+
+<g id="n40d3747c0a8747869487" class="node diagram-node shape-state" data-native-id="739b9f71-4a72-5755-a147-b312c0d6c864" data-shape="state">
+<title>SimpleFlowRustUml::RsRunLifecycle::pending
+739b9f71-4a72-5755-a147-b312c0d6c864
+739b9f71-4a72-5755-a147-b312c0d6c864</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M248.39,-360.06C248.39,-360.06 176.11,-360.06 176.11,-360.06 170.11,-360.06 164.11,-354.06 164.11,-348.06 164.11,-348.06 164.11,-294.04 164.11,-294.04 164.11,-288.04 170.11,-282.04 176.11,-282.04 176.11,-282.04 248.39,-282.04 248.39,-282.04 254.39,-282.04 260.39,-288.04 260.39,-294.04 260.39,-294.04 260.39,-348.06 260.39,-348.06 260.39,-354.06 254.39,-360.06 248.39,-360.06" />
+<rect fill="white" stroke="none" x="172.75" y="-354.3" width="79.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="197.62" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="180.75" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Pending</text>
+</g>
+</g>
+</svg>

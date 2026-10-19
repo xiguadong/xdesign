@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="902pt" height="239pt" viewBox="0.00 0.00 902.00 239.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">XDesignDetailedDesign::gateEvaluationFlow · Views::asInterconnectionDiagram</title><desc id="diagram-desc">4 nodes · 0 resolved relationships · native element IDs retained · 2 unresolved endpoint projections omitted; inspect native export. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.
+SuccessionAsUsage 5c89c546-b318-5825-9eb2-548abb574e4c: no complete pair of direct-part endpoint paths.
+SuccessionAsUsage b03d63b4-77b4-5151-82d8-e75fd5655165: no complete pair of direct-part endpoint paths.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 221)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-221 883.75,-221 883.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="14" y="-173.1" font-family="Arial" font-weight="bold" font-size="22.00">XDesignDetailedDesign::gateEvaluationFlow · Views::asInterconnectionDiagram</text>
+<text xml:space="preserve" text-anchor="start" x="171.12" y="-144.75" font-family="Arial" font-size="14.00" fill="#52657a">4 nodes · 0 resolved relationships · native element IDs retained · 2 unresolved endpoint</text>
+<text xml:space="preserve" text-anchor="start" x="310.25" y="-129" font-family="Arial" font-size="14.00" fill="#52657a">projections omitted; inspect native export</text>
+
+<g id="n3734c928d898e6d1e8fa" class="node diagram-node shape-box" data-native-id="f1c94abd-4e9e-57a0-b9bd-32104a95fa0e" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowGate::assessments
+type: CheckpointAssessment
+f1c94abd-4e9e-57a0-b9bd-32104a95fa0e</title>
+<rect fill="white" stroke="none" x="5.75" y="-108.12" width="192.75" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="5.75,-40.62 5.75,-40.62 198.5,-40.62 198.5,-40.62 5.75,-40.62" />
+<rect fill="none" stroke="#647a91" x="5.75" y="-108.12" width="192.75" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="14.75" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ItemUsage</text>
+<text xml:space="preserve" text-anchor="start" x="14.75" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">assessments</text>
+<text xml:space="preserve" text-anchor="start" x="14.75" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: CheckpointAssessment</text>
+</g>
+
+<g id="ncfc9f2b8b7604069928f" class="node diagram-node shape-box" data-native-id="1e92bb00-8eb7-5a62-8128-aa3563fcacc5" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowGate::checkpoints
+type: SimpleFlowCheckpoint
+1e92bb00-8eb7-5a62-8128-aa3563fcacc5</title>
+<rect fill="white" stroke="none" x="230.62" y="-108.12" width="189.0" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="230.62,-40.62 230.62,-40.62 419.62,-40.62 419.62,-40.62 230.62,-40.62" />
+<rect fill="none" stroke="#647a91" x="230.62" y="-108.12" width="189.0" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="239.62" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="239.62" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">checkpoints</text>
+<text xml:space="preserve" text-anchor="start" x="239.62" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: SimpleFlowCheckpoint</text>
+</g>
+
+<g id="n0a5bb792bed9f8760125" class="node diagram-node shape-box" data-native-id="ddc1c338-8d81-508e-9927-47d8588f03bb" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowGate::readGates
+ref part gates : SimpleFlowCheckpoint [0..*]
+ddc1c338-8d81-508e-9927-47d8588f03bb</title>
+<rect fill="white" stroke="none" x="451.75" y="-116.0" width="246.75" height="116.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="451.75,-48.5 451.75,-48.5 698.5,-48.5 698.5,-48.5 451.75,-48.5" />
+<rect fill="none" stroke="#647a91" x="451.75" y="-116.0" width="246.75" height="116.0" /><text xml:space="preserve" text-anchor="start" x="460.75" y="-94.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="460.75" y="-61.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">readGates</text>
+<text xml:space="preserve" text-anchor="start" x="460.75" y="-27.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part gates : SimpleFlowCheckpoint</text>
+<text xml:space="preserve" text-anchor="start" x="561.25" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">[0..*]</text>
+</g>
+
+<g id="nbf91eb5f01181f7d9288" class="node diagram-node shape-box" data-native-id="e14a3b77-63e9-578d-92d4-d03d80451f8b" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowGate::visit
+type: StageRecord
+e14a3b77-63e9-578d-92d4-d03d80451f8b</title>
+<rect fill="white" stroke="none" x="730.25" y="-108.12" width="129.75" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="730.25,-40.62 730.25,-40.62 860,-40.62 860,-40.62 730.25,-40.62" />
+<rect fill="none" stroke="#647a91" x="730.25" y="-108.12" width="129.75" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="739.25" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="739.25" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">visit</text>
+<text xml:space="preserve" text-anchor="start" x="739.25" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageRecord</text>
+</g>
+</g>
+</svg>

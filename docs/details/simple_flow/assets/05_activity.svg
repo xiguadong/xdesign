@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="402pt" height="684pt" viewBox="0.00 0.00 402.00 684.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Checkpoint evaluation</title><desc id="diagram-desc">How does one gate produce an assessment?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 666.14)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-666.14 383.67,-666.14 383.67,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="66.21" y="-618.24" font-family="Arial" font-weight="bold" font-size="22.00">Checkpoint evaluation</text>
+<text xml:space="preserve" text-anchor="start" x="47.08" y="-589.89" font-family="Arial" font-size="14.00" fill="#52657a">How does one gate produce an assessment?</text>
+
+<g class="edge" data-native-id="802bd5b0-2beb-58f8-8cf5-4e7a8534f25f" data-source-id="bc3d64a3-a438-51eb-a38b-4ba67ea74b72" data-target-id="9bac6c2e-7336-53cf-acd9-625c5ebd1d3d" data-edge-kind="directed">
+<title>Syntactic Assessed
+syntacticAssessed
+802bd5b0-2beb-58f8-8cf5-4e7a8534f25f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M93.36,-264.18C101.82,-246.8 112.03,-225.81 112.03,-225.81 112.03,-225.81 123.88,-213.78 137.7,-199.75" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="143.04,-194.33 139.99,-202.56 141.46,-196.16 137.54,-200.14 137.43,-200.03 137.32,-199.93 141.24,-195.95 134.87,-197.5 143.04,-194.33" />
+<text xml:space="preserve" text-anchor="middle" x="170.16" y="-228.46" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Syntactic Assessed</text>
+</g>
+
+<g class="edge" data-native-id="dcbedba2-eeef-5054-b3f2-98adcea736d1" data-source-id="9bac6c2e-7336-53cf-acd9-625c5ebd1d3d" data-target-id="2de4a6e1-1330-5d27-b023-6f938ad18ea9" data-edge-kind="directed">
+<title>Assessment Recorded
+assessmentRecorded
+dcbedba2-eeef-5054-b3f2-98adcea736d1</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M180.28,-108.93C180.28,-91.54 180.28,-72.09 180.28,-56.21" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="180.28,-48.42 183.88,-56.42 180.43,-50.84 180.43,-56.42 180.28,-56.42 180.13,-56.42 180.13,-50.84 176.68,-56.42 180.28,-48.42" />
+<text xml:space="preserve" text-anchor="middle" x="247.78" y="-72.92" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Assessment Recorded</text>
+</g>
+
+<g class="edge" data-native-id="d35eed18-f340-5f85-96b5-138c25e962cf" data-source-id="da58c389-2a21-5ca5-bb74-42eda7333b8b" data-target-id="b3fa8c55-7b0d-5590-a431-80e4cec41363" data-edge-kind="directed">
+<title>
+
+d35eed18-f340-5f85-96b5-138c25e962cf</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M180.28,-530.03C180.28,-518.96 180.28,-505.11 180.28,-491.49" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="180.28,-483.72 183.88,-491.72 180.43,-486.14 180.43,-491.72 180.28,-491.72 180.13,-491.72 180.13,-486.14 176.68,-491.72 180.28,-483.72" />
+</g>
+
+<g class="edge" data-native-id="4aa3cedb-6241-5ab2-aba8-6a7de110c080" data-source-id="b3fa8c55-7b0d-5590-a431-80e4cec41363" data-target-id="bc3d64a3-a438-51eb-a38b-4ba67ea74b72" data-edge-kind="directed">
+<title>Syntactic
+kind = syntactic
+syntacticRulesApplied
+4aa3cedb-6241-5ab2-aba8-6a7de110c080</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M154.57,-398.9C142.2,-381.86 130.03,-365.08 130.03,-365.08 130.03,-365.08 114.62,-340.51 101.31,-319.29" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="97.19,-312.72 104.49,-317.58 98.6,-314.69 101.57,-319.42 101.44,-319.5 101.31,-319.58 98.35,-314.84 98.39,-321.41 97.19,-312.72" />
+<text xml:space="preserve" text-anchor="middle" x="176.16" y="-352.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Syntactic</text>
+<text xml:space="preserve" text-anchor="middle" x="176.16" y="-337.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">kind = syntactic</text>
+</g>
+
+<g class="edge" data-native-id="a57c3e9b-45be-5be1-8842-8e4697256fce" data-source-id="b3fa8c55-7b0d-5590-a431-80e4cec41363" data-target-id="d3804f0c-16cb-50b3-8b4a-5cfa99b21582" data-edge-kind="directed">
+<title>Semantic
+kind = semantic
+semanticJudgmentTaken
+a57c3e9b-45be-5be1-8842-8e4697256fce</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M205.01,-398.03C221.5,-373.8 242.95,-342.31 258.55,-319.4" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="262.91,-312.98 261.39,-321.62 261.68,-315.06 258.54,-319.68 258.41,-319.6 258.29,-319.51 261.43,-314.9 255.44,-317.57 262.91,-312.98" />
+<text xml:space="preserve" text-anchor="middle" x="293.76" y="-352.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Semantic</text>
+<text xml:space="preserve" text-anchor="middle" x="293.76" y="-337.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">kind = semantic</text>
+</g>
+
+<g class="edge" data-native-id="9397db59-6ef4-54f3-929c-fd6a60d52053" data-source-id="d3804f0c-16cb-50b3-8b4a-5cfa99b21582" data-target-id="9bac6c2e-7336-53cf-acd9-625c5ebd1d3d" data-edge-kind="directed">
+<title>Semantic Assessed
+semanticAssessed
+9397db59-6ef4-54f3-929c-fd6a60d52053</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M262.04,-264.23C249.11,-247.2 230.98,-223.33 215.08,-202.38" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="210.3,-196.08 218,-200.27 211.88,-197.91 215.25,-202.36 215.13,-202.45 215.02,-202.54 211.64,-198.09 212.27,-204.63 210.3,-196.08" />
+<text xml:space="preserve" text-anchor="middle" x="300.06" y="-228.46" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Semantic Assessed</text>
+</g>
+
+<g id="n53c04ee08cbd4a709dae" class="node diagram-node shape-state" data-native-id="2de4a6e1-1330-5d27-b023-6f938ad18ea9" data-shape="state">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::appendAssessment
+2de4a6e1-1330-5d27-b023-6f938ad18ea9
+2de4a6e1-1330-5d27-b023-6f938ad18ea9</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M252.8,-46.27C252.8,-46.27 107.76,-46.27 107.76,-46.27 101.76,-46.27 95.77,-40.27 95.77,-34.27 95.77,-34.27 95.77,-12 95.77,-12 95.77,-6 101.77,0 107.77,0 107.77,0 252.8,0 252.8,0 258.8,0 264.8,-6 264.8,-12 264.8,-12 264.8,-34.27 264.8,-34.27 264.8,-40.27 258.8,-46.27 252.8,-46.27" />
+<rect fill="white" stroke="none" x="104.41" y="-40.51" width="151.73999999999998" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="112.41" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Keep assessment</text>
+</g>
+
+<g id="n1010cf2b26b8e0c2f437" class="node diagram-node shape-state" data-native-id="bc3d64a3-a438-51eb-a38b-4ba67ea74b72" data-shape="state">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::applySyntacticRules
+bc3d64a3-a438-51eb-a38b-4ba67ea74b72
+bc3d64a3-a438-51eb-a38b-4ba67ea74b72</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M148.42,-311.08C148.42,-311.08 16.14,-311.08 16.14,-311.08 10.14,-311.08 4.14,-305.08 4.14,-299.08 4.14,-299.08 4.14,-276.81 4.14,-276.81 4.14,-270.81 10.14,-264.81 16.14,-264.81 16.14,-264.81 148.42,-264.81 148.42,-264.81 154.42,-264.81 160.42,-270.81 160.42,-276.81 160.42,-276.81 160.42,-299.08 160.42,-299.08 160.42,-305.08 154.42,-311.08 148.42,-311.08" />
+<rect fill="white" stroke="none" x="12.78" y="-305.32" width="139.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="20.78" y="-283.12" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run fixed check</text>
+</g>
+
+<g id="n53f48e75302c7af07d3b" class="node diagram-node shape-diamond" data-native-id="9bac6c2e-7336-53cf-acd9-625c5ebd1d3d" data-shape="diamond">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::assessmentReady
+9bac6c2e-7336-53cf-acd9-625c5ebd1d3d
+9bac6c2e-7336-53cf-acd9-625c5ebd1d3d</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="180.28,-201.81 0,-155.54 180.28,-109.27 360.56,-155.54 180.28,-201.81" />
+<rect fill="white" stroke="none" x="98.78" y="-172.91" width="162.99999999999997" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="106.78" y="-150.72" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Assessment Ready</text>
+</g>
+
+<g id="nd535353f790d7e0260c7" class="node diagram-node shape-state" data-native-id="da58c389-2a21-5ca5-bb74-42eda7333b8b" data-shape="state">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::readRules
+da58c389-2a21-5ca5-bb74-42eda7333b8b
+ref item rules : CheckerRule [0..*]
+attribute criteria [0..*]
+da58c389-2a21-5ca5-bb74-42eda7333b8b</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M225.8,-576.89C225.8,-576.89 134.76,-576.89 134.76,-576.89 128.76,-576.89 122.76,-570.89 122.76,-564.89 122.76,-564.89 122.76,-542.62 122.76,-542.62 122.76,-536.62 128.76,-530.62 134.76,-530.62 134.76,-530.62 225.8,-530.62 225.8,-530.62 231.8,-530.62 237.8,-536.62 237.8,-542.62 237.8,-542.62 237.8,-564.89 237.8,-564.89 237.8,-570.89 231.8,-576.89 225.8,-576.89" />
+<rect fill="white" stroke="none" x="131.41" y="-571.13" width="97.75" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="139.41" y="-548.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Read rules</text>
+</g>
+
+<g id="nf3371507ca0eafb76963" class="node diagram-node shape-diamond" data-native-id="b3fa8c55-7b0d-5590-a431-80e4cec41363" data-shape="diamond">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::rulePath
+b3fa8c55-7b0d-5590-a431-80e4cec41363
+b3fa8c55-7b0d-5590-a431-80e4cec41363</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="180.28,-481.62 61.5,-435.35 180.28,-389.08 299.06,-435.35 180.28,-481.62" />
+<rect fill="white" stroke="none" x="129.53" y="-452.72" width="101.5" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="137.53" y="-430.52" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Check kind</text>
+</g>
+
+<g id="nbd84c2ce6c3b3a1c3d47" class="node diagram-node shape-state" data-native-id="d3804f0c-16cb-50b3-8b4a-5cfa99b21582" data-shape="state">
+<title>XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::takeSemanticJudgment
+d3804f0c-16cb-50b3-8b4a-5cfa99b21582
+d3804f0c-16cb-50b3-8b4a-5cfa99b21582</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M353.67,-311.08C353.67,-311.08 204.89,-311.08 204.89,-311.08 198.89,-311.08 192.89,-305.08 192.89,-299.08 192.89,-299.08 192.89,-276.81 192.89,-276.81 192.89,-270.81 198.89,-264.81 204.89,-264.81 204.89,-264.81 353.67,-264.81 353.67,-264.81 359.67,-264.81 365.67,-270.81 365.67,-276.81 365.67,-276.81 365.67,-299.08 365.67,-299.08 365.67,-305.08 359.67,-311.08 353.67,-311.08" />
+<rect fill="white" stroke="none" x="201.53" y="-305.32" width="155.49999999999997" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="209.53" y="-283.12" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Request judgment</text>
+</g>
+</g>
+</svg>

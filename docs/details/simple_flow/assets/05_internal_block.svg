@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="519pt" height="359pt" viewBox="0.00 0.00 519.00 359.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Automation connections</title><desc id="diagram-desc">How do the run, checker and judge connect?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 341.25)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-341.25 500.75,-341.25 500.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="112.75" y="-293.35" font-family="Arial" font-weight="bold" font-size="22.00">Automation connections</text>
+<text xml:space="preserve" text-anchor="start" x="107.5" y="-265" font-family="Arial" font-size="14.00" fill="#52657a">How do the run, checker and judge connect?</text>
+<g id="cluster_baa1dabce2f3c03738b9" class="cluster diagram-group" data-native-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>cluster_baa1dabce2f3c03738b9</title>
+<path fill="white" stroke="#91a9bd" stroke-width="1.3" d="M20,-8C20,-8 462.75,-8 462.75,-8 468.75,-8 474.75,-14 474.75,-20 474.75,-20 474.75,-232 474.75,-232 474.75,-238 468.75,-244 462.75,-244 462.75,-244 20,-244 20,-244 14,-244 8,-238 8,-232 8,-232 8,-20 8,-20 8,-14 14,-8 20,-8" />
+<text xml:space="preserve" text-anchor="middle" x="99.62" y="-224.8" font-family="Arial" font-size="16.00">Simple flow automation</text>
+</g>
+
+<g class="edge" data-native-id="ff6abe0c-a3d5-5ba7-8057-f5e4fbaf9231" data-source-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-target-id="27e6877c-959f-56c4-99c2-06cbe6c66d38" data-edge-kind="connection" data-source-port-id="666c3627-17a8-54e5-85a4-3e0abae48370" data-target-port-id="e287b49e-42a1-57b4-8dee-0a17c10fbdee">
+<title>Judging
+runner.judgment → judge.judgment
+ff6abe0c-a3d5-5ba7-8057-f5e4fbaf9231</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M177.25,-95.88C177.25,-95.88 306.25,-62 306.25,-62" />
+<text xml:space="preserve" text-anchor="middle" x="232.38" y="-91.21" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Judging</text>
+</g>
+
+<g class="edge" data-native-id="00f341e8-9aee-5722-9c7a-ba4f14536aea" data-source-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-target-id="a98e4c25-d73b-52e7-b863-4318872badc5" data-edge-kind="connection" data-source-port-id="2c76a33b-2b7d-5d7b-9b2a-d51e7ba4c00a" data-target-port-id="89cb7000-7abb-5f51-9e67-f5d5552a60c0">
+<title>Checking
+runner.check → command.command
+00f341e8-9aee-5722-9c7a-ba4f14536aea</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M177.25,-128.12C177.25,-128.12 287.5,-163 287.5,-163" />
+<text xml:space="preserve" text-anchor="middle" x="232.38" y="-156.3" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Checking</text>
+</g>
+
+<g id="nd4dad6fd32cb7b4d8195" class="node diagram-node shape-box" data-native-id="27e6877c-959f-56c4-99c2-06cbe6c66d38" data-shape="box" data-group-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::judge
+27e6877c-959f-56c4-99c2-06cbe6c66d38
+27e6877c-959f-56c4-99c2-06cbe6c66d38</title>
+<rect x="313.25" y="-96.25" width="118.25" height="68.5" fill="white" stroke="#647A91" stroke-width="1.3" class="node" /><g id="p6b2bca2881f90c76f776" class="diagram-port" data-native-id="e287b49e-42a1-57b4-8dee-0a17c10fbdee" data-owner-id="27e6877c-959f-56c4-99c2-06cbe6c66d38" data-side="W"><rect fill="#d9eaf7" stroke="none" x="307.25" y="-69.88" width="12.0" height="15.759999999999998" /><rect fill="none" stroke="#334b64" x="307.25" y="-69.88" width="12.0" height="15.759999999999998" /><text xml:space="preserve" text-anchor="start" x="311" y="-53.88" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="323.25" y="-57.12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">review</text>
+<rect fill="none" stroke="none" x="366.25" y="-96.25" width="65.25" height="68.5" /><rect fill="none" stroke="none" x="366.25" y="-96.25" width="65.25" height="68.5" /><text xml:space="preserve" text-anchor="start" x="375.25" y="-74.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="375.25" y="-41.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Judge</text>
+<text xml:space="preserve" text-anchor="start" x="431.5" y="-56.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+
+<g id="n3efdcb60b67ebadba141" class="node diagram-node shape-box" data-native-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-shape="box" data-group-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::runner
+7705bfbd-fd17-549f-a48b-f490d76ec6cf
+7705bfbd-fd17-549f-a48b-f490d76ec6cf</title>
+<rect x="32.5" y="-146.25" width="137.75" height="68.5" fill="white" stroke="#647A91" stroke-width="1.3" class="node" /><text xml:space="preserve" text-anchor="start" x="28" y="-106.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+<rect fill="none" stroke="none" x="32.5" y="-146.25" width="84.75" height="68.5" /><rect fill="none" stroke="none" x="32.5" y="-146.25" width="84.75" height="68.5" /><text xml:space="preserve" text-anchor="start" x="41.5" y="-124.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="41.5" y="-91.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Flow run</text>
+<text xml:space="preserve" text-anchor="start" x="123.12" y="-123.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">check</text>
+<g id="pecb9f28bdef9072f5efe" class="diagram-port" data-native-id="2c76a33b-2b7d-5d7b-9b2a-d51e7ba4c00a" data-owner-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-side="E"><rect fill="#d9eaf7" stroke="none" x="164.25" y="-136.0" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="164.25" y="-136.0" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="168" y="-120" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="121.25" y="-91" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">review</text>
+<g id="p8138ab9ae94319bcfc9e" class="diagram-port" data-native-id="666c3627-17a8-54e5-85a4-3e0abae48370" data-owner-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-side="E"><rect fill="#d9eaf7" stroke="none" x="164.25" y="-103.75" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="164.25" y="-103.75" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="168" y="-87.75" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+</g>
+
+<g id="n5ef4e991fd9cd71dedff" class="node diagram-node shape-box" data-native-id="a98e4c25-d73b-52e7-b863-4318872badc5" data-shape="box" data-group-id="253aca7d-0df7-5eec-8653-a9d548523833">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::command
+a98e4c25-d73b-52e7-b863-4318872badc5
+a98e4c25-d73b-52e7-b863-4318872badc5</title>
+<rect x="294.5" y="-197.25" width="155.75" height="68.5" fill="white" stroke="#647A91" stroke-width="1.3" class="node" /><g id="p287a2a8cd300a87006c4" class="diagram-port" data-native-id="89cb7000-7abb-5f51-9e67-f5d5552a60c0" data-owner-id="a98e4c25-d73b-52e7-b863-4318872badc5" data-side="W"><rect fill="#d9eaf7" stroke="none" x="288.5" y="-170.88" width="12.0" height="15.759999999999991" /><rect fill="none" stroke="#334b64" x="288.5" y="-170.88" width="12.0" height="15.759999999999991" /><text xml:space="preserve" text-anchor="start" x="292.25" y="-154.88" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="304.5" y="-158.12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">command</text>
+<rect fill="none" stroke="none" x="369.25" y="-197.25" width="81.0" height="68.5" /><rect fill="none" stroke="none" x="369.25" y="-197.25" width="81.0" height="68.5" /><text xml:space="preserve" text-anchor="start" x="378.25" y="-175.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="378.25" y="-142.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Checker</text>
+<text xml:space="preserve" text-anchor="start" x="450.25" y="-157.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+</g>
+</svg>

@@ -1,0 +1,279 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="826pt" height="2033pt" viewBox="0.00 0.00 826.00 2033.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">XDesignWorkflow::wishLifecycle · Views::asInterconnectionDiagram</title><desc id="diagram-desc">13 nodes · 10 resolved relationships · native element IDs retained. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 2014.75)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-2014.75 807.75,-2014.75 807.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="37.88" y="-1966.85" font-family="Arial" font-weight="bold" font-size="22.00">XDesignWorkflow::wishLifecycle · Views::asInterconnectionDiagram</text>
+<text xml:space="preserve" text-anchor="start" x="198" y="-1938.5" font-family="Arial" font-size="14.00" fill="#52657a">13 nodes · 10 resolved relationships · native element IDs retained</text>
+
+<g class="edge" data-native-id="177736e8-87b2-518d-86ad-030c94d15de6" data-source-id="06a3ac4f-fbfa-50af-a6f2-08e43e3cd28e" data-target-id="8992bd16-a64c-5fe0-a150-cb38190fcd05" data-edge-kind="directed">
+<title>correctionRequested
+blocked → correctiveWork
+177736e8-87b2-518d-86ad-030c94d15de6</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M129.84,-1006.99C143.34,-969.34 165.85,-906.59 183.58,-857.15" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="186.19,-849.89 186.88,-858.63 185.51,-852.21 183.63,-857.47 183.49,-857.42 183.35,-857.37 185.23,-852.11 180.1,-856.2 186.19,-849.89" />
+<text xml:space="preserve" text-anchor="middle" x="226.25" y="-906.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">correctionRequested</text>
+</g>
+
+<g class="edge" data-native-id="fed604a4-1714-52d6-b321-9c2b69a8321b" data-source-id="8992bd16-a64c-5fe0-a150-cb38190fcd05" data-target-id="c0320ac2-a4bb-5cf1-b0a7-80bae4babd7f" data-edge-kind="directed">
+<title>verificationRetried
+correctiveWork → verificationReady
+fed604a4-1714-52d6-b321-9c2b69a8321b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M213.34,-716.81C215.14,-681.84 217,-645.75 217,-645.75 217,-645.75 230.54,-637.14 247.12,-626.59" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="253.57,-622.49 248.75,-629.82 251.61,-623.91 246.9,-626.91 246.82,-626.78 246.74,-626.65 251.45,-623.66 244.89,-623.74 253.57,-622.49" />
+<text xml:space="preserve" text-anchor="middle" x="271" y="-648.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationRetried</text>
+</g>
+
+<g class="edge" data-native-id="c5e8b516-00ff-560e-8cf3-9b838449cd7d" data-source-id="ea60f38d-89e8-59c1-b5d4-9f2ede623191" data-target-id="2135ca66-9d57-5848-a34b-82be5d648752" data-edge-kind="directed">
+<title>implementationStarted
+design → implementation
+c5e8b516-00ff-560e-8cf3-9b838449cd7d</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M384,-943.39C384,-925.74 384,-907.23 384,-889.32" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="384,-881.6 387.6,-889.6 384.15,-884.02 384.15,-889.6 384,-889.6 383.85,-889.6 383.85,-884.02 380.4,-889.6 384,-881.6" />
+<text xml:space="preserve" text-anchor="middle" x="450.75" y="-906.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">implementationStarted</text>
+</g>
+
+<g class="edge" data-native-id="98d551c8-ef2b-593c-97bf-ef0c66018d23" data-source-id="2135ca66-9d57-5848-a34b-82be5d648752" data-target-id="c0320ac2-a4bb-5cf1-b0a7-80bae4babd7f" data-edge-kind="directed">
+<title>verificationStarted
+implementation → verificationReady
+98d551c8-ef2b-593c-97bf-ef0c66018d23</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M347.75,-685.01C339.44,-662.9 333,-645.75 333,-645.75 333,-645.75 329.92,-638.98 325.89,-630.09" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="322.63,-622.91 329.21,-628.71 323.76,-625.05 326.07,-630.14 325.94,-630.2 325.8,-630.26 323.49,-625.17 322.66,-631.69 322.63,-622.91" />
+<text xml:space="preserve" text-anchor="middle" x="392.3" y="-648.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationStarted</text>
+</g>
+
+<g class="edge" data-native-id="1e63e93b-426a-57e2-9bc1-20110c399255" data-source-id="d6b42de0-e711-52c0-a52d-dc92d9f8d372" data-target-id="fb60e495-bf16-5a94-8757-32e4f4d51df9" data-edge-kind="directed">
+<title>requirementsStarted
+intake → requirements
+1e63e93b-426a-57e2-9bc1-20110c399255</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M384,-1643.1C384,-1584.22 384,-1483.54 384,-1406.51" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="384,-1398.82 387.6,-1406.82 384.15,-1401.23 384.15,-1406.82 384,-1406.82 383.85,-1406.82 383.85,-1401.23 380.4,-1406.82 384,-1398.82" />
+<text xml:space="preserve" text-anchor="middle" x="444.75" y="-1423.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">requirementsStarted</text>
+</g>
+
+<g class="edge" data-native-id="b140080c-17ec-596f-88de-e505030b57f8" data-source-id="fb60e495-bf16-5a94-8757-32e4f4d51df9" data-target-id="ea60f38d-89e8-59c1-b5d4-9f2ede623191" data-edge-kind="directed">
+<title>designStarted
+requirements → design
+b140080c-17ec-596f-88de-e505030b57f8</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M384,-1201.89C384,-1184.24 384,-1165.73 384,-1147.82" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="384,-1140.1 387.6,-1148.1 384.15,-1142.52 384.15,-1148.1 384,-1148.1 383.85,-1148.1 383.85,-1142.52 380.4,-1148.1 384,-1140.1" />
+<text xml:space="preserve" text-anchor="middle" x="425.62" y="-1165.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">designStarted</text>
+</g>
+
+<g class="edge" data-native-id="f472c726-77b0-5d9a-81bd-25059aead492" data-source-id="09311403-b21c-58bd-abcf-852c860a95a9" data-target-id="06a3ac4f-fbfa-50af-a6f2-08e43e3cd28e" data-edge-kind="directed">
+<title>verificationBlocked
+verificationOutcome → blocked
+f472c726-77b0-5d9a-81bd-25059aead492</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M109.36,-231.68C101.64,-286.86 87,-391.5 87,-391.5 87,-783.5 87,-783.5 87,-783.5 87,-783.5 104.07,-924.75 112.88,-997.61" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="113.82,-1005.42 109.29,-997.91 113.38,-1003.04 112.71,-997.5 112.86,-997.48 113.01,-997.46 113.68,-1003 116.43,-997.05 113.82,-1005.42" />
+<text xml:space="preserve" text-anchor="middle" x="143.25" y="-582.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationBlocked</text>
+</g>
+
+<g class="edge" data-native-id="7965490e-2daa-51a1-bcb4-9f36ad1f4303" data-source-id="09311403-b21c-58bd-abcf-852c860a95a9" data-target-id="a9a04096-886c-5d09-ae11-a96eb5519e0e" data-edge-kind="directed">
+<title>verificationPassed
+verificationOutcome → delivered
+7965490e-2daa-51a1-bcb4-9f36ad1f4303</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M114,-163.51C114,-147.53 114,-127.86 114,-109.46" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="114,-101.57 117.6,-109.57 114.15,-103.99 114.15,-109.57 114,-109.57 113.85,-109.57 113.85,-103.99 110.4,-109.57 114,-101.57" />
+<text xml:space="preserve" text-anchor="middle" x="168.75" y="-126.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationPassed</text>
+</g>
+
+<g class="edge" data-native-id="ad27f925-993f-51a9-a927-37a3417407ff" data-source-id="c0320ac2-a4bb-5cf1-b0a7-80bae4babd7f" data-target-id="acc43941-4513-513d-8592-4dd58bd6e37b" data-edge-kind="directed">
+<title>verificationAttempt
+verificationReady → verifyRequirements
+ad27f925-993f-51a9-a927-37a3417407ff</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M299.44,-553.32C295.96,-538.06 291.62,-519.02 287.16,-499.46" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="285.38,-491.68 290.67,-498.68 286.07,-494 287.31,-499.45 287.16,-499.48 287.02,-499.51 285.77,-494.07 283.65,-500.28 285.38,-491.68" />
+<text xml:space="preserve" text-anchor="middle" x="347.89" y="-516.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationAttempt</text>
+</g>
+
+<g class="edge" data-native-id="14e1a9f9-680d-5578-83ed-c8c34d4aa46f" data-source-id="acc43941-4513-513d-8592-4dd58bd6e37b" data-target-id="09311403-b21c-58bd-abcf-852c860a95a9" data-edge-kind="directed">
+<title>verificationAssessed
+verifyRequirements → verificationOutcome
+14e1a9f9-680d-5578-83ed-c8c34d4aa46f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M188.5,-295C173.23,-275.22 157.96,-255.45 145.26,-238.99" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="140.58,-232.93 148.32,-237.06 142.18,-234.75 145.59,-239.17 145.47,-239.26 145.35,-239.36 141.94,-234.94 142.62,-241.46 140.58,-232.93" />
+<text xml:space="preserve" text-anchor="middle" x="227.95" y="-258.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">verificationAssessed</text>
+</g>
+
+<g id="ncd088115da3cec3842b0" class="node diagram-node shape-box" data-native-id="7f64b765-ac79-52c0-97ee-333e92ac7b33" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish
+ref item registeredWish : Wish
+ref part registeredTrace : Trace
+action intake
+action requirements : StageWork
+action design : StageWork
+action implementation : StageWork
+action verifyRequirements : StageWork
+action blocked
+action correctiveWork
+action delivered
+successionas requirementsStarted
+successionas designStarted
+successionas implementationStarted
+successionas verificationStarted
+successionas verificationAttempt
+successionas verificationAssessed
+successionas verificationPassed
+successionas verificationBlocked
+successionas correctionRequested
+successionas verificationRetried
+7f64b765-ac79-52c0-97ee-333e92ac7b33</title>
+<rect fill="white" stroke="none" x="27.62" y="-1925.5" width="252.76" height="465.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="27.62,-1858 27.62,-1858 280.38,-1858 280.38,-1858 27.62,-1858" />
+<rect fill="none" stroke="#647a91" x="27.62" y="-1925.5" width="252.76" height="465.25" /><text xml:space="preserve" text-anchor="start" x="36.62" y="-1903.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PerformActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1870.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">executeWish</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1837.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref item registeredWish : Wish</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1805.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part registeredTrace : Trace</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1773.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action intake</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1742" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action requirements : StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1710.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action design : StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1678.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action implementation : StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1646.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action verifyRequirements : StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1615" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action blocked</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1583.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action correctiveWork</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1551.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action delivered</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1519.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">successionas requirementsStarted</text>
+<text xml:space="preserve" text-anchor="start" x="36.62" y="-1488" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">… 9 more direct features; see native</text>
+<text xml:space="preserve" text-anchor="start" x="127.38" y="-1472.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">export</text>
+</g>
+
+<g id="nfca86c4cde741ee20aff" class="node diagram-node shape-box" data-native-id="06a3ac4f-fbfa-50af-a6f2-08e43e3cd28e" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::blocked
+
+06a3ac4f-fbfa-50af-a6f2-08e43e3cd28e</title>
+<rect fill="white" stroke="none" x="70.75" y="-1075.25" width="94.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="70.75" y="-1075.25" width="94.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="79.75" y="-1053.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="79.75" y="-1020.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">blocked</text>
+</g>
+
+<g id="n15ce87cec7d6c9f4937f" class="node diagram-node shape-box" data-native-id="8992bd16-a64c-5fe0-a150-cb38190fcd05" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::correctiveWork
+action correctArtifacts
+action record
+8992bd16-a64c-5fe0-a150-cb38190fcd05</title>
+<rect fill="white" stroke="none" x="136.12" y="-848.5" width="147.76" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="136.12,-781 136.12,-781 283.88,-781 283.88,-781 136.12,-781" />
+<rect fill="none" stroke="#647a91" x="136.12" y="-848.5" width="147.76" height="132.0" /><text xml:space="preserve" text-anchor="start" x="145.12" y="-826.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="145.12" y="-793.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">correctiveWork</text>
+<text xml:space="preserve" text-anchor="start" x="145.12" y="-760.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action correctArtifacts</text>
+<text xml:space="preserve" text-anchor="start" x="145.12" y="-728.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">action record</text>
+</g>
+
+<g id="nc132ad32bb8c88f07458" class="node diagram-node shape-box" data-native-id="a9a04096-886c-5d09-ae11-a96eb5519e0e" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::delivered
+assertconstraint deliveryAuthorized
+a9a04096-886c-5d09-ae11-a96eb5519e0e</title>
+<rect fill="white" stroke="none" x="0.0" y="-100.25" width="228.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-32.75 0,-32.75 228,-32.75 228,-32.75 0,-32.75" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-100.25" width="228.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="9" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">delivered</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">assertconstraint deliveryAuthorized</text>
+</g>
+
+<g id="n82ef1300039b85e03cd1" class="node diagram-node shape-box" data-native-id="ea60f38d-89e8-59c1-b5d4-9f2ede623191" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::design
+type: StageWork
+ref part executor
+ref part wishTrace
+ref part stage
+ea60f38d-89e8-59c1-b5d4-9f2ede623191</title>
+<rect fill="white" stroke="none" x="321.0" y="-1138.75" width="126.0" height="195.5" class="node" /><polygon fill="#647a91" stroke="#647a91" points="321,-1071.25 321,-1071.25 447,-1071.25 447,-1071.25 321,-1071.25" />
+<rect fill="none" stroke="#647a91" x="321.0" y="-1138.75" width="126.0" height="195.5" /><text xml:space="preserve" text-anchor="start" x="330" y="-1117" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1083.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">design</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1050.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1018.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part executor</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-987" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part wishTrace</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-955.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part stage</text>
+</g>
+
+<g id="n9012bd8586b3c14d31c0" class="node diagram-node shape-box" data-native-id="2135ca66-9d57-5848-a34b-82be5d648752" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::implementation
+type: StageWork
+ref part executor
+ref part wishTrace
+ref part stage
+2135ca66-9d57-5848-a34b-82be5d648752</title>
+<rect fill="white" stroke="none" x="315.75" y="-880.25" width="136.5" height="195.5" class="node" /><polygon fill="#647a91" stroke="#647a91" points="315.75,-812.75 315.75,-812.75 452.25,-812.75 452.25,-812.75 315.75,-812.75" />
+<rect fill="none" stroke="#647a91" x="315.75" y="-880.25" width="136.5" height="195.5" /><text xml:space="preserve" text-anchor="start" x="324.75" y="-858.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="324.75" y="-825.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">implementation</text>
+<text xml:space="preserve" text-anchor="start" x="324.75" y="-792" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="324.75" y="-760.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part executor</text>
+<text xml:space="preserve" text-anchor="start" x="324.75" y="-728.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part wishTrace</text>
+<text xml:space="preserve" text-anchor="start" x="324.75" y="-696.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part stage</text>
+</g>
+
+<g id="ne3398aa9b97c9cc8d4bb" class="node diagram-node shape-box" data-native-id="d6b42de0-e711-52c0-a52d-dc92d9f8d372" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::intake
+ref part selectedFlow
+d6b42de0-e711-52c0-a52d-dc92d9f8d372</title>
+<rect fill="white" stroke="none" x="312.38" y="-1743.0" width="143.24" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="312.38,-1675.5 312.38,-1675.5 455.62,-1675.5 455.62,-1675.5 312.38,-1675.5" />
+<rect fill="none" stroke="#647a91" x="312.38" y="-1743.0" width="143.24" height="100.25" /><text xml:space="preserve" text-anchor="start" x="321.38" y="-1721.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="321.38" y="-1688.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">intake</text>
+<text xml:space="preserve" text-anchor="start" x="321.38" y="-1654.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part selectedFlow</text>
+</g>
+
+<g id="n6157250446508bf65538" class="node diagram-node shape-box" data-native-id="b584d368-5bff-58f1-aa1d-649b75a8b5c7" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::registeredTrace
+type: Trace
+b584d368-5bff-58f1-aa1d-649b75a8b5c7</title>
+<rect fill="white" stroke="none" x="487.38" y="-1743.0" width="137.24" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="487.38,-1675.5 487.38,-1675.5 624.62,-1675.5 624.62,-1675.5 487.38,-1675.5" />
+<rect fill="none" stroke="#647a91" x="487.38" y="-1743.0" width="137.24" height="100.25" /><text xml:space="preserve" text-anchor="start" x="496.38" y="-1721.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="496.38" y="-1688.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">registeredTrace</text>
+<text xml:space="preserve" text-anchor="start" x="496.38" y="-1654.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: Trace</text>
+</g>
+
+<g id="n57129fd9e25ad7f845c2" class="node diagram-node shape-box" data-native-id="06b4d06b-26e6-5893-8afa-720407510529" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::registeredWish
+type: Wish
+06b4d06b-26e6-5893-8afa-720407510529</title>
+<rect fill="white" stroke="none" x="656.25" y="-1743.0" width="133.5" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="656.25,-1675.5 656.25,-1675.5 789.75,-1675.5 789.75,-1675.5 656.25,-1675.5" />
+<rect fill="none" stroke="#647a91" x="656.25" y="-1743.0" width="133.5" height="100.25" /><text xml:space="preserve" text-anchor="start" x="665.25" y="-1721.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ItemUsage</text>
+<text xml:space="preserve" text-anchor="start" x="665.25" y="-1688.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">registeredWish</text>
+<text xml:space="preserve" text-anchor="start" x="665.25" y="-1654.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: Wish</text>
+</g>
+
+<g id="n5e5235981aafc2591a2d" class="node diagram-node shape-box" data-native-id="fb60e495-bf16-5a94-8757-32e4f4d51df9" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::requirements
+type: StageWork
+ref part executor
+ref part wishTrace
+ref part stage
+fb60e495-bf16-5a94-8757-32e4f4d51df9</title>
+<rect fill="white" stroke="none" x="321.0" y="-1397.25" width="126.0" height="195.5" class="node" /><polygon fill="#647a91" stroke="#647a91" points="321,-1329.75 321,-1329.75 447,-1329.75 447,-1329.75 321,-1329.75" />
+<rect fill="none" stroke="#647a91" x="321.0" y="-1397.25" width="126.0" height="195.5" /><text xml:space="preserve" text-anchor="start" x="330" y="-1375.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1342.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">requirements</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1309" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1277.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part executor</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1245.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part wishTrace</text>
+<text xml:space="preserve" text-anchor="start" x="330" y="-1213.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part stage</text>
+</g>
+
+<g id="nb034d0b7d28128ef5638" class="node diagram-node shape-box" data-native-id="09311403-b21c-58bd-abcf-852c860a95a9" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::verificationOutcome
+
+09311403-b21c-58bd-abcf-852c860a95a9</title>
+<rect fill="white" stroke="none" x="27.38" y="-231.75" width="173.24" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="27.38" y="-231.75" width="173.24" height="68.5" /><text xml:space="preserve" text-anchor="start" x="36.38" y="-210" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">DecisionNode</text>
+<text xml:space="preserve" text-anchor="start" x="36.38" y="-176.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">verificationOutcome</text>
+</g>
+
+<g id="nd5957356b4c990df6482" class="node diagram-node shape-box" data-native-id="c0320ac2-a4bb-5cf1-b0a7-80bae4babd7f" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::verificationReady
+
+c0320ac2-a4bb-5cf1-b0a7-80bae4babd7f</title>
+<rect fill="white" stroke="none" x="231.25" y="-621.75" width="151.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="231.25" y="-621.75" width="151.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="240.25" y="-600" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">MergeNode</text>
+<text xml:space="preserve" text-anchor="start" x="240.25" y="-566.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">verificationReady</text>
+</g>
+
+<g id="n5360501e2f525872c7c9" class="node diagram-node shape-box" data-native-id="acc43941-4513-513d-8592-4dd58bd6e37b" data-shape="box">
+<title>XDesignWorkflow::Workflow::executeWish::verifyRequirements
+type: StageWork
+ref part executor
+ref part wishTrace
+ref part stage
+acc43941-4513-513d-8592-4dd58bd6e37b</title>
+<rect fill="white" stroke="none" x="179.38" y="-490.25" width="167.24" height="195.5" class="node" /><polygon fill="#647a91" stroke="#647a91" points="179.38,-422.75 179.38,-422.75 346.62,-422.75 346.62,-422.75 179.38,-422.75" />
+<rect fill="none" stroke="#647a91" x="179.38" y="-490.25" width="167.24" height="195.5" /><text xml:space="preserve" text-anchor="start" x="188.38" y="-468.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="188.38" y="-435.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">verifyRequirements</text>
+<text xml:space="preserve" text-anchor="start" x="188.38" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageWork</text>
+<text xml:space="preserve" text-anchor="start" x="188.38" y="-370.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part executor</text>
+<text xml:space="preserve" text-anchor="start" x="188.38" y="-338.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part wishTrace</text>
+<text xml:space="preserve" text-anchor="start" x="188.38" y="-306.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part stage</text>
+</g>
+</g>
+</svg>

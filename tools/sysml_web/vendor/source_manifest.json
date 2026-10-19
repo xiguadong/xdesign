@@ -1,0 +1,1552 @@
+[
+  {
+    "path": ".actrc",
+    "sha256": "2c41e19f3a229530b885b8cad8766eee573f02d6554794b47f2aa2d1ab85d4c6",
+    "bytes": 351
+  },
+  {
+    "path": ".github/workflows/audit.yml",
+    "sha256": "3c3b73b88357ed95dc5d9c4ace55e4bdbff80afe9e0090baf9fa92e2c0ed5d72",
+    "bytes": 1899
+  },
+  {
+    "path": ".github/workflows/ci.yml",
+    "sha256": "1e162317001b4c308075063390ccb3d397069597efa4d1f97a5aedc2ce1cee9c",
+    "bytes": 11496
+  },
+  {
+    "path": ".github/workflows/pages.yml",
+    "sha256": "e7a66d5e0075e45b88edcf479ff15977cd0acd57488ab6da1504e2420d9ca12a",
+    "bytes": 2403
+  },
+  {
+    "path": ".github/workflows/release-cli.yml",
+    "sha256": "e7585422ae4d32c8f4cda375df2633c651c7e421f4381e4ca3ace7a2884de350",
+    "bytes": 4945
+  },
+  {
+    "path": ".github/workflows/release-vscode.yml",
+    "sha256": "991a5ee891bf8e4dfdfb6a3216a58587ddb82c62cba3a7a8720569c3c61561a7",
+    "bytes": 3671
+  },
+  {
+    "path": ".gitignore",
+    "sha256": "0e298e75fe7d0624c2f58846f5d53fdaf31e22ba880a03e77d53370c27cc674b",
+    "bytes": 2587
+  },
+  {
+    "path": ".gitmodules",
+    "sha256": "eff56dab28a6a9a86193e9a0365f197ac02ac396cf8e438808d55554e003f9c9",
+    "bytes": 150
+  },
+  {
+    "path": ".markdownlint-cli2.yaml",
+    "sha256": "1e16e394fefd7f3b96126b478a5f8380f07664c766109b3b12fd5dab4101e055",
+    "bytes": 309
+  },
+  {
+    "path": ".markdownlint.yaml",
+    "sha256": "3546089f23c014c6d5bf729f06ed8e49aa443bfa36a3058f258da5f8e4865f71",
+    "bytes": 402
+  },
+  {
+    "path": ".mcp.json",
+    "sha256": "59d4763de90657047a2de53c1160586f96e4a820f8cbefdc1da6c97a3a652845",
+    "bytes": 363
+  },
+  {
+    "path": ".vscode/settings.json",
+    "sha256": "96d1e9846060033fae2b9208d1833cca6b1d1e1ad468e93948ff2b5ad239d5ec",
+    "bytes": 1250
+  },
+  {
+    "path": "CHANGELOG.md",
+    "sha256": "13ee2943adbedae8fa3310ed0379ded19f512a3ca561fc8d17f1bbf698572055",
+    "bytes": 15221
+  },
+  {
+    "path": "Cargo.toml",
+    "sha256": "10c7bc82ac8304c784fefe8e759878815ed7b114cfbfb67304a63ab1bfcc3155",
+    "bytes": 6135
+  },
+  {
+    "path": "LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "Makefile",
+    "sha256": "0fb25c0118eba586a029d4e0d1056e88dcded6e31aa4e0b8957efdc1f81f3eb5",
+    "bytes": 3079
+  },
+  {
+    "path": "README.md",
+    "sha256": "4315083f197db8138f5f024051c6b69b9823acd12922e21cd0c1719b18e414c3",
+    "bytes": 12338
+  },
+  {
+    "path": "crates/sysml-cli/Cargo.toml",
+    "sha256": "5c89c25d0812eb084dbac7a26cdcfcc94243beef6bdd564c9dd29b02f266bbed",
+    "bytes": 1343
+  },
+  {
+    "path": "crates/sysml-cli/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-cli/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-cli/README.md",
+    "sha256": "323f27aa67f2a90373852669bb0d949913d2561138e7ee6a7337ba8c38b71ad5",
+    "bytes": 2826
+  },
+  {
+    "path": "crates/sysml-cli/src/api.rs",
+    "sha256": "37e63ee1c878f73e179de556cc6feabdaebb8185e05cc1b8a4b09f212b49fea4",
+    "bytes": 19533
+  },
+  {
+    "path": "crates/sysml-cli/src/lib.rs",
+    "sha256": "fdd11e4d330daaf30373e4558f3ffc6c6bc76fc4d330dd9eb339a37ef3be374f",
+    "bytes": 1810
+  },
+  {
+    "path": "crates/sysml-cli/src/main.rs",
+    "sha256": "0ed0d4fc577ff0b7a2322acfc74c459a33a047d3e150afc4f713ead60a0f1f0c",
+    "bytes": 74106
+  },
+  {
+    "path": "crates/sysml-cli/src/mcp.rs",
+    "sha256": "ab0258bf3a468cfb2c91d8a75c7d0ed010f995995bb6946a85669c23c928dcc8",
+    "bytes": 54915
+  },
+  {
+    "path": "crates/sysml-cli/src/notation.rs",
+    "sha256": "c7f69e040afe44425cca85153d67b90dd22a74368d20fdfdba52eea200a4b8c0",
+    "bytes": 17242
+  },
+  {
+    "path": "crates/sysml-cli/src/plan.rs",
+    "sha256": "f764e270389a28d49cb7a1e2b31140e56072300d2e159a48f209bab99ec8dbbe",
+    "bytes": 41154
+  },
+  {
+    "path": "crates/sysml-cli/src/report.rs",
+    "sha256": "6555075e80cdfdeef74d58f443c7d7ece660a30f3e1f7127e23337069bfaaf9a",
+    "bytes": 4102
+  },
+  {
+    "path": "crates/sysml-cli/tests/awkward.rs",
+    "sha256": "1380efa0fe6f468005a38d2ec4e4068e2373a651bdecd862cc66281e6690fb07",
+    "bytes": 14475
+  },
+  {
+    "path": "crates/sysml-cli/tests/cli.rs",
+    "sha256": "7a3dbcb2292447396b778b7a680fd6464c26fe85f28abbc7a2309474b884870d",
+    "bytes": 56958
+  },
+  {
+    "path": "crates/sysml-cli/tests/corpus_sweep.rs",
+    "sha256": "4fefacc2633d9d8c1da6e3e05d47c0a54b54553dc1cc30849eda354e9fd842f0",
+    "bytes": 9348
+  },
+  {
+    "path": "crates/sysml-cli/tests/library_without_being_told.rs",
+    "sha256": "160067cd46b5b56766847c9009f3029f25901d32901a8dabf08fc055f0fed0db",
+    "bytes": 8872
+  },
+  {
+    "path": "crates/sysml-cli/tests/mcp.rs",
+    "sha256": "09f849dd38ee7c6e548799e5dc56fbdbc161696e2ab14547e95bcca2e1511f3f",
+    "bytes": 58209
+  },
+  {
+    "path": "crates/sysml-cli/tests/mcp_corpus.rs",
+    "sha256": "9790f666c364eaa04f4bc0ad9aaa9355e39bdc47fc60f080d64fe598c986ee82",
+    "bytes": 6038
+  },
+  {
+    "path": "crates/sysml-cli/tests/notation_is_real.rs",
+    "sha256": "e9cf6da278f94d7ef3aed61d5ee86df95b4f1a2fb5a978c623c0126df0224a67",
+    "bytes": 4376
+  },
+  {
+    "path": "crates/sysml-cli/tests/repeatable.rs",
+    "sha256": "9fc9788f27ee7a612d63ead5eb914306b712b4f0a6129b54e572d7408d03f4e2",
+    "bytes": 7687
+  },
+  {
+    "path": "crates/sysml-cli/tests/said_plainly.rs",
+    "sha256": "333f38ce4f06072186bbb1d4386e1e6c425b94aa3e37db1daa49c9529cbe4f83",
+    "bytes": 8670
+  },
+  {
+    "path": "crates/sysml-cli/tests/the_other_way_through_json.rs",
+    "sha256": "e5094d2e23f97507e6cabdfae1197960fdf3f2f6c1a9d98b6f5525c628d613e4",
+    "bytes": 9834
+  },
+  {
+    "path": "crates/sysml-cli/tests/vendor_corpus_smoke.rs",
+    "sha256": "d41cd1716d0b0aae40c034d28609f35906c5434dcd942786e5d863c032b28f00",
+    "bytes": 3781
+  },
+  {
+    "path": "crates/sysml-cli/tests/what_the_model_implies.rs",
+    "sha256": "16bb35cbf5f3e1d9bc3995d553752f04d1dbc8b12f83adc61d4f10f1e33b0c60",
+    "bytes": 32769
+  },
+  {
+    "path": "crates/sysml-corpus/Cargo.toml",
+    "sha256": "fc4e39d07b6c3064962e07e9f646c06c45f9fefba2ca57c84447c6108e7410d2",
+    "bytes": 557
+  },
+  {
+    "path": "crates/sysml-corpus/src/lib.rs",
+    "sha256": "73aa219d282b3449d5878b838a2a586c80b372d7c1ce59ea7710dd86f7441cc7",
+    "bytes": 8372
+  },
+  {
+    "path": "crates/sysml-diagram/Cargo.toml",
+    "sha256": "ef80b7deac5d255915b51f0d3c9fe2f5417f96320fce46a122244c605e5b6878",
+    "bytes": 1600
+  },
+  {
+    "path": "crates/sysml-diagram/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-diagram/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-diagram/README.md",
+    "sha256": "9fcc09a6161d1e3620f76479a64e297a00f28183c54cfb466770d5d8b0740edc",
+    "bytes": 6678
+  },
+  {
+    "path": "crates/sysml-diagram/src/browser.rs",
+    "sha256": "38630f004510ff6b7a8365eb1c8af5ffab62d707f7f14fe9ae1b8b330710107c",
+    "bytes": 9500
+  },
+  {
+    "path": "crates/sysml-diagram/src/elk.rs",
+    "sha256": "7ce282dab94ffee7d0f5f66f1264171443f4414970e214e7e112d31514329775",
+    "bytes": 23690
+  },
+  {
+    "path": "crates/sysml-diagram/src/graph.rs",
+    "sha256": "93bd54efb6452d1faf2180141907d3c79c14d988275253861ad89f44eecf5313",
+    "bytes": 217094
+  },
+  {
+    "path": "crates/sysml-diagram/src/layout.rs",
+    "sha256": "ff9f7981122eca3557d651539ee13b7f06c94e52ad223458784f37d826e33833",
+    "bytes": 16149
+  },
+  {
+    "path": "crates/sysml-diagram/src/lib.rs",
+    "sha256": "0ccee857512283a22c6ce681e7fc3e8522981041b181083be1ce481283f07e04",
+    "bytes": 9496
+  },
+  {
+    "path": "crates/sysml-diagram/src/sequence.rs",
+    "sha256": "f0c55f871bef3c7a3dbd833b6a38d29a09d4ccc421adc0136fc67becc0ee5b4c",
+    "bytes": 16972
+  },
+  {
+    "path": "crates/sysml-diagram/src/skin.rs",
+    "sha256": "899fcc0625e6960ab22e1714e85468d83fba43646b34dd8a2a39fa6a8af454e4",
+    "bytes": 40003
+  },
+  {
+    "path": "crates/sysml-diagram/src/svg.rs",
+    "sha256": "d4d51135dc8bdbc9ca07478af1eb7dae208fd3971cd41c653c764736ad22da97",
+    "bytes": 183767
+  },
+  {
+    "path": "crates/sysml-diagram/tests/corpus_faithfulness.rs",
+    "sha256": "c4659c8c48b142e1b7f29e48911b9adc4cd208c149449d188de8cbeceb66e969",
+    "bytes": 11601
+  },
+  {
+    "path": "crates/sysml-diagram/tests/inside_the_canvas.rs",
+    "sha256": "baa1ae74e6e6afbaf5dd28d679212f80e5247f2af48fff333b94fe6f0e99f13d",
+    "bytes": 5193
+  },
+  {
+    "path": "crates/sysml-interchange/Cargo.toml",
+    "sha256": "09eec3625a929fb182e356896000ab052503cb8b2615b169e4d75ffbd81ab878",
+    "bytes": 1372
+  },
+  {
+    "path": "crates/sysml-interchange/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-interchange/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-interchange/README.md",
+    "sha256": "dfd054bb5d761c9c70476332d9dcc8f3055ce44a48fc999ec7c4bf1d2878fdd5",
+    "bytes": 903
+  },
+  {
+    "path": "crates/sysml-interchange/src/lib.rs",
+    "sha256": "5c16e72118cf5d3ef052c56dc7770ec67433e0229a05cc4fcb58f74fa30346ac",
+    "bytes": 133554
+  },
+  {
+    "path": "crates/sysml-interchange/tests/roundtrip_corpus.rs",
+    "sha256": "a74cb3e5b2ce8675539a219bcdb6df6682aa9fc26c648d1ba9a994064bcf65b5",
+    "bytes": 2550
+  },
+  {
+    "path": "crates/sysml-lsp/Cargo.toml",
+    "sha256": "4171ffb6afe0f273c320bba2aa8d875600d319abace51cbf285ef48cd62a304f",
+    "bytes": 1126
+  },
+  {
+    "path": "crates/sysml-lsp/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-lsp/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-lsp/README.md",
+    "sha256": "255a77716007d6cad1dcf3795badde72f39d0a1064a37a0489a8293cb49c16ad",
+    "bytes": 1483
+  },
+  {
+    "path": "crates/sysml-lsp/src/files.rs",
+    "sha256": "f0878598839cccaf31b8783c8c84db42ce08a634dc465293d3e96d0d2701cbb6",
+    "bytes": 10776
+  },
+  {
+    "path": "crates/sysml-lsp/src/lib.rs",
+    "sha256": "30bd5e422afb1c09827269fbf8eb9f6d1bf8dac554b8e7cc49f78ee468625ee1",
+    "bytes": 52811
+  },
+  {
+    "path": "crates/sysml-lsp/src/line_index.rs",
+    "sha256": "a43f2bafb9dda6a4535aee083beddf8ddde914f6a24bd4c57f94257104c7c9e1",
+    "bytes": 4126
+  },
+  {
+    "path": "crates/sysml-lsp/src/main.rs",
+    "sha256": "e772adfc470e507a5c11583191ceb00b24d38c4260c5ba1f96b1e98be626342d",
+    "bytes": 400
+  },
+  {
+    "path": "crates/sysml-lsp/src/project.rs",
+    "sha256": "5c6dacdca12e00533b84b8dfaa1219639a6da5f3dd030b1e1c892b02449701d3",
+    "bytes": 20372
+  },
+  {
+    "path": "crates/sysml-lsp/src/requests.rs",
+    "sha256": "745be848977d26164c0f601d5035217c104d3418bf2396bffa23fa19689cdf1b",
+    "bytes": 26059
+  },
+  {
+    "path": "crates/sysml-lsp/tests/common/mod.rs",
+    "sha256": "3a43c4af7d3a89dd80a22fcbf6b7bedd4cabb0f05e344fe9051961af62bfca64",
+    "bytes": 7869
+  },
+  {
+    "path": "crates/sysml-lsp/tests/corpus_positions.rs",
+    "sha256": "16904282eeb83f6b50a764987e02de4be86ad6724219e166bd110b5ca4e73171",
+    "bytes": 9372
+  },
+  {
+    "path": "crates/sysml-lsp/tests/did_you_mean.rs",
+    "sha256": "186292e3fec644379b6042a2c3e07a997f06cfe060833d2747cf0c03ea1a44c3",
+    "bytes": 5037
+  },
+  {
+    "path": "crates/sysml-lsp/tests/e2e.rs",
+    "sha256": "c843c166f6f4865a795f172d192444bb9d3400a2b0df467f6f7e87aeeaaad4f5",
+    "bytes": 25906
+  },
+  {
+    "path": "crates/sysml-lsp/tests/e2e_library.rs",
+    "sha256": "6e45aae129a302ea2b6b67ca963e0df2a5292359af10033722d9499fe2291351",
+    "bytes": 14086
+  },
+  {
+    "path": "crates/sysml-lsp/tests/library_without_being_told.rs",
+    "sha256": "0abebb2cfecffd62b8c6107e66368ef4517c8ce97d1629040f52a508b2630d9c",
+    "bytes": 4019
+  },
+  {
+    "path": "crates/sysml-lsp/tests/outside_the_buffer.rs",
+    "sha256": "970b97a2081465441e2c2b01daca01c1744c492efd4a9b0b14ccfc99a7460159",
+    "bytes": 5038
+  },
+  {
+    "path": "crates/sysml-lsp/tests/project_files.rs",
+    "sha256": "3b9a16d66477f24619a2cb534d2bf58197798db18f470667712fc0b1fa0350f8",
+    "bytes": 23421
+  },
+  {
+    "path": "crates/sysml-lsp/tests/rename_applied.rs",
+    "sha256": "affefe8aa4e9ae04b406bec6ea24270d04875f20469b5f00771491f46f733415",
+    "bytes": 5971
+  },
+  {
+    "path": "crates/sysml-lsp/tests/stdio.rs",
+    "sha256": "e953251bacc0e12852fed0063e9b3c27ae92ca686ee442a06fecbe9cbec81e14",
+    "bytes": 1985
+  },
+  {
+    "path": "crates/sysml-model/Cargo.toml",
+    "sha256": "1f504c9472682547e23e25793ed273ec863a92f48811dc348c3aa82ec9474797",
+    "bytes": 1524
+  },
+  {
+    "path": "crates/sysml-model/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-model/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-model/NOTICE",
+    "sha256": "b6694db8f33699b1e7d630b33cf0b8b02f2b653333ed541f0e492b1b2410c71e",
+    "bytes": 1949
+  },
+  {
+    "path": "crates/sysml-model/README.md",
+    "sha256": "8dc3d20f9e7797720a8d267a5ee2418c6d9b848247ea87fedd3a5ddf1893ba53",
+    "bytes": 999
+  },
+  {
+    "path": "crates/sysml-model/src/bin/sysml-codegen.rs",
+    "sha256": "5dcdc272ae894875cb7d3890b42d7c5ece878d18820bec91c88f72d641e883f6",
+    "bytes": 160
+  },
+  {
+    "path": "crates/sysml-model/src/build.rs",
+    "sha256": "a406a1daeda27a595572e6d5d8bcfd176cdb16b6eb943baa70a8ab099ae6a5f9",
+    "bytes": 180298
+  },
+  {
+    "path": "crates/sysml-model/src/codegen.rs",
+    "sha256": "8128ecf3678b703168d848d5a47e2800994d29427c2da29708f3cfe522aefb3a",
+    "bytes": 48855
+  },
+  {
+    "path": "crates/sysml-model/src/generated.rs",
+    "sha256": "8c27e8445f63accd3c3914c69471bf143ce7c3b4a161648681c0617e9f529fff",
+    "bytes": 602677
+  },
+  {
+    "path": "crates/sysml-model/src/lib.rs",
+    "sha256": "63853a5b117a36df77d733e0292aaf22a7fcba7b9f49f1815aa7a35d2ff3c62b",
+    "bytes": 45825
+  },
+  {
+    "path": "crates/sysml-model/tests/build_corpus.rs",
+    "sha256": "1af52426d691ad3f85d91e7a761c14e22cc2ec4d6aedb196089c3c5dafa9892b",
+    "bytes": 1696
+  },
+  {
+    "path": "crates/sysml-model/tests/generated_is_current.rs",
+    "sha256": "fac8e00e7c23666c8960fb8a3b17642e6c1be5a4e30ebbbca89c255917371275",
+    "bytes": 9141
+  },
+  {
+    "path": "crates/sysml-model/tests/generated_metamodel.rs",
+    "sha256": "0b4e24fa69d802638ebf19449f36fa6f0acf0aecde230212e854ada848ad799d",
+    "bytes": 2976
+  },
+  {
+    "path": "crates/sysml-rust/Cargo.toml",
+    "sha256": "2f3853bfa9568aa53bffe85ee00c12b15a6cf2630d3b1b00d7142d19f506844e",
+    "bytes": 934
+  },
+  {
+    "path": "crates/sysml-rust/README.md",
+    "sha256": "342eb39a225ae2b6ab0746b8964050b30dd8be6073bdbe33656a36382d4d166f",
+    "bytes": 1381
+  },
+  {
+    "path": "crates/sysml-rust/src/binding.rs",
+    "sha256": "dd7bcfd429f260f7f5e0f90a058338729d7809f107b841620558bf55e7f22bd0",
+    "bytes": 3003
+  },
+  {
+    "path": "crates/sysml-rust/src/expr.rs",
+    "sha256": "d44f9a5838dee7eb32b8fc4123b3d2ddd00057922e04e36ff0c2addabf7f8e77",
+    "bytes": 23242
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/behavior.rs",
+    "sha256": "df0fbe181133b2ab4bbd210332a16ce73376a0396d716295ee4aa8f06c76e695",
+    "bytes": 50507
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/claims.rs",
+    "sha256": "10b486e39b1d5b7ddb776dbd5c4aa87d8c78c502bc46e4eb1199e4013e74bfd1",
+    "bytes": 9069
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/mod.rs",
+    "sha256": "a8e31b448a8310da8a779ce25613828a2cd7819b533009b91fcbebfbb5d933ab",
+    "bytes": 33988
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/plan.rs",
+    "sha256": "4c4b4d8b44d0463cb776c571471a2abaa0028ff05b47c5f697ee623b990eb372",
+    "bytes": 21719
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/ports.rs",
+    "sha256": "7840a416bc2e55276dfcc9607ff003e204322ae86649bc2b516f875b7edd9de9",
+    "bytes": 11351
+  },
+  {
+    "path": "crates/sysml-rust/src/generate/shape.rs",
+    "sha256": "d4bc1a7d63fd69055f479656f0612d329b7681877fc00bc07a83532396982ced",
+    "bytes": 25791
+  },
+  {
+    "path": "crates/sysml-rust/src/import.rs",
+    "sha256": "a7c04212daf463c6719d14dd182ec4ac561cfa7eda187726d3826668cdc2cf25",
+    "bytes": 29335
+  },
+  {
+    "path": "crates/sysml-rust/src/lib.rs",
+    "sha256": "5aca9e4be93fec700fd71c781a01e106bf7b6bd09797f3c6bc5a6a5d64e138e2",
+    "bytes": 818
+  },
+  {
+    "path": "crates/sysml-rust/tests/corpus.rs",
+    "sha256": "1e0160293e0a5e2281eb448beeb16aa6aefcef3e603be705c7d3d2b7cc382046",
+    "bytes": 3671
+  },
+  {
+    "path": "crates/sysml-rust/tests/edge_cases.rs",
+    "sha256": "c1a9e0677ee7214d1594b58a47b047f55d249f39f36f40369a2e6cc26d55a949",
+    "bytes": 87317
+  },
+  {
+    "path": "crates/sysml-rust/tests/fixtures/inventory-store/Cargo.toml",
+    "sha256": "6af3d9c6d4fc6504e1bae60648e25c7886763da3be59183faace65793839af3d",
+    "bytes": 201
+  },
+  {
+    "path": "crates/sysml-rust/tests/fixtures/inventory-store/src/lib.rs",
+    "sha256": "54c8a241a463f222fd3bf8238e2d07fc9cc70e3d1276eda72c0cbc444ae57c55",
+    "bytes": 2344
+  },
+  {
+    "path": "crates/sysml-rust/tests/fixtures/inventory_store.rustdoc.json",
+    "sha256": "3f60f5abf793e094b3cc086b337a35549fd84c6b139c38b80c3798fcd011ca8c",
+    "bytes": 496532
+  },
+  {
+    "path": "crates/sysml-rust/tests/import.rs",
+    "sha256": "7ca8ba0d852ebde484f1550fda1058cee153261f25733ac4ea916a14ed296908",
+    "bytes": 29747
+  },
+  {
+    "path": "crates/sysml-rust/tests/workspace_crates.rs",
+    "sha256": "721b04e0493ed5277de70bab8e49deae51733e7af6313d03f8898ba5595170f5",
+    "bytes": 4403
+  },
+  {
+    "path": "crates/sysml-semantics/Cargo.toml",
+    "sha256": "327b39878d8d9f6a0be100265f5e620613fee1851dd527f8b3130c0703a7f62c",
+    "bytes": 800
+  },
+  {
+    "path": "crates/sysml-semantics/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-semantics/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-semantics/README.md",
+    "sha256": "dbc0516fdca9f91a7f19f5790da30fec850e8ea035269e2f882b7252705c8c22",
+    "bytes": 1812
+  },
+  {
+    "path": "crates/sysml-semantics/src/expressions.rs",
+    "sha256": "bf9d2262bdb6fdc748a9f44f4f8683d7ef0633307a73f3bc984eb4c9eb7733b7",
+    "bytes": 25027
+  },
+  {
+    "path": "crates/sysml-semantics/src/implied.rs",
+    "sha256": "c942b522ede9bb2111fde0b67140059c3272fd46bad2aed526efad30e4b259b6",
+    "bytes": 21844
+  },
+  {
+    "path": "crates/sysml-semantics/src/imports.rs",
+    "sha256": "b78b2c48817e4a560420f3df932649c6e2408d94752690501f0ba8fe59178072",
+    "bytes": 15536
+  },
+  {
+    "path": "crates/sysml-semantics/src/inherit.rs",
+    "sha256": "65a84d0194b87f3a11344bc10ec6d6c6dc2a48a66d61571616068c5b2174b73e",
+    "bytes": 20066
+  },
+  {
+    "path": "crates/sysml-semantics/src/lib.rs",
+    "sha256": "f83f4b347d21385fd73ed136a9b9b6c474112555e2ede0954451ef2e47910390",
+    "bytes": 88474
+  },
+  {
+    "path": "crates/sysml-semantics/src/lookup.rs",
+    "sha256": "b54581a16f7f6379e2f95b3a1d5e32deb88f5a7b6a110fa6e0c5df434323b9f1",
+    "bytes": 31797
+  },
+  {
+    "path": "crates/sysml-semantics/src/ocl.rs",
+    "sha256": "ef8f5608e5f6051ad90555a052d07344efcf88b96f481f7680100713eba7308f",
+    "bytes": 24336
+  },
+  {
+    "path": "crates/sysml-semantics/src/reify.rs",
+    "sha256": "c92730516264e35a5c5bd8c7d1cb2ec390fada1d5a0410eabf4c72448c6102c1",
+    "bytes": 47342
+  },
+  {
+    "path": "crates/sysml-semantics/src/resolve.rs",
+    "sha256": "e6d73d55b44f1a14eb8f87f398e4ba3a44a97e5a164fb8df7840704f8e79ed31",
+    "bytes": 26210
+  },
+  {
+    "path": "crates/sysml-semantics/src/rules.rs",
+    "sha256": "019a22fc3a01b62f446505322fb2f1f102d0ded7200611f378756b35062dcb55",
+    "bytes": 170189
+  },
+  {
+    "path": "crates/sysml-semantics/src/syntax.rs",
+    "sha256": "3f35da6d8a8be5b522c0e936a7e809bf91a1a4dcf71b0e49b7674d3bef8c5ce6",
+    "bytes": 39590
+  },
+  {
+    "path": "crates/sysml-semantics/tests/alone.rs",
+    "sha256": "53b141fa304770cce2af8d98f98e5d48a627aef4ae0a8e748cd031d050c18b2e",
+    "bytes": 2274
+  },
+  {
+    "path": "crates/sysml-semantics/tests/arriving_late.rs",
+    "sha256": "03d91dac94ed00430e7f582bd1dc2c0c9e6399343fc61ebf3f6d2988bce62317",
+    "bytes": 2685
+  },
+  {
+    "path": "crates/sysml-semantics/tests/borrowed_names.rs",
+    "sha256": "30d8bea43be3b107792de17bccd86659498ea85419f9ffd071fd7a4deef71844",
+    "bytes": 4112
+  },
+  {
+    "path": "crates/sysml-semantics/tests/detects.rs",
+    "sha256": "481dfd2e639a9a6cd4ddda625d5d90ac4de72c63e489ff777704218f8fa36fda",
+    "bytes": 24185
+  },
+  {
+    "path": "crates/sysml-semantics/tests/edge_cases.rs",
+    "sha256": "52ae4bed32c217ee1f7af57e61f41a84187d208308b8f28312629b54a0bcf0f2",
+    "bytes": 137455
+  },
+  {
+    "path": "crates/sysml-semantics/tests/expressions.rs",
+    "sha256": "20a784d2392bce3029be837395b6574558211df207fa8496e7df139fc3f453e3",
+    "bytes": 20218
+  },
+  {
+    "path": "crates/sysml-semantics/tests/might_have_meant.rs",
+    "sha256": "e28f0909b8a57df0c207529ff5117d3725d6b426ce5f9eaa2078b6619f2abd18",
+    "bytes": 8327
+  },
+  {
+    "path": "crates/sysml-semantics/tests/model_files.rs",
+    "sha256": "d2d1ca071b05c1228487f111cfc5c0e0566a033123e56cd47a5c1242c17b2e25",
+    "bytes": 2180
+  },
+  {
+    "path": "crates/sysml-semantics/tests/reach.rs",
+    "sha256": "429dccfd1d3364f39c93942088caef54328f0f830ef5c8d6204c2d43b755c1a7",
+    "bytes": 2568
+  },
+  {
+    "path": "crates/sysml-semantics/tests/reaches.rs",
+    "sha256": "2f6f038d17611e88339fc6944cb10901f1bd57b8015cc9cf188f202e7a8412f9",
+    "bytes": 18063
+  },
+  {
+    "path": "crates/sysml-semantics/tests/resolve_corpus.rs",
+    "sha256": "29398237001f56a0340bfca3527ca44671afbfb2e6b05c3001ec4694aae09932",
+    "bytes": 15998
+  },
+  {
+    "path": "crates/sysml-semantics/tests/rules_corpus.rs",
+    "sha256": "b3e3cad133f61567dc894dc0e623e67efe65c012dbc6df7bf1b5608a247b0486",
+    "bytes": 2588
+  },
+  {
+    "path": "crates/sysml-semantics/tests/what_it_says_of_itself.rs",
+    "sha256": "81287961555b39a177f9659fcade843fd42bd92e139a85b1a5dba9f74cc41cc7",
+    "bytes": 3859
+  },
+  {
+    "path": "crates/sysml-stdlib/Cargo.toml",
+    "sha256": "71e6e741a6125b2dcd9b1356f885d52e2eaacabb382d8f28a2ac4322bbd1a7bf",
+    "bytes": 1396
+  },
+  {
+    "path": "crates/sysml-stdlib/LICENSE",
+    "sha256": "0becf16567beb77fa252b7664631dd177c8f9a1889e48995b45379c7130e5303",
+    "bytes": 14198
+  },
+  {
+    "path": "crates/sysml-stdlib/NOTICE",
+    "sha256": "4672112df0b9e6d66e10c8b514cf6ac8e6b8310509a9db8d3a868d0393dae506",
+    "bytes": 928
+  },
+  {
+    "path": "crates/sysml-stdlib/README.md",
+    "sha256": "eb29dfd4790d0906e0f0153f910bce94afd912fb72931235915dd5401fbe58f6",
+    "bytes": 1691
+  },
+  {
+    "path": "crates/sysml-stdlib/build.rs",
+    "sha256": "9d8898c7631adda9f4c8ac28c8bf67adf0d1f5f1dd69b956702695cad5e5661e",
+    "bytes": 3232
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Analysis/AnalysisTooling.sysml",
+    "sha256": "6f71246f2a3f71ebd88df71736d7dca89af0eac8a3e7db5ea7e7a1970a7f7fd6",
+    "bytes": 798
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Analysis/SampledFunctions.sysml",
+    "sha256": "66f11d0475d46e5350dfaf0ecb3ee44018b1d5d279cba03aa04dd6a6a0a39e23",
+    "bytes": 4021
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Analysis/StateSpaceRepresentation.sysml",
+    "sha256": "389a50e3eaa384d4f8d823335dd8acdacbdd139c8053b34829bc559984629005",
+    "bytes": 4264
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Analysis/TradeStudies.sysml",
+    "sha256": "411d0b517d29218084683305770b360ac72fa068adefd9e67f2a4f0a52abcfdc",
+    "bytes": 4754
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Cause and Effect/CausationConnections.sysml",
+    "sha256": "ad96c5282470e30d859582560225a75091b7c8058c0b949608e9dd07c130b661",
+    "bytes": 2650
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Cause and Effect/CauseAndEffect.sysml",
+    "sha256": "a2d39ed3e61477fde0273473a2c46d8eeb93ed81fcfdaeac5d48b9f942ac5403",
+    "bytes": 2441
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Geometry/ShapeItems.sysml",
+    "sha256": "c9f2a10226e8d1a1280aee1ddb2d3e3ec5fe3a9c236c628a4330ee51e36f16a0",
+    "bytes": 26661
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Geometry/SpatialItems.sysml",
+    "sha256": "21f4b44f64212e7c4e5802b7d4deeaec26390fc7e4133be0793eee4f4d1c11aa",
+    "bytes": 6129
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Metadata/ImageMetadata.sysml",
+    "sha256": "b7fa6baf2ee3e3c0708c2b5901abd0d51deeba8e61652909cac57069b4e06731",
+    "bytes": 2099
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Metadata/ModelingMetadata.sysml",
+    "sha256": "bb6c664cfe65dc298827c6cca8fc21941965db3a40a0412ba211cf6ff1cc254d",
+    "bytes": 2423
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Metadata/ParametersOfInterestMetadata.sysml",
+    "sha256": "f5c6da3be824a82a34482f00a3e43976787c03ea1d30cbda84b1be838c557876",
+    "bytes": 1191
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Metadata/RiskMetadata.sysml",
+    "sha256": "ee4f0734fa5995f435ca9c6144f48e3b7a10d422372a71c4396bba2401c14a6e",
+    "bytes": 2085
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQ.sysml",
+    "sha256": "1114a2f3556e757676768d05de2fbf8b1804fde5892d68c976e111db81117fda",
+    "bytes": 2096
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQAcoustics.sysml",
+    "sha256": "91ff456731559717295f3ad27e93a9b88787a264f1fa895fd4efec9632182557",
+    "bytes": 26006
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQAtomicNuclear.sysml",
+    "sha256": "ffd8c8667874fd31e36102eeb239923ab08463316a7b228376da282b9ca3c5be",
+    "bytes": 151607
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQBase.sysml",
+    "sha256": "cc5dc730d2a7167e914431a6f12d0318f792a5c6e2a204a37df9ab33f5e98435",
+    "bytes": 12219
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQCharacteristicNumbers.sysml",
+    "sha256": "c35c40236af5dacc75f5a0882da4244d4bb8551ebe0c8df4218c9e302e75d64d",
+    "bytes": 120115
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQChemistryMolecular.sysml",
+    "sha256": "a6727de0079ffc45ccd020ba44e7202a9e59c4d148a9df8193037fee6da7711a",
+    "bytes": 71443
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQCondensedMatter.sysml",
+    "sha256": "a0896bd6adf713243bd0009b3f09ea451a3e31cb772622b05f89a5404c229984",
+    "bytes": 59985
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQElectromagnetism.sysml",
+    "sha256": "3517d4c9a31dc4e0fb4a6900d7a2c03d4dec3fba410fa04085bfb995adb2fae7",
+    "bytes": 115565
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQInformation.sysml",
+    "sha256": "7b9e1e1b55e9b46556f822451515a6918d24cf61b018b01757cdad18c6856604",
+    "bytes": 41979
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQLight.sysml",
+    "sha256": "a768a75b90bcae08d35662465331e96a7c785f4bf1df107663a2a6865604d643",
+    "bytes": 100171
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQMechanics.sysml",
+    "sha256": "eb60fe410815a67f24cddcef0e5562479fa1faea8347e7a7199478a6fc559c5b",
+    "bytes": 73849
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQSpaceTime.sysml",
+    "sha256": "47946e32f30110661ab586de2f851841d1fad0b35381e510c1eaabba039ecc39",
+    "bytes": 54700
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/ISQThermodynamics.sysml",
+    "sha256": "37ff9990c0b9485dd0e0c901be3bb979a62d22b4598b7b9007e746f4b24c8c3b",
+    "bytes": 64628
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/MeasurementRefCalculations.sysml",
+    "sha256": "51e15d389f3836df3782f87d6450a1d6a8ac08dfd9a2cfddef338ae56dd688dc",
+    "bytes": 1600
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/MeasurementReferences.sysml",
+    "sha256": "32d25b13e96487f771b293ab8e9ca82a39ccd8da6553d944900ba3b500323bb8",
+    "bytes": 21401
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/Quantities.sysml",
+    "sha256": "6e59653fe439e721f707e00bc25f3843b4973180194eaf5d826b7e283600cd45",
+    "bytes": 4580
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/QuantityCalculations.sysml",
+    "sha256": "64e533c978cb73b29f0315e513af49f7ae488c1aa3c712cbf9443d9e07d009b4",
+    "bytes": 4218
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/SI.sysml",
+    "sha256": "8fa533350656ac42f9ce3e9a4068ec1251d54e074af08109cdafc47ac0b24288",
+    "bytes": 30924
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/SIPrefixes.sysml",
+    "sha256": "90e604fcda40f8ec920114a457097cb2fed6d898d422c80277b4c8e9c3e70638",
+    "bytes": 3400
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/TensorCalculations.sysml",
+    "sha256": "bd58a683584fa725256d4687c9f6eb52c09fa17ea65e30d84c1313de1777b80c",
+    "bytes": 2446
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/Time.sysml",
+    "sha256": "1eb02033463c740d35705d03a2dd7d64686d88c110ed7a30ef01e02bdb2dca47",
+    "bytes": 10429
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/USCustomaryUnits.sysml",
+    "sha256": "aa5adac4685322aca75a9a144fbe5dc10f34ca4324e07393eb8ebfd324b34597",
+    "bytes": 30369
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Quantities and Units/VectorCalculations.sysml",
+    "sha256": "1cf01f4cbcb0d26b443cd9efd9276224f35b8e18d18f3741dbbace8cd1f257be",
+    "bytes": 3057
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Requirement Derivation/DerivationConnections.sysml",
+    "sha256": "40e8b13458c120bfa4f9a4059bfc4982ef959815e8580a6ac7f113bed36f55fc",
+    "bytes": 2305
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Domain Libraries/Requirement Derivation/RequirementDerivation.sysml",
+    "sha256": "ee5bed2b7ad17e5c7505e6761d164e14de3d041d97e4bffc005853a130e09a20",
+    "bytes": 1269
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Data Type Library/Collections.kerml",
+    "sha256": "6caea283ebdb11d0a960615276358abcdc99aaa12c2aa05b42a740e8a73688b1",
+    "bytes": 6272
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Data Type Library/ScalarValues.kerml",
+    "sha256": "4db25ce00dd170fd67261f6e7e21a2616bda15d233579dc5fb3193aaf61fa5a5",
+    "bytes": 862
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Data Type Library/VectorValues.kerml",
+    "sha256": "7b22f8867e1cf46ac6a8226175db4405f6c29f047b3d6ad54a044fef3ce683dc",
+    "bytes": 1888
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/BaseFunctions.kerml",
+    "sha256": "c7700f36c786ff25796eb37d321a7a85f5f67b785e08a548c1cf4cd207c8b27f",
+    "bytes": 2044
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/BooleanFunctions.kerml",
+    "sha256": "f836553db8e0ab1fb782043090198bdcd33ab6f168773e099fa2e192646ecc46",
+    "bytes": 962
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/CollectionFunctions.kerml",
+    "sha256": "c33e76c32d8370fefef123692a93d621f09a4cb944f08dd3543461f1f73c1505",
+    "bytes": 2458
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/ComplexFunctions.kerml",
+    "sha256": "cdb8ab38b5937f3716d66e2c71d6811d2ae7df08c1704f4dce7a815be1c01563",
+    "bytes": 2267
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/ControlFunctions.kerml",
+    "sha256": "bd95a74d3ab9f44cfb1445cbaee8c509d78018feaa1eb408f5d91a6ac969c1b1",
+    "bytes": 3603
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/DataFunctions.kerml",
+    "sha256": "896b81cd660948084efd0ee9ebc9125a1588b1e2d360bdebb03430d0317b7b5b",
+    "bytes": 2341
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/IntegerFunctions.kerml",
+    "sha256": "3da7c23ee95290d768dae67e75287122d5512d054c0f9ca57b78a8aab81ee309",
+    "bytes": 2577
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/NaturalFunctions.kerml",
+    "sha256": "f83daf1bbcf124fb9c535273c3c536d08424031991013f2f6c563706afde92ae",
+    "bytes": 1624
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/NumericalFunctions.kerml",
+    "sha256": "ac1f12fc2880a2017a2d4caa6e8f839e0b6bc72b92b154a3db13b14fdd0caa93",
+    "bytes": 2787
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/OccurrenceFunctions.kerml",
+    "sha256": "4bba1f6ffd309568f12da186a3b10bcf43473be558d91d89cb38f9e1037cd12f",
+    "bytes": 3713
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/RationalFunctions.kerml",
+    "sha256": "a7ef0870a5282f5dc489ab85ef424b66cd8909f5f52b2efe5f14ed1765afc768",
+    "bytes": 2813
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/RealFunctions.kerml",
+    "sha256": "4b469aafc18d801ae733734066d3e43aa767c44a89e912cf60772933ab568a76",
+    "bytes": 2717
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/ScalarFunctions.kerml",
+    "sha256": "3a6baf3962079a395304f0a811f3b58da09f18f91aaf76ceef5f81ebeae7a258",
+    "bytes": 2595
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/SequenceFunctions.kerml",
+    "sha256": "927237bb8156b6e8c9a6c3444999d7da98b58af00d7d2a63c487c9260165265e",
+    "bytes": 4501
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/StringFunctions.kerml",
+    "sha256": "b3bbcad2251f9152f4b730754ad172e9a4e52d61fbdb9bdf55b968d92fcaa831",
+    "bytes": 1181
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/TrigFunctions.kerml",
+    "sha256": "04af7eb3aa5be68c60bab85097b870b3a2540e646079c642d44b6a47150b0ce1",
+    "bytes": 1025
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Function Library/VectorFunctions.kerml",
+    "sha256": "2e9fdcd13a0cdf5db5bcc2326975430ac75432dccd45893740464d9a01487661",
+    "bytes": 8060
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Base.kerml",
+    "sha256": "56df84cda67f62c63d4e79e2786fc26046cfa361a958c4fcf0843d32a5707e09",
+    "bytes": 2338
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Clocks.kerml",
+    "sha256": "960ac0884935e308beea55c78ed11b6946c37a386eb7958ef2c913aa275ae4c7",
+    "bytes": 3853
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/ControlPerformances.kerml",
+    "sha256": "31385be7dca94bd0538f011d5c8f7925626d54f96970769f0fdb28b2186a9a03",
+    "bytes": 4496
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/FeatureReferencingPerformances.kerml",
+    "sha256": "b6f9e5349c7c7f393591c0334c3bec86f1766b3e37209819179310c2f8fe1fb7",
+    "bytes": 7681
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/KerML.kerml",
+    "sha256": "8fdf4b7416e981c895cd74b75dc14b18091d13cbcaff7cdded6f9c23e2483d58",
+    "bytes": 21440
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Links.kerml",
+    "sha256": "dcf3c002717cb91f8e16f1890fdf5526f4e178ada898a189621c7d0c24b5ddc0",
+    "bytes": 2117
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Metaobjects.kerml",
+    "sha256": "983dbd85a4b183d8859326ee512fc59d991fb98a115e009e72fad21d1f9d1685",
+    "bytes": 1648
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Objects.kerml",
+    "sha256": "9057e2781fe8793d5108973c0647318caa26310be6231c6380152a4cbc894c25",
+    "bytes": 7249
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Observation.kerml",
+    "sha256": "6bc57a73c43af6f61201b6eb659024a9f08f974643eb5a101e068e3637761ee4",
+    "bytes": 4578
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Occurrences.kerml",
+    "sha256": "b3a62ce0bc3a4f7e667102b4c2f68a4928ca8efeda425c6a4c8bdeadfbc9bbc1",
+    "bytes": 37911
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Performances.kerml",
+    "sha256": "fd965e184b300737a192530de0c800cdbee236cb6220612f370400da21dfb327",
+    "bytes": 8925
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/SpatialFrames.kerml",
+    "sha256": "2a7790ebc2afacbd64eb781567906921e38eff385c917be03b090b8289353de7",
+    "bytes": 6944
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/StatePerformances.kerml",
+    "sha256": "f02fb7e8de58f4304c95c575ee1bcb7d271d621ce8e336ce36ea80a4e956c3da",
+    "bytes": 5456
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Transfers.kerml",
+    "sha256": "6697453f40187076ebda9ee475f7f974321eb8b48b93622879fe6560fa14dcf5",
+    "bytes": 10816
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/TransitionPerformances.kerml",
+    "sha256": "1ce78437c817c8359a2cad43e8e72b23dd32b81d2a69dc1126c803fae72aae70",
+    "bytes": 2583
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Kernel Libraries/Kernel Semantic Library/Triggers.kerml",
+    "sha256": "124cad3625935e078d1363e6100ee12537ca9c51445a18108e056db8b4885609",
+    "bytes": 4422
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Actions.sysml",
+    "sha256": "afb17b47ea1228bef41ef791ba4ff4253c48a44589e7fd4978b1d7793ea4ff77",
+    "bytes": 14971
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Allocations.sysml",
+    "sha256": "0ad900a4c25d88eb96da3d57e365f6c38cd87019bcaac5ab91eee9523b5f0ed1",
+    "bytes": 788
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/AnalysisCases.sysml",
+    "sha256": "2bb88f61178f2cefd5441600d2d980ed1e1a4ffc5cb7b3ca9207edee5c350f87",
+    "bytes": 1038
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Attributes.sysml",
+    "sha256": "0ff9b0acc3f0a7bd68fefe6b110e9136f1911d0c483741804c3b8ca07f5f538d",
+    "bytes": 626
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Calculations.sysml",
+    "sha256": "19f5c2ac553c0a034550292de6bfa601e6948fc81d5af781b59c940eee2e5f72",
+    "bytes": 990
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Cases.sysml",
+    "sha256": "2c4c0cbaaa466f9f720ba69af3a019517ca0a7741a561f7880006bae946bf24f",
+    "bytes": 1619
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Connections.sysml",
+    "sha256": "7303b68d46ee3115e26efbd22d209640cd0f81a71b4c0f0f46f011011153b1c6",
+    "bytes": 2133
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Constraints.sysml",
+    "sha256": "84dd65984abd0c35c37b75ef5766bfa63c836aa75a1c75a9d3eb5f4230fa8fdd",
+    "bytes": 1263
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Flows.sysml",
+    "sha256": "191a741036cdffddef310d8abbf10cf622724ca837d3e33953df95664890de41",
+    "bytes": 4766
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Interfaces.sysml",
+    "sha256": "62b5c3c2bc3960e8d25633231c3933a81e422b3a904dc9541b8787113d076c66",
+    "bytes": 3467
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Items.sysml",
+    "sha256": "5a3b2c2d2eb3104186a5e200c40647d1d798685a62db0301ce4ca361651015b7",
+    "bytes": 4121
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Metadata.sysml",
+    "sha256": "c86a68a1b7f8f33f287d812780d2446021aeefb3284f28b9c10dfe2b1a13ded6",
+    "bytes": 884
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Parts.sysml",
+    "sha256": "a22b926a7bbdcda20149200a61fd41c9f1e3924c8929ef7d68db529fb8e7bf51",
+    "bytes": 1882
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Ports.sysml",
+    "sha256": "febd6617c3bb9d0f93c77722b98874d89b4973f7b93ee88509097b2e80bc6995",
+    "bytes": 1594
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Requirements.sysml",
+    "sha256": "c436a8fe2959b380ee3d8ae7c1c206311aa9c1215d13800b215f9952e1216632",
+    "bytes": 5466
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/StandardViewDefinitions.sysml",
+    "sha256": "b29882b0240e3cc2721b66c6bc9fd1d2d2431a34e80e170cd465911ff8d833a5",
+    "bytes": 6115
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/States.sysml",
+    "sha256": "1a84e28d41a8d76ff1cbce81312257dac97b47bcd545c31f8a34f73098ac13bc",
+    "bytes": 3371
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/SysML.sysml",
+    "sha256": "9712ed6aec59e2ff31c915c58ec8d42158c415c9309e96532626f6ee5f8f159c",
+    "bytes": 30789
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/UseCases.sysml",
+    "sha256": "242e51944c32032215d76a9ff1fd967d8ba36efffd9d78da1c423a5b102a2cf6",
+    "bytes": 1271
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/VerificationCases.sysml",
+    "sha256": "dbee7255e16df9c5cf0bded96c43cb60b1e5026b6973c5fb1176316902ac47b9",
+    "bytes": 2488
+  },
+  {
+    "path": "crates/sysml-stdlib/library/Systems Library/Views.sysml",
+    "sha256": "0bcf10afd49dd09c8c64844da97fc4c01a4a35fefd4e4a179a8bc0a8a261c8a8",
+    "bytes": 3973
+  },
+  {
+    "path": "crates/sysml-stdlib/src/lib.rs",
+    "sha256": "e8f545dc77e8b512433ea3b70be879f8d5ad8aa7e818bc359b5a5164555c1fb2",
+    "bytes": 3800
+  },
+  {
+    "path": "crates/sysml-stdlib/tests/matches_vendor.rs",
+    "sha256": "a3ff0bf92813b255cfa28c57c021853d8dac970c01acb590468250ede6861b5a",
+    "bytes": 3617
+  },
+  {
+    "path": "crates/sysml-syntax/Cargo.toml",
+    "sha256": "8f3111644f497eac67e180df5587b0455448e06870978735cac0af067c028f2b",
+    "bytes": 1017
+  },
+  {
+    "path": "crates/sysml-syntax/LICENSE-APACHE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "bytes": 11358
+  },
+  {
+    "path": "crates/sysml-syntax/LICENSE-MIT",
+    "sha256": "b063c1b5e161f9da0b5e2e47c2d48dc32240d9e0cb99c1f0082622c38f6d305b",
+    "bytes": 1081
+  },
+  {
+    "path": "crates/sysml-syntax/README.md",
+    "sha256": "0d8ed608b87c51fd1c39196b93c1b0427a95336fa566bbc6644760f24a09ae14",
+    "bytes": 813
+  },
+  {
+    "path": "crates/sysml-syntax/src/ast.rs",
+    "sha256": "5dbf220c3ca1b59341a5eebb788dddabc39f2347cf377835fb5acc6b3c02cabd",
+    "bytes": 17617
+  },
+  {
+    "path": "crates/sysml-syntax/src/fmt.rs",
+    "sha256": "1c236e76a206094cc3ba55f845938a45f7afc34d248d68cf45fb813e33aa6550",
+    "bytes": 30840
+  },
+  {
+    "path": "crates/sysml-syntax/src/kind.rs",
+    "sha256": "2736312f1c1153f093b00c88648a6d3f1b951c6b1324efa5a8274df6d815bdc2",
+    "bytes": 27737
+  },
+  {
+    "path": "crates/sysml-syntax/src/lexer.rs",
+    "sha256": "2858ea7a36ca8f58f5972d956b4882639395b75dd5ead27a106b93178ede532c",
+    "bytes": 12861
+  },
+  {
+    "path": "crates/sysml-syntax/src/lib.rs",
+    "sha256": "007fd1ddb1fe36c480b27e1ddc0c07b3d01de3dd2ef5486981c5f9079c6356e4",
+    "bytes": 12397
+  },
+  {
+    "path": "crates/sysml-syntax/src/parser.rs",
+    "sha256": "d1b253b4e061878cf3e763263cbcf5b154b2ffc283512710dc0c097dc027436b",
+    "bytes": 69983
+  },
+  {
+    "path": "crates/sysml-syntax/tests/bnf_keywords.rs",
+    "sha256": "1788079d67e01ae980419a2007b8b4eacd3d17c8f7d8dd9d765b3b24449424c4",
+    "bytes": 4407
+  },
+  {
+    "path": "crates/sysml-syntax/tests/broken_input.rs",
+    "sha256": "251a395af794cc27d62b5f919bdc8bde2b4f002922b90f5da9fa89e2d119e338",
+    "bytes": 6354
+  },
+  {
+    "path": "crates/sysml-syntax/tests/corpus.rs",
+    "sha256": "ab786c7aca58f47aef9b07d5ad5fdfbc8f7d72619e43b03603301dedc8d0c7b5",
+    "bytes": 1807
+  },
+  {
+    "path": "crates/sysml-syntax/tests/fmt_corpus.rs",
+    "sha256": "da7d32450d8993cd196ae8b5ca02adc7c9233592f011a83b7d77051530bf105c",
+    "bytes": 2994
+  },
+  {
+    "path": "crates/sysml-syntax/tests/prefix_metadata.rs",
+    "sha256": "78511ace9b8d7fdc05c367b203e43f30580a4270683ba8c7c3fed4e1f09ea23b",
+    "bytes": 5115
+  },
+  {
+    "path": "crates/sysml-wasm/Cargo.toml",
+    "sha256": "07a82c96c5c44839230eb905273501ac43c7fd1e5abd2b8819bbbad8db2b2138",
+    "bytes": 1068
+  },
+  {
+    "path": "crates/sysml-wasm/README.md",
+    "sha256": "3706868364123fea60d636ae972b748711a4c5d392261691be8e35f85a2fb27f",
+    "bytes": 2398
+  },
+  {
+    "path": "crates/sysml-wasm/src/lib.rs",
+    "sha256": "e007c8f59353482aaae50da794fa922c202fafbae997a8e45c0e060f3d813f5b",
+    "bytes": 13775
+  },
+  {
+    "path": "deny.toml",
+    "sha256": "6dbc9a5faaca8cb0b27b460e8b83f25ec39d49ce2e53bafd1c499e4f9164755b",
+    "bytes": 3391
+  },
+  {
+    "path": "editors/vscode/.vscodeignore",
+    "sha256": "f927a2096d9d6eb6cb4f57a7b90e13258907aa21777422842b21c0bbe79530d3",
+    "bytes": 456
+  },
+  {
+    "path": "editors/vscode/CHANGELOG.md",
+    "sha256": "d24d2d9f0853d06154532fb2ef6c45c1436107b588c8ac5b689814ef26f3174b",
+    "bytes": 2642
+  },
+  {
+    "path": "editors/vscode/README.md",
+    "sha256": "26f8ca0d29a17a391811fce9344177158bbdc3182a6f0817bcdd9560211c96f4",
+    "bytes": 5652
+  },
+  {
+    "path": "editors/vscode/icon.png",
+    "sha256": "01e7287af4cb16a98ae326f3c74bd091d572f708c9709a4e0fdbb8d55796ad90",
+    "bytes": 1127
+  },
+  {
+    "path": "editors/vscode/language-configuration.json",
+    "sha256": "43c62dc613e3c482934bef24b9c5df59b7f97445e411aeab57cd710d60b2cd86",
+    "bytes": 617
+  },
+  {
+    "path": "editors/vscode/package.json",
+    "sha256": "f460a10375b4ad1c943f1b0e4d9a06939d80b56e81387fc6abdfbe1bf3d84dbe",
+    "bytes": 7186
+  },
+  {
+    "path": "editors/vscode/scripts/build.mjs",
+    "sha256": "ae5f6c0194ddf4b68352f0306218e9edbd0495c0b2accb2e1f3aca0c7aff1d99",
+    "bytes": 2100
+  },
+  {
+    "path": "editors/vscode/scripts/bundle.mjs",
+    "sha256": "f68fac5944815e263feed9f42df711a762a28fbf25154416a8bd9ae93e0544ac",
+    "bytes": 3182
+  },
+  {
+    "path": "editors/vscode/src/extension.ts",
+    "sha256": "0b77c076591988573f5ba542eff56fd9e6f4bb3b7e2dda753613778978664997",
+    "bytes": 10828
+  },
+  {
+    "path": "editors/vscode/src/page.ts",
+    "sha256": "b70ebd125930df6ffbbe09840cd80a0829576c3ee79b8c5cc2d9b7e12932af76",
+    "bytes": 12827
+  },
+  {
+    "path": "editors/vscode/src/preview.ts",
+    "sha256": "b876fcbe73e8e5c3efaf8de1b9715cc1358d39f44664ae1f952a0a88f7fdba37",
+    "bytes": 9770
+  },
+  {
+    "path": "editors/vscode/src/server.worker.ts",
+    "sha256": "7e0230770ba76dc2f70705ac24ff31b4ddfc01c8b9bfdbe42d7374e13171400d",
+    "bytes": 3444
+  },
+  {
+    "path": "editors/vscode/syntaxes/sysml.tmLanguage.json",
+    "sha256": "dad20bf1deb14a504440b089500dff439424cde8f953b5c2027a78f9dc7fcef5",
+    "bytes": 6665
+  },
+  {
+    "path": "editors/vscode/test/grammar.test.mjs",
+    "sha256": "fcb6b805ab457721616fc71799d3c603afff49db5a25d07bcb0d5eb541fe8ffb",
+    "bytes": 7089
+  },
+  {
+    "path": "editors/vscode/test/page.test.mjs",
+    "sha256": "3de167e1b801c5338976912a6857069b7862dc87597fb338f8e06a3ac9f80fab",
+    "bytes": 12504
+  },
+  {
+    "path": "editors/vscode/test/server.test.mjs",
+    "sha256": "8bd900376cd76c8a721ff9f1cd11d2d8aaa911bf36ae4a1d77db12aa0594dee6",
+    "bytes": 7065
+  },
+  {
+    "path": "editors/vscode/tsconfig.json",
+    "sha256": "c9b0afae76a77e70d5f4be8e423d8582cfd5e7b4059a9e039114e5d324e96a20",
+    "bytes": 684
+  },
+  {
+    "path": "editors/vscode/tsconfig.worker.json",
+    "sha256": "50260e3d436566225564a0fe6b2b7247e7732dd6509e11fe8253b7fa645b0500",
+    "bytes": 602
+  },
+  {
+    "path": "examples/arduino-uno/Cargo.toml",
+    "sha256": "ea1cbfa4dfa504db957b0c882d02525b9269c164bd2616b82d57f520c31fcb86",
+    "bytes": 98
+  },
+  {
+    "path": "examples/arduino-uno/README.md",
+    "sha256": "b08028c9617077bf94401da2decf00a1123273e86d7897f89e3f0f1861e96e98",
+    "bytes": 8481
+  },
+  {
+    "path": "examples/arduino-uno/model/blink.sysml",
+    "sha256": "311d6298468d77ba2df00942739a38f4a13383a7ca463c680d653f642d30711e",
+    "bytes": 1633
+  },
+  {
+    "path": "examples/arduino-uno/model/hardware.sysml",
+    "sha256": "82b5f94757bdd809e2105263682077756b90ee05964f25736f0fc5f6e0c91ce7",
+    "bytes": 3417
+  },
+  {
+    "path": "examples/arduino-uno/model/middleware.sysml",
+    "sha256": "5eedfe14dc5274e0bf13fbfb6b6b9cbf1ed7faf81682e828fa90c14b2fe1e4e7",
+    "bytes": 3054
+  },
+  {
+    "path": "examples/arduino-uno/model/requirements.sysml",
+    "sha256": "7ad8e8b6148b8621e29dedd2550659c21946149e1eafc6c433be6e2cc85a535b",
+    "bytes": 5927
+  },
+  {
+    "path": "examples/arduino-uno/model/verification.sysml",
+    "sha256": "8de2fc447cc8df94bbde465a69d90531bfa92dfa3bebfd5a00d81fdcae926a2b",
+    "bytes": 2297
+  },
+  {
+    "path": "examples/arduino-uno/src/generated.rs",
+    "sha256": "0e14b33cf4a8a6bcbe1aadf8be40578422de6cdf0131e3f998bdbb79fbe55ddd",
+    "bytes": 7953
+  },
+  {
+    "path": "examples/arduino-uno/src/hal.rs",
+    "sha256": "f0f4e4ff6158599395567fae91eb678f913a866298de826b2bfcf60f239bde5d",
+    "bytes": 1488
+  },
+  {
+    "path": "examples/arduino-uno/src/main.rs",
+    "sha256": "634b2bc831c90f0eeca737fae04e20d49cfb3cfb47d82cae3c2f6139cdb54c60",
+    "bytes": 931
+  },
+  {
+    "path": "examples/arduino-uno/src/sketch.rs",
+    "sha256": "638a09397502f4f00577156a4e4a574c8b3a368a7a1d1afbb3eba608a2dd614a",
+    "bytes": 1974
+  },
+  {
+    "path": "examples/arduino-uno/src/verification.rs",
+    "sha256": "d7a9eaf8d2283b9279788988e357e1fb06b2edbe7e338a78467e641bd568a37c",
+    "bytes": 3607
+  },
+  {
+    "path": "tools/render/Cargo.toml",
+    "sha256": "14c7be6e2a79de1f37c536434134083868dfbe5d3bc1da7c4cbd87e22f9167aa",
+    "bytes": 191
+  },
+  {
+    "path": "tools/render/src/main.rs",
+    "sha256": "f373d31537c20d047e00b7dbffbc1e39b07e25b03da029bcd0fd323e263f1d2b",
+    "bytes": 2880
+  },
+  {
+    "path": "vendor/metamodel/KerML.xmi",
+    "sha256": "45b18775afe2b2fcdc70e24f37c6d2f344defcc3f38a02075a193354e2d7b466",
+    "bytes": 962254
+  },
+  {
+    "path": "vendor/metamodel/README.md",
+    "sha256": "01720f71a09f81ea153bb068fcec7491f39271c84742f2b27ce6c307425c05e2",
+    "bytes": 1064
+  },
+  {
+    "path": "vendor/metamodel/SysML.xmi",
+    "sha256": "caa65d54f56798bf7582d173f7567e1eea37a49c45984f8bd7df145011cf8c6f",
+    "bytes": 1135635
+  },
+  {
+    "path": "web/README.md",
+    "sha256": "ba78909c50eef4c1c5fc1a8f6275bcf1f803a616348256a8dc61e57389d26aa9",
+    "bytes": 7872
+  },
+  {
+    "path": "web/package.json",
+    "sha256": "744859f4251498e6d888f5e5f5384d1b3e1b14b2f01a279eb52343dc5bc70950",
+    "bytes": 677
+  },
+  {
+    "path": "web/scripts/build.mjs",
+    "sha256": "6ee68c10295337c8f4b759fb7b968e1d6298ac265f32f848e29421575d08379d",
+    "bytes": 7336
+  },
+  {
+    "path": "web/src/app.ts",
+    "sha256": "21647cde3347ee19b63747d97b96ba1e8dcc9972bcfe000151eeaf01c2634580",
+    "bytes": 31721
+  },
+  {
+    "path": "web/src/client.ts",
+    "sha256": "bf181eabe260b922e00911bd3682f6c2f0b817e3b68e941eb72b830c699f4e36",
+    "bytes": 7397
+  },
+  {
+    "path": "web/src/examples.ts",
+    "sha256": "f33b95a98d066f354a55f44373a021f8bd9cf8d3884ab25cc24be327fc571f5c",
+    "bytes": 4385
+  },
+  {
+    "path": "web/src/highlight.ts",
+    "sha256": "2297d167f81f441eeb764bdc5d0f867032a9e5ead2ed74c8d552ffbc5d8e7ed0",
+    "bytes": 5913
+  },
+  {
+    "path": "web/static/favicon.svg",
+    "sha256": "e316600dd29cc27968ffab65d37a2021b0c3e42e6b3c4954ff2d4b07b0fe33d3",
+    "bytes": 476
+  },
+  {
+    "path": "web/static/index.html",
+    "sha256": "7eb4a8020fe8bab333f74ba7991ce14fd29a716a517de89734c556bc548973bc",
+    "bytes": 4789
+  },
+  {
+    "path": "web/static/style.css",
+    "sha256": "6c7f3e1e3f6c51886f4c397774c4c534b5b30265409edf24453c775e3b97932e",
+    "bytes": 11339
+  },
+  {
+    "path": "web/test/page.test.mjs",
+    "sha256": "81f90c3805128c155a97b02675887f9a435403f803e286e1186f12dffe511caa",
+    "bytes": 22859
+  },
+  {
+    "path": "web/tsconfig.json",
+    "sha256": "1ee1094be910f7b08cc0c4d620a617a80c524a46b1eba61bedb7499de1082b60",
+    "bytes": 513
+  }
+]

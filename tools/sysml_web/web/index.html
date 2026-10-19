@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>SysML Workbench</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="SysML Workbench home">
+        <span class="brand-mark" aria-hidden="true">S<span>2</span></span>
+        <span><strong>SysML Workbench</strong><small>MODEL · CHECK · RENDER</small></span>
+      </a>
+      <div class="compiler-badge" title="The pinned Rust SysML v2 compiler performs parsing and semantic checks.">
+        <span class="status-dot" id="compilerDot"></span>
+        <span id="compilerVersion">Connecting to compiler</span>
+      </div>
+      <div class="header-status" id="headerStatus" role="status" aria-live="polite">Loading project…</div>
+    </header>
+
+    <div class="app-layout">
+      <aside class="file-sidebar" aria-label="Model files">
+        <div class="sidebar-title"><h1>Workspace</h1><span class="count-pill" id="fileCount">0</span></div>
+        <p class="sidebar-intro">Keep related files together for cross-file references.</p>
+        <button class="button project-button" id="loadProjectButton"><span aria-hidden="true">↻</span> Load project</button>
+        <div class="file-actions">
+          <button class="button" id="uploadButton"><span aria-hidden="true">↑</span> Load files</button>
+          <button class="button icon-button" id="newFileButton" title="Create a new SysML file" aria-label="Create a new SysML file">+</button>
+          <input type="file" id="fileInput" accept=".sysml,.kerml" multiple hidden>
+        </div>
+        <div class="sidebar-section-label">SOURCE FILES</div>
+        <nav class="file-list" id="fileList" aria-label="Loaded source files"></nav>
+        <div class="sidebar-empty" id="filesEmpty">Load SysML or KerML files to begin.</div>
+        <div class="sidebar-footer"><span class="shortcut">⌘ / Ctrl ↵</span><span>Check all loaded files</span></div>
+      </aside>
+
+      <main class="workspace">
+        <section class="workspace-toolbar" aria-label="Analysis controls">
+          <div class="workspace-heading"><span class="eyebrow">MODEL WORKSPACE</span><h2 id="activeFileHeading">No file selected</h2></div>
+          <div class="analysis-actions">
+            <button class="button" id="diagramPageButton">Diagram</button>
+            <button class="button" id="checkButton" disabled><span aria-hidden="true">✓</span> Check</button>
+            <button class="button primary-button" id="renderButton" disabled><span aria-hidden="true">◇</span> Render</button>
+          </div>
+        </section>
+
+        <div class="notice" id="notice" role="status" aria-live="polite" hidden></div>
+
+        <div class="model-workspace">
+          <section class="panel source-panel" aria-label="Source editor">
+            <header class="panel-header"><h3><span class="panel-marker" aria-hidden="true">&lt;/&gt;</span> Source</h3><div class="source-actions"><span class="file-state" id="fileState">No file</span><a class="text-action disabled" id="sourceDownload" aria-disabled="true" download>Source ↓</a></div></header>
+            <div class="editor-path" id="editorPath">Select or create a source file</div>
+            <div class="editor-body">
+              <div class="line-gutter" aria-hidden="true"><pre id="lineNumbers">1</pre></div>
+              <textarea id="sourceEditor" aria-label="SysML source code" autocomplete="off" autocapitalize="off" spellcheck="false" wrap="off" placeholder="Load a .sysml file, or create one to start modeling." disabled></textarea>
+            </div>
+            <footer class="editor-footer"><span id="sourceLanguage">SysML v2</span><span id="cursorPosition">Ln 1, Col 1</span><span id="characterCount">0 characters</span></footer>
+          </section>
+
+          <section class="panel output-panel" aria-label="Model output">
+            <header class="panel-header output-header">
+              <button class="button viewer-back-button" id="backToEditorButton" hidden>← Source</button>
+              <div class="output-tabs" role="tablist" aria-label="Model output views">
+                <button class="output-tab active" id="diagramTab" role="tab" aria-selected="true" aria-controls="diagramPanel">Diagram</button>
+                <button class="output-tab" id="explorerTab" role="tab" aria-selected="false" aria-controls="explorerPanel" tabindex="-1">Model explorer <span id="elementCount" class="tab-count">0</span></button>
+              </div>
+              <span class="viewer-status" id="viewerStatus" role="status" aria-live="polite" hidden></span>
+              <div class="output-actions"><button class="button primary-button" id="viewerRenderButton" hidden>Render</button><a class="text-action disabled" id="exportDownload" aria-disabled="true" download>AST JSON ↓</a></div>
+            </header>
+
+            <div class="diagram-panel" id="diagramPanel" role="tabpanel" aria-labelledby="diagramTab">
+              <div class="diagram-options">
+                <label class="control-label">View<select id="viewSelect"><option value="declared">SysML view</option><option value="definitions" selected>Definitions</option><option value="internal">Internal structure</option><option value="tree">Model tree</option><option value="sequence">Sequence</option></select></label>
+                <label class="control-label target-control"><span id="targetLabel">Target</span><input id="targetInput" list="targetOptions" placeholder="All definitions" autocomplete="off" aria-describedby="viewHint"><datalist id="targetOptions"></datalist></label>
+              </div>
+              <p class="diagram-view-hint" id="viewHint">Target is optional. Show all definitions or focus on one.</p>
+              <details class="declared-views" id="declaredViews" hidden open><summary id="declaredViewsSummary">Declared model views</summary><div class="declared-view-list" id="declaredViewList"></div></details>
+              <div class="diagram-viewport" id="diagramViewport" tabindex="0" aria-label="Rendered diagram. Use the zoom controls or scroll to explore.">
+                <div class="empty-output" id="diagramEmpty"><span class="empty-diagram-icon" aria-hidden="true"><i></i><i></i><i></i></span><h3>See your system take shape</h3><p>Render your loaded files to explore the compiler’s model.</p><small>Choose a view and an optional definition target.</small></div>
+                <div class="diagram-stage" id="diagramStage" hidden><img id="diagramImage" alt="Rendered SysML model diagram" draggable="false"></div>
+              </div>
+              <footer class="diagram-footer"><span id="diagramDescription">No diagram yet</span><div class="zoom-controls"><button class="icon-button" id="zoomOutButton" aria-label="Zoom out" disabled>−</button><span id="zoomLevel">100%</span><button class="icon-button" id="zoomInButton" aria-label="Zoom in" disabled>+</button><button class="fit-button" id="fitWidthButton" disabled>Fit width</button><button class="fit-button" id="fitButton" disabled>Fit all</button></div><a class="text-action disabled" id="svgDownload" aria-disabled="true" download="model.svg">SVG ↓</a></footer>
+            </div>
+
+            <div class="explorer-panel" id="explorerPanel" role="tabpanel" aria-labelledby="explorerTab" hidden>
+              <div class="explorer-controls"><input type="search" id="modelSearch" placeholder="Find a model element…" aria-label="Find a model element"><button class="text-button" id="expandAllButton">Expand all</button></div>
+              <div class="explorer-content"><div class="model-tree" id="modelTree"><div class="explorer-empty">Check or render to inspect the semantic model.</div></div><aside class="element-details" id="elementDetails" aria-label="Selected model element"><span class="eyebrow">ELEMENT DETAILS</span><p>Select an element to inspect its kind, qualified name, and documentation.</p></aside></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel checks-panel" aria-label="Validation results">
+          <header class="panel-header checks-header"><div class="checks-heading"><h3><span class="panel-marker" aria-hidden="true">✓</span> Validation</h3><span id="checkStatus" class="check-status">Not checked</span></div><a class="text-action disabled" id="reportDownload" aria-disabled="true" download>Report JSON ↓</a></header>
+          <div class="check-summary"><span class="metric"><i class="metric-dot error-dot"></i><strong id="errorCount">0</strong> errors</span><span class="metric"><i class="metric-dot warning-dot"></i><strong id="warningCount">0</strong> warnings</span><span class="metric"><i class="metric-dot held-dot"></i><strong id="heldCount">—</strong> rules held</span><span class="metric" title="The compiler has not evaluated these rules; they remain open checks."><i class="metric-dot open-dot"></i><strong id="unevaluatedCount">—</strong> unevaluated</span><span id="checkedFileCount" class="checked-file-count">All loaded files are checked together</span></div>
+          <div class="diagnostics" id="diagnostics"><div class="diagnostic-empty">Compiler diagnostics and rule results will appear here.</div></div>
+        </section>
+        <footer class="workspace-footer"><span>Rust compiler → semantic AST → diagram</span><span>Compiler checks preserve diagnostics and unevaluated rules.</span></footer>
+      </main>
+    </div>
+
+    <dialog id="newFileDialog"><form id="newFileForm"><div class="dialog-heading"><h2>Create a source file</h2><button class="icon-button" type="button" id="closeDialogButton" aria-label="Close">×</button></div><label class="control-label">File name<input id="newFileName" placeholder="model.sysml" value="model.sysml" required autocomplete="off"></label><p class="dialog-hint">Use .sysml or .kerml. Relative folders are supported.</p><p id="newFileError" class="form-error" role="alert" hidden></p><div class="dialog-actions"><button class="button" id="cancelDialogButton" type="button">Cancel</button><button class="button primary-button" type="submit">Create file</button></div></form></dialog>
+  </body>
+</html>

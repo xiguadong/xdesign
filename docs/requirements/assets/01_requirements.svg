@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="876pt" height="466pt" viewBox="0.00 0.00 876.00 466.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Requirements coverage</title><desc id="diagram-desc">Which requirements have satisfiers and planned verification?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 448)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-448 857.5,-448 857.5,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="296.38" y="-400.1" font-family="Arial" font-weight="bold" font-size="22.00">Requirements coverage</text>
+<text xml:space="preserve" text-anchor="start" x="237.12" y="-371.75" font-family="Arial" font-size="14.00" fill="#52657a">Which requirements have satisfiers and planned verification?</text>
+
+<g class="edge" data-native-id="d59e473a-076e-5f85-8dcb-5a12db687a93" data-source-id="e7b9b307-024f-5104-9ae5-5d06573fc7c2" data-target-id="a54e2d36-dd8c-54ce-bd8d-f3fadc130611" data-edge-kind="dependency">
+<title>«satisfy»
+
+d59e473a-076e-5f85-8dcb-5a12db687a93</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M127.3,-226.81C128.03,-209.77 128.84,-191.1 129.62,-173.01" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="129.95,-165.2 133.21,-173.35 130,-167.62 129.76,-173.2 129.61,-173.19 129.46,-173.18 129.7,-167.61 126.01,-173.04 129.95,-165.2" />
+<text xml:space="preserve" text-anchor="middle" x="155.36" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«satisfy»</text>
+</g>
+
+<g class="edge" data-native-id="ee0852a6-bdd2-51c9-ae31-8b3a56fad927" data-source-id="f61a622f-ca01-594c-8e2e-0c6c361bd04b" data-target-id="8144d6b8-f16f-5e92-9d91-4be54887f99f" data-edge-kind="dependency">
+<title>«satisfy»
+
+ee0852a6-bdd2-51c9-ae31-8b3a56fad927</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M734.7,-226.81C733.75,-204.7 732.68,-179.83 731.7,-157.06" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="731.36,-149.36 735.31,-157.2 731.62,-151.77 731.86,-157.35 731.71,-157.35 731.56,-157.36 731.32,-151.78 728.11,-157.51 731.36,-149.36" />
+<text xml:space="preserve" text-anchor="middle" x="760.16" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«satisfy»</text>
+</g>
+
+<g class="edge" data-native-id="9751f3fa-045d-5792-b7d1-cae5e9f0d91b" data-source-id="791171c1-d59a-5bb5-8a3d-9f4b606eb5cc" data-target-id="5df92cc7-2f8f-534a-8393-d52041e48af8" data-edge-kind="dependency">
+<title>«satisfy»
+
+9751f3fa-045d-5792-b7d1-cae5e9f0d91b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M327.22,-226.77C327.77,-205.75 328.25,-187.75 328.25,-187.75 328.25,-187.75 345.8,-172.69 367.6,-153.99" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="373.61,-148.83 369.89,-156.77 371.88,-150.52 367.64,-154.16 367.54,-154.04 367.44,-153.93 371.68,-150.29 365.2,-151.31 373.61,-148.83" />
+<text xml:space="preserve" text-anchor="middle" x="354.88" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«satisfy»</text>
+</g>
+
+<g class="edge" data-native-id="2aeb6f1e-169d-592b-80c2-dc0d4b7c6877" data-source-id="df8b3331-f0e0-5ae2-b71a-46d7322ea24c" data-target-id="5df92cc7-2f8f-534a-8393-d52041e48af8" data-edge-kind="dependency">
+<title>«verify»
+
+2aeb6f1e-169d-592b-80c2-dc0d4b7c6877</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M506.38,-242.78C497.41,-217.1 486.23,-185.12 476.24,-156.52" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="473.7,-149.26 479.74,-155.62 474.64,-151.49 476.48,-156.76 476.34,-156.81 476.2,-156.86 474.35,-151.59 472.94,-158 473.7,-149.26" />
+<text xml:space="preserve" text-anchor="middle" x="515" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«verify»</text>
+</g>
+
+<g class="edge" data-native-id="f24c7456-c59b-506c-952c-118cc9e70465" data-source-id="df8b3331-f0e0-5ae2-b71a-46d7322ea24c" data-target-id="8144d6b8-f16f-5e92-9d91-4be54887f99f" data-edge-kind="dependency">
+<title>«verify»
+
+f24c7456-c59b-506c-952c-118cc9e70465</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M571.56,-242.78C597.42,-216.43 629.78,-183.46 658.4,-154.3" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="663.71,-148.89 660.67,-157.12 662.12,-150.72 658.21,-154.71 658.11,-154.6 658,-154.5 661.91,-150.51 655.54,-152.08 663.71,-148.89" />
+<text xml:space="preserve" text-anchor="middle" x="643.48" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«verify»</text>
+</g>
+
+<g class="edge" data-native-id="1a79f902-3e4c-5a9a-a568-1676c2e9c8d7" data-source-id="df8b3331-f0e0-5ae2-b71a-46d7322ea24c" data-target-id="a54e2d36-dd8c-54ce-bd8d-f3fadc130611" data-edge-kind="dependency">
+<title>«verify»
+
+1a79f902-3e4c-5a9a-a568-1676c2e9c8d7</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M458.54,-242.8C422.75,-215.82 385.5,-187.75 385.5,-187.75 385.5,-187.75 317.5,-163.75 317.5,-163.75 317.5,-163.75 299.75,-155.95 275.28,-145.19" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="268.18,-142.07 276.96,-142 270.46,-142.91 275.57,-145.16 275.51,-145.29 275.45,-145.43 270.34,-143.18 274.06,-148.59 268.18,-142.07" />
+<text xml:space="preserve" text-anchor="middle" x="426.22" y="-190.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">«verify»</text>
+</g>
+
+<g id="nff756abf559c9806197e" class="node diagram-node shape-box" data-native-id="e7b9b307-024f-5104-9ae5-5d06573fc7c2" data-shape="box">
+<title>XDesignCommon::DocFigure
+e7b9b307-024f-5104-9ae5-5d06573fc7c2
+attribute document
+attribute figure
+e7b9b307-024f-5104-9ae5-5d06573fc7c2</title>
+<rect fill="#f3f5f7" stroke="none" x="36.38" y="-358.75" width="176.24" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="36.38,-291.25 36.38,-291.25 212.62,-291.25 212.62,-291.25 36.38,-291.25" />
+<rect fill="none" stroke="#647a91" x="36.38" y="-358.75" width="176.24" height="132.0" /><text xml:space="preserve" text-anchor="start" x="45.38" y="-337" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">metadata</text>
+<text xml:space="preserve" text-anchor="start" x="45.38" y="-303.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Figure location</text>
+<text xml:space="preserve" text-anchor="start" x="45.38" y="-270.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Links the model view to its</text>
+<text xml:space="preserve" text-anchor="start" x="45.38" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">documentation figure</text>
+</g>
+
+<g id="ne014c93ef4157289e335" class="node diagram-node shape-box" data-native-id="f61a622f-ca01-594c-8e2e-0c6c361bd04b" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowRun
+f61a622f-ca01-594c-8e2e-0c6c361bd04b
+ref part assignedFlow
+ref part checkpoints : SimpleFlowCheckpoint [0..*]
+part stageRecords : StageRecord [4..*]
+port check : ~CheckCommandExchange
+port judgment : ~JudgmentExchange
+eventoccurrence created
+eventoccurrence completed
+exhibitstate lifecycle : SimpleFlowRunLifecycle
+performaction evaluateGate : EvaluateSimpleFlowGate
+performaction advance : AdvanceSimpleFlowRun
+performaction reopenStage : ReopenSimpleFlowStage
+assertconstraint visitsRealizeThePlannedStages
+designedSimpleFlow
+designedSimpleFlow.checkpoints
+self
+stageRecords-&gt;forAll { in record : StageRecord;
+                designedSimpleFlow.stages-&gt;includes(record.stage)
+            } and
+            designedSimpleFlow.stages-&gt;forAll { in stage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+f61a622f-ca01-594c-8e2e-0c6c361bd04b</title>
+<rect fill="white" stroke="none" x="640.75" y="-358.75" width="193.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="640.75,-291.25 640.75,-291.25 834.25,-291.25 834.25,-291.25 640.75,-291.25" />
+<rect fill="none" stroke="#647a91" x="640.75" y="-358.75" width="193.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="649.75" y="-337" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="649.75" y="-303.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Flow run</text>
+<text xml:space="preserve" text-anchor="start" x="649.75" y="-270.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Visits, gate assessments and</text>
+<text xml:space="preserve" text-anchor="start" x="649.75" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">advancement</text>
+</g>
+
+<g id="n88b5a449d4b04ddc944e" class="node diagram-node shape-box" data-native-id="791171c1-d59a-5bb5-8a3d-9f4b606eb5cc" data-shape="box">
+<title>XDesignDetailedDesign::designedSimpleFlow
+791171c1-d59a-5bb5-8a3d-9f4b606eb5cc
+part checkpoints : SimpleFlowCheckpoint
+item simpleRequirementsCheck : Checker
+item simpleDesignCheck : Checker
+item simpleImplementationCheck : Checker
+item simpleRecordCheck : Checker
+part simpleRequirementsAccepted : SimpleFlowSyntacticCheckpoint
+part simpleDesignAccepted : SimpleFlowSyntacticCheckpoint
+part simpleImplementationAccepted : SimpleFlowSyntacticCheckpoint
+part simpleRecordAccepted : SimpleFlowSyntacticCheckpoint
+part requirements
+part design
+part implement
+part verify
+part verificationAccepted : SimpleFlowSemanticCheckpoint
+ConformanceKind::identifierConformance
+ConformanceKind::artifactPresence
+ConformanceKind::artifactPresence
+ConformanceKind::traceConformance
+requirements
+CheckKind::syntactic
+simpleRequirementsCheck
+design
+CheckKind::syntactic
+simpleDesignCheck
+implement
+CheckKind::syntactic
+simpleImplementationCheck
+'verify'
+CheckKind::syntactic
+simpleRecordCheck
+simpleRequirementsAccepted
+simpleDesignAccepted
+simpleImplementationAccepted
+simpleRecordAccepted
+791171c1-d59a-5bb5-8a3d-9f4b606eb5cc</title>
+<rect fill="white" stroke="none" x="244.5" y="-358.75" width="162.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="244.5,-291.25 244.5,-291.25 406.5,-291.25 406.5,-291.25 244.5,-291.25" />
+<rect fill="none" stroke="#647a91" x="244.5" y="-358.75" width="162.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="253.5" y="-337" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="253.5" y="-303.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Gated simple flow</text>
+<text xml:space="preserve" text-anchor="start" x="253.5" y="-270.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Four stages with explicit</text>
+<text xml:space="preserve" text-anchor="start" x="253.5" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">exit gates</text>
+</g>
+
+<g id="n7bbf4e10ff3461bf401f" class="node diagram-node shape-box" data-native-id="5df92cc7-2f8f-534a-8393-d52041e48af8" data-shape="box">
+<title>XDesignRequirements::designedFlowGatesEveryStage
+5df92cc7-2f8f-534a-8393-d52041e48af8
+attribute rationale
+5df92cc7-2f8f-534a-8393-d52041e48af8</title>
+<rect fill="#fff7e6" stroke="none" x="333.88" y="-147.88" width="233.24" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="333.88,-80.38 333.88,-80.38 567.12,-80.38 567.12,-80.38 333.88,-80.38" />
+<rect fill="none" stroke="#647a91" x="333.88" y="-147.88" width="233.24" height="132.0" /><text xml:space="preserve" text-anchor="start" x="342.88" y="-126.12" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">requirement</text>
+<text xml:space="preserve" text-anchor="start" x="342.88" y="-92.92" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Every stage has an exit gate</text>
+<text xml:space="preserve" text-anchor="start" x="342.88" y="-59.62" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Advancement requires explicit</text>
+<text xml:space="preserve" text-anchor="start" x="342.88" y="-27.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">authorization</text>
+</g>
+
+<g id="nba28e7dcb3d0a899d44f" class="node diagram-node shape-box" data-native-id="8144d6b8-f16f-5e92-9d91-4be54887f99f" data-shape="box">
+<title>XDesignRequirements::flowRunIsRealizedByDesign
+8144d6b8-f16f-5e92-9d91-4be54887f99f
+attribute rationale
+8144d6b8-f16f-5e92-9d91-4be54887f99f</title>
+<rect fill="#fff7e6" stroke="none" x="617.5" y="-147.88" width="222.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="617.5,-80.38 617.5,-80.38 839.5,-80.38 839.5,-80.38 617.5,-80.38" />
+<rect fill="none" stroke="#647a91" x="617.5" y="-147.88" width="222.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="626.5" y="-126.12" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">requirement</text>
+<text xml:space="preserve" text-anchor="start" x="626.5" y="-92.92" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run has a concrete design</text>
+<text xml:space="preserve" text-anchor="start" x="626.5" y="-59.62" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Run class, factory and</text>
+<text xml:space="preserve" text-anchor="start" x="626.5" y="-27.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">operations</text>
+</g>
+
+<g id="n2d2c5a5c235bd706e8c0" class="node diagram-node shape-box" data-native-id="a54e2d36-dd8c-54ce-bd8d-f3fadc130611" data-shape="box">
+<title>XDesignRequirements::structureGraphsAreDocumented
+a54e2d36-dd8c-54ce-bd8d-f3fadc130611
+attribute rationale
+a54e2d36-dd8c-54ce-bd8d-f3fadc130611</title>
+<rect fill="#fff7e6" stroke="none" x="0.0" y="-163.75" width="267.0" height="163.75" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-96.25 0,-96.25 267,-96.25 267,-96.25 0,-96.25" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-163.75" width="267.0" height="163.75" /><text xml:space="preserve" text-anchor="start" x="9" y="-142" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">requirement</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-108.8" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Nine views document the design</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-75.5" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Each view selects native</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-43.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">elements and locates its</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">figure</text>
+</g>
+
+<g id="n37d5f67ca09a5c637e80" class="node diagram-node shape-box" data-native-id="df8b3331-f0e0-5ae2-b71a-46d7322ea24c" data-shape="box">
+<title>XDesignVerification::SimpleFlowViewReview
+df8b3331-f0e0-5ae2-b71a-46d7322ea24c
+reference automation : SimpleFlowAutomation
+requirement coverage
+df8b3331-f0e0-5ae2-b71a-46d7322ea24c</title>
+<rect fill="#edf7ef" stroke="none" x="438.75" y="-342.88" width="169.5" height="100.25999999999999" class="node" /><polygon fill="#647a91" stroke="#647a91" points="438.75,-275.38 438.75,-275.38 608.25,-275.38 608.25,-275.38 438.75,-275.38" />
+<rect fill="none" stroke="#647a91" x="438.75" y="-342.88" width="169.5" height="100.25999999999999" /><text xml:space="preserve" text-anchor="start" x="447.75" y="-321.12" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">verification</text>
+<text xml:space="preserve" text-anchor="start" x="447.75" y="-287.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Design review</text>
+<text xml:space="preserve" text-anchor="start" x="447.75" y="-254.62" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Planned coverage review</text>
+</g>
+</g>
+</svg>

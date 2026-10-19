@@ -1,0 +1,114 @@
+:root {
+  --md-primary-fg-color: #172d43;
+  --md-primary-fg-color--light: #29455e;
+  --md-primary-fg-color--dark: #102236;
+  --md-accent-fg-color: #087f8c;
+  --md-typeset-a-color: #087482;
+  --md-text-font: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --md-code-font: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+html { scroll-padding-top: 5rem; }
+body { background: #f9fafb; }
+.md-grid { max-width: 88rem; }
+.md-header { box-shadow: 0 1px 0 #ffffff20; }
+.md-header__topic { font-weight: 650; letter-spacing: -.02em; }
+.md-tabs { background: #172d43; }
+.md-main__inner { margin-top: 1.7rem; }
+.md-content { min-width: 0; }
+.md-content__inner { max-width: 54rem; margin-right: auto; }
+.md-typeset { font-size: .79rem; line-height: 1.75; color: #263746; }
+.md-typeset h1 { color: #172d43; font-weight: 700; letter-spacing: -.035em; line-height: 1.2; }
+.md-typeset h2 { color: #172d43; font-weight: 650; letter-spacing: -.025em; }
+.md-typeset h3 { color: #263f53; font-weight: 650; }
+.md-typeset h2:target, .md-typeset h3:target { scroll-margin-top: 5rem; }
+.md-typeset a:hover { text-decoration: underline; text-underline-offset: .16em; }
+.md-typeset hr { border-color: #dfe6eb; }
+.md-typeset blockquote { border-color: #087f8c; color: #526372; }
+.md-typeset code { border-radius: .15rem; }
+.md-typeset pre > code { border: 1px solid #e1e7eb; }
+.md-typeset .md-typeset__table { display: block; max-width: 100%; }
+.md-typeset .md-typeset__scrollwrap { overflow-x: auto; }
+.md-typeset table:not([class]) { background: #fff; font-size: .72rem; border-color: #dce4ea; }
+.md-typeset table:not([class]) th { background: #edf2f5; color: #263f53; }
+.md-typeset table:not([class]) td { border-top-color: #e5ebef; }
+.md-typeset table:not([class]) tr:hover { background: #f5f9fa; }
+.md-nav__link--active { font-weight: 650; }
+.md-footer { background: #172d43; }
+
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #62ced3;
+  --md-accent-fg-color: #62ced3;
+  background: #18232f;
+}
+[data-md-color-scheme="slate"] .md-typeset { color: #d4dfe8; }
+[data-md-color-scheme="slate"] .md-typeset :is(h1, h2, h3) { color: #edf3f8; }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) { background: #1c2b39; border-color: #3b4d5e; }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th { background: #263b4d; color: #edf3f8; }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td { border-top-color: #3b4d5e; }
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:hover { background: #293c4c; }
+
+.xd-diagram-button {
+  display: block;
+  width: 100%;
+  margin: 1rem 0;
+  padding: .75rem;
+  border: 1px solid #dce4ea;
+  border-radius: .4rem;
+  background: #fff;
+  cursor: zoom-in;
+  text-align: center;
+  transition: border-color .15s;
+}
+.xd-diagram-button:hover { border-color: #087f8c; }
+.xd-diagram-button:focus-visible, .xd-diagram-close:focus-visible {
+  outline: 3px solid #087f8c;
+  outline-offset: 3px;
+}
+.xd-diagram-button img { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+.xd-diagram-hint { display: block; margin-top: .5rem; color: #61717d; font-size: .62rem; }
+.xd-diagram-dialog {
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #cbd7df;
+  border-radius: .5rem;
+  background: #fff;
+  color: #263746;
+  box-shadow: 0 1rem 4rem #10223640;
+}
+.xd-diagram-dialog::backdrop { background: #102236b8; }
+.xd-diagram-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .65rem 1rem;
+  border-bottom: 1px solid #dce4ea;
+}
+.xd-diagram-title { margin: 0; font-size: .8rem; font-weight: 650; line-height: 1.4; }
+.xd-diagram-close {
+  flex: none;
+  padding: .35rem .65rem;
+  border: 1px solid #cbd7df;
+  border-radius: .25rem;
+  background: #f3f6f8;
+  font: inherit;
+  font-size: .7rem;
+  cursor: pointer;
+}
+.xd-diagram-viewport { max-height: calc(100dvh - 8rem); overflow: auto; background: #fff; }
+.xd-diagram-viewport img { display: block; width: auto; max-width: none; height: auto; }
+@media (max-width: 76.25em) {
+  .md-content__inner { max-width: none; }
+}
+@media (max-width: 44.9375em) {
+  .md-main__inner { margin-top: .8rem; }
+  .md-typeset h1 { font-size: 1.65rem; }
+  .xd-diagram-button { padding: .4rem; }
+  .xd-diagram-dialog { max-width: calc(100vw - 1rem); }
+  .xd-diagram-toolbar { padding: .65rem; }
+}

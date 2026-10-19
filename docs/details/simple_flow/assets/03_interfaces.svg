@@ -1,0 +1,288 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2962pt" height="386pt" viewBox="0.00 0.00 2962.00 386.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">XDesignDetailedDesign::interfaceStructure · Views::asInterconnectionDiagram</title><desc id="diagram-desc">11 nodes · 19 resolved relationships · native element IDs retained. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 367.75)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-367.75 2943.88,-367.75 2943.88,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="1053.06" y="-319.85" font-family="Arial" font-weight="bold" font-size="22.00">XDesignDetailedDesign::interfaceStructure · Views::asInterconnectionDiagram</text>
+<text xml:space="preserve" text-anchor="start" x="1266.44" y="-291.5" font-family="Arial" font-size="14.00" fill="#52657a">11 nodes · 19 resolved relationships · native element IDs retained</text>
+
+<g class="edge" data-native-id="913ad513-84f2-5bf2-94f6-5cdcfeba1283" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+913ad513-84f2-5bf2-94f6-5cdcfeba1283</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M774.92,-218.26C537.62,-198.66 0,-154.25 0,-154.25 0,-154.25 0,-124.25 0,-124.25 0,-124.25 529.45,-80.52 769.45,-60.69" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="777.33,-60.04 769.65,-64.29 774.93,-60.39 769.37,-60.85 769.36,-60.7 769.34,-60.55 774.91,-60.09 769.06,-57.11 777.33,-60.04" />
+<text xml:space="preserve" text-anchor="middle" x="55.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="daf41b3e-eb73-5515-a402-903fb99ae1fa" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+daf41b3e-eb73-5515-a402-903fb99ae1fa</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M774.73,-216.43C568.78,-196.03 147,-154.25 147,-154.25 147,-154.25 147,-124.25 147,-124.25 147,-124.25 561.94,-83.15 769.66,-62.57" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="777.51,-61.8 769.9,-66.17 775.12,-62.18 769.56,-62.73 769.55,-62.59 769.53,-62.44 775.09,-61.89 769.19,-59 777.51,-61.8" />
+<text xml:space="preserve" text-anchor="middle" x="202.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="e8ffe1f1-9002-5b49-be4c-bb949f1c3361" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+e8ffe1f1-9002-5b49-be4c-bb949f1c3361</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M774.73,-213.71C603.6,-192.54 294,-154.25 294,-154.25 294,-154.25 294,-124.25 294,-124.25 294,-124.25 597.37,-86.73 769.5,-65.44" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="777.29,-64.48 769.79,-69.03 774.91,-64.92 769.37,-65.61 769.35,-65.46 769.33,-65.31 774.88,-64.62 768.91,-61.89 777.29,-64.48" />
+<text xml:space="preserve" text-anchor="middle" x="349.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="2a7eb949-6ebb-53f4-b433-038193357201" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+2a7eb949-6ebb-53f4-b433-038193357201</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M774.86,-209.21C643.29,-187.55 441,-154.25 441,-154.25 441,-154.25 441,-124.25 441,-124.25 441,-124.25 637.85,-91.85 769.48,-70.18" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="777.28,-68.9 769.97,-73.75 774.92,-69.44 769.41,-70.34 769.38,-70.2 769.36,-70.05 774.87,-69.14 768.8,-66.64 777.28,-68.9" />
+<text xml:space="preserve" text-anchor="middle" x="496.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="eb0ec5d3-aec6-5b59-b863-8fad0a07687a" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+eb0ec5d3-aec6-5b59-b863-8fad0a07687a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M774.99,-200.25C690.39,-179.44 588,-154.25 588,-154.25 588,-154.25 588,-124.25 588,-124.25 588,-124.25 686.2,-100.09 769.71,-79.55" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="777.24,-77.7 770.33,-83.1 774.93,-78.42 769.5,-79.75 769.47,-79.61 769.43,-79.46 774.86,-78.13 768.61,-76.11 777.24,-77.7" />
+<text xml:space="preserve" text-anchor="middle" x="643.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="4e852d0e-6900-5ae9-bcec-155ddceae3a3" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+4e852d0e-6900-5ae9-bcec-155ddceae3a3</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M784.61,-178.4C757.24,-165.08 735,-154.25 735,-154.25 735,-154.25 735,-124.25 735,-124.25 735,-124.25 752.8,-115.59 776.14,-104.23" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="783.19,-100.8 777.57,-107.53 781.08,-101.99 776.06,-104.43 776,-104.3 775.93,-104.16 780.95,-101.72 774.42,-101.06 783.19,-100.8" />
+<text xml:space="preserve" text-anchor="middle" x="790.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="dce286bf-f7b8-5550-b435-bbb205e20545" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+dce286bf-f7b8-5550-b435-bbb205e20545</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M883.08,-178.6C882.49,-165.19 882,-154.25 882,-154.25 882,-154.25 882,-124.25 882,-124.25 882,-124.25 882.27,-118.1 882.66,-109.36" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="883.01,-101.48 886.25,-109.63 883.05,-103.9 882.81,-109.48 882.66,-109.47 882.51,-109.47 882.75,-103.89 879.06,-109.32 883.01,-101.48" />
+<text xml:space="preserve" text-anchor="middle" x="937.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="e2a8a0f5-a79e-53c3-a3ec-3bbc4f6c201f" data-source-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-target-id="2f942a99-3cc4-5c78-86bf-739393419626" data-edge-kind="directed">
+<title>caller → command
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+e2a8a0f5-a79e-53c3-a3ec-3bbc4f6c201f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M959.6,-178.4C979.82,-165.08 996.25,-154.25 996.25,-154.25 996.25,-154.25 996.25,-124.25 996.25,-124.25 996.25,-124.25 983.89,-116.11 967.42,-105.26" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="960.92,-100.97 969.58,-102.37 963.02,-102.18 967.68,-105.25 967.6,-105.38 967.52,-105.5 962.85,-102.43 965.62,-108.38 960.92,-100.97" />
+<text xml:space="preserve" text-anchor="middle" x="1051.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">caller → command</text>
+</g>
+
+<g class="edge" data-native-id="4ac9234c-26d8-5216-b22c-b2cf87ff4a74" data-source-id="2f942a99-3cc4-5c78-86bf-739393419626" data-target-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-edge-kind="directed">
+<title>command → caller
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+4ac9234c-26d8-5216-b22c-b2cf87ff4a74</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M991.71,-85.12C1051.51,-104.21 1114.25,-124.25 1114.25,-124.25 1114.25,-124.25 1114.25,-154.25 1114.25,-154.25 1114.25,-154.25 1060.22,-171.5 1004.65,-189.25" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.23,-191.62 1003.76,-185.75 999.49,-190.74 1004.81,-189.04 1004.86,-189.18 1004.9,-189.33 999.58,-191.02 1005.95,-192.61 997.23,-191.62" />
+<text xml:space="preserve" text-anchor="middle" x="1169.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">command → caller</text>
+</g>
+
+<g class="edge" data-native-id="a592a27d-1902-54fd-ab20-cb805e648748" data-source-id="2f942a99-3cc4-5c78-86bf-739393419626" data-target-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-edge-kind="directed">
+<title>command → caller
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+a592a27d-1902-54fd-ab20-cb805e648748</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M991.72,-73.56C1093.72,-95.06 1232.25,-124.25 1232.25,-124.25 1232.25,-124.25 1232.25,-154.25 1232.25,-154.25 1232.25,-154.25 1105.18,-181.03 1004.84,-202.17" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.07,-203.81 1004.16,-198.64 999.4,-203.17 1004.87,-202.01 1004.9,-202.16 1004.93,-202.31 999.46,-203.46 1005.64,-205.68 997.07,-203.81" />
+<text xml:space="preserve" text-anchor="middle" x="1287.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">command → caller</text>
+</g>
+
+<g class="edge" data-native-id="bfa03240-92ee-55e0-be2c-5bdda8c40165" data-source-id="2f942a99-3cc4-5c78-86bf-739393419626" data-target-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-edge-kind="directed">
+<title>command → caller
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+bfa03240-92ee-55e0-be2c-5bdda8c40165</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M991.64,-67.86C1128.9,-89.44 1350.25,-124.25 1350.25,-124.25 1350.25,-124.25 1350.25,-154.25 1350.25,-154.25 1350.25,-154.25 1143.25,-178.25 1143.25,-178.25 1143.25,-178.25 1072.33,-191.75 1004.85,-204.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.34,-206.03 1004.53,-201 999.69,-205.43 1005.17,-204.39 1005.2,-204.54 1005.23,-204.68 999.75,-205.73 1005.88,-208.07 997.34,-206.03" />
+<text xml:space="preserve" text-anchor="middle" x="1405.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">command → caller</text>
+</g>
+
+<g class="edge" data-native-id="efabe652-2fa7-5975-b2eb-ac99a1a48514" data-source-id="2f942a99-3cc4-5c78-86bf-739393419626" data-target-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-edge-kind="directed">
+<title>command → caller
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+efabe652-2fa7-5975-b2eb-ac99a1a48514</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M991.5,-64.45C1159.66,-85.54 1468.25,-124.25 1468.25,-124.25 1468.25,-124.25 1468.25,-154.25 1468.25,-154.25 1468.25,-154.25 1143.25,-178.25 1143.25,-178.25 1143.25,-178.25 1072.33,-191.75 1004.85,-204.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.34,-206.03 1004.53,-201 999.69,-205.43 1005.17,-204.39 1005.2,-204.54 1005.23,-204.68 999.75,-205.73 1005.88,-208.07 997.34,-206.03" />
+<text xml:space="preserve" text-anchor="middle" x="1523.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">command → caller</text>
+</g>
+
+<g class="edge" data-native-id="40c13d8a-f85f-5a1c-9d30-e02c46d0108f" data-source-id="2f942a99-3cc4-5c78-86bf-739393419626" data-target-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-edge-kind="directed">
+<title>command → caller
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+40c13d8a-f85f-5a1c-9d30-e02c46d0108f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M991.72,-62.23C1187.82,-82.69 1586.25,-124.25 1586.25,-124.25 1586.25,-124.25 1586.25,-154.25 1586.25,-154.25 1586.25,-154.25 1143.25,-178.25 1143.25,-178.25 1143.25,-178.25 1072.33,-191.75 1004.85,-204.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.34,-206.03 1004.53,-201 999.69,-205.43 1005.17,-204.39 1005.2,-204.54 1005.23,-204.68 999.75,-205.73 1005.88,-208.07 997.34,-206.03" />
+<text xml:space="preserve" text-anchor="middle" x="1641.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">command → caller</text>
+</g>
+
+<g class="edge" data-native-id="9c8d217b-7c8c-55a9-a536-07e592fad714" data-source-id="5e4893ee-d935-599f-b10a-5b7bb6bbf400" data-target-id="f270382c-110e-5d18-8566-c01feb3debca" data-edge-kind="directed">
+<title>judge → requester
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+9c8d217b-7c8c-55a9-a536-07e592fad714</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M1983.18,-187.82C1946.13,-170.59 1911,-154.25 1911,-154.25 1911,-154.25 1911,-124.25 1911,-124.25 1911,-124.25 1976.06,-102.94 2035.94,-83.33" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="2043.23,-80.94 2036.74,-86.85 2040.98,-81.83 2035.67,-83.57 2035.62,-83.43 2035.58,-83.29 2040.88,-81.55 2034.5,-80.01 2043.23,-80.94" />
+<text xml:space="preserve" text-anchor="middle" x="1966.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">judge → requester</text>
+</g>
+
+<g class="edge" data-native-id="e5627d04-d3a6-5892-9087-b9b6abe3a69b" data-source-id="5e4893ee-d935-599f-b10a-5b7bb6bbf400" data-target-id="f270382c-110e-5d18-8566-c01feb3debca" data-edge-kind="directed">
+<title>judge → requester
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+e5627d04-d3a6-5892-9087-b9b6abe3a69b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M2058.75,-178.6C2056.13,-165.19 2054,-154.25 2054,-154.25 2054,-154.25 2054,-124.25 2054,-124.25 2054,-124.25 2062.39,-116.61 2073.74,-106.27" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="2079.55,-100.97 2076.06,-109.02 2077.87,-102.71 2073.74,-106.47 2073.64,-106.36 2073.54,-106.24 2077.66,-102.48 2071.21,-103.69 2079.55,-100.97" />
+<text xml:space="preserve" text-anchor="middle" x="2109.12" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">judge → requester</text>
+</g>
+
+<g class="edge" data-native-id="7db4a45e-4450-5ca0-a11f-f76eb0ab6ed7" data-source-id="f270382c-110e-5d18-8566-c01feb3debca" data-target-id="5e4893ee-d935-599f-b10a-5b7bb6bbf400" data-edge-kind="directed">
+<title>requester → judge
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+7db4a45e-4450-5ca0-a11f-f76eb0ab6ed7</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M2159.6,-99.9C2166.57,-113.31 2172.25,-124.25 2172.25,-124.25 2172.25,-124.25 2172.25,-154.25 2172.25,-154.25 2172.25,-154.25 2160.88,-162.25 2145.66,-172.95" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="2139.2,-177.49 2143.68,-169.94 2141.09,-175.97 2145.66,-172.76 2145.75,-172.88 2145.83,-173.01 2141.27,-176.22 2147.82,-175.83 2139.2,-177.49" />
+<text xml:space="preserve" text-anchor="middle" x="2227.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">requester → judge</text>
+</g>
+
+<g class="edge" data-native-id="740f182c-7939-50cd-89ae-ad006a177c1c" data-source-id="f270382c-110e-5d18-8566-c01feb3debca" data-target-id="5e4893ee-d935-599f-b10a-5b7bb6bbf400" data-edge-kind="directed">
+<title>requester → judge
+FlowUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+740f182c-7939-50cd-89ae-ad006a177c1c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M2223.64,-93.03C2258.5,-109.36 2290.25,-124.25 2290.25,-124.25 2290.25,-124.25 2290.25,-154.25 2290.25,-154.25 2290.25,-154.25 2222.84,-176.45 2162.32,-196.39" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="2154.95,-198.82 2161.42,-192.89 2157.2,-197.92 2162.5,-196.17 2162.55,-196.31 2162.6,-196.46 2157.29,-198.2 2163.68,-199.73 2154.95,-198.82" />
+<text xml:space="preserve" text-anchor="middle" x="2345.38" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">requester → judge</text>
+</g>
+
+<g class="edge" data-native-id="00f341e8-9aee-5722-9c7a-ba4f14536aea" data-source-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-target-id="a98e4c25-d73b-52e7-b863-4318872badc5" data-edge-kind="connection">
+<title>runner.check ↔ command.command
+InterfaceUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+00f341e8-9aee-5722-9c7a-ba4f14536aea</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M2556.41,-186.32C2526.83,-169.65 2499.5,-154.25 2499.5,-154.25 2499.5,-154.25 2499.5,-124.25 2499.5,-124.25 2499.5,-124.25 2499.91,-113.31 2500.42,-99.9" />
+<text xml:space="preserve" text-anchor="middle" x="2607.88" y="-134.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">runner.check ↔ command.command</text>
+</g>
+
+<g class="edge" data-native-id="ff6abe0c-a3d5-5ba7-8057-f5e4fbaf9231" data-source-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-target-id="27e6877c-959f-56c4-99c2-06cbe6c66d38" data-edge-kind="connection">
+<title>runner.judgment ↔ judge.judgment
+InterfaceUsage; endpoint paths from compiler endFeature / chainingFeature / ReferenceSubsetting
+ff6abe0c-a3d5-5ba7-8057-f5e4fbaf9231</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M2690.2,-178.4C2706.78,-165.08 2720.25,-154.25 2720.25,-154.25 2720.25,-154.25 2729.89,-126.62 2739.2,-99.97" />
+<text xml:space="preserve" text-anchor="middle" x="2786.53" y="-141.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">runner.judgment ↔</text>
+<text xml:space="preserve" text-anchor="middle" x="2786.53" y="-126.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">judge.judgment</text>
+</g>
+
+<g id="nc6b12469cfaef69f3a18" class="node diagram-node shape-box" data-native-id="2c512745-ddd8-59f7-a067-21f8c2b8edb4" data-shape="box">
+<title>XDesignDetailedDesign::CheckCommandInterface::caller
+type: ~CheckCommandExchange
+2c512745-ddd8-59f7-a067-21f8c2b8edb4</title>
+<rect fill="white" stroke="none" x="774.62" y="-278.5" width="221.26" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="774.62,-211 774.62,-211 995.88,-211 995.88,-211 774.62,-211" />
+<rect fill="none" stroke="#647a91" x="774.62" y="-278.5" width="221.26" height="100.25" /><text xml:space="preserve" text-anchor="start" x="783.62" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="783.62" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">caller</text>
+<text xml:space="preserve" text-anchor="start" x="783.62" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: ~CheckCommandExchange</text>
+</g>
+
+<g id="n24a6d0246c8a932f85d9" class="node diagram-node shape-box" data-native-id="2f942a99-3cc4-5c78-86bf-739393419626" data-shape="box">
+<title>XDesignDetailedDesign::CheckCommandInterface::command
+type: CheckCommandExchange
+2f942a99-3cc4-5c78-86bf-739393419626</title>
+<rect fill="white" stroke="none" x="778.75" y="-100.25" width="213.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="778.75,-32.75 778.75,-32.75 991.75,-32.75 991.75,-32.75 778.75,-32.75" />
+<rect fill="none" stroke="#647a91" x="778.75" y="-100.25" width="213.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="787.75" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="787.75" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">command</text>
+<text xml:space="preserve" text-anchor="start" x="787.75" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: CheckCommandExchange</text>
+</g>
+
+<g id="nd007bae1b0691f67804c" class="node diagram-node shape-box" data-native-id="89cb7000-7abb-5f51-9e67-f5d5552a60c0" data-shape="box">
+<title>XDesignDetailedDesign::CheckerCommand::command
+type: CheckCommandExchange
+89cb7000-7abb-5f51-9e67-f5d5552a60c0</title>
+<rect fill="white" stroke="none" x="1159.75" y="-278.5" width="213.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="1159.75,-211 1159.75,-211 1372.75,-211 1372.75,-211 1159.75,-211" />
+<rect fill="none" stroke="#647a91" x="1159.75" y="-278.5" width="213.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="1168.75" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="1168.75" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">command</text>
+<text xml:space="preserve" text-anchor="start" x="1168.75" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: CheckCommandExchange</text>
+</g>
+
+<g id="n03e64208e24f7f61e721" class="node diagram-node shape-box" data-native-id="e287b49e-42a1-57b4-8dee-0a17c10fbdee" data-shape="box">
+<title>XDesignDetailedDesign::Judge::judgment
+type: JudgmentExchange
+e287b49e-42a1-57b4-8dee-0a17c10fbdee</title>
+<rect fill="white" stroke="none" x="1654.75" y="-278.5" width="171.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="1654.75,-211 1654.75,-211 1825.75,-211 1825.75,-211 1654.75,-211" />
+<rect fill="none" stroke="#647a91" x="1654.75" y="-278.5" width="171.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="1663.75" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="1663.75" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">judgment</text>
+<text xml:space="preserve" text-anchor="start" x="1663.75" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: JudgmentExchange</text>
+</g>
+
+<g id="nbac2b18199bc54abcc4b" class="node diagram-node shape-box" data-native-id="5e4893ee-d935-599f-b10a-5b7bb6bbf400" data-shape="box">
+<title>XDesignDetailedDesign::JudgmentInterface::judge
+type: JudgmentExchange
+5e4893ee-d935-599f-b10a-5b7bb6bbf400</title>
+<rect fill="white" stroke="none" x="1982.75" y="-278.5" width="171.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="1982.75,-211 1982.75,-211 2153.75,-211 2153.75,-211 1982.75,-211" />
+<rect fill="none" stroke="#647a91" x="1982.75" y="-278.5" width="171.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="1991.75" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="1991.75" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">judge</text>
+<text xml:space="preserve" text-anchor="start" x="1991.75" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: JudgmentExchange</text>
+</g>
+
+<g id="n37f90557e96d9d703cf3" class="node diagram-node shape-box" data-native-id="f270382c-110e-5d18-8566-c01feb3debca" data-shape="box">
+<title>XDesignDetailedDesign::JudgmentInterface::requester
+type: ~JudgmentExchange
+f270382c-110e-5d18-8566-c01feb3debca</title>
+<rect fill="white" stroke="none" x="2044.62" y="-100.25" width="179.26000000000022" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2044.62,-32.75 2044.62,-32.75 2223.88,-32.75 2223.88,-32.75 2044.62,-32.75" />
+<rect fill="none" stroke="#647a91" x="2044.62" y="-100.25" width="179.26000000000022" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2053.62" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PortUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2053.62" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">requester</text>
+<text xml:space="preserve" text-anchor="start" x="2053.62" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: ~JudgmentExchange</text>
+</g>
+
+<g id="nb672b87a09988f4cf8c2" class="node diagram-node shape-box" data-native-id="1c99b2db-9a1c-5ba0-882b-dee15a3feee1" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::checkpoints
+type: SimpleFlowCheckpoint
+1c99b2db-9a1c-5ba0-882b-dee15a3feee1</title>
+<rect fill="white" stroke="none" x="2320.75" y="-278.5" width="189.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2320.75,-211 2320.75,-211 2509.75,-211 2509.75,-211 2320.75,-211" />
+<rect fill="none" stroke="#647a91" x="2320.75" y="-278.5" width="189.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2329.75" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2329.75" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">checkpoints</text>
+<text xml:space="preserve" text-anchor="start" x="2329.75" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: SimpleFlowCheckpoint</text>
+</g>
+
+<g id="n5ef4e991fd9cd71dedff" class="node diagram-node shape-box" data-native-id="a98e4c25-d73b-52e7-b863-4318872badc5" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::command
+type: CheckerCommand
+a98e4c25-d73b-52e7-b863-4318872badc5</title>
+<rect fill="white" stroke="none" x="2419.75" y="-100.25" width="165.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2419.75,-32.75 2419.75,-32.75 2584.75,-32.75 2584.75,-32.75 2419.75,-32.75" />
+<rect fill="none" stroke="#647a91" x="2419.75" y="-100.25" width="165.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2428.75" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2428.75" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">command</text>
+<text xml:space="preserve" text-anchor="start" x="2428.75" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: CheckerCommand</text>
+</g>
+
+<g id="ndb457e3f2fb38b4360b4" class="node diagram-node shape-box" data-native-id="19ea6237-910d-59da-8e66-7eedf61693f4" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::factory
+type: SimpleFlowRunFactory
+19ea6237-910d-59da-8e66-7eedf61693f4</title>
+<rect fill="white" stroke="none" x="2734.62" y="-278.5" width="191.26000000000022" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2734.62,-211 2734.62,-211 2925.88,-211 2925.88,-211 2734.62,-211" />
+<rect fill="none" stroke="#647a91" x="2734.62" y="-278.5" width="191.26000000000022" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2743.62" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2743.62" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">factory</text>
+<text xml:space="preserve" text-anchor="start" x="2743.62" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: SimpleFlowRunFactory</text>
+</g>
+
+<g id="nd4dad6fd32cb7b4d8195" class="node diagram-node shape-box" data-native-id="27e6877c-959f-56c4-99c2-06cbe6c66d38" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::judge
+type: Judge
+27e6877c-959f-56c4-99c2-06cbe6c66d38</title>
+<rect fill="white" stroke="none" x="2712.38" y="-100.25" width="87.73999999999978" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2712.38,-32.75 2712.38,-32.75 2800.12,-32.75 2800.12,-32.75 2712.38,-32.75" />
+<rect fill="none" stroke="#647a91" x="2712.38" y="-100.25" width="87.73999999999978" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2721.38" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2721.38" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">judge</text>
+<text xml:space="preserve" text-anchor="start" x="2721.38" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: Judge</text>
+</g>
+
+<g id="n3efdcb60b67ebadba141" class="node diagram-node shape-box" data-native-id="7705bfbd-fd17-549f-a48b-f490d76ec6cf" data-shape="box">
+<title>XDesignDetailedDesign::SimpleFlowAutomation::runner
+type: SimpleFlowRun
+7705bfbd-fd17-549f-a48b-f490d76ec6cf</title>
+<rect fill="white" stroke="none" x="2556.12" y="-278.5" width="146.26000000000022" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="2556.12,-211 2556.12,-211 2702.38,-211 2702.38,-211 2556.12,-211" />
+<rect fill="none" stroke="#647a91" x="2556.12" y="-278.5" width="146.26000000000022" height="100.25" /><text xml:space="preserve" text-anchor="start" x="2565.12" y="-256.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="2565.12" y="-223.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">runner</text>
+<text xml:space="preserve" text-anchor="start" x="2565.12" y="-190.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: SimpleFlowRun</text>
+</g>
+</g>
+</svg>

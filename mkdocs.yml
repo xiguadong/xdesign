@@ -1,0 +1,147 @@
+site_name: xdesign
+site_description: System models, wishes, and the evidence behind engineering delivery.
+docs_dir: docs
+site_dir: cache/docs-site/html
+dev_addr: 127.0.0.1:8766
+use_directory_urls: true
+
+exclude_docs: |
+  AGENTS.md
+
+nav:
+  - Start here: 00_index.md
+  - Architecture:
+      - Overview: arch/00_overview.md
+      - System composition: arch/01_system_composition.md
+      - Architecture design: arch/02_design.md
+  - Requirements:
+      - Overview: requirements/00_overview.md
+      - Requirements baseline: requirements/01_baseline.md
+  - Detailed design:
+      - Overview: details/00_overview.md
+      - Flows and checkpoints: details/01_flows_and_checkpoints.md
+      - Records and evidence: details/02_records_and_evidence.md
+      - Toolchain: details/03_toolchain.md
+      - Diagram presentation: details/04_diagram_presentation.md
+      - Documentation contract: details/05_documentation_contract.md
+      - SimpleFlow:
+          - Overview: details/simple_flow/00_overview.md
+          - Run design: details/simple_flow/01_run_design.md
+          - Gates and rules: details/simple_flow/02_gates_and_rules.md
+          - Structure graphs: details/simple_flow/03_structure_graphs.md
+          - View coverage: details/simple_flow/04_sysml_diagrams.md
+          - Module design: details/simple_flow/05_module_design.md
+          - Rust UML design: details/simple_flow/06_rust_uml_design.md
+          - File plan and verification: details/simple_flow/07_file_plan_and_verification.md
+  - UML:
+      - Overview: uml/00_overview.md
+      - C4 and UML guide: uml/01_c4_and_uml_guide.md
+      - simpflow API reference:
+          - Inventory: uml/simpflow/00_overview.md
+          - create_run: uml/simpflow/01_create_run.md
+          - RsSimpleFlowRun: uml/simpflow/02_simple_flow_run.md
+          - evaluate_gates: uml/simpflow/03_evaluate_gates.md
+          - advance: uml/simpflow/04_advance.md
+          - evaluate_checkpoint: uml/simpflow/05_evaluate_checkpoint.md
+          - RsCheckCommand: uml/simpflow/06_check_command.md
+          - run_check: uml/simpflow/07_run_check.md
+          - RsJudge: uml/simpflow/08_judge.md
+          - review: uml/simpflow/09_review.md
+          - RsFlowPlan: uml/simpflow/10_flow_plan.md
+          - validate: uml/simpflow/11_flow_plan_validate.md
+          - RsStageVisit: uml/simpflow/12_stage_visit.md
+          - record_activity: uml/simpflow/13_record_activity.md
+          - append_assessment: uml/simpflow/14_append_assessment.md
+          - completion_authorized: uml/simpflow/15_completion_authorized.md
+          - RsActivityEntry: uml/simpflow/16_activity_entry.md
+          - RsAssessmentEntry: uml/simpflow/17_assessment_entry.md
+          - RsStageSpec: uml/simpflow/18_stage_spec.md
+          - RsCheckpointSpec: uml/simpflow/19_checkpoint_spec.md
+          - RsCheckerSpec: uml/simpflow/20_checker_spec.md
+          - RsCheckerRuleSpec: uml/simpflow/21_checker_rule_spec.md
+          - RsGateReport: uml/simpflow/22_gate_report.md
+          - RsRuleReport: uml/simpflow/23_rule_report.md
+          - RsFlowStatus: uml/simpflow/24_flow_status.md
+          - RsStageStatus: uml/simpflow/25_stage_status.md
+          - RsCheckKind: uml/simpflow/26_check_kind.md
+          - RsCheckpointOutcome: uml/simpflow/27_checkpoint_outcome.md
+          - RsJudgeAuthority: uml/simpflow/28_judge_authority.md
+          - RsAdvanceOutcome: uml/simpflow/29_advance_outcome.md
+          - RsPlanError: uml/simpflow/30_plan_error.md
+          - RsGateError: uml/simpflow/31_gate_error.md
+          - record_activity on run: uml/simpflow/32_run_record_activity.md
+          - reopen_stage: uml/simpflow/33_reopen_stage.md
+          - RsConformanceKind: uml/simpflow/34_conformance_kind.md
+          - RsArtifactDigest: uml/simpflow/35_artifact_digest.md
+  - Project management:
+      - Overview: prj_manage/00_overview.md
+      - Review synthesis: prj_manage/01_review_synthesis.md
+      - SimpleFlow implementation plan: prj_manage/02_simple_flow_implementation_plan.md
+  - Interface control:
+      - Overview: icd/00_overview.md
+      - Interface contracts: icd/01_interfaces.md
+  - Decisions:
+      - Overview and ADR register: adr/00_overview.md
+  - Review:
+      - Overview: review/00_overview.md
+      - Review and wish status: review/01_wish_status.md
+      - Stage review checklist: review/02_checklist.md
+
+theme:
+  name: material
+  custom_dir: tools/docs_site/theme
+  language: en
+  font: false
+  palette:
+    - scheme: default
+      primary: custom
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - scheme: slate
+      primary: custom
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.footer
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search
+
+markdown_extensions:
+  - tables
+  - admonition
+  - attr_list
+  - pymdownx.superfences
+  - toc:
+      permalink: true
+      toc_depth: 2-4
+
+extra_css:
+  - stylesheets/xdesign.css
+extra_javascript:
+  - javascripts/diagrams.js
+
+hooks:
+  - tools/docs_site/hooks.py
+
+watch:
+  - tools/docs_site
+
+validation:
+  nav:
+    omitted_files: warn
+  links:
+    not_found: warn
+    anchors: warn
+    unrecognized_links: warn

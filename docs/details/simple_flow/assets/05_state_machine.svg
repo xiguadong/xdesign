@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="633pt" height="497pt" viewBox="0.00 0.00 633.00 497.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Run lifecycle</title><desc id="diagram-desc">When does a run activate, block, resume or complete?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 479.31)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-479.31 614.75,-479.31 614.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="231.25" y="-431.41" font-family="Arial" font-weight="bold" font-size="22.00">Run lifecycle</text>
+<text xml:space="preserve" text-anchor="start" x="134.12" y="-403.06" font-family="Arial" font-size="14.00" fill="#52657a">When does a run activate, block, resume or complete?</text>
+
+<g class="edge" data-native-id="98ed193d-4d62-5b70-a7a1-a82ddd78abeb" data-source-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-target-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-edge-kind="directed">
+<title>Next stage
+nonterminal visit authorized
+advanceStage [run.currentRecord.completionAuthorized and not run.currentRecord.stage.completesFlow]
+98ed193d-4d62-5b70-a7a1-a82ddd78abeb</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M275.57,-209.53C292.66,-210.53 307.14,-205.7 307.14,-195.03 307.14,-186.36 297.58,-181.55 284.83,-180.58" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="277.16,-180.54 285.18,-176.99 279.57,-180.4 285.16,-180.44 285.16,-180.59 285.15,-180.74 279.57,-180.7 285.13,-184.19 277.16,-180.54" />
+<text xml:space="preserve" text-anchor="middle" x="388.89" y="-197.68" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Next stage</text>
+<text xml:space="preserve" text-anchor="middle" x="388.89" y="-182.68" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">nonterminal visit authorized</text>
+</g>
+
+<g class="edge" data-native-id="419a90d3-aef7-5f99-b9dd-2f1c50f4c332" data-source-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-target-id="55e90173-09c4-53c2-93fc-a535c6264099" data-edge-kind="directed">
+<title>Block
+gate not authorized
+gateBlocked [run.status == FlowStatus::blocked and not run.currentRecord.completionAuthorized]
+419a90d3-aef7-5f99-b9dd-2f1c50f4c332</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M193.38,-183.16C126.13,-165.37 0,-132.02 0,-132.02 0,-132.02 0,-102.02 0,-102.02 0,-102.02 10.64,-93.72 24.14,-83.19" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="30.17,-78.49 26.08,-86.25 28.36,-80.09 23.96,-83.52 23.86,-83.41 23.77,-83.29 28.17,-79.85 21.65,-80.57 30.17,-78.49" />
+<text xml:space="preserve" text-anchor="middle" x="57.75" y="-119.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Block</text>
+<text xml:space="preserve" text-anchor="middle" x="57.75" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">gate not authorized</text>
+</g>
+
+<g class="edge" data-native-id="67aed7a8-0f63-5176-8ea7-56cf146f168d" data-source-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-target-id="917c108d-4bbc-5b63-9b35-5a4d7659fd46" data-edge-kind="directed">
+<title>Complete
+terminal visit authorized
+complete [run.currentRecord.completionAuthorized and run.currentRecord.stage.completesFlow]
+67aed7a8-0f63-5176-8ea7-56cf146f168d</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M266.71,-155.54C287.81,-130.33 311.5,-102.02 311.5,-102.02 311.5,-102.02 323.37,-94.02 338.58,-83.77" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="344.97,-79.46 340.35,-86.92 343.05,-80.94 338.42,-84.06 338.33,-83.93 338.25,-83.81 342.88,-80.69 336.32,-80.95 344.97,-79.46" />
+<text xml:space="preserve" text-anchor="middle" x="382" y="-119.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Complete</text>
+<text xml:space="preserve" text-anchor="middle" x="382" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">terminal visit authorized</text>
+</g>
+
+<g class="edge" data-native-id="b29de1b2-7246-57e9-8d85-c3c60f04a1f1" data-source-id="55e90173-09c4-53c2-93fc-a535c6264099" data-target-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-edge-kind="directed">
+<title>Resume
+corrected visit active
+resumeAfterCorrection [run.currentRecord.status == StageStatus::active]
+b29de1b2-7246-57e9-8d85-c3c60f04a1f1</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M109.93,-78.5C129.87,-103.71 152.25,-132.02 152.25,-132.02 152.25,-132.02 168.28,-144.1 186.18,-157.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="192.11,-162.07 183.56,-160.13 190.09,-160.74 185.63,-157.38 185.72,-157.26 185.81,-157.14 190.27,-160.5 187.89,-154.38 192.11,-162.07" />
+<text xml:space="preserve" text-anchor="middle" x="213.38" y="-119.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Resume</text>
+<text xml:space="preserve" text-anchor="middle" x="213.38" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">corrected visit active</text>
+</g>
+
+<g class="edge" data-native-id="58f5d55a-222a-532a-9698-f306930f9885" data-source-id="917c108d-4bbc-5b63-9b35-5a4d7659fd46" data-target-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-edge-kind="directed">
+<title>Rework
+run and new visit active
+reopenForRework [run.status == FlowStatus::active and run.currentRecord.status == StageStatus::active]
+58f5d55a-222a-532a-9698-f306930f9885</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M436.46,-78.58C447.24,-91.19 456.5,-102.02 456.5,-102.02 456.5,-102.02 456.5,-132.02 456.5,-132.02 456.5,-132.02 350.17,-161.72 284.69,-180.01" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="277.26,-182.09 284,-176.47 279.55,-181.29 284.93,-179.79 284.97,-179.93 285.01,-180.08 279.63,-181.58 285.94,-183.4 277.26,-182.09" />
+<text xml:space="preserve" text-anchor="middle" x="526.62" y="-119.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Rework</text>
+<text xml:space="preserve" text-anchor="middle" x="526.62" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">run and new visit active</text>
+</g>
+
+<g class="edge" data-native-id="5f675d57-e3e2-5440-91b0-e1fa85678582" data-source-id="44cf1fb1-89c8-5b34-b7dc-b5fc0b432faa" data-target-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-edge-kind="directed">
+<title>Activate
+run is active
+activate [run.status == FlowStatus::active]
+5f675d57-e3e2-5440-91b0-e1fa85678582</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M234.5,-311.58C234.5,-291.09 234.5,-265.7 234.5,-243.94" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="234.5,-236.13 238.1,-244.13 234.65,-238.54 234.65,-244.13 234.5,-244.13 234.35,-244.13 234.35,-238.54 230.9,-244.13 234.5,-236.13" />
+<text xml:space="preserve" text-anchor="middle" x="270.5" y="-275.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Activate</text>
+<text xml:space="preserve" text-anchor="middle" x="270.5" y="-260.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">run is active</text>
+</g>
+
+<g id="nd1f30643433d13580b91" class="node diagram-node shape-state" data-native-id="fc93645b-d74e-5e74-b2f5-7f95a216ec2a" data-shape="state">
+<title>XDesignDetailedDesign::SimpleFlowRunLifecycle::active
+fc93645b-d74e-5e74-b2f5-7f95a216ec2a
+fc93645b-d74e-5e74-b2f5-7f95a216ec2a</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M263.14,-234.04C263.14,-234.04 205.86,-234.04 205.86,-234.04 199.86,-234.04 193.86,-228.04 193.86,-222.04 193.86,-222.04 193.86,-168.02 193.86,-168.02 193.86,-162.02 199.86,-156.02 205.86,-156.02 205.86,-156.02 263.14,-156.02 263.14,-156.02 269.14,-156.02 275.14,-162.02 275.14,-168.02 275.14,-168.02 275.14,-222.04 275.14,-222.04 275.14,-228.04 269.14,-234.04 263.14,-234.04" />
+<rect fill="white" stroke="none" x="202.5" y="-228.28" width="64.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="219.88" y="-207.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="210.5" y="-174.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Active</text>
+</g>
+
+<g id="nbd1141f32e5ed99cdd08" class="node diagram-node shape-state" data-native-id="55e90173-09c4-53c2-93fc-a535c6264099" data-shape="state">
+<title>XDesignDetailedDesign::SimpleFlowRunLifecycle::blocked
+55e90173-09c4-53c2-93fc-a535c6264099
+55e90173-09c4-53c2-93fc-a535c6264099</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M115.27,-78.02C115.27,-78.02 43.73,-78.02 43.73,-78.02 37.73,-78.02 31.73,-72.02 31.73,-66.02 31.73,-66.02 31.73,-12 31.73,-12 31.73,-6 37.73,0 43.73,0 43.73,0 115.27,0 115.27,0 121.27,0 127.27,-6 127.27,-12 127.27,-12 127.27,-66.02 127.27,-66.02 127.27,-72.02 121.27,-78.02 115.27,-78.02" />
+<rect fill="white" stroke="none" x="40.38" y="-72.26" width="78.24000000000001" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="64.88" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="48.38" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Blocked</text>
+</g>
+
+<g id="n054e919702ab177366ff" class="node diagram-node shape-state" data-native-id="917c108d-4bbc-5b63-9b35-5a4d7659fd46" data-shape="state">
+<title>XDesignDetailedDesign::SimpleFlowRunLifecycle::completed
+917c108d-4bbc-5b63-9b35-5a4d7659fd46
+917c108d-4bbc-5b63-9b35-5a4d7659fd46</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M449.39,-78.02C449.39,-78.02 357.61,-78.02 357.61,-78.02 351.61,-78.02 345.61,-72.02 345.61,-66.02 345.61,-66.02 345.61,-12 345.61,-12 345.61,-6 351.61,0 357.61,0 357.61,0 449.39,0 449.39,0 455.39,0 461.39,-6 461.39,-12 461.39,-12 461.39,-66.02 461.39,-66.02 461.39,-72.02 455.39,-78.02 449.39,-78.02" />
+<rect fill="white" stroke="none" x="354.25" y="-72.26" width="98.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="388.88" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="362.25" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Completed</text>
+</g>
+
+<g id="nb88237ea7d2aa190175a" class="node diagram-node shape-state" data-native-id="44cf1fb1-89c8-5b34-b7dc-b5fc0b432faa" data-shape="state">
+<title>XDesignDetailedDesign::SimpleFlowRunLifecycle::pending
+44cf1fb1-89c8-5b34-b7dc-b5fc0b432faa
+44cf1fb1-89c8-5b34-b7dc-b5fc0b432faa</title>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M270.64,-390.06C270.64,-390.06 198.36,-390.06 198.36,-390.06 192.36,-390.06 186.36,-384.06 186.36,-378.06 186.36,-378.06 186.36,-324.04 186.36,-324.04 186.36,-318.04 192.36,-312.04 198.36,-312.04 198.36,-312.04 270.64,-312.04 270.64,-312.04 276.64,-312.04 282.64,-318.04 282.64,-324.04 282.64,-324.04 282.64,-378.06 282.64,-378.06 282.64,-384.06 276.64,-390.06 270.64,-390.06" />
+<rect fill="white" stroke="none" x="195.0" y="-384.3" width="79.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="219.88" y="-363.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">state</text>
+<text xml:space="preserve" text-anchor="start" x="203" y="-330.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Pending</text>
+</g>
+</g>
+</svg>

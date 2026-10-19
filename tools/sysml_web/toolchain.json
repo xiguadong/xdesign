@@ -1,0 +1,34 @@
+{
+  "schema": "xdesign.sysml-toolchain.v1",
+  "project": "haradama/sysml-v2-rs",
+  "version": "v0.1.4",
+  "commit": "d1273328ef26ff82dd47fb2534879f867a0b7c85",
+  "source_url": "https://github.com/haradama/sysml-v2-rs/tree/d1273328ef26ff82dd47fb2534879f867a0b7c85",
+  "platform": "aarch64-apple-darwin",
+  "binary": {
+    "path": "bin/sysml",
+    "sha256": "674fce28512a772d1886ff2397f5f02dda66265299c67c01f5cc36eaf00207f6"
+  },
+  "source": {
+    "path": "vendor/sysml-v2-rs-v0.1.4-source.tar.gz",
+    "sha256": "a8f782f47aceedb25fd181abdfff897a8d2f5d6cbf91daae6f611b24c0330531",
+    "manifest": "vendor/source_manifest.json",
+    "manifest_sha256": "9ed36eccf2c895eecd5562867119accea64bb788c83328992ce9cef625899940",
+    "build_command": "cargo build --release -p sysmlv2-cli",
+    "rust_version_minimum": "1.87",
+    "reproducible_source_build": "Not established; the bundled executable is the pinned upstream release binary."
+  },
+  "standard_library": {
+    "embedded_release": "2026-05",
+    "commit": "de1070ae8e79c21532b8004fc663d47b35d0e9fa",
+    "license": "EPL-2.0",
+    "notice": "licenses/crates__sysml-stdlib__NOTICE"
+  },
+  "licenses": {
+    "code": "MIT OR Apache-2.0",
+    "mit": "licenses/LICENSE-MIT",
+    "apache": "licenses/LICENSE-APACHE",
+    "metamodel_notice": "licenses/crates__sysml-model__NOTICE",
+    "standard_library": "licenses/crates__sysml-stdlib__LICENSE"
+  }
+}

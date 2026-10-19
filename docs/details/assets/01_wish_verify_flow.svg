@@ -1,0 +1,237 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2011" height="1664" viewBox="0 0 2011 1664" font-family="Arial, Helvetica, sans-serif" font-size="12">
+<style>
+.box { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.rule, .edge { stroke: #000000; stroke-width: 1; fill: none; }
+.arrow { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.diamond { fill: #000000; stroke: #000000; stroke-width: 1; }
+.hollow { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.tip { fill: none; stroke: #000000; stroke-width: 1; }
+.initial { fill: #000000; }
+.port { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.guide { stroke: #000000; stroke-width: 1; opacity: 0.4; }
+.dependency { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 6 4; }
+.succession { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 4 3; }
+.lifeline { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 3 4; }
+.lane { fill: none; stroke: #000000; stroke-width: 1; }
+.name { fill: #000000; font-weight: bold; }
+.abstract { font-style: italic; }
+.keyword, .feature { fill: #000000; }
+.aside { fill: #000000; paint-order: stroke; stroke: #ffffff; stroke-width: 3; stroke-linejoin: round; }
+.compartment { fill: #000000; font-style: italic; }
+@media (prefers-color-scheme: dark) {
+.box, .arrow, .hollow, .port { fill: #1e1e1e; stroke: #d4d4d4; }
+.rule, .edge, .tip, .guide, .dependency, .succession, .lifeline, .lane { stroke: #d4d4d4; }
+.diamond { fill: #d4d4d4; stroke: #d4d4d4; }
+.initial, .name, .keyword, .feature, .compartment { fill: #d4d4d4; }
+.aside { fill: #d4d4d4; stroke: #1e1e1e; }
+}
+</style>
+<defs><marker id="specialization" viewBox="0 0 12 10" refX="12" refY="5" markerWidth="12" markerHeight="10" orient="auto"><path class="arrow" d="M0,0 L12,5 L0,10 z"/></marker><marker id="composition" viewBox="0 0 16 10" refX="0" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="diamond" d="M0,5 L8,0 L16,5 L8,10 z"/></marker><marker id="subsetting" viewBox="0 0 12 10" refX="12" refY="5" markerWidth="12" markerHeight="10" orient="auto"><path class="hollow" d="M0,0 L12,5 L0,10 z"/></marker><marker id="redefinition" viewBox="0 0 16 10" refX="16" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="hollow" d="M4,0 L16,5 L4,10 z"/><path class="tip" d="M2,0 L2,10"/></marker><marker id="reference" viewBox="0 0 16 10" refX="0" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="hollow" d="M0,5 L8,0 L16,5 L8,10 z"/></marker><marker id="transition" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path class="tip" d="M0,0 L10,4 L0,8"/></marker><marker id="flow" viewBox="0 0 10 9" refX="10" refY="4.5" markerWidth="10" markerHeight="9" orient="auto"><path class="diamond" d="M0,0 L10,4.5 L0,9 z"/></marker><marker id="message" viewBox="0 0 10 9" refX="10" refY="4.5" markerWidth="10" markerHeight="9" orient="auto"><path class="tip" d="M0,0 L10,4.5 L0,9 L2.5,4.5 z"/></marker><marker id="portion" viewBox="0 0 10 10" refX="0" refY="5" markerWidth="10" markerHeight="10" orient="auto"><circle class="diamond" cx="5" cy="5" r="4"/></marker></defs>
+<path class="edge" fill="none" d="M 1502.4 1228.0 L 1502.4 1238.0 L 829.3 1238.0 L 829.3 1284.0" marker-end="url(#subsetting)"/>
+<path class="edge" fill="none" d="M 508.8 1228.0 L 508.8 1284.0" marker-end="url(#subsetting)"/>
+<path class="edge" fill="none" d="M 981.2 414.0 L 981.2 470.0" marker-end="url(#subsetting)"/>
+<g>
+<rect class="box" x="188.3" y="1284.0" width="961.6" height="352.0" rx="10"/>
+<text class="keyword" x="669.1" y="1306.8" text-anchor="middle">«part»</text>
+<text class="name" x="669.1" y="1323.8" text-anchor="middle">stages : Stage[2]</text>
+<line class="rule" x1="188.3" y1="1333.0" x2="1149.9" y2="1333.0"/>
+<text class="compartment" x="198.3" y="1350.8">doc</text>
+<text class="feature" x="208.3" y="1367.8">Reusable workflow stage definition. Successors</text>
+<text class="feature" x="208.3" y="1384.8">allow branching and rework. Exit checkpoints are</text>
+<text class="feature" x="208.3" y="1401.8">optional; every configured checkpoint must pass</text>
+<text class="feature" x="208.3" y="1418.8">before leaving a stage. An optional subflow</text>
+<text class="feature" x="208.3" y="1435.8">decomposes the work within this stage and must</text>
+<text class="feature" x="208.3" y="1452.8">complete before the parent stage can finish.…</text>
+<line class="rule" x1="188.3" y1="1462.0" x2="1149.9" y2="1462.0"/>
+<text class="compartment" x="198.3" y="1479.8">attributes</text>
+<text class="feature" x="208.3" y="1496.8">attribute completesFlow : Boolean = false</text>
+<line class="rule" x1="188.3" y1="1506.0" x2="1149.9" y2="1506.0"/>
+<text class="compartment" x="198.3" y="1523.8">occurrences</text>
+<text class="feature" x="208.3" y="1540.8">event occurrence entered</text>
+<text class="feature" x="208.3" y="1557.8">event occurrence assessed</text>
+</g>
+<g>
+<rect class="box" x="198.3" y="1572.0" width="178.4" height="54.0" rx="10"/>
+<text class="keyword" x="287.5" y="1594.8" text-anchor="middle">«part»</text>
+<text class="name" x="287.5" y="1611.8" text-anchor="middle">subFlow : Flow[0..1]</text>
+</g>
+<g>
+<rect class="box" x="386.7" y="1572.0" width="210.1" height="54.0" rx="10"/>
+<text class="keyword" x="491.7" y="1594.8" text-anchor="middle">«part»</text>
+<text class="name" x="491.7" y="1611.8" text-anchor="middle">nextStages : Stage[0..*]</text>
+</g>
+<g>
+<rect class="box" x="606.7" y="1572.0" width="289.3" height="54.0" rx="10"/>
+<text class="keyword" x="751.4" y="1594.8" text-anchor="middle">«part»</text>
+<text class="name" x="751.4" y="1611.8" text-anchor="middle">exitCheckpoints : Checkpoint[0..*]</text>
+</g>
+<g>
+<rect class="box" x="906.0" y="1572.0" width="233.8" height="54.0" rx="10"/>
+<text class="keyword" x="1022.9" y="1594.8" text-anchor="middle">«part»</text>
+<text class="name" x="1022.9" y="1611.8" text-anchor="middle">verifiesStage : Stage[0..1]</text>
+</g>
+<g>
+<rect class="box" x="606.5" y="470.0" width="749.4" height="386.0" rx="10"/>
+<text class="keyword" x="981.2" y="492.8" text-anchor="middle">«part»</text>
+<text class="name" x="981.2" y="509.8" text-anchor="middle">checkpoints : Checkpoint[1]</text>
+<line class="rule" x1="606.5" y1="519.0" x2="1356.0" y2="519.0"/>
+<text class="compartment" x="616.5" y="536.8">doc</text>
+<text class="feature" x="626.5" y="553.8">Reusable gate definition, independent of a</text>
+<text class="feature" x="626.5" y="570.8">particular wish. Criteria require</text>
+<text class="feature" x="626.5" y="587.8">evidence-backed checks or engineering judgments;</text>
+<text class="feature" x="626.5" y="604.8">assessments of these criteria belong to the</text>
+<text class="feature" x="626.5" y="621.8">wish&apos;s stage record. kind separates criteria a</text>
+<text class="feature" x="626.5" y="638.8">fixed check can establish (syntactic) from…</text>
+<line class="rule" x1="606.5" y1="648.0" x2="1356.0" y2="648.0"/>
+<text class="compartment" x="616.5" y="665.8">attributes</text>
+<text class="feature" x="626.5" y="682.8">attribute kind : CheckKind</text>
+<text class="feature" x="626.5" y="699.8">attribute criteria : String[1..*]</text>
+<text class="feature" x="626.5" y="716.8">attribute agentMayJudge : Boolean = false</text>
+<text class="feature" x="626.5" y="733.8">attribute humanMayJudge : Boolean = false</text>
+<line class="rule" x1="606.5" y1="743.0" x2="1356.0" y2="743.0"/>
+<text class="compartment" x="616.5" y="760.8">items</text>
+<text class="feature" x="626.5" y="777.8">item checkers : Checker[0..*]</text>
+</g>
+<g>
+<rect class="box" x="616.5" y="792.0" width="170.5" height="54.0" rx="10"/>
+<text class="keyword" x="701.8" y="814.8" text-anchor="middle">«part»</text>
+<text class="name" x="701.8" y="831.8" text-anchor="middle">sourceStage : Stage</text>
+</g>
+<g>
+<rect class="box" x="797.0" y="792.0" width="297.2" height="54.0" rx="10"/>
+<text class="keyword" x="945.6" y="814.8" text-anchor="middle">«assert constraint»</text>
+<text class="name" x="945.6" y="831.8" text-anchor="middle">syntacticCriteriaAreFixedByCheckers</text>
+</g>
+<g>
+<rect class="box" x="1104.2" y="792.0" width="241.8" height="54.0" rx="10"/>
+<text class="keyword" x="1225.1" y="814.8" text-anchor="middle">«assert constraint»</text>
+<text class="name" x="1225.1" y="831.8" text-anchor="middle">semanticCriteriaNeedJudgment</text>
+</g>
+<g>
+<rect class="box" x="28.0" y="28.0" width="178.4" height="54.0" rx="10"/>
+<text class="keyword" x="117.2" y="50.8" text-anchor="middle">«part»</text>
+<text class="name" x="117.2" y="67.8" text-anchor="middle">initialStage : Stage</text>
+</g>
+<g>
+<rect class="box" x="1021.6" y="876.0" width="961.6" height="352.0" rx="10"/>
+<text class="keyword" x="1502.4" y="898.8" text-anchor="middle">«part»</text>
+<text class="name" x="1502.4" y="915.8" text-anchor="middle">wish : Stage</text>
+<line class="rule" x1="1021.6" y1="925.0" x2="1983.2" y2="925.0"/>
+<text class="compartment" x="1031.6" y="942.8">doc</text>
+<text class="feature" x="1041.6" y="959.8">Reusable workflow stage definition. Successors</text>
+<text class="feature" x="1041.6" y="976.8">allow branching and rework. Exit checkpoints are</text>
+<text class="feature" x="1041.6" y="993.8">optional; every configured checkpoint must pass</text>
+<text class="feature" x="1041.6" y="1010.8">before leaving a stage. An optional subflow</text>
+<text class="feature" x="1041.6" y="1027.8">decomposes the work within this stage and must</text>
+<text class="feature" x="1041.6" y="1044.8">complete before the parent stage can finish.…</text>
+<line class="rule" x1="1021.6" y1="1054.0" x2="1983.2" y2="1054.0"/>
+<text class="compartment" x="1031.6" y="1071.8">attributes</text>
+<text class="feature" x="1041.6" y="1088.8">attribute completesFlow : Boolean = false</text>
+<line class="rule" x1="1021.6" y1="1098.0" x2="1983.2" y2="1098.0"/>
+<text class="compartment" x="1031.6" y="1115.8">occurrences</text>
+<text class="feature" x="1041.6" y="1132.8">event occurrence entered</text>
+<text class="feature" x="1041.6" y="1149.8">event occurrence assessed</text>
+</g>
+<g>
+<rect class="box" x="1031.6" y="1164.0" width="178.4" height="54.0" rx="10"/>
+<text class="keyword" x="1120.8" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="1120.8" y="1203.8" text-anchor="middle">subFlow : Flow[0..1]</text>
+</g>
+<g>
+<rect class="box" x="1220.0" y="1164.0" width="210.1" height="54.0" rx="10"/>
+<text class="keyword" x="1325.0" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="1325.0" y="1203.8" text-anchor="middle">nextStages : Stage[0..*]</text>
+</g>
+<g>
+<rect class="box" x="1440.1" y="1164.0" width="289.3" height="54.0" rx="10"/>
+<text class="keyword" x="1584.7" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="1584.7" y="1203.8" text-anchor="middle">exitCheckpoints : Checkpoint[0..*]</text>
+</g>
+<g>
+<rect class="box" x="1739.4" y="1164.0" width="233.8" height="54.0" rx="10"/>
+<text class="keyword" x="1856.3" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="1856.3" y="1203.8" text-anchor="middle">verifiesStage : Stage[0..1]</text>
+</g>
+<g>
+<rect class="box" x="28.0" y="876.0" width="961.6" height="352.0" rx="10"/>
+<text class="keyword" x="508.8" y="898.8" text-anchor="middle">«part»</text>
+<text class="name" x="508.8" y="915.8" text-anchor="middle">verify : Stage</text>
+<line class="rule" x1="28.0" y1="925.0" x2="989.6" y2="925.0"/>
+<text class="compartment" x="38.0" y="942.8">attributes</text>
+<text class="feature" x="48.0" y="959.8">attribute completesFlow : Boolean = true</text>
+<line class="rule" x1="28.0" y1="969.0" x2="989.6" y2="969.0"/>
+<text class="compartment" x="38.0" y="986.8">doc</text>
+<text class="feature" x="48.0" y="1003.8">Reusable workflow stage definition. Successors</text>
+<text class="feature" x="48.0" y="1020.8">allow branching and rework. Exit checkpoints are</text>
+<text class="feature" x="48.0" y="1037.8">optional; every configured checkpoint must pass</text>
+<text class="feature" x="48.0" y="1054.8">before leaving a stage. An optional subflow</text>
+<text class="feature" x="48.0" y="1071.8">decomposes the work within this stage and must</text>
+<text class="feature" x="48.0" y="1088.8">complete before the parent stage can finish.…</text>
+<line class="rule" x1="28.0" y1="1098.0" x2="989.6" y2="1098.0"/>
+<text class="compartment" x="38.0" y="1115.8">occurrences</text>
+<text class="feature" x="48.0" y="1132.8">event occurrence entered</text>
+<text class="feature" x="48.0" y="1149.8">event occurrence assessed</text>
+</g>
+<g>
+<rect class="box" x="38.0" y="1164.0" width="178.4" height="54.0" rx="10"/>
+<text class="keyword" x="127.2" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="127.2" y="1203.8" text-anchor="middle">subFlow : Flow[0..1]</text>
+</g>
+<g>
+<rect class="box" x="226.4" y="1164.0" width="210.1" height="54.0" rx="10"/>
+<text class="keyword" x="331.4" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="331.4" y="1203.8" text-anchor="middle">nextStages : Stage[0..*]</text>
+</g>
+<g>
+<rect class="box" x="446.5" y="1164.0" width="289.3" height="54.0" rx="10"/>
+<text class="keyword" x="591.1" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="591.1" y="1203.8" text-anchor="middle">exitCheckpoints : Checkpoint[0..*]</text>
+</g>
+<g>
+<rect class="box" x="745.8" y="1164.0" width="233.8" height="54.0" rx="10"/>
+<text class="keyword" x="862.7" y="1186.8" text-anchor="middle">«part»</text>
+<text class="name" x="862.7" y="1203.8" text-anchor="middle">verifiesStage : Stage[0..1]</text>
+</g>
+<g>
+<rect class="box" x="440.6" y="28.0" width="1081.2" height="386.0" rx="10"/>
+<text class="keyword" x="981.2" y="50.8" text-anchor="middle">«part»</text>
+<text class="name" x="981.2" y="67.8" text-anchor="middle">outcomeAccepted : Checkpoint</text>
+<line class="rule" x1="440.6" y1="77.0" x2="1521.8" y2="77.0"/>
+<text class="compartment" x="450.6" y="94.8">attributes</text>
+<text class="feature" x="460.6" y="111.8">attribute kind : CheckKind = CheckKind::semantic</text>
+<text class="feature" x="460.6" y="128.8">attribute criteria : String[1..*] = &quot;The delivered artifacts let the requester see the outcome from them, without reading the model or re-asking.&quot;</text>
+<text class="feature" x="460.6" y="145.8">attribute agentMayJudge : Boolean = true</text>
+<text class="feature" x="460.6" y="162.8">attribute humanMayJudge : Boolean = true</text>
+<line class="rule" x1="440.6" y1="172.0" x2="1521.8" y2="172.0"/>
+<text class="compartment" x="450.6" y="189.8">doc</text>
+<text class="feature" x="460.6" y="206.8">Reusable gate definition, independent of a particular wish. Criteria require evidence-backed checks or engineering judgments; assessments of these</text>
+<text class="feature" x="460.6" y="223.8">criteria belong to the wish&apos;s stage record. kind separates criteria a fixed check can establish (syntactic) from criteria that need judgment</text>
+<text class="feature" x="460.6" y="240.8">(semantic). A syntactic checkpoint names the checkers that fix its check, and the script judges it, so it sets no judge flag. A semantic</text>
+<text class="feature" x="460.6" y="257.8">checkpoint names no checker, because no code can establish it, and states whether an agent or a human may judge it. Judgment permission is one</text>
+<text class="feature" x="460.6" y="274.8">flag per authority rather than a list of authorities: the compiler&apos;s export keeps only the first element of a multi-valued value, and a script</text>
+<text class="feature" x="460.6" y="291.8">reading that export must still see the whole permission.</text>
+<line class="rule" x1="440.6" y1="301.0" x2="1521.8" y2="301.0"/>
+<text class="compartment" x="450.6" y="318.8">items</text>
+<text class="feature" x="460.6" y="335.8">item checkers : Checker[0..*]</text>
+</g>
+<g>
+<rect class="box" x="616.5" y="350.0" width="170.5" height="54.0" rx="10"/>
+<text class="keyword" x="701.8" y="372.8" text-anchor="middle">«part»</text>
+<text class="name" x="701.8" y="389.8" text-anchor="middle">sourceStage : Stage</text>
+</g>
+<g>
+<rect class="box" x="797.0" y="350.0" width="297.2" height="54.0" rx="10"/>
+<text class="keyword" x="945.6" y="372.8" text-anchor="middle">«assert constraint»</text>
+<text class="name" x="945.6" y="389.8" text-anchor="middle">syntacticCriteriaAreFixedByCheckers</text>
+</g>
+<g>
+<rect class="box" x="1104.2" y="350.0" width="241.8" height="54.0" rx="10"/>
+<text class="keyword" x="1225.1" y="372.8" text-anchor="middle">«assert constraint»</text>
+<text class="name" x="1225.1" y="389.8" text-anchor="middle">semanticCriteriaNeedJudgment</text>
+</g>
+<g>
+<rect class="box" x="226.4" y="28.0" width="194.2" height="54.0" rx="10"/>
+<text class="keyword" x="323.5" y="50.8" text-anchor="middle">«assert constraint»</text>
+<text class="name" x="323.5" y="67.8" text-anchor="middle">stagesUseOwnedElements</text>
+</g>
+</svg>
