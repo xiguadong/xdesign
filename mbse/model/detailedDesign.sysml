@@ -38,12 +38,12 @@ package XDesignDetailedDesign {
             attribute redefines establishes = (ConformanceKind::identifierConformance, ConformanceKind::traceConformance);
             item requirementsCarryRationale : CheckerRule subsets rules {
                 attribute redefines ruleId = "requirements-carry-rationale";
-                attribute redefines condition = "Every requirement declaration inside XDesignRequirements carries a nonempty rationale attribute.";
+                attribute redefines condition = "XDesignRequirements declares at least one requirement, and every requirement declaration inside it carries a nonempty rationale attribute.";
                 attribute redefines reads = "mbse/model/requirements.sysml";
             }
             item satisfyLinksResolve : CheckerRule subsets rules {
                 attribute redefines ruleId = "satisfy-links-resolve";
-                attribute redefines condition = "Every satisfy link names a requirement declared inside XDesignRequirements.";
+                attribute redefines condition = "The declared traceability source has at least one satisfy link, and every satisfy link names a requirement declared inside XDesignRequirements.";
                 attribute redefines reads = ("mbse/model/requirements.sysml", "mbse/model/traceability.sysml");
             }
         }
@@ -115,7 +115,7 @@ package XDesignDetailedDesign {
             item flowIsSupported : CheckerRule subsets rules {
                 attribute redefines ruleId = "flow-is-supported";
                 attribute redefines condition = "The run record has plan_id designedSimpleFlow and plan_sha256 equal to the SHA-256 of the retained frozen plan serialization.";
-                attribute redefines reads = "runtime run record JSON";
+                attribute redefines reads = ("runtime run record JSON", "retained plan serialization");
             }
             item everyStageVisited : CheckerRule subsets rules {
                 attribute redefines ruleId = "every-stage-visited";
@@ -651,9 +651,10 @@ package XDesignDetailedDesign {
     part def CheckerCommand {
         @XDesignCommon::DiagramPresentation { label = "Checker command"; summary = "Fixed script execution boundary"; }
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
-        doc /* A checker's command as the design's part: the command implementation
-           supplies later, reached through the check command interface. No command exists
-           in the project yet; no implementation language has been selected. */
+        doc /* A checker's command as the design's part, reached through the check
+           command interface. The four designed SimpleFlow commands are implemented
+           as Python scripts under tools/checks/. The default V-model commands remain
+           separate work. */
         port command : CheckCommandExchange {
             @XDesignCommon::DiagramPresentation { label = "command"; summary = "Arguments in; report and verdict out"; }
         }
@@ -809,6 +810,7 @@ package XDesignDetailedDesign {
             item manifest : SimpleFlowFileEntry { attribute redefines repositoryPath = "Cargo.toml"; attribute redefines responsibility = "Rust crate manifest"; }
             item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "Public crate modules and API"; }
             item commandLine : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/main.rs"; attribute redefines responsibility = "Local run and check entry point"; }
+            item commandLineTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/main_wish_tests.rs"; attribute redefines responsibility = "Command-line wish validation cases"; }
             item status : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/status.rs"; attribute redefines responsibility = "Flow and gate status vocabulary"; }
             item record : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/record.rs"; attribute redefines responsibility = "Visits, activities and assessments"; }
             item plan : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/plan.rs"; attribute redefines responsibility = "Stage, checkpoint and checker plan validation"; }
@@ -826,7 +828,10 @@ package XDesignDetailedDesign {
         }
         item testCases {
             item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/simple_flow.rs"; attribute redefines responsibility = "Plan, authorization, recovery and reopen cases"; }
+            item modelPlanCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/plan_model_sync.rs"; attribute redefines responsibility = "Frozen rule and model declaration agreement"; }
+            item processCheckCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/process_check_contract.rs"; attribute redefines responsibility = "Process adapter report contract cases"; }
             item checkerCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/test_simple_flow_checkers.py"; attribute redefines responsibility = "Rule and report contract cases"; }
+            item designLayoutCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/test_simple_flow_design_layout.py"; attribute redefines responsibility = "Design declaration layout cases"; }
         }
     }
 
@@ -909,9 +914,11 @@ package XDesignDetailedDesign {
         doc /* Lifecycle of one run, distinct from the four engineering stages.
            The factory activates the run. A failed, missing or stale gate blocks it;
            corrective work resumes the same current visit at a new artifact revision.
-           Only authorization of a terminal visit permits completion. A completed
-           terminal visit is reopened by an explicit rework action that appends a new
-           visit without erasing history. */
+           Only authorization of a terminal visit permits completion. Advancing an
+           already completed run revalidates its retained artifacts and passed
+           assessment evidence; loss blocks it, and restoration permits completion
+           again. An explicit rework action appends a new terminal visit without
+           erasing history. */
         ref part run : SimpleFlowRun;
         state pending {
             @XDesignCommon::DiagramPresentation { label = "Pending"; }
@@ -944,6 +951,19 @@ package XDesignDetailedDesign {
             if run.currentRecord.completionAuthorized and
             run.currentRecord.stage.completesFlow then completed;
         @XDesignCommon::DiagramPresentation about complete { label = "Complete"; summary = "terminal visit authorized"; }
+        transition revalidateCompleted first completed
+            if run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized then completed;
+        @XDesignCommon::DiagramPresentation about revalidateCompleted { label = "Revalidate"; summary = "retained evidence still available"; }
+        transition completedEvidenceLost first completed
+            if run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked then blocked;
+        @XDesignCommon::DiagramPresentation about completedEvidenceLost { label = "Evidence lost"; summary = "completed run is blocked"; }
+        transition restoredCompletion first blocked
+            if run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
+            run.currentRecord.stage.completesFlow then completed;
+        @XDesignCommon::DiagramPresentation about restoredCompletion { label = "Restore"; summary = "retained evidence restored"; }
         transition reopenForRework first completed
             if run.status == FlowStatus::active and
             run.currentRecord.status == StageStatus::active then active;

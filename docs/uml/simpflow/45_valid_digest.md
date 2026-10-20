@@ -1,6 +1,6 @@
 # `valid_digest`
 
-> plan · utility function · implemented SimpleFlow slice · checks digest syntax
+> plan · utility function · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; checks digest syntax
 
 <a id="u61"></a>
 

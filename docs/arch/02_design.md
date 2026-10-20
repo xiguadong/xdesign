@@ -46,7 +46,7 @@ service APIs, and production operations remain to be designed.
 | Wish trace | One wish's independent SysML execution and rationale record in `mbse/wishes/`. |
 | Flow definition | Reusable plan of stages and checkpoints; it is distinct from a `FlowExecution`. |
 | Stage visit | One `StageRecord` for an attempt at a stage; rework appends another visit. |
-| Current assessment | The latest assessment of a checkpoint at the visit's artifact revision. |
+| Current assessment | The latest assessment per checkpoint for a visit, selected independently of revision; it authorizes progress only when its evaluated revision equals the visit's artifact revision and its outcome passed ([E02–E03](../details/02_records_and_evidence.md#e02)). |
 | Syntactic checkpoint | Gate judged by a fixed checker and its reported evidence. |
 | Semantic checkpoint | Gate judged by a permitted agent or human with rationale and evidence. |
 | PDR | Preliminary design review of an allocated architecture baseline; no such review is recorded. |
@@ -305,7 +305,7 @@ been compared in a recorded selection study.
 | Function | Working principle | Form that carries it | Derived obligation |
 | --- | --- | --- | --- |
 | Register and assign | One wish, one trace, selected flow | `XDesign`, `Controller`, `Trace` | `modelStandsWithoutWishes`, `wishProductsAreRetained` ([R01](../requirements/01_baseline.md#r01)) |
-| Record and revisit | Append visits and assess the current revision | `FlowExecution`, `StageRecord`, `CheckpointAssessment` | `runRecordIsScriptChecked` remains unmet ([R03](../requirements/01_baseline.md#r03)) |
+| Record and revisit | Append visits and assess the current revision | `FlowExecution`, `StageRecord`, `CheckpointAssessment` | `runRecordIsScriptChecked` is exercised for the new SimpleFlow JSON run; VModel and historical SysML records remain outside this checker ([R03](../requirements/01_baseline.md#r03)) |
 | Gate progress | Fixed syntactic check or permitted semantic judgment | `Checkpoint`, `Checker`, `CheckerRule`; SimpleFlow checkpoint design | `checkpointKindIsDeclared`, `syntacticCheckIsFixed`, `checkerRulesAreDeclared` ([R01](../requirements/01_baseline.md#r01)) |
 | Present and locate design | Native views plus model/document metadata | `DocSection`, `DocFigure`, renderer, documentation audit | `figuresStayWithDesignExplanation`, `modelDocumentationLinksResolve` ([D31](../details/05_documentation_contract.md#d31)) |
 
@@ -345,7 +345,7 @@ risks. That record is an open item, not a retrospective score assigned here.
 | --- | --- | --- |
 | Keep reusable model content independent of wish records | [A02](00_overview.md#a02), `modelStandsWithoutWishes` | No ADR or recorded candidate comparison |
 | Gate each stage exit using current-revision assessments | [B03](01_system_composition.md#b03), [E03](../details/02_records_and_evidence.md#e03) | No ADR or quantified trade-off |
-| Route syntactic checks and semantic judgments separately | [F02](../details/01_flows_and_checkpoints.md#f02) | No ADR; planned checker implementations remain open |
+| Route syntactic checks and semantic judgments separately | [F02](../details/01_flows_and_checkpoints.md#f02) | No ADR; four SimpleFlow commands execute, while VModel checker implementations remain open |
 | Present model-derived figures with source and document locators | [D27–D31](../details/05_documentation_contract.md#d27) | Design and audit exist; no architecture ADR |
 
 The table indexes choices visible in the model. It is not an ADR collection and does not
@@ -394,7 +394,7 @@ selected.
 | Risk or failure | Source | Effect | Design response | Status |
 | --- | --- | --- | --- | --- |
 | A declared constraint is treated as an executed proof | Compiler capability review ([T04](../details/03_toolchain.md#t04)) | Unauthorized progress could be inferred from a clean parse/check report | Preserve unevaluated-rule diagnostics; require separate check or judgment evidence | Open |
-| A planned checker URI is mistaken for a runnable gate | [R03](../requirements/01_baseline.md#r03) | `VModel` or designed SimpleFlow gate cannot actually pass by its rule | Name command implementation and rule-list agreement as implementation work | Open |
+| A planned checker URI is mistaken for a runnable gate | [R03](../requirements/01_baseline.md#r03) | A `VModel` syntactic gate cannot pass by its absent command | Implement and verify each VModel command and rule-list agreement; the four SimpleFlow commands are already executable | Open for VModel |
 | A wish trace becomes the only copy of a requirement or design | Model boundary requirement ([A02](00_overview.md#a02)) | Rewriting or moving a wish record could lose project design | Keep reusable products in `mbse/model/`; inspect this boundary during review | Open as an unenforced obligation |
 | Documentation links resolve but the explanation is wrong | Audit scope ([D31](../details/05_documentation_contract.md#d31)) | Reviewers may trust a technically valid but misleading figure | Keep semantic review separate from the locator audit | Open for every new revision |
 | Deployment and security assumptions are left implicit | Open physical and security views ([B15](#b15), [B17](#b17)) | A later implementation may choose incompatible persistence or trust boundaries | Define environment, threat model, data policy, and allocation before deployment baseline | Open |

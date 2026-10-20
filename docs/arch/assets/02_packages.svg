@@ -204,6 +204,9 @@ run.status == RsFlowStatus::blocked
 run.status == RsFlowStatus::active
 run.status == RsFlowStatus::active
 run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::blocked
+run.status == RsFlowStatus::completed
 run.status == RsFlowStatus::active
 SimpleFlowRustUml::crate
 SimpleFlowRustUml::crate::*
@@ -643,6 +646,13 @@ run.currentRecord.status == StageStatus::active
 run.currentRecord.completionAuthorized and
             not run.currentRecord.stage.completesFlow
 run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized
+run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked
+run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
             run.currentRecord.stage.completesFlow
 run.status == FlowStatus::active and
             run.currentRecord.status == StageStatus::active

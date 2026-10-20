@@ -90,6 +90,7 @@ shown in [Figure D45-1](../../details/simple_flow/06_rust_uml_design.md#d45).
 | `RsStageVisit::completion_authorized` | `fn completion_authorized(&self, plan: &RsFlowPlan) -> bool` | Latest verdict of every exit gate passed at the current revision and snapshot digest | [15](15_completion_authorized.md#u30) |
 | `RsStageVisit::verify_artifacts` | `fn verify_artifacts(&self) -> bool` | Rehash each current artifact and its canonical set | [39](39_verify_artifacts.md#u55) |
 | `RsStageVisit::evidence_uris` | `fn evidence_uris(&self) -> Vec<String>` | Collect current artifacts and same-revision assessment evidence | [47](47_evidence_uris.md#u63) |
+| `RsStageVisit::verify_passed_evidence` | `pub(crate) fn verify_passed_evidence(&self) -> bool` | Confirm every passed assessment retains at least one existing evidence file | [48](48_verify_passed_evidence.md#u64) |
 | `RsActivityEntry` | struct | One recorded piece of work | [16](16_activity_entry.md#u31) |
 | `RsAssessmentEntry` | struct | One recorded gate verdict with evidence | [17](17_assessment_entry.md#u32) |
 | `RsArtifactDigest` | struct | URI and SHA-256 of exact artifact bytes | [35](35_artifact_digest.md#u51) |

@@ -1,6 +1,6 @@
 # `sha256_bytes`
 
-> plan · utility function · implemented SimpleFlow slice · hashes exact bytes
+> plan · utility function · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; hashes exact bytes
 
 <a id="u60"></a>
 

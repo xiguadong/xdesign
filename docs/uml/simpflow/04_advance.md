@@ -47,18 +47,21 @@ missing latest pass returns `RemainBlocked` and marks the run and current visit
    otherwise retain the current visit as Blocked
 3. if visit.completion_authorized(&self.plan):
 4.     if self.plan.stage(visit.stage_id()).completes_flow:
-4.         current_mut().status := Completed
-5.         self.status         := Completed
-6.         persist the new state; return CompleteRun only if it was written
-7.     next := plan.next_stage(visit.stage_id())
-8.     current_mut().status := Completed
-9.     self.current_visit  := index_of_pending(next)
-10.    current_mut().status := Active        // artifact_revision unchanged
-11.    persist the new state; return EnterNextStage only if it was written
-12. else:
-13.    current_mut().status := Blocked       // same visit retained ([D48])
-14.    self.status := Blocked
-15.    persist blocked state when possible; return RemainBlocked
+5.         current_mut().status := Completed
+6.         self.status         := Completed
+7.         persist the new state; return CompleteRun only if it was written
+8.     next := plan.next_stage(visit.stage_id())
+       if next is absent: block this visit and return RemainBlocked
+9.     pending := index_of_pending_visit(next)
+       if pending is absent: block this visit and return RemainBlocked
+10.    current_mut().status := Completed
+11.    self.current_visit := pending
+12.    current_mut().status := Active        // artifact_revision unchanged
+13.    persist the new state; return EnterNextStage only if it was written
+14. else:
+15.    current_mut().status := Blocked       // same visit retained ([D48])
+16.    self.status := Blocked
+17.    persist blocked state when possible; return RemainBlocked
 ```
 
 **Other**

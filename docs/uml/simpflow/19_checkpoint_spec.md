@@ -7,7 +7,7 @@
 ## U34 RsCheckpointSpec
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsCheckpointSpec {
     pub checkpoint_id: String,
     pub stage_id: String,

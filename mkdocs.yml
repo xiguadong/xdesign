@@ -85,12 +85,14 @@ nav:
           - valid_digest: uml/simpflow/45_valid_digest.md
           - valid_relative_path: uml/simpflow/46_valid_relative_path.md
           - RsStageVisit::evidence_uris: uml/simpflow/47_evidence_uris.md
+          - RsStageVisit::verify_passed_evidence: uml/simpflow/48_verify_passed_evidence.md
   - Project management:
       - Overview: prj_manage/00_overview.md
       - Review synthesis: prj_manage/01_review_synthesis.md
       - SimpleFlow implementation plan: prj_manage/02_simple_flow_implementation_plan.md
       - SimpleFlow execution record: prj_manage/03_simple_flow_execution_record.md
       - SimpleFlow review fixes: prj_manage/04_simple_flow_review_fix_record.md
+      - Cross-layer review reconciliation: prj_manage/05_kimi_review_reconciliation.md
   - Interface control:
       - Overview: icd/00_overview.md
       - Interface contracts: icd/01_interfaces.md

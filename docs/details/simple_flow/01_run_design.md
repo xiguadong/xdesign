@@ -41,8 +41,8 @@ below.
 > **Limits:** The figure does not show implemented checker commands or a run that passed these gates.
 
 `designedSimpleFlow : SimpleFlow` keeps the four stages in the definition's order and adds
-an exit gate to every one of them. Four gates are syntactic — cheap facts a fixed check
-will settle once implemented; the one judgment stays where the definition put it, at the end:
+an exit gate to every one of them. Four gates are syntactic — facts the implemented
+fixed commands check; the one judgment stays where the definition put it, at the end:
 
 | Stage | Exit gate | Kind | Established by |
 | --- | --- | --- | --- |
@@ -115,8 +115,10 @@ controller's rules are what keep it true.
 > **Reading:** Creation opens the run, adds planned stage visits, enters the first stage, and activates the run. Those steps shape the execution record the controller will own.  
 > **Limits:** The figure is an operation specification and does not show a completed registration test.
 
-`SimpleFlowRunFactory::createRun` takes a wish and the designed flow's plan and produces
-the run. It realizes registration for this flow — the part of `Controller::receiveWish`
+`SimpleFlowRunFactory::createRun` models a `Wish` input and the designed flow's plan and
+produces the run. The local Rust `create_run` receives `wish_model_uri`, a path identifying
+the independent wish SysML source; it does not load a `Wish` item. The factory realizes
+the run-creation part of `Controller::receiveWish`
 that assigns the flow, opens the run and enters its initial stage
 ([F04](../01_flows_and_checkpoints.md#f04)) — so an implementation of the simple flow builds
 one factory instead of re-deriving the generic controller's behaviour.

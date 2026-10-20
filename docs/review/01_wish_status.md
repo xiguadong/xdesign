@@ -16,20 +16,21 @@ Verification is a checkpoint assessment recorded in the wish's trace
   wish-0006's design-stage run is the project's first: its verification uses the pinned
   SysML compiler as the fixed check of the delivered model, and the syntactic assessment
   cites the compiler's report for the assessment's revision ([V05](#v05)). The designed
-  simple flow's four checks are design only: their rules are documented
-  ([D06](../details/simple_flow/02_gates_and_rules.md#d06)) and their checker declarations,
-  commands and rule lists are supplied at implementation
-  ([D07](../details/simple_flow/02_gates_and_rules.md#d07)). `VModel`'s three checkers
+  SimpleFlow's four checks now execute in the local four-stage Rust run: their rules are
+  documented in [D06](../details/simple_flow/02_gates_and_rules.md#d06), and their
+  checker commands and report contract are in
+  [D07](../details/simple_flow/02_gates_and_rules.md#d07). `VModel`'s three checkers
   declare no rules and no command exists ([R03](../requirements/01_baseline.md#r03)).
 - A **semantic** checkpoint is judged by an agent or a human reading its criteria. Most
   assessments in this project are one of these, recorded with a rationale and evidence
   URIs.
 
-Evidence is kept, not summarised away: compiler reports under `cache/sysml/`, per-wish
-evidence under `cache/evidence/<wish>/`, rendered figures under each carrying document
-directory's `assets/`. A pass
-names the files it was based on and the revision it judged, so a later reader can re-open
-them ([E03](../details/02_records_and_evidence.md#e03)).
+Current runs retain compiler reports under `cache/sysml/`, per-wish evidence under
+`cache/evidence/<wish>/`, and rendered figures under each carrying document directory's
+`assets/`. A pass names the files it used and the revision it judged
+([E03](../details/02_records_and_evidence.md#e03)). Historical exceptions include
+wish-0001's absent files and earlier documentation paths renamed after passed
+assessments; [V04](#v04) records those limits.
 
 <a id="v02"></a>
 
@@ -37,15 +38,15 @@ them ([E03](../details/02_records_and_evidence.md#e03)).
 
 | Wish | Flow | Status | What its record establishes | Note |
 | --- | --- | --- | --- | --- |
-| wish-0001 — export the project model as a reviewable report | `workflow.'flow'` | delivered | Verification failed at revision 3 and passed at revision 4 after corrective work, in one visit | The artifacts it names (`src/report.rs`, `cache/build/report.xml`) are not in this repository; its record is read as written |
+| wish-0001 — export the project model as a reviewable report | `workflow.'flow'` | recorded delivered; evidence not presently verifiable | Verification failed at revision 3 and was recorded as passed at revision 4 after corrective work, in one visit | Every recorded evidence URI and the named artifacts (`src/report.rs`, `cache/build/report.xml`) are absent. The activity now describes four candidate checks, while the unchanged passed-assessment rationale claims four requirements without retained derivation links. The historical assessment is read as written, not accepted as current proof. |
 | wish-0002 — split checkpoints into syntactic and semantic | `workflow.'flow'` | delivered | Three assessments over three revisions; the export's truncation of multi-valued values was found and worked around | Its five requirements now live in `mbse/model/`; the file keeps the derivation ([R02](../requirements/01_baseline.md#r02)) |
 | wish-0003 — retain wish products in the project model | `workflow.'flow'` | delivered | Moved wish-0002's requirements into the model and added the two boundary requirements | Verified by reading (`cache/evidence/wish-0003/invariants.txt`); no checker enforces the boundary |
-| wish-0004 — make the traceability chain a tool capability | — | active, registered | Nothing attempted yet; the wish is registered with its trace at intake | Asks first whether one requirement may have two satisfiers, because the export cannot attribute them — see [V04](#v04) |
+| wish-0004 — make the traceability chain a tool capability | `workflow.'flow'` | active, registered | Nothing attempted yet; the wish is registered with its trace at intake | Asks first whether one requirement may have two satisfiers, because the export cannot attribute them — see [V04](#v04) |
 | wish-0005 — documentation from the model | `wishVerifyFlow` | delivered | Produced this documentation set and the `DocSection` references; the outcome was judged against `outcomeAccepted` | Ran without requirements or implementation stages by the requester's direction; see [V03](#v03) |
 | wish-0006 — detailed design of the simple flow | `designFlow` | delivered, historical assessment | Visit 0 accepted revision 1: eight requirements, detailed design, three structure graphs, and documentation. Visit 1 accepted the semantic contents of nine diagram types at revision 2. | Those passes did not establish usable presentation at normal article size. Their records remain history; wish-0007 addresses presentation separately. See [V05](#v05). |
 | wish-0007 — make the nine diagrams readable | `workflow.'flow'` (`SimpleFlow`) | delivered, revision 1 | Replaced fixed-grid rendering with model-owned captions, diagram-specific projection, Graphviz layout, and a compact sequence. All nine primary figures passed source-fidelity, typography, and final-image review. | Reviewed at 900-pixel article width and in the built desktop article; final SVG, PNG, and screenshot hashes bind the evidence to the assets. See [V06](#v06). |
 | wish-0008 — reorganize the documentation structure and the SysML v2 specification | `designFlow` | delivered, revision 4 | Revision 1 established the locator and viewpoint contract; revision 2 added stage topics and placed the nine primary views; revision 3 added directory overviews and contiguous topic numbering; revision 4 places figures in each document directory's own `assets/`. | Separate script and agent assessments are recorded for each revision; the revision-4 evidence and remaining stage-gate gaps are in [V07](#v07). |
-| wish-0009 — Rust UML design for SimpleFlow | `wishVerifyFlow` | delivered, revision 3 (closed) | Revision 1 delivered the module-level design; revision 2 corrected granularity to an API reference (inventory plus one page per API); revision 3 adopted the API-reference structure into the UML guide ([U47](../uml/01_c4_and_uml_guide.md#u47)) and repository conventions | Earlier assessments are historical; design only, no Rust code; see [V16](#v16). |
+| wish-0009 — Rust UML design for SimpleFlow | `wishVerifyFlow` | delivered, revision 3 (closed) | Revision 1 delivered the module-level design; revision 2 corrected granularity to an API reference (inventory plus one page per API); revision 3 adopted the API-reference structure into the UML guide ([U47](../uml/01_c4_and_uml_guide.md#u47)) and repository conventions | At that wish's closure the result was design only; the later Rust implementation is recorded in [P08](../prj_manage/03_simple_flow_execution_record.md#p08). See [V16](#v16). |
 
 <a id="v03"></a>
 
@@ -85,8 +86,8 @@ assessment, its rationale and its evidence URIs are recorded in
 | May one requirement have two satisfiers? | Unsettled — wish-0004's first question, raised because the compiler's export cannot attribute two `satisfy` usages of one requirement to their requirement. Nothing should be built on that attribution until it is answered. Later requirements with model satisfiers each name one; four later documentation requirements have no SysML satisfier ([R02](../requirements/01_baseline.md#r02)). |
 | Mechanical documentation links still require an engineering reading | `tools/check_documentation.py --json` audits directory layout, section targets, assets, embeds, and figure blocks ([D31](../details/05_documentation_contract.md#d31)); wish-0008 has separate agent readings at revisions 1, 2, 3, and 4, and every later change needs its own review of meaning ([V07](#v07)). The early `simple_flow_design.py` prototype remains research under `cache/research/checks/`. |
 | wish-0005's passed assessment cites documentation paths renamed by later work | The record is read as it stood; no project checker judges `wishVerifyFlow` records, so the dangling evidence is disclosed here, not prevented ([V03](#v03)) |
-| wish-0001's named artifacts and evidence are not retained here | Its recorded URIs point at files this repository does not contain; the early record-check prototype fails on exactly that — no project checker judges it ([V02](#v02)) |
-| Earlier SysML wish visits' artifact paths are read as written | Documents and figures were renamed after earlier wish visits; those visits retain their original URIs, while the revision-4 record names the current paths. The new JSON-run record checker does not re-audit this historical SysML wish history. |
+| wish-0001's named artifacts and evidence are not retained here | All recorded evidence URIs and its named artifacts point at files this repository does not contain; its passed-assessment rationale still claims four requirements, but no derived project requirements are retained. Its recorded delivered/passed state is historical and not presently evidence-backed; the early record-check prototype fails on absent files, and no project checker judges this SysML record ([V02](#v02)). |
+| Earlier SysML wish visits' artifact and evidence paths are read as written | Documentation paths were renamed after passed assessments in wishes 0005–0008. Those assessments retain their old URIs, which may no longer resolve; wish-0008's revision-4 record names current paths. The JSON-run record checker does not re-audit historical SysML wish traces. Repair requires a new assessment at a new revision, not editing a passed assessment. |
 | The docs numbering rule is per directory | Every prose subdirectory has `00_overview.md`, followed by contiguous numbered topics (`docs/AGENTS.md`); the `directory-layout` audit checks the filesystem rule, while topic suitability remains a review judgment. |
 
 <a id="v05"></a>
@@ -217,7 +218,8 @@ readable relationship labels, meaningful system boundaries and ports, source IDs
 and no clipping or ambiguous overlaps. Whole-model exports and long historical journeys
 remain reference figures with their own scope.
 
-**Revision 1 is delivered.** The new wish ran through the default `SimpleFlow`'s
+**Revision 1 is delivered.** The new wish ran through the workflow composition's own
+`workflow.'flow'` four-stage path:
 requirements, design, implementation, and verification stages. Its semantic assessment
 judged the two presentation requirements using the final figures and their source
 relationships. It did not inherit authorization from wish-0006's earlier assessments.
@@ -298,8 +300,8 @@ assessment is separate from execution of that case.
 
 This is a design-stage delivery. The compiler leaves constraint bodies unevaluated; the
 documentation audit establishes locators and figure blocks, while the agent assessment
-judges stage-content meaning for revision 2. The planned SimpleFlow and V-model gate
-commands and workflow application remain unimplemented
+judges stage-content meaning for revision 2. At that revision, the planned SimpleFlow
+and VModel gate commands and workflow application had not been implemented
 ([D06](../details/simple_flow/02_gates_and_rules.md#d06),
 [D31](../details/05_documentation_contract.md#d31)).
 
@@ -333,8 +335,11 @@ topic files stay in place; nested asset directories contain figures, not topic d
 The revision-4 trace adds separate wish and verification visits with current compiler,
 documentation, render, site, test, and nine-diagram evidence under
 `cache/evidence/wish-0008/revision-4/`. Earlier assessments keep their original URIs.
-The checks establish this layout and their stated syntactic and figure properties; they
-do not claim that the workflow application or planned gates are implemented.
+The checks established this layout and their stated syntactic and figure properties at
+revision 4. They did not establish an executable workflow at that time. The later
+four-stage SimpleFlow implementation has separate evidence in
+[P08](../prj_manage/03_simple_flow_execution_record.md#p08); complete application and
+VModel gates remain open.
 
 <a id="v16"></a>
 
@@ -386,7 +391,7 @@ signatures, and no per-function contracts or logic — the granularity of
 reference as the target organization. The revision-1 assessments remain historical.
 **Revision 2** adds the [simpflow API reference](../uml/simpflow/00_overview.md#u13):
 an inventory page listing every public API of the designed crate exactly once, plus
-31 pages — one per API — each with a full Rust signature, parameter, return and
+31 pages at that revision — one per API — each with a full Rust signature, parameter, return and
 error contracts, stepwise logic and examples. The model gains the `RsPlanError` and
 `RsGateError` enums, an API-level template
 (`cache/kimi_template/docs/detailed-design/DD-API参考级设计模板.md`)
@@ -398,6 +403,9 @@ behavioral pages for contract depth. Evidence is under
 `cache/evidence/wish-0009/revision-2/`; the new passed assessment is recorded in the
 trace. Inventory-versus-model coverage is an agent reading, not a mechanical check;
 signatures are not compiled.
+The reference later grew to 48 API pages during implementation and review
+reconciliation; that growth does not represent a new wish-0009 assessment
+([U13](../uml/simpflow/00_overview.md#u13)).
 
 **Revision 3 closes the wish.** With the requester's acceptance, the API-reference
 structure was adopted into the project's conventions: [U47](../uml/01_c4_and_uml_guide.md#u47)

@@ -1,6 +1,6 @@
 # `RsFlowPlan::validate`
 
-> plan · method · implemented SimpleFlow slice · Rust-side addition with no SysML counterpart — the model assumes a well-formed flow definition; the crate makes plan validation typed and explicit
+> plan · method · implemented SimpleFlow slice · realizes `RsValidatePlan` in `mbse/model/uml.sysml`; the crate makes plan validation typed and explicit
 
 <a id="u26"></a>
 
@@ -29,21 +29,21 @@ when a plan is loaded.
 | Variant | Raised when |
 | --- | --- |
 | `RsPlanError::MissingInitialStage` | `initial_stage_id` matches no stage |
-| `RsPlanError::DuplicateStageId` | two stages share a `stage_id` |
+| `RsPlanError::DuplicateStageId` | two stages share a `stage_id`, or a stage ID is empty |
 | `RsPlanError::UnknownStageReference` | any `next_stage_ids` or gate `stage_id` matches no stage |
 | `RsPlanError::SyntacticSpecWithoutChecker` | a gate has `kind == Syntactic` and `checker == None` |
 | `RsPlanError::SemanticSpecWithChecker` | a gate has `kind == Semantic` and `checker.is_some()` |
-| `RsPlanError::MissingCriteria` | any gate has no criterion |
+| `RsPlanError::MissingCriteria` | any gate has no criterion or a whitespace-only criterion |
 | `RsPlanError::NoPermittedJudge` | a semantic gate permits neither agent nor human |
-| `RsPlanError::InvalidChecker` | a syntactic checker lacks a command or rules, or rule IDs repeat |
+| `RsPlanError::InvalidChecker` | a checker-carrying gate permits a judge; checker IDs repeat or are blank; the command URI is not a valid relative path; `establishes` or `rules` is empty; a rule ID repeats or is blank; a rule condition is blank; `reads` is empty or contains a blank entry; or the checker differs from the blueprint |
 | `RsPlanError::InvalidDesignedFlow` | the four-stage order, successor links, terminal flag, exit-gate references, or unique checkpoint identities disagree with `designedSimpleFlow` |
 | `RsPlanError::InvalidPlanFile` | plan ID, frozen JSON file, SHA-256, or decoded plan disagree with this value |
 
 **Logic**
 
 ```
-1. if stages is empty or initial_stage_id not in stages → MissingInitialStage
-2. if any stage_id occurs twice → DuplicateStageId
+1. if any stage_id occurs twice or is empty → DuplicateStageId
+2. if stages is empty or initial_stage_id not in stages → MissingInitialStage
 3. for each stage: for each id in next_stage_ids:
        if stage(id) is None → UnknownStageReference
 4. for each gate in checkpoints:
@@ -52,10 +52,12 @@ when a plan is loaded.
            (Syntactic, None)    → SyntacticSpecWithoutChecker
            (Semantic,  Some(_)) → SemanticSpecWithChecker
            _                    → continue
-7.     if gate.criteria.is_empty() → MissingCriteria
+7.     if gate.criteria is empty or contains a whitespace-only entry → MissingCriteria
        if gate.kind == Semantic and neither judge flag is true → NoPermittedJudge
-       if gate.kind == Syntactic and (checker.command_uri is empty or
-           checker.rules is empty or rule IDs repeat or a rule has no reads):
+       if checker exists and (either judge flag is true, checker_id repeats
+           or is blank, command_uri is not a valid relative path,
+           establishes or rules is empty, or any rule ID repeats or is blank,
+           rule condition is blank, reads is empty or has a blank entry):
            → InvalidChecker
 8. compare the complete stage and checkpoint specifications to the built-in
    designed_simple_flow_plan() blueprint: stage order, edges, terminal flag,
@@ -72,8 +74,9 @@ when a plan is loaded.
 
 The exact blueprint comparison prevents a caller from weakening a rule while
 retaining its identifier. The explicit gate and stage checks enforce the modeled plan even though the
-SysML compiler does not evaluate its constraint bodies. `MissingRunRecordUri` is
-checked by `create_run`, because the wish path is not a plan field.
+SysML compiler does not evaluate its constraint bodies. `MissingRunRecordUri` and
+`MissingWishModelUri` are checked by `create_run`, because the record and wish
+paths are not plan fields.
 
 **Other**
 

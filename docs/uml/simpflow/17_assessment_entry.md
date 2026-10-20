@@ -7,7 +7,7 @@
 ## U32 RsAssessmentEntry
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsAssessmentEntry {
     pub checkpoint_id: String,
     pub evaluated_revision: u32,

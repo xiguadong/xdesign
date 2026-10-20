@@ -30,8 +30,9 @@ xdesign accepts a wish, assigns an engineering flow, records the work and assess
 each stage, and authorizes advancement or rework under that flow's checkpoints. The project
 model describes the system; one independent wish model records why a particular outcome was
 produced and judged. The repository currently contains the SysML model, documentation,
-renderer, and some standalone checks. The complete workflow application and several planned
-gate commands are outside the implemented scope at this revision ([R03](#r03)).
+renderer, four SimpleFlow checker commands, and a local four-stage Rust run. The complete
+workflow application and three VModel gate commands are outside the implemented scope
+([R03](#r03), [P08](../prj_manage/03_simple_flow_execution_record.md#p08)).
 
 ### Terms and references
 
@@ -223,8 +224,8 @@ remain open; the ICD baseline has not been frozen for implementation or integrat
 | --- | --- | --- | --- |
 | `WishInterface` (IF-001) | requester and controller | submission description in; registered `Wish` and `Trace` references out | Typed ports and item flows modeled; transport and error contract unspecified ([I02](../icd/01_interfaces.md#i02)) |
 | `FlowInterface` (IF-002) | selected flow and controller | `Flow` definition supplied to controller | Typed ports and item flow modeled; selection timing and version contract unspecified ([I03](../icd/01_interfaces.md#i03)) |
-| `CheckCommandInterface` (IF-003) | SimpleFlow run and checker command | wish model and stage out; per-rule report and verdict in | Typed design exchange; command endpoint and report schema pending ([I04](../icd/01_interfaces.md#i04)) |
-| `JudgmentInterface` (IF-004) | SimpleFlow run and permitted judge | criteria and artifact URIs out; outcome and rationale in | Typed design exchange; identity enforcement and response contract pending ([I05](../icd/01_interfaces.md#i05)) |
+| `CheckCommandInterface` (IF-003) | SimpleFlow run and checker command | wish model and stage out; per-rule report and verdict in | Local command endpoint and JSON report schema implemented for SimpleFlow ([I04](../icd/01_interfaces.md#i04)); transport and compatibility policy open |
+| `JudgmentInterface` (IF-004) | SimpleFlow run and permitted judge | criteria and artifact URIs out; outcome and rationale in | Local judge response contract implemented for SimpleFlow ([I05](../icd/01_interfaces.md#i05)); external identity enforcement and transport policy open |
 
 IF-001 and IF-002 are architecture-level exchanges; IF-003 and IF-004 refine the
 designed SimpleFlow module. The draft ICD records their modeled provider/consumer and
@@ -264,8 +265,8 @@ declared case or a clean compiler result as an executed acceptance test.
 | SimpleFlow structure and behavior | Planned design review | `SimpleFlowViewReview` | Case declared in the model; no standalone passed case result |
 | Six documentation-contract requirements | Planned design review | `DocumentationContractReview`; [V07](../review/01_wish_status.md#v07) | Case declared; wish assessment is separate from case execution |
 | Three Rust UML design requirements | Planned design review | `RustUmlDesignReview`; [D52](../details/simple_flow/06_rust_uml_design.md#d52) | Case declared; no standalone passed case result |
-| SimpleFlow gate, recovery, and file-plan behavior | Planned executable verification at implementation | `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification`; [D54](../details/simple_flow/07_file_plan_and_verification.md#d54) | Cases declared; execution must produce separate test reports |
-| Runtime gate and record conformance | Scripted test or inspection at implementation and integration | planned checks in [D06–D07](../details/simple_flow/02_gates_and_rules.md#d06) | Commands and execution evidence pending |
+| SimpleFlow gate, recovery, and file-plan behavior | Executable verification for the first implementation slice | `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification`; [D54](../details/simple_flow/07_file_plan_and_verification.md#d54) | Gate and recovery behavior tested in [P08](../prj_manage/03_simple_flow_execution_record.md#p08) and [P12](../prj_manage/04_simple_flow_review_fix_record.md#p12); named model cases are declarations, not separately executed case records |
+| Runtime gate and record conformance | Scripted test and inspection of local SimpleFlow run | four checks in [D06–D07](../details/simple_flow/02_gates_and_rules.md#d06) | Commands, Rust adapter tests, and a four-stage demo executed for this slice ([P08](../prj_manage/03_simple_flow_execution_record.md#p08), [P12](../prj_manage/04_simple_flow_review_fix_record.md#p12)); VModel integration and project acceptance remain open |
 
 Acceptance of a wish is recorded by that wish's applicable stage assessment at a stated
 artifact revision. It does not freeze the project's entire requirements baseline.

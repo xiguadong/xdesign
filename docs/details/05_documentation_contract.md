@@ -240,7 +240,8 @@ concern, its `subject` link, exact equality of `concernText` and the view's
 projection, readable presentation, and the block's stated limits. `check_documentation.py`
 audits locators and figures, while `sysml check` validates supported SysML relationships;
 neither check substitutes for this review. Record the judgment and its evidence URIs in
-the wish trace. The current documentation audit is implemented; the four SimpleFlow gate
-commands and their rule-by-rule report contract are designed for later implementation in
-[D06](simple_flow/02_gates_and_rules.md#d06) and [D07](simple_flow/02_gates_and_rules.md#d07).
+the wish trace. The documentation audit and four SimpleFlow gate commands execute;
+their rule-by-rule report contract is documented in
+[D06](simple_flow/02_gates_and_rules.md#d06) and [D07](simple_flow/02_gates_and_rules.md#d07),
+with execution evidence in [P08](../prj_manage/03_simple_flow_execution_record.md#p08).
 The rendering utility is already implemented ([T01](03_toolchain.md#t01)).

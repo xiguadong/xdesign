@@ -1,6 +1,6 @@
 # `RsSuppliedJudge`
 
-> ports · struct and trait implementation · implemented SimpleFlow slice · carries a caller's semantic verdict
+> ports · struct and trait implementation · implemented SimpleFlow slice · Rust-side addition with no matching UML class; carries a caller's semantic verdict
 
 <a id="u59"></a>
 

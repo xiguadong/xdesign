@@ -1,6 +1,6 @@
 # UML decomposition overview
 
-> Project: xdesign | Status: adopted guide, first module design drafted | Audience:
+> Project: xdesign | Status: adopted guide, first module design implemented as a local slice | Audience:
 > architects, software module owners, integrators, and reviewers.
 > This directory is the UML decomposition level of the design documentation:
 > architecture selects the system structure and interfaces, detailed design fixes the

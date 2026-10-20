@@ -28,9 +28,9 @@ to the implementation and checked with regression cases.
 | M5: original acceptance claims exceed retained evidence | Correct the P08/P09 page count, log references, site-build provenance, and case coverage statements. | The new verification below records commands and results separately from the original run. |
 
 The requirements checker retains its fail-closed requirement for at least one
-requirement and one satisfy link. The literal universal wording in D06 does not
-state that cardinality; aligning the model condition with this safeguard is a
-separate model decision.
+requirement and one satisfy link. The later cross-layer reconciliation in
+[P14](05_kimi_review_reconciliation.md#p14) aligns the model condition, frozen
+factory rule, and D06 wording with that safeguard.
 
 <a id="p12"></a>
 

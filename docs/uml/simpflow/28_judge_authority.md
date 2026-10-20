@@ -7,7 +7,7 @@
 ## U43 RsJudgeAuthority
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsJudgeAuthority {
     Script,
     Agent,

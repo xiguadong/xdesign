@@ -7,7 +7,7 @@
 ## U36 RsCheckerRuleSpec
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsCheckerRuleSpec {
     pub rule_id: String,
     pub condition: String,

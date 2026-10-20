@@ -55,7 +55,7 @@ most one assessment, cited at the visit's current `artifact_revision`.
 | `RsGateError::CommandFailed` | artifact bytes differ from the visit snapshot, command failed, report file is absent, or report invariants fail | Record `Unevaluated`; inspect the command and inputs |
 | `RsGateError::JudgmentRefused` | judge returned `Unevaluated` or supplied no rationale | Record `Unevaluated`; route to a reasoned judgment |
 | `RsGateError::JudgeNotPermitted` | judge authority is not allowed or its identity is empty | Record `Unevaluated`; use a permitted, identified judge |
-| `RsGateError::MissingEvidence` | semantic pass has no current visit artifact, cites no evidence, or cites a missing file | Record `Unevaluated`; supply a retained verification artifact before judging |
+| `RsGateError::MissingEvidence` | semantic pass has no current visit artifact, cites no evidence, or cites an invalid URI or missing file | Record `Unevaluated`; supply a retained verification artifact before judging |
 
 Panics: none. A rule that does not hold is `RsRuleReport { holds: false }` data, not
 an error.
@@ -71,7 +71,7 @@ an error.
                  plan_sha256, wish_model_uri, run_record_uri,
                  spec.stage_id, visit.artifact_revision,
                  &visit.artifact_snapshot_digest)
-                     .map_err(|_| GateError::CommandFailed)?
+                     ?  // preserve the RsGateError returned by the check boundary
 5.     if report.artifact_revision != visit.artifact_revision or
        report.artifact_snapshot_digest != visit.artifact_snapshot_digest or
        report.report_uri is not a valid relative path to an existing file,
@@ -96,7 +96,7 @@ an error.
 10.    if outcome == Unevaluated or rationale is empty:
            return Err(GateError::JudgmentRefused)
        if outcome == Passed and (visit.artifact_digests is empty or
-           evidence.is_empty() or any cited file is missing) {
+           evidence.is_empty() or any cited URI is invalid or its file is missing) {
            return Err(GateError::MissingEvidence)
        }
 11.    return Ok(AssessmentEntry {

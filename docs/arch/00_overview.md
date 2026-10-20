@@ -60,6 +60,11 @@ delivers the wish. A stage that does not pass stays current, marked blocked, and
 resumable; corrective work raises the artifact revision so the next assessment judges
 current artifacts (`Workflow::executeWish`, `Controller::progressWish`).
 
+`WishStatus` names the wish's `received`, `active`, `blocked`, and `delivered` states.
+Those literals describe the trace's outcome, distinct from a stage visit's status
+([E02](../details/02_records_and_evidence.md#e02)) or a flow execution's status
+([E01](../details/02_records_and_evidence.md#e01)).
+
 <a id="a04"></a>
 
 ## A04 Repository layout
@@ -147,7 +152,7 @@ Where each model module and sub-module is documented. Section identifiers are st
 | SysML view/viewpoint to document figure contract | [D29](../details/05_documentation_contract.md#d29) |
 | `DocumentationViewpoint` and the nine SimpleFlow concern usages | [D29](../details/05_documentation_contract.md#d29), [D12](../details/simple_flow/04_sysml_diagrams.md#d12) |
 | Documentation set and per-flow growth | [D30](../details/05_documentation_contract.md#d30) |
-| Documentation audit and planned checker rules | [D31](../details/05_documentation_contract.md#d31), [D06](../details/simple_flow/02_gates_and_rules.md#d06) |
+| Documentation audit and SimpleFlow checker rules | [D31](../details/05_documentation_contract.md#d31), [D06](../details/simple_flow/02_gates_and_rules.md#d06) |
 | `XDesignRequirements`, `XDesignRequirement`, every requirement | [R01](../requirements/01_baseline.md#r01) |
 | `XDesignTraceability` | [R02](../requirements/01_baseline.md#r02) |
 | `SimpleFlowRustUml` and its crate and API elements | [D44](../details/simple_flow/06_rust_uml_design.md#d44), [U13](../uml/simpflow/00_overview.md#u13) |
@@ -173,7 +178,7 @@ Where each model module and sub-module is documented. Section identifiers are st
 | `SimpleFlowCheckpoint`, `SimpleFlowSyntacticCheckpoint`, `SimpleFlowSemanticCheckpoint` | [D11](../details/simple_flow/02_gates_and_rules.md#d11) |
 | `EvaluateSimpleFlowCheckpoint`, `RunSyntacticCheck`, `TakeSemanticJudgment` | [D11](../details/simple_flow/02_gates_and_rules.md#d11) |
 | The designed flow's gates, their class and documented rules | [D05](../details/simple_flow/02_gates_and_rules.md#d05), [D06](../details/simple_flow/02_gates_and_rules.md#d06), [D11](../details/simple_flow/02_gates_and_rules.md#d11) |
-| The designed flow's planned checks (checkers supplied at implementation) | [D06](../details/simple_flow/02_gates_and_rules.md#d06), [D07](../details/simple_flow/02_gates_and_rules.md#d07) |
+| The designed flow's implemented local checks and declared rule contract | [D06](../details/simple_flow/02_gates_and_rules.md#d06), [D07](../details/simple_flow/02_gates_and_rules.md#d07) |
 | `SimpleFlowRunTimeline` | [D08](../details/simple_flow/03_structure_graphs.md#d08) |
 | The nine coordinated SysML views | [D12](../details/simple_flow/04_sysml_diagrams.md#d12) |
 | `DiagramDocumentationRenderer` | [D22](../details/04_diagram_presentation.md#d22) |

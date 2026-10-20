@@ -7,6 +7,7 @@
 ## U25 RsFlowPlan
 
 ```rust
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct RsFlowPlan {
     pub plan_id: String,
     pub plan_uri: String,

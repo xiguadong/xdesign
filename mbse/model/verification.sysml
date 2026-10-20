@@ -127,9 +127,10 @@ package XDesignVerification {
     verification def SimpleFlowFilePlanVerification {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D54"; }
         doc /* Planned file-level conformance case. Compare every path in
-           simpleFlowFilePlan with the repository, the Rust module exports, the
-           four declared checker command URIs and their rule IDs, and the two
-           executable test suites. Require the pinned SysML parse/check, docs
+           simpleFlowFilePlan with the repository and every in-scope source and
+           test file back to the plan, then compare the Rust module exports,
+           four declared checker command URIs and their rule IDs. Require the
+           pinned SysML parse/check, docs
            audit, figure regeneration and strict site build to pass. Retain all
            reports under cache/. A file's presence alone does not establish its
            behavior; run the gate and recovery cases separately. */

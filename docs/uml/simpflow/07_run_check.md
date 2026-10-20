@@ -39,15 +39,17 @@ decides it.
 | Case | Type | Guarantee |
 | --- | --- | --- |
 | `Ok(report)` | `RsGateReport` | revision and snapshot digest echo checked inputs; rules cover every declared rule exactly once; `holds` equals their conjunction; `report_uri` names a retained artifact |
-| `Err(e)` | `RsGateError::CommandFailed` | The command could not produce a report (process error, timeout, unreadable input) |
+| `Err(e)` | `RsGateError` | The check boundary could not produce a trustworthy report; `RsProcessCheck` returns `CommandFailed` for process, input, and report failures |
 
 **Errors**
 
 | Variant | Raised when | Caller action |
 | --- | --- | --- |
-| `RsGateError::CommandFailed` | no trustworthy report exists | Record `Unevaluated`; inspect the command's own diagnostics |
+| `RsGateError::CommandFailed` | the provided `RsProcessCheck` could not produce a trustworthy report | Record `Unevaluated`; inspect the command's own diagnostics |
 
-Panics: none.
+Panics: none. A different `RsCheckCommand` implementation can return another
+`RsGateError`; [`evaluate_checkpoint`](05_evaluate_checkpoint.md#u20)
+propagates that variant unchanged.
 
 **Logic** (implementor side)
 
@@ -61,8 +63,8 @@ Panics: none.
 4. locate checker.command_uri and run its fixed rules with these inputs
 5. parse its per-rule output; require the rule IDs to equal checker.rules
    exactly once each, `input_sha256` to match re-read files, and each
-   requirements/design input other than the wish identity to belong to the
-   visit artifact set; holds := every(rule.holds)
+   requirements/design input other than the wish identity, run record, and
+   frozen plan to belong to the visit artifact set; holds := every(rule.holds)
 6. retain the raw report; return Ok(GateReport {
        holds, artifact_revision,
        artifact_snapshot_digest: snapshot_digest,

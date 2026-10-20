@@ -7,7 +7,7 @@
 ## U41 RsCheckKind
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsCheckKind {
     Syntactic,
     Semantic,

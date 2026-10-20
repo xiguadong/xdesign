@@ -1,6 +1,6 @@
 # `RsStageVisit::verify_artifacts`
 
-> record · method · implemented SimpleFlow slice · checks the current byte snapshot
+> record · method · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; checks the current byte snapshot
 
 <a id="u55"></a>
 

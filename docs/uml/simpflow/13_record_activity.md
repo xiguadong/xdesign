@@ -34,12 +34,12 @@ concern, not this type's.)
 
 ```
 1. artifacts_changed := activity.artifacts_changed
-2. self.activities.push(activity.clone())
-3. if artifacts_changed:
+2. if artifacts_changed:
        remove activity.removed_artifact_uris from self.artifact_digests
        replace/add every activity.artifact_digests by URI
        self.artifact_snapshot_digest := sha256(canonical artifact digests)
        self.artifact_revision += 1
+3. self.activities.push(activity)
 4. // assessments already recorded stay untouched;
    // they cite their own evaluated_revision
 5. return artifacts_changed

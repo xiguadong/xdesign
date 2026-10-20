@@ -1,6 +1,6 @@
 # SimpleFlow module detailed design
 
-> Module: `XDesignDetailedDesign` SimpleFlow run and checkpoint automation | Revision: 3
+> Module: `XDesignDetailedDesign` SimpleFlow run and checkpoint automation | Revision: 4
 > Status: design specification; no frozen CDR baseline.
 > Audience: module implementers, integrators, verifiers, and reviewers. Basis:
 > [architecture design](../../arch/02_design.md#b13),
@@ -20,6 +20,7 @@ the figures themselves sit in the design topics they explain below.
 | --- | --- | --- | --- |
 | 2 | 2026-10-19 | Stage-organized module design and figure locations for wish-0008 correction | Documentation scope assessed; CDR pending |
 | 3 | 2026-10-19 | Clarified the existing draft interface contracts and current stage-document paths | Documentation scope reviewed; CDR pending |
+| 4 | 2026-10-20 | Aligned implementation status and recovery behavior with the executed SimpleFlow slice | Local tests recorded in [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) and [P12](../../prj_manage/04_simple_flow_review_fix_record.md#p12); CDR pending |
 
 <a id="d32"></a>
 
@@ -30,14 +31,14 @@ run; `SimpleFlowCheckpoint` evaluates a gate and retains its assessment; the adv
 operation consults the current visit before entering another stage. The module boundary
 is the designed SimpleFlow automation, with a checker-command exchange and a separate
 judge exchange. [D01–D04](01_run_design.md#d01) state the run and operation contract;
-[D05–D07](02_gates_and_rules.md#d05) state gate criteria and the planned fixed rules.
+[D05–D07](02_gates_and_rules.md#d05) state gate criteria and the fixed rules.
 
 | Concern | Current source | Status |
 | --- | --- | --- |
-| Requirements and design allocation | [R01–R02](../../requirements/01_baseline.md#r01), [D15](../../requirements/01_baseline.md#d15) | Structural satisfaction and planned verification; some gates have no executable checker |
-| Module boundary and roles | [D17](../../requirements/01_baseline.md#d17), [D14](#d14) | Modelled design; application implementation pending |
+| Requirements and design allocation | [R01–R02](../../requirements/01_baseline.md#r01), [D15](../../requirements/01_baseline.md#d15) | Structural satisfaction and planned project-level verification; the four SimpleFlow checker commands execute |
+| Module boundary and roles | [D17](../../requirements/01_baseline.md#d17), [D14](#d14) | Modeled design and local Rust slice; generic application integration pending |
 | Package ownership | [D21](../../arch/02_design.md#d21) | Model organization, not deployment |
-| Stage and gate realization | [D01](01_run_design.md#d01), [D05](02_gates_and_rules.md#d05) | Designed, with historical wish assessments kept separately |
+| Stage and gate realization | [D01](01_run_design.md#d01), [D05](02_gates_and_rules.md#d05) | Four-stage run and five gates execute locally; historical wish assessments remain separate |
 
 The module does not own the user's engineering judgment or turn a passed compiler check
 into verification of engineering meaning. Those outcomes belong to the wish trace and
@@ -50,16 +51,16 @@ its assessed artifact revision.
 The run, factory, checkpoint, stage visit, and assessment types are the module's core
 structures. [D02](01_run_design.md#d02) gives the run's key features and multiplicities;
 [E01–E04](../02_records_and_evidence.md#e01) define the retained visit and evidence
-records. The type figure below explains ownership and specialization. Persistent storage
-layout and application-language classes have not been selected.
+records. The type figure below explains ownership and specialization. A Rust realization
+exists, while durable storage layout remains open.
 
 | Core type | Modeled shape and responsibility | Range or invariant | Implementation status |
 | --- | --- | --- | --- |
-| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Design only; persistence and language class open |
-| `SimpleFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D03](01_run_design.md#d03) | Design only |
-| `SimpleFlowCheckpoint` | Common gate evaluation operation with syntactic and semantic specializations | Assessment kind follows its declared checkpoint kind | Design only; command endpoint absent |
-| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Model record; runtime storage open |
-| `CheckpointAssessment` | Checkpoint, evaluated revision, outcome, judge, rationale, and evidence references | Current pass must match the visit's artifact revision | Model record; runtime storage open |
+| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by `RsSimpleFlowRun` for the four-stage local slice; durable persistence open |
+| `SimpleFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D03](01_run_design.md#d03) | Realized by the local Rust `create_run` function |
+| `SimpleFlowCheckpoint` | Common gate evaluation operation with syntactic and semantic specializations | Assessment kind follows its declared checkpoint kind | Realized by the local Rust gate/checker and judge ports; generic controller integration open |
+| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable storage open |
+| `CheckpointAssessment` | Checkpoint, evaluated revision, outcome, judge, rationale, and evidence references | Current pass must match the visit's artifact revision | Realized by `RsAssessmentEntry` in the JSON run; historical SysML records remain separate |
 
 These are logical records, not a database schema. No units, byte sizes, persistence keys,
 or serialized layouts are assigned where the model has not selected them.
@@ -166,6 +167,9 @@ current. Its transitions have explicit conditions:
 | `resumeAfterCorrection` | blocked → active | `run.currentRecord.status == StageStatus::active` |
 | `advanceStage` | active → active | `run.currentRecord.completionAuthorized and not run.currentRecord.stage.completesFlow` |
 | `complete` | active → completed | `run.currentRecord.completionAuthorized and run.currentRecord.stage.completesFlow` |
+| `revalidateCompleted` | completed → completed | `run.status == FlowStatus::completed and run.currentRecord.completionAuthorized` |
+| `completedEvidenceLost` | completed → blocked | `run.status == FlowStatus::blocked and run.currentRecord.status == StageStatus::blocked` |
+| `restoredCompletion` | blocked → completed | `run.status == FlowStatus::completed and run.currentRecord.status == StageStatus::completed and run.currentRecord.stage.completesFlow` |
 | `reopenForRework` | completed → active | `run.status == FlowStatus::active and run.currentRecord.status == StageStatus::active` |
 
 The figure uses short transition captions so the recovery and completion paths remain
@@ -176,8 +180,13 @@ Assessment and authorization decide whether work can advance. A missing, failed,
 gate cannot authorize the current visit. The blocked transition also requires the run's
 recorded status to be blocked, so an active visit is not blocked merely because its gates
 have yet to be assessed. Corrective work resumes the same current visit at a new content
-revision. `ReopenSimpleFlowStage`, separate from advancement, can reopen only a completed
-terminal run; it appends a new visit and preserves the completed record
+revision. Repeating `advance` on a completed local Rust run rechecks artifact digests
+and the existence of passed-assessment evidence URIs. If an artifact is missing or
+changed, or an evidence URI no longer resolves, the run and terminal visit become
+blocked. Restoring them can return the run to completed without appending a visit.
+The state projection's guards express the resulting statuses; the Rust implementation
+also checks actual files. `ReopenSimpleFlowStage`, separate from advancement, can
+reopen only a completed terminal run; it appends a new visit and preserves the record
 ([D04](01_run_design.md#d04)).
 
 Completion requires authorization at the terminal stage; passing an intermediate stage
@@ -348,7 +357,7 @@ design retains the assessment's outcome, rationale, and evidence URIs. Correctio
 increments the same visit's artifact revision on a content-change event; explicit
 terminal reopening creates a new visit only after completion
 ([E03–E05](../02_records_and_evidence.md#e03), [D20](#d20)).
-[D06](02_gates_and_rules.md#d06) specifies diagnostics for planned checker
+[D06](02_gates_and_rules.md#d06) specifies diagnostics for the implemented checker
 rules. Application error codes, retry policy, operational log levels, and correlation IDs
 are not yet designed; they cannot be treated as implementation commitments.
 
@@ -400,7 +409,7 @@ remaining evidence, not to imply a passed gate ([V08](../../review/02_checklist.
 
 | Decision needed | Why it matters | Current state |
 | --- | --- | --- |
-| Checker command implementations and rule-report schema | Syntactic SimpleFlow exits cannot run without them | Planned in [D06–D07](02_gates_and_rules.md#d06) |
-| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely | Unspecified |
+| Checker and assessment provenance policy | Source revision and evidence-byte retention need a durable project policy | Commands and report schema execute; provenance limits remain in [P12](../../prj_manage/04_simple_flow_review_fix_record.md#p12) |
+| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely across restarts and users | Local JSON serialization exists; durable storage, retries, and observability remain unspecified |
 | Performance and capacity targets | Needed for measurable resource design | No target in current requirements |
 | Interface versioning and runtime transport | Needed before binding consumers to an implementation | Proposed contract in [I01](../../icd/01_interfaces.md#i01) |

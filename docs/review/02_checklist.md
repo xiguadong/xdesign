@@ -16,8 +16,8 @@ wishes; it does not freeze the project's functional, allocated, or product basel
 | --- | --- | --- | --- |
 | SRR | Are requirements complete, traceable, and verifiable? | [Requirements](../requirements/01_baseline.md#r01), requirement trace and use-case views, verification methods | **Not held.** Requirement model and trace exist; a full requirements review record and acceptance of the functional baseline are missing. |
 | PDR | Can the architecture and chosen concept meet the requirements? | [Architecture design](../arch/02_design.md#b05), composition, trade studies/ADRs, interface inventory, view applicability, risks and budgets | **Not held.** Architecture structure is modeled; concept comparison, quantified analysis, accepted ADRs, and PDR package are missing. |
-| CDR | Is detailed design mature for build and integration? | [SimpleFlow module design](../details/simple_flow/05_module_design.md#d32), [gate rules](../details/simple_flow/02_gates_and_rules.md#d06), [ICD](../icd/01_interfaces.md#i01), test points, implementation maturity | **Not held.** SimpleFlow interfaces and rules are designed; endpoint implementations, field-level contracts, cases, and CDR package are missing. |
-| FRR | Do verification and validation support delivery with accepted residual risk? | Requirements trace, executed tests/analysis/inspection/demonstration, interface results, risk and waiver record | **Not held.** A working workflow application and planned gate commands are absent; per-wish design assessments are narrower than a release review. |
+| CDR | Is detailed design mature for build and integration? | [SimpleFlow module design](../details/simple_flow/05_module_design.md#d32), [gate rules](../details/simple_flow/02_gates_and_rules.md#d06), [ICD](../icd/01_interfaces.md#i01), test points, implementation maturity | **Not held.** The four SimpleFlow commands and local run execute; field-level contracts, full verification coverage, and a CDR package remain incomplete. |
+| FRR | Do verification and validation support delivery with accepted residual risk? | Requirements trace, executed tests/analysis/inspection/demonstration, interface results, risk and waiver record | **Not held.** The complete workflow application and three VModel gate commands are absent; the executed SimpleFlow slice and per-wish design assessments are narrower than a release review. |
 
 <a id="v09"></a>
 
@@ -49,9 +49,9 @@ wishes; it does not freeze the project's functional, allocated, or product basel
 | Check | Current evidence or gap |
 | --- | --- |
 | Module responsibility, requirements, classes, and data structures are identified | [D32–D33](../details/simple_flow/05_module_design.md#d32) organize the module boundary and types; each realized requirement and data contract still needs implementation trace. |
-| Scenarios, states, control flow, algorithms, and failure paths are specific enough to implement | [D34–D37](../details/simple_flow/05_module_design.md#d34) and [D11](../details/simple_flow/02_gates_and_rules.md#d11) show modeled behavior; command implementation and runtime error behavior remain open. |
+| Scenarios, states, control flow, algorithms, and failure paths are specific enough to implement | [D34–D37](../details/simple_flow/05_module_design.md#d34) and [D11](../details/simple_flow/02_gates_and_rules.md#d11) show modeled behavior; the local commands and recovery tests execute ([P08](../prj_manage/03_simple_flow_execution_record.md#p08), [P12](../prj_manage/04_simple_flow_review_fix_record.md#p12)), while full application error behavior remains open. |
 | Interface implementation covers fields, timeout, retry, and idempotency | [I02–I05](../icd/01_interfaces.md#i02) records typed fields; transport, timing, error, and compatibility policies are open in [I09](../icd/01_interfaces.md#i09). |
-| Performance budgets, logs, boundary tests, and requirement-to-case links are recorded | No complete CDR evidence package or executed tests are recorded. |
+| Performance budgets, logs, boundary tests, and requirement-to-case links are recorded | SimpleFlow boundary and integration tests are recorded in [P08](../prj_manage/03_simple_flow_execution_record.md#p08) and [P12](../prj_manage/04_simple_flow_review_fix_record.md#p12); a complete CDR evidence package, performance budgets, and requirement-to-case matrix are still missing. |
 | Design baseline, waivers, and residual risks are reviewed | No CDR result or frozen detailed design baseline is recorded. |
 
 <a id="v12"></a>

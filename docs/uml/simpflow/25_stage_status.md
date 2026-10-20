@@ -7,7 +7,7 @@
 ## U40 RsStageStatus
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsStageStatus {
     Pending,
     Active,

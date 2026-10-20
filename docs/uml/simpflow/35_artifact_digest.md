@@ -8,7 +8,7 @@
 ## U51 RsArtifactDigest
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsArtifactDigest {
     pub uri: String,
     pub sha256: String,

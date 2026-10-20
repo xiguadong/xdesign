@@ -52,9 +52,10 @@ The stages refine one model rather than producing unrelated drawings:
 These are the lesson's engineering stage handoffs. The project's four-stage `SimpleFlow`
 uses its own declared checkpoints ([D05](02_gates_and_rules.md#d05)); this document does
 not add SRR, PDR, or CDR as executable gates to that flow. wish-0006 remains a design
-delivery; wish-0007 changes the diagram presentation tooling and its documentation. Planned
-checker commands and the designed application are still to be implemented
-([D07](02_gates_and_rules.md#d07)).
+delivery; wish-0007 changes the diagram presentation tooling and its documentation. The
+four SimpleFlow checker commands and local Rust run now execute
+([D07](02_gates_and_rules.md#d07), [P08](../../prj_manage/03_simple_flow_execution_record.md#p08));
+the complete workflow application and VModel gate commands remain open.
 
 The source PDFs are local reference material, identified here by their original paths and
 one-based PDF page numbers:

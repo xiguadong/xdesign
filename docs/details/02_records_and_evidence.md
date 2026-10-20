@@ -29,6 +29,9 @@ invariants that make a delivery trustworthy.
 `Trace` and its records are the working record of one wish. Definitions stay in
 `mbse/model/`; a wish file declares only usages of them
 ([A02](../arch/00_overview.md#a02)).
+`FlowStatus` has the literals `pending`, `active`, `blocked`, and `completed` for
+the execution as a whole. It is separate from the wish's `WishStatus` and each visit's
+`StageStatus`.
 
 <a id="e02"></a>
 
@@ -42,6 +45,9 @@ invariants that make a delivery trustworthy.
 - A stage visit keeps its activities and assessments in execution order (`ordered`).
   `currentAssessments` is the latest assessment per checkpoint, not the list of all
   attempts (`selectsLatestAssessments`).
+- `StageStatus` has the literals `pending`, `active`, `blocked`, and `completed` for
+  one visit. A flow execution can have a different `FlowStatus` while a visit is
+  being prepared or recovered.
 
 <a id="e03"></a>
 

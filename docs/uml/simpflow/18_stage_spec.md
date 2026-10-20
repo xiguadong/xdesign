@@ -7,7 +7,7 @@
 ## U33 RsStageSpec
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsStageSpec {
     pub stage_id: String,
     pub next_stage_ids: Vec<String>,

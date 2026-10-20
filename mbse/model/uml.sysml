@@ -10,14 +10,13 @@ package SimpleFlowRustUml {
 
     doc /* The Rust software design of the designed simple flow, expressed as UML
        views over this SysML model: a crate and module layout, the structs, enums
-       and traits an implementation would declare, the gate-evaluation interaction,
-       and the run's state handling. Every software element records which SysML
-       design element it realizes. This is a design only: no Rust source file
-       exists in this repository, and nothing here claims one. */
+       and traits implemented in the simpflow crate, the gate-evaluation interaction,
+       and the run's state handling. The crate exists in src/, and model realization
+       dependencies connect its designed elements to the detailed design. */
 
     package crate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        doc /* Module layout of the future simpflow crate. One module owns one
+        doc /* Module layout of the implemented simpflow crate. One module owns one
            concern; dependencies point toward the data definitions, so the run
            behavior never reaches back into its callers. */
 
@@ -27,7 +26,7 @@ package SimpleFlowRustUml {
         }
         package record {
             doc /* Visit, activity and assessment entries a run is made of.
-               Depends only on status. */
+               Depends on status and plan. */
         }
         package plan {
             doc /* Stage, checkpoint, checker and rule specifications read from
@@ -35,34 +34,41 @@ package SimpleFlowRustUml {
         }
         package ports {
             doc /* The check-command and judge trait boundaries the run is
-               automated through. Depends on status and plan. */
+               automated through. Depends on status, plan and record. */
         }
         package gate {
             doc /* Gate evaluation and visit authorization. Depends on record,
-               plan and ports. */
+               plan, ports and status. */
         }
         package run {
             doc /* The run type, its state handling and advancement.
-               Depends on record, plan, gate and ports. */
+               Depends on record, plan, gate, ports and status. */
         }
         package factory {
             doc /* Run construction: open the run, add the planned visits,
-               enter the initial stage. Depends on run and plan. */
+               enter the initial stage. Depends on run, plan, ports, record and status. */
         }
 
         dependency recordUsesStatus from crate::record to crate::status;
+        dependency recordUsesPlan from crate::record to crate::plan;
         dependency planUsesStatus from crate::plan to crate::status;
         dependency portsUseStatus from crate::ports to crate::status;
         dependency portsUsePlan from crate::ports to crate::plan;
+        dependency portsUseRecord from crate::ports to crate::record;
         dependency gateUsesPorts from crate::gate to crate::ports;
         dependency gateUsesRecord from crate::gate to crate::record;
         dependency gateUsesPlan from crate::gate to crate::plan;
+        dependency gateUsesStatus from crate::gate to crate::status;
         dependency runUsesGate from crate::run to crate::gate;
         dependency runUsesRecord from crate::run to crate::record;
         dependency runUsesPlan from crate::run to crate::plan;
         dependency runUsesPorts from crate::run to crate::ports;
+        dependency runUsesStatus from crate::run to crate::status;
         dependency factoryUsesRun from crate::factory to crate::run;
         dependency factoryUsesPlan from crate::factory to crate::plan;
+        dependency factoryUsesPorts from crate::factory to crate::ports;
+        dependency factoryUsesRecord from crate::factory to crate::record;
+        dependency factoryUsesStatus from crate::factory to crate::status;
     }
 
     enum def RsFlowStatus {
@@ -245,7 +251,7 @@ package SimpleFlowRustUml {
         attribute checkerId : String;
         attribute commandUri : String;
         attribute establishes : RsConformanceKind [1..*];
-        part rules : RsCheckerRuleSpec [0..*];
+        part rules : RsCheckerRuleSpec [1..*];
     }
     dependency rsCheckerSpecRealizes from RsCheckerSpec to XDesignArchitecture::Checker;
 
@@ -285,15 +291,15 @@ package SimpleFlowRustUml {
 
     part def RsFlowPlan {
         @XDesignCommon::DocSection { document = "docs/uml/simpflow/10_flow_plan.md"; section = "U25"; }
-        doc /* Rust struct realizing designedSimpleFlow as data: the stage and
-           checkpoint specifications the run consults instead of hard-coding
-           the plan. */
+        doc /* Rust struct realizing designedSimpleFlow as data: stage and checkpoint
+           specifications the run consults. Its validation enforces this design's
+           exact four-stage, five-checkpoint blueprint. */
         attribute planId : String;
         attribute planUri : String;
         attribute planSha256 : String;
         attribute initialStageId : String;
         part stages : RsStageSpec [4];
-        part checkpoints : RsCheckpointSpec [0..*];
+        part checkpoints : RsCheckpointSpec [5];
 
         perform action validate : RsValidatePlan;
     }
@@ -379,10 +385,11 @@ package SimpleFlowRustUml {
 
     part def RsSimpleFlowRun {
         @XDesignCommon::DocSection { document = "docs/uml/simpflow/02_simple_flow_run.md"; section = "U17"; }
-        doc /* Rust struct realizing SimpleFlowRun: the plan as data, the
-           visits in order, the current visit by index, and the trait objects
-           it is automated through. Its two methods are the flow's operations;
-           its state handling is RsRunLifecycle. */
+        doc /* Rust struct realizing SimpleFlowRun: the plan as data, visits in
+           order, the current visit by index, and the trait objects it is
+           automated through. The persistence fields latch a failed record
+           write so a later advancement cannot treat it as a saved result.
+           Its state handling is RsRunLifecycle. */
         attribute runId : String;
         attribute planId : String;
         attribute planUri : String;
@@ -395,6 +402,8 @@ package SimpleFlowRustUml {
         attribute currentVisit : Integer;
         ref part check : RsCheckCommand;
         ref part judgment : RsJudge;
+        attribute persistenceError : Boolean;
+        attribute lastError : String [0..1];
 
         perform action evaluateGates : RsEvaluateGates;
         perform action advance : RsAdvance;
@@ -448,7 +457,6 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocSection { document = "docs/uml/simpflow/32_run_record_activity.md"; section = "U48"; }
         doc /* Record corrective activity on the current blocked or active visit;
            a blocked run resumes on the same visit before its gates are re-evaluated. */
-        in part run : RsSimpleFlowRun;
         in part activity : RsActivityEntry;
     }
     dependency rsRunRecordActivityRealizes from RsRunRecordActivity to XDesignArchitecture::Controller::recordActivity;
@@ -457,7 +465,6 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocSection { document = "docs/uml/simpflow/33_reopen_stage.md"; section = "U49"; }
         doc /* Reopen a previously completed terminal stage by appending a new
            revision-zero visit while retaining the completed visit. */
-        in part run : RsSimpleFlowRun;
         in attribute stageId : String;
         out attribute reopened : Boolean;
     }
@@ -482,8 +489,6 @@ package SimpleFlowRustUml {
         doc /* Rust method realizing EvaluateSimpleFlowGate: for each exit
            checkpoint of the current visit's stage, evaluate it by kind and
            append the assessment, leaving earlier assessments in place. */
-        in part visit : RsStageVisit;
-        ref part checkpoints : RsCheckpointSpec [0..*];
         out part assessments : RsAssessmentEntry [0..*];
     }
     dependency rsEvaluateGatesRealizes from RsEvaluateGates to XDesignDetailedDesign::EvaluateSimpleFlowGate;
@@ -501,6 +506,8 @@ package SimpleFlowRustUml {
         in attribute planSha256 : String;
         in attribute wishModelUri : String;
         in attribute runRecordUri : String;
+        in ref part check : RsCheckCommand;
+        in ref part judge : RsJudge;
         out part assessment : RsAssessmentEntry [0..1];
     }
     dependency rsEvaluateCheckpointRealizes from RsEvaluateCheckpoint to XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint;
@@ -511,14 +518,13 @@ package SimpleFlowRustUml {
            required gates with a passed assessment at the visited revision,
            then enter the next stage's pending visit, complete the run at the
            terminal stage, or retain a blocked current visit when not authorized. */
-        in part run : RsSimpleFlowRun;
         out attribute outcome : RsAdvanceOutcome;
     }
     dependency rsAdvanceRealizes from RsAdvance to XDesignDetailedDesign::AdvanceSimpleFlowRun;
 
     part def SimpflowCrate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        doc /* The future simpflow crate as one component: it owns the modules
+        doc /* The implemented simpflow crate as one component: it owns the modules
            under crate and exposes the two trait boundaries the controller
            automates a run through. The ports are the design's existing
            exchanges, so the crate honors the modeled interfaces rather than
@@ -529,8 +535,8 @@ package SimpleFlowRustUml {
 
     part simpflowCrate : SimpflowCrate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        doc /* The designed crate instance the verification case reviews.
-           Designed only; no crate exists in the repository. */
+        doc /* The designed crate instance the verification case reviews;
+           Cargo.toml and src/ implement its first executable slice. */
     }
 
     occurrence def RsGateEvaluationInteraction {
@@ -562,8 +568,10 @@ package SimpleFlowRustUml {
         doc /* The run's state handling in the Rust design, mirroring
            SimpleFlowRunLifecycle: create_run activates, a gate that is not
            authorized blocks, corrective work resumes the active visit, an
-           authorized nonterminal visit advances, an authorized terminal visit
-           completes, and a delivered run can reopen for rework. */
+           authorized nonterminal visit advances, and an authorized terminal visit
+           completes. Rechecking a completed run can block it when retained evidence
+           disappears and complete it again after restoration; explicit rework
+           appends a new visit. */
         ref part run : RsSimpleFlowRun;
         state pending {
             @XDesignCommon::DiagramPresentation { label = "Pending"; }
@@ -587,6 +595,12 @@ package SimpleFlowRustUml {
         transition advanceStage first active
             if run.status == RsFlowStatus::active then active;
         transition complete first active
+            if run.status == RsFlowStatus::completed then completed;
+        transition revalidateCompleted first completed
+            if run.status == RsFlowStatus::completed then completed;
+        transition completedEvidenceLost first completed
+            if run.status == RsFlowStatus::blocked then blocked;
+        transition restoredCompletion first blocked
             if run.status == RsFlowStatus::completed then completed;
         transition reopenForRework first completed
             if run.status == RsFlowStatus::active then active;

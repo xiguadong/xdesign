@@ -26,7 +26,7 @@ revision. Duplicate passes cannot compensate for a missing gate.
 
 | Type | Guarantee |
 | --- | --- |
-| `bool` | `true` iff every required gate's latest assessment has `outcome == Passed`, `evaluated_revision == self.artifact_revision`, and `evaluated_snapshot_digest == self.artifact_snapshot_digest` |
+| `bool` | `true` iff the stage has at least one required gate and every required gate's latest assessment has `outcome == Passed`, `evaluated_revision == self.artifact_revision`, and `evaluated_snapshot_digest == self.artifact_snapshot_digest` |
 
 **Errors** — none; the predicate is total.
 
@@ -34,8 +34,9 @@ revision. Duplicate passes cannot compensate for a missing gate.
 
 ```
 1. required := plan.checkpoints_of(self.stage_id)
-2. latest := map of checkpoint_id → last matching entry in self.assessments
-3. return required.iter().all(|g| {
+2. if required.is_empty(): return false
+3. latest := map of checkpoint_id → last matching entry in self.assessments
+4. return required.iter().all(|g| {
        let Some(a) = latest.get(g.checkpoint_id) else { return false };
        a.outcome == Passed &&
        a.evaluated_revision == self.artifact_revision &&

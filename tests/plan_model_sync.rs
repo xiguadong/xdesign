@@ -1,8 +1,8 @@
 use simpflow::designed_simple_flow_plan;
-use std::fs;
+use std::{collections::BTreeSet, fs, path::Path};
 
 #[test]
-fn frozen_plan_rule_conditions_match_the_sysml_design() {
+fn frozen_plan_rule_conditions_and_reads_match_the_sysml_design() {
     let model = fs::read_to_string("mbse/model/detailedDesign.sysml").unwrap();
     let plan = designed_simple_flow_plan();
     for checker in plan
@@ -21,7 +21,10 @@ fn frozen_plan_rule_conditions_match_the_sysml_design() {
                 "duplicate model rule {}",
                 rule.rule_id
             );
-            let following = &model[offset + marker.len()..];
+            let following = model[offset + marker.len()..]
+                .split_once("\n            }")
+                .map(|(block, _)| block)
+                .unwrap_or_else(|| panic!("unclosed model rule {}", rule.rule_id));
             let condition_start = "attribute redefines condition = \"";
             let condition = following
                 .split_once(condition_start)
@@ -33,6 +36,65 @@ fn frozen_plan_rule_conditions_match_the_sysml_design() {
                 "frozen plan condition differs from model rule {}",
                 rule.rule_id
             );
+            let reads = following
+                .split_once("attribute redefines reads = ")
+                .and_then(|(_, rest)| rest.split_once(';'))
+                .map(|(value, _)| {
+                    value
+                        .split('"')
+                        .enumerate()
+                        .filter_map(|(index, part)| (index % 2 == 1).then_some(part.to_owned()))
+                        .collect::<Vec<_>>()
+                })
+                .unwrap_or_else(|| panic!("missing model reads for {}", rule.rule_id));
+            assert_eq!(
+                rule.reads, reads,
+                "frozen plan reads differ from model rule {}",
+                rule.rule_id
+            );
         }
     }
+}
+
+#[test]
+fn simple_flow_file_plan_covers_the_source_and_test_inventory() {
+    let model = fs::read_to_string("mbse/model/detailedDesign.sysml").unwrap();
+    let file_plan = model
+        .split_once("item simpleFlowFilePlan {")
+        .map(|(_, rest)| rest.split_once("view simpleFlowFilePlanView").unwrap().0)
+        .unwrap();
+    let marker = "attribute redefines repositoryPath = \"";
+    let declared: BTreeSet<_> = file_plan
+        .match_indices(marker)
+        .map(|(offset, _)| {
+            file_plan[offset + marker.len()..]
+                .split_once('"')
+                .unwrap()
+                .0
+                .to_owned()
+        })
+        .collect();
+    let mut actual = BTreeSet::from(["Cargo.toml".to_owned()]);
+    for directory in ["src", "tests", "tools/checks"] {
+        for entry in fs::read_dir(directory).unwrap() {
+            let path = entry.unwrap().path();
+            if path.is_file()
+                && matches!(
+                    path.extension().and_then(|extension| extension.to_str()),
+                    Some("rs" | "py")
+                )
+            {
+                actual.insert(
+                    Path::new(directory)
+                        .join(path.file_name().unwrap())
+                        .to_string_lossy()
+                        .into_owned(),
+                );
+            }
+        }
+    }
+    assert_eq!(
+        declared, actual,
+        "model file plan differs from source/test inventory"
+    );
 }

@@ -1,6 +1,6 @@
 # `hash_artifact`
 
-> record · function · implemented SimpleFlow slice · obtains one file's byte identity
+> record · function · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; obtains one file's byte identity
 
 <a id="u56"></a>
 

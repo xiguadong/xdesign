@@ -1,6 +1,6 @@
 # `RsProcessCheck`
 
-> ports · struct and trait implementation · implemented SimpleFlow slice · invokes the fixed Python commands
+> ports · struct and trait implementation · implemented SimpleFlow slice · Rust-side addition with no matching UML class; invokes the fixed Python commands
 
 <a id="u58"></a>
 
@@ -29,6 +29,8 @@ nonempty input and observation data, and have an aggregate verdict equal to the
 conjunction. The wish, frozen plan, and run record must have matching
 `input_sha256` entries; all other entries are rehashed. Every passed rule input
 must have a matching entry and cover its declared file or runtime read.
+For `flow-is-supported`, the declared `retained plan serialization` read is
+covered by the frozen `plan_uri` in that rule's hashed input list.
 For design rules that read `tools/checks/`, the report must name all four
 checker command files from the frozen plan.
 Requirements and design source inputs, other than the wish, plan, and record,

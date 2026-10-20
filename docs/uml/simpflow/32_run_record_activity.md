@@ -33,7 +33,8 @@ named file must exist when the activity is recorded.
 is empty, a change declaration conflicts with its digest or removal list, the
 named artifact URIs differ from the changed and removed URI set, a
 digest does not match actual file bytes, a removal names an absent prior artifact,
-an artifact path is invalid, an unchanged activity names a missing file, or JSON
+an artifact path is invalid, an unchanged activity names a missing file,
+`artifacts_changed` is true when `artifact_revision == u32::MAX`, or JSON
 record persistence fails. The controller
 must call [`reopen_stage`](33_reopen_stage.md#u49) before work on a completed run.
 An unsuccessful write is retained in `last_error()` and blocks advancement.

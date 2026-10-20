@@ -1,6 +1,6 @@
 # `valid_relative_path`
 
-> plan · utility function · implemented SimpleFlow slice · checks repository path shape
+> plan · utility function · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; checks repository path shape
 
 <a id="u62"></a>
 

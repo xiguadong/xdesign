@@ -27,10 +27,14 @@ flow and command set ([A10](../../00_index.md#a10)).
 
 | Group | Repository files | Responsibility |
 | --- | --- | --- |
-| Crate entry | `Cargo.toml`, `src/lib.rs`, `src/main.rs` | Build and expose the library; provide a local command entry point. |
+| Crate entry | `Cargo.toml`, `src/lib.rs`, `src/main.rs`, `src/main_wish_tests.rs` | Build and expose the library; provide a local command entry point and its wish-validation cases. |
 | Run modules | `src/status.rs`, `src/record.rs`, `src/plan.rs`, `src/ports.rs`, `src/gate.rs`, `src/run.rs`, `src/factory.rs` | Implement the seven modules selected by the Rust UML design. |
 | Fixed gates | `tools/checks/common.py`, `tools/checks/simple_requirements.py`, `tools/checks/simple_design.py`, `tools/checks/simple_implementation.py`, `tools/checks/simple_record.py` | Share a JSON report contract and report the 2, 7, 2, and 7 fixed rules in [D06](02_gates_and_rules.md#d06). |
-| Executable cases | `tests/simple_flow.rs`, `tests/test_simple_flow_checkers.py` | Exercise run behavior and checker results, including negative cases. |
+| Executable cases | `tests/simple_flow.rs`, `tests/plan_model_sync.rs`, `tests/process_check_contract.rs`, `tests/test_simple_flow_checkers.py`, `tests/test_simple_flow_design_layout.py` | Exercise run behavior, model-plan agreement, process report validation, and checker results, including negative cases. |
+
+The file-plan audit compares in both directions: every declared path must exist, and
+every source or test file in `src/`, `tests/`, and `tools/checks/` that belongs to this
+slice must have one declaration. The 21 entries above cover the current source plane.
 
 The existing project model in `mbse/model/` defines stages, gates, records, views, and
 planned verification. The existing documentation in `docs/` explains their contracts;
@@ -64,7 +68,7 @@ executable; actual case results are recorded in
 | SF-08 Failed advancement | Call `advance` with a missing, failed, stale, or unevaluated current gate. Correct the artifact and reassess. | The same visit remains current and blocked until corrected; no new visit is appended merely because a gate failed. |
 | SF-09 Terminal reopen | Complete and explicitly reopen the terminal stage, then attempt to reopen an active run or a nonterminal stage. | A valid reopen appends the next visit index at revision 0 and preserves the completed visit and its evidence; invalid requests are rejected. |
 | SF-10 Command conformance | Run the four fixed gate commands on passing and targeted failing fixtures. | Their reports contain exactly the 18 declared rule IDs across the four rule sets, one result per rule, with a diagnostic for each failure and an aggregate verdict equal to the conjunction. |
-| SF-11 File and model integration | Compare the file-plan paths, crate exports, command URIs, declared rule IDs, model links, and generated figures; run the compiler and documentation checks. | Every source path and mapping resolves; model `parse`/`check`, documentation audit, figure render, and strict site build pass at the same source revision. |
+| SF-11 File and model integration | Compare the file-plan paths in both directions against the source/test inventory, crate exports, command URIs, declared rule IDs, model links, and generated figures; run the compiler and documentation checks. | Every declared source path exists and every in-scope source/test file is declared; mappings resolve; model `parse`/`check`, documentation audit, figure render, and strict site build pass at the same source revision. |
 
 The authorization oracle for SF-06 and SF-08 is the generic
 `StageRecord.currentAssessments` latest-per-checkpoint selection and

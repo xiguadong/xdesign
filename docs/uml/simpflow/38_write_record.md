@@ -1,6 +1,6 @@
 # `RsSimpleFlowRun::write_record`
 
-> run · method · implemented SimpleFlow slice · writes the executable checker snapshot
+> run · method · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; writes the executable checker snapshot
 
 <a id="u54"></a>
 

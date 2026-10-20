@@ -1,6 +1,6 @@
 # `snapshot_digest`
 
-> record · function · implemented SimpleFlow slice · canonicalizes an artifact set
+> record · function · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; canonicalizes an artifact set
 
 <a id="u57"></a>
 

@@ -92,8 +92,8 @@ pub fn designed_simple_flow_plan() -> RsFlowPlan {
     }
     let req = checker("simpleRequirementsCheck", "tools/checks/simple_requirements.py",
         vec![RsConformanceKind::IdentifierConformance, RsConformanceKind::TraceConformance], vec![
-            rule("requirements-carry-rationale", "Every requirement declaration inside XDesignRequirements carries a nonempty rationale attribute.", &["mbse/model/requirements.sysml"]),
-            rule("satisfy-links-resolve", "Every satisfy link names a requirement declared inside XDesignRequirements.", &["mbse/model/requirements.sysml", "mbse/model/traceability.sysml"]),
+            rule("requirements-carry-rationale", "XDesignRequirements declares at least one requirement, and every requirement declaration inside it carries a nonempty rationale attribute.", &["mbse/model/requirements.sysml"]),
+            rule("satisfy-links-resolve", "The declared traceability source has at least one satisfy link, and every satisfy link names a requirement declared inside XDesignRequirements.", &["mbse/model/requirements.sysml", "mbse/model/traceability.sysml"]),
         ]);
     let design = checker("simpleDesignCheck", "tools/checks/simple_design.py",
         vec![RsConformanceKind::ArtifactPresence, RsConformanceKind::DefinitionCoverage], vec![
@@ -112,7 +112,7 @@ pub fn designed_simple_flow_plan() -> RsFlowPlan {
         ]);
     let record = checker("simpleRecordCheck", "tools/checks/simple_record.py",
         vec![RsConformanceKind::TraceConformance, RsConformanceKind::ArtifactPresence], vec![
-            rule("flow-is-supported", "The run record has plan_id designedSimpleFlow and plan_sha256 equal to the SHA-256 of the retained frozen plan serialization.", &["runtime run record JSON"]),
+            rule("flow-is-supported", "The run record has plan_id designedSimpleFlow and plan_sha256 equal to the SHA-256 of the retained frozen plan serialization.", &["runtime run record JSON", "retained plan serialization"]),
             rule("every-stage-visited", "Every planned stage has at least one visit and every visit names a stage in that plan.", &["runtime run record JSON"]),
             rule("completed-visits-authorized", "For every completed visit, the latest assessment of each required exit gate passed at that visit's artifact revision and snapshot digest, and every recorded artifact still matches its file digest.", &["runtime run record JSON", "recorded artifact URIs"]),
             rule("assessments-name-exit-gates", "Every passed assessment names an exit gate of its visit's stage.", &["runtime run record JSON"]),

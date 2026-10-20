@@ -42,6 +42,8 @@ not an exception.
 2. out := []
 3. for spec in gates:
 4.     visit_snapshot := current().clone()
+       authority := if spec.kind == Syntactic { Script }
+                    else { judgment.authority() }
        require plan.validate() and persist current JSON record
        result := evaluate_checkpoint(&spec, &visit_snapshot,
            &plan_id, &plan_uri, &plan_sha256,
@@ -51,7 +53,8 @@ not an exception.
            Ok(a)  => a,
            Err(e) => AssessmentEntry::unevaluated(spec.checkpoint_id,
                           current().artifact_revision(),
-                          current().artifact_snapshot_digest().to_owned(), e)
+                          current().artifact_snapshot_digest().to_owned(),
+                          e, authority)
        }
 6.     current_mut().append_assessment(entry.clone())
 7.     persist updated JSON record; if it fails, append and return a later

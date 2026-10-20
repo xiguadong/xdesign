@@ -7,7 +7,7 @@
 ## U39 RsFlowStatus
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsFlowStatus {
     Pending,
     Active,
@@ -24,7 +24,7 @@ and [`reopen_stage`](33_reopen_stage.md#u49); see the state design
 
 | Variant | Meaning | Entered when |
 | --- | --- | --- |
-| `Pending` | Created, not yet activated | Construction, before step 5 of `create_run` |
+| `Pending` | Declared run state, not entered by the current constructor | No current `create_run` path constructs a pending run; construction returns `Active` |
 | `Active` | Running; exactly one visit is active | `create_run` completes; corrective activity resumes; terminal stage reopens |
 | `Blocked` | A gate was not authorized | `evaluate_gates` records a non-passed outcome |
 | `Completed` | Terminal visit authorized | `advance` returns `CompleteRun` |

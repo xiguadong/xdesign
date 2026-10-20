@@ -7,11 +7,12 @@ package Wish0001 {
     private import StandardViewDefinitions::*;
     private import Views::*;
 
-    doc /* The independent traceability model for wish-0001: one wish's actual path
-       through the workflow's SimpleFlow, carrying the activities, checkpoint
-       assessments and evidence that justify each step. Definitions stay in
-       mbse/model; this file records one run and references those definitions.
-       Load it together with the model directory so names resolve. */
+    doc /* Historical illustrative trace for wish-0001. The recorded delivered
+       status and passed assessment describe a proposed SimpleFlow walk-through;
+       their named source, build, and check artifacts are not retained, so this
+       record cannot establish actual delivery or engineering acceptance. No
+       project requirements derived from this wish are retained. Definitions
+       stay in mbse/model; load both directories to resolve references. */
 
     item wish0001 : Wish {
         attribute redefines wishId = "wish-0001";
@@ -41,7 +42,7 @@ package Wish0001 {
                 attribute redefines artifactRevision = 1;
 
                 item requirementsActivity : ActivityRecord subsets activities {
-                    attribute redefines description = "Recorded four requirements with acceptance criteria.";
+                    attribute redefines description = "Outlined four candidate report checks; no derived project requirements are retained.";
                     attribute redefines performedBy = "analyst";
                     attribute redefines occurredAt = "2026-10-14T08:10:00Z";
                     attribute redefines artifactUris = ("mbse/model/requirements.sysml");

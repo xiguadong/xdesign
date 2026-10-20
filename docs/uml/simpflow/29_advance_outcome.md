@@ -7,7 +7,7 @@
 ## U44 RsAdvanceOutcome
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsAdvanceOutcome {
     EnterNextStage,
     CompleteRun,

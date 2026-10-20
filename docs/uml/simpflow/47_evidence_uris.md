@@ -1,6 +1,6 @@
 # `RsStageVisit::evidence_uris`
 
-> record · method · implemented SimpleFlow slice · collects current-visit evidence
+> record · method · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; collects current-visit evidence
 
 <a id="u63"></a>
 

@@ -52,8 +52,8 @@ The `simpflow` crate is one component with seven modules. One module owns one co
 `status` defines vocabulary, `plan` and `record` hold data and hash identities,
 `ports` adapts commands and judgments, `gate` evaluates one checkpoint, `run` owns
 state changes, and `factory` builds the designed plan and run. The source imports
-include `record -> plan` and `ports -> record` for validation; the diagram is the
-modeled module relationship, not an exhaustive import graph.
+are declared in the model and shown in the diagram. The diagram covers the
+crate-internal `use` dependencies of the current seven modules.
 
 ![Module layout of the simpflow crate and its allowed dependencies](assets/06_crate_modules.svg)
 
@@ -63,7 +63,7 @@ modeled module relationship, not an exhaustive import graph.
 > **Companions:** [class structure](#d46), [package rules U11](../../uml/01_c4_and_uml_guide.md#u11), [module design D32](05_module_design.md#d32).  
 > **Status:** renderable-now; crate modules implemented.  
 > **Reading:** Each box is one Rust module; an arrow is an allowed `use` dependency. `status` sits at the bottom with no dependencies, `factory` and `run` at the top.  
-> **Limits:** Shows design-time module dependencies only; not a complete Rust import graph or deployment view.
+> **Limits:** Shows crate-internal module dependencies, not external crates or deployment.
 
 | Module | Responsibility | Depends on |
 | --- | --- | --- |
@@ -71,9 +71,9 @@ modeled module relationship, not an exhaustive import graph.
 | `record` | Visit, activity and assessment entries; artifact hashing | `status`, `plan` |
 | `plan` | Stage, checkpoint, checker and rule specifications | `status` |
 | `ports` | `CheckCommand` and `Judge` traits; process check and supplied judge adapters | `status`, `plan`, `record` |
-| `gate` | Gate evaluation and visit authorization | `record`, `plan`, `ports` |
-| `run` | The run type, its state handling and advancement | `record`, `plan`, `gate`, `ports` |
-| `factory` | Run construction | `run`, `plan` |
+| `gate` | Gate evaluation and visit authorization | `record`, `plan`, `ports`, `status` |
+| `run` | The run type, its state handling and advancement | `record`, `plan`, `gate`, `ports`, `status` |
+| `factory` | Run construction | `run`, `plan`, `ports`, `record`, `status` |
 
 The crate component `SimpflowCrate` exposes the two automation boundaries as ports typed
 by the design's existing exchanges ([D49](#d49)), so the crate honors the modeled
@@ -95,8 +95,9 @@ vocabulary one-to-one (`RsFlowStatus`, `RsStageStatus`, `RsCheckKind`,
 `RsAdvanceOutcome`, which names the successor outcomes. **Record and plan structs**
 carry data: a visit owns activities, assessments and artifact digests; completed
 visits remain in history while blocked visits receive corrective work. The plan makes the
-designed flow — stages, checkpoints, checkers, rules — data the run consults rather than
-code it hard-codes. **Traits** are the two automation boundaries, `CheckCommand` and
+designed flow — stages, checkpoints, checkers, rules — data the run consults.
+`validate()` enforces the exact four-stage, five-checkpoint blueprint represented by
+that data. **Traits** are the two automation boundaries, `CheckCommand` and
 `Judge`; the run holds trait objects and knows no concrete checker or reviewer.
 
 ![Structs, enums and traits of the simpflow crate](assets/06_class_structure.svg)
@@ -175,6 +176,9 @@ run and its current visit; corrective work resumes that same visit and increment
 its revision when artifact bytes change; an authorized nonterminal
 visit advances within active; an authorized terminal visit completes it; and a completed
 run can reopen its terminal stage as a new revision-zero visit without erasing history.
+Calling `advance()` on an already completed run rechecks retained artifacts and passed
+assessment evidence. Missing bytes block the run; after restoration a further
+`advance()` can complete it again without appending a visit.
 
 ![Run state machine of the Rust design](assets/06_run_states.svg)
 
@@ -183,8 +187,14 @@ run can reopen its terminal stage as a new revision-zero visit without erasing h
 > **Model view:** State-machine projection of `SimpleFlowRustUml::RsRunLifecycle`.  
 > **Companions:** [gate interaction](#d47), [lifecycle D20](05_module_design.md#d20).  
 > **Status:** renderable-now; run states implemented.  
-> **Reading:** Four states with transitions keyed on `run.status`, which `create_run`, `evaluate_gates`, `advance`, `record_activity` and `reopen_stage` set. Blocked correction keeps the current visit; terminal reopening appends one.  
-> **Limits:** This view's guards are status projections weakened for compiler support; they do not encode the full authorization and current-visit conditions in [D16](05_module_design.md#d16) and the API methods.
+> **Reading:** Four states with transitions keyed on `run.status`, which `create_run`, `evaluate_gates`, `advance`, `record_activity` and `reopen_stage` set. Blocked correction keeps the current visit; terminal reopening appends one. A completed run may revalidate in place, become blocked if retained evidence is lost, and complete again after restoration.
+> **Limits:** This view's guards are status projections weakened for compiler support; they do not encode the artifact and evidence checks in [D16](05_module_design.md#d16) and the API methods.
+
+| Transition | From → to | Model guard | Rust event |
+| --- | --- | --- | --- |
+| `revalidateCompleted` | completed → completed | `run.status == RsFlowStatus::completed` | `advance()` finds current and completed visit artifacts and passed evidence intact. |
+| `completedEvidenceLost` | completed → blocked | `run.status == RsFlowStatus::blocked` | `advance()` finds missing or changed retained artifacts or missing passed evidence. |
+| `restoredCompletion` | blocked → completed | `run.status == RsFlowStatus::completed` | After restoration, `advance()` revalidates the terminal visit and persists completion. |
 
 <a id="d49"></a>
 
@@ -231,8 +241,11 @@ and stderr logs under `cache/`.
 
 ## D51 Test points and traceability
 
-The crate has executable Rust cases in `tests/simple_flow.rs` and fixed-command
-cases in `tests/test_simple_flow_checkers.py`, mapped to the [SF verification
+The crate has executable Rust cases in `tests/simple_flow.rs`,
+`tests/plan_model_sync.rs`, and `tests/process_check_contract.rs`, command-line
+wish cases in `src/main_wish_tests.rs`, and fixed-command cases in
+`tests/test_simple_flow_checkers.py` and `tests/test_simple_flow_design_layout.py`,
+mapped to the [SF verification
 matrix](07_file_plan_and_verification.md#d54). The `TC-UML` identifiers below remain
 design review points, not separately executed case records. Source tests cover
 the behavioral rows named in the last column; model-view review remains separate.

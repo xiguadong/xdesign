@@ -7,6 +7,7 @@
 ## U27 RsStageVisit
 
 ```rust
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsStageVisit {
     stage_id: String,
     visit_index: u32,
@@ -45,6 +46,7 @@ reopening a completed terminal stage appends a new visit at the next index.
 | [`completion_authorized`](15_completion_authorized.md#u30) | public query | full entry |
 | [`verify_artifacts`](39_verify_artifacts.md#u55) | public query and file read | full entry |
 | [`evidence_uris`](47_evidence_uris.md#u63) | public query | full entry |
+| [`verify_passed_evidence`](48_verify_passed_evidence.md#u64) | crate-visible query and file read | full entry |
 | `pending(stage_id: String, visit_index: u32) -> Self` | crate-visible constructor | trivial: starts at revision 0 with empty artifact set; used by `create_run` and terminal reopen |
 | `stage_id()`, `visit_index()`, `status()`, `artifact_revision()`, `artifact_snapshot_digest()`, `artifact_digests()`, `activities()`, `assessments()` | getters | trivial |
 

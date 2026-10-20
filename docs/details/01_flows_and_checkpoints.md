@@ -53,7 +53,9 @@ wish-0002 and recorded in its trace ([T04](03_toolchain.md#t04)).
 
 ## F03 The flows in this model
 
-Four base flows are defined, and six usages of them are selectable. A wish is registered with
+Five flow part-definitions are present: `VModel`, `SimpleFlow`, `WorkflowFlow`,
+`WishVerifyFlow`, and `DesignFlow`. The latter two specialized definitions inherit
+their parent flow behavior; the six usages below are selectable. A wish is registered with
 one of them: `receiveWish` takes the selected flow, defaulting to the controller's
 `defaultFlow` (which the composition binds — `xdesign` binds `controller.defaultFlow =
 'flow'`, and its `'flow'` is the `VModel`).
@@ -64,7 +66,7 @@ one of them: `receiveWish` takes the selected flow, defaulting to the controller
 | `simpleFlow : SimpleFlow` | `requirements` → `design` → `implement` → `'verify'` | `verificationAccepted` (semantic) | A separately selectable, ungated example usage of the same four-stage definition; unlike `designedSimpleFlow`, it adds no stage-exit checkpoints |
 | `xdesign.'flow' : VModel` | 11 stages: `wishIntake` → `stakeholderNeeds` → `systemRequirements` → `systemArchitecture` → `detailedDesign` → `implementation` → `componentVerification` → `integrationVerification` → `systemVerification` → `acceptanceValidation` → `delivery` | 11, one per stage: 3 syntactic (`requirementsAccepted`, `implementationReady`, `deliveryAccepted`), 8 semantic | The full V-model; the `xdesign` composition's default flow |
 | `wishVerifyFlow : WishVerifyFlow` | `wish` → `'verify'` | `outcomeAccepted` (semantic) | A wish whose outcome is a judged artifact — documentation, an analysis — with nothing to derive that a fixed check can establish |
-| `designedSimpleFlow : SimpleFlow` | The definition's four, in its order | 5: `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted` (syntactic), `verificationAccepted` (semantic) | A wish that wants every stage gated; the checks are designed, their checkers and commands are supplied at implementation ([D01](simple_flow/01_run_design.md#d01), [D07](simple_flow/02_gates_and_rules.md#d07)) |
+| `designedSimpleFlow : SimpleFlow` | The definition's four, in its order | 5: `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted` (syntactic), `verificationAccepted` (semantic) | A wish that wants every stage gated; the four checker commands and specialized run now execute ([D01](simple_flow/01_run_design.md#d01), [D07](simple_flow/02_gates_and_rules.md#d07), [P08](../prj_manage/03_simple_flow_execution_record.md#p08)) |
 | `designFlow : DesignFlow` | `wish` → `'verify'` | `sysmlDeliverableAccepted` (syntactic, judged by the pinned compiler), `outcomeAccepted` (semantic) | A wish whose outcome is a SysML design deliverable and its documentation, before implementation ([V05](../review/01_wish_status.md#v05)) |
 
 ![The wish → verify flow: two stages, one semantic checkpoint](assets/01_wish_verify_flow.svg)
@@ -92,11 +94,12 @@ language is selected ([V05](../review/01_wish_status.md#v05),
 `designedSimpleFlow` is `SimpleFlow` as designed: the definition itself is unchanged —
 gating it now would un-authorize the completed visits of the runs already recorded
 against it — and the usage adds an exit gate to every stage, the first three syntactic and
-verification by a syntactic record gate plus the inherited semantic judgment. The rules that
-will decide each syntactic gate are documented; the checker and command are supplied at
-implementation ([D05](simple_flow/02_gates_and_rules.md#d05),
+verification by a syntactic record gate plus the inherited semantic judgment. The rules
+and commands for each syntactic gate are implemented in the four-stage local slice
+([D05](simple_flow/02_gates_and_rules.md#d05),
 [D06](simple_flow/02_gates_and_rules.md#d06),
-[D07](simple_flow/02_gates_and_rules.md#d07)).
+[D07](simple_flow/02_gates_and_rules.md#d07),
+[P08](../prj_manage/03_simple_flow_execution_record.md#p08)).
 
 The shared flow definitions and controller rules stay in this document. A flow's
 specialized design belongs in its own addressable location: the current developed
@@ -126,6 +129,12 @@ SimpleFlow sections or make its gates apply to another flow
 | `receiveWish` | Registers the wish and a separate trace with an independent model reference; assigns `selectedFlow` to the trace's root execution; creates one record per stage of that flow; enters the initial stage; activates the trace and execution |
 | `recordActivity` | Follows the trace's active execution path to the deepest current visit and appends the activity there. If its artifacts change, it increments that visit's revision before further assessment |
 | `progressWish` | `selectCurrentExecution` (descend into an open subflow) → `evaluateCheckpoints` (assess each exit checkpoint against current artifacts, keep the latest per checkpoint) → if `completionAuthorized`: `decideNextStep` and `updateExecutionState`; otherwise `retainCurrentStage` → `updateTraceStatus` |
+
+`StageWork` orchestrates work within one stage. It takes the controller, wish trace,
+and stage as inputs; `produceArtifacts` creates an `ActivityRecord`, then calls the
+controller's `recordActivity` and `progressWish` in order. The controller still owns
+checkpoint assessment and trace-status updates. This is the modeled lifecycle action,
+not a claim that the generic controller runs in the current crate.
 
 <a id="f05"></a>
 

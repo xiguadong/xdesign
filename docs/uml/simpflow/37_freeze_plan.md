@@ -1,6 +1,6 @@
 # `RsFlowPlan::freeze`
 
-> plan · method · implemented SimpleFlow slice · binds the designed plan to exact JSON bytes
+> plan · method · implemented SimpleFlow slice · Rust-side addition with no matching UML operation; binds the designed plan to exact JSON bytes
 
 <a id="u53"></a>
 
@@ -17,8 +17,10 @@ bytes invalidate the plan.
 
 **Parameters** — `uri` must contain only normal relative path components.
 **Returns** — `Ok(())` after writing and validating the file, or
-`RsPlanError::InvalidPlanFile` for an invalid path, I/O or serialization failure,
-or inconsistent plan data. The method may overwrite an existing path; callers should
+`RsPlanError::InvalidPlanFile` for an invalid path, I/O or serialization failure.
+The final `validate()` call can return any of the variants listed in
+[`U26`](11_flow_plan_validate.md#u26) for inconsistent plan data. The method may
+overwrite an existing path; callers should
 choose an output path whose contents they intend to replace.
 
 **Logic** — validate the URI shape; serialize the frozen fields; create the parent

@@ -3,6 +3,8 @@
 > Status: first executable slice completed; initial results in
 > [P08](03_simple_flow_execution_record.md#p08) and review fixes in
 > [P11–P13](04_simple_flow_review_fix_record.md#p11).
+> The subsequent cross-layer audit is reconciled in
+> [P14–P16](05_kimi_review_reconciliation.md#p14).
 > Scope: one executable run of the gated four-stage
 > `designedSimpleFlow`, with fixed syntactic checks, a semantic judge boundary,
 > revision-bound records, and tests. The complete V-model application is later work.
@@ -82,8 +84,9 @@ judgment supplied by a permitted actor; a passing script does not manufacture it
 
 The [case matrix](../details/simple_flow/07_file_plan_and_verification.md#d54)
 defines inputs, expected outcomes, and the model behavior each case exercises.
-The [initial execution record](03_simple_flow_execution_record.md#p08) and
-[review fix record](04_simple_flow_review_fix_record.md#p11) distinguish
+The [initial execution record](03_simple_flow_execution_record.md#p08),
+[review fix record](04_simple_flow_review_fix_record.md#p11), and
+[cross-layer reconciliation](05_kimi_review_reconciliation.md#p14) distinguish
 observed results from these planned expectations.
 Run the pinned compiler on `mbse/model/` alone and with `mbse/wishes/`; keep the
 parse/check JSON, stderr, and counts of unevaluated constraints. Run

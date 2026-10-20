@@ -1,6 +1,6 @@
 # `designed_simple_flow_plan`
 
-> factory · function · implemented SimpleFlow slice · maps `designedSimpleFlow` ([D01](../../details/simple_flow/01_run_design.md#d01))
+> factory · function · implemented SimpleFlow slice · Rust-side constructor for modeled `designedSimpleFlow` ([D01](../../details/simple_flow/01_run_design.md#d01)); no matching UML operation
 
 <a id="u52"></a>
 

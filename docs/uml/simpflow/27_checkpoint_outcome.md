@@ -7,7 +7,7 @@
 ## U42 RsCheckpointOutcome
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsCheckpointOutcome {
     Unevaluated,
     Failed,

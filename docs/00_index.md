@@ -1,6 +1,6 @@
 # xdesign documentation index
 
-> Project: xdesign | Status: working design documentation | Audience: requesters, model
+> Project: xdesign | Status: working design documentation | Updated: 2026-10-20 | Audience: requesters, model
 > authors, implementers, and reviewers.
 
 This is the entry to the project's engineering documentation. The project SysML v2 model
@@ -18,11 +18,12 @@ evidence by stage and permits progress only when the applicable checkpoints auth
 The [architecture overview](arch/00_overview.md#a01) introduces the two questions the
 system answers; [system composition](arch/01_system_composition.md#b01) shows its parts and
 interfaces. A flow may be the full V-model, a four-stage SimpleFlow, or a shorter design or
-review flow. The model's definitions and recorded runs must be read separately.
+two-stage wish or design flow. The model's definitions and recorded runs must be read separately.
 
 The present repository contains model definitions, documentation, a figure renderer, the
-documentation site, and some checks. It does not yet contain the complete workflow
-application or the planned gate commands ([T01](details/03_toolchain.md#t01),
+documentation site, and an executable four-stage SimpleFlow crate with four gate commands.
+It does not yet contain the complete workflow application or the three VModel gate
+commands ([T01](details/03_toolchain.md#t01),
 [V04](review/01_wish_status.md#v04)). A clean compiler result establishes only its
 supported syntax and semantic checks, not the model's constraint bodies or engineering
 acceptance ([T04](details/03_toolchain.md#t04)).
@@ -96,11 +97,11 @@ run or factory has been designed.
 | Purpose and stages | Eleven stages from `wishIntake` through stakeholder needs, requirements, architecture, detailed design, implementation, component/integration/system verification, acceptance validation, and `delivery` ([F03](details/01_flows_and_checkpoints.md#f03)). |
 | Exit checkpoints | One per stage: syntactic `requirementsAccepted`, `implementationReady`, `deliveryAccepted` (script judged when their commands exist); semantic `intakeAccepted`, `needsAccepted`, `architectureAccepted`, `designAccepted`, `componentsVerified`, `integrationVerified`, `systemVerified`, `wishValidated` (agent or human according to each gate's flags). |
 | Run and factory | Generic `FlowExecution` records and `Controller::receiveWish`; no VModel-specific run class or factory is declared. |
-| Rules and checks | The three syntactic checkpoints name checkers, but their commands and rule lists are pending; semantic criteria are in [F02–F03](details/01_flows_and_checkpoints.md#f02) and open items in [V04](review/01_wish_status.md#v04). |
+| Rules and checks | The three syntactic checkpoints name checkers, but their commands and rule lists are pending. The semantic criteria are declared in `mbse/model/architecture.sysml` (`VModel`); [F02–F03](details/01_flows_and_checkpoints.md#f02) explain their judge and flow context. Open items are in [V04](review/01_wish_status.md#v04). |
 | Figures | The [model definitions](arch/00_overview.md#a05) include the V-model; no dedicated full V-model flow figure is embedded yet. |
 | Status | Flow modeled; complete VModel checker execution is not implemented. |
 
-**`workflow.'flow' : SimpleFlow` — default four-stage workflow usage**
+**`workflow.'flow' : WorkflowFlow :> SimpleFlow` — workflow composition's four-stage usage**
 
 | Item | Current design |
 | --- | --- |
@@ -127,11 +128,11 @@ run or factory has been designed.
 | Item | Current design |
 | --- | --- |
 | Purpose and stages | The same four stages as SimpleFlow, with a designed checkpoint at each stage exit ([D01](details/simple_flow/01_run_design.md#d01)). |
-| Exit checkpoints | Syntactic `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted` (planned script judgment); terminal semantic `verificationAccepted` (agent or human judgment, [D05](details/simple_flow/02_gates_and_rules.md#d05)). |
-| Run and factory | `SimpleFlowRun` and `SimpleFlowRunFactory::createRun` are specified in [D02–D03](details/simple_flow/01_run_design.md#d02). |
-| Rules and checks | All 18 planned fixed rules, inputs, diagnostics, and report fields are in [D06](details/simple_flow/02_gates_and_rules.md#d06); command contracts are in [D07](details/simple_flow/02_gates_and_rules.md#d07). |
+| Exit checkpoints | Syntactic `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted` (script judgment); terminal semantic `verificationAccepted` (agent or human judgment, [D05](details/simple_flow/02_gates_and_rules.md#d05)). |
+| Run and factory | `SimpleFlowRun` and `SimpleFlowRunFactory::createRun` are modeled in [D02–D03](details/simple_flow/01_run_design.md#d02) and realized by the local Rust crate ([P08](prj_manage/03_simple_flow_execution_record.md#p08)). |
+| Rules and checks | All 18 fixed rules, inputs, diagnostics, and report fields are in [D06](details/simple_flow/02_gates_and_rules.md#d06); the four implemented command contracts are in [D07](details/simple_flow/02_gates_and_rules.md#d07). |
 | Figures | [Designed plan](details/simple_flow/01_run_design.md#d01), [structure](details/simple_flow/03_structure_graphs.md#d08), and the [nine-question coverage index](details/simple_flow/04_sysml_diagrams.md#d12), whose figures sit in stage-owned sections. |
-| Status | Detailed design and generated figures exist; gate checkers, specialized run execution, and factory implementation are designed only. |
+| Status | Detailed design and generated figures exist; the four-stage crate, factory, checkers, and local run execute ([P08](prj_manage/03_simple_flow_execution_record.md#p08), [P12](prj_manage/04_simple_flow_review_fix_record.md#p12)). Generic controller integration and durable persistence remain open. |
 
 **`wishVerifyFlow : WishVerifyFlow` — judged artifact**
 
@@ -140,7 +141,7 @@ run or factory has been designed.
 | Purpose and stages | Wish → verify for an artifact whose outcome requires judgment, without separate requirements or implementation stages ([F03](details/01_flows_and_checkpoints.md#f03)). |
 | Exit checkpoints | Terminal semantic `outcomeAccepted`, judged by an agent or human. |
 | Run and factory | Generic `FlowExecution` records and `Controller::receiveWish`; no flow-specific run class or factory. |
-| Rules and checks | The two `outcomeAccepted` criteria are in [F03](details/01_flows_and_checkpoints.md#f03); no fixed checker is declared for this semantic gate. |
+| Rules and checks | The two `outcomeAccepted` criteria are declared in `mbse/model/architecture.sysml` (`WishVerifyFlow`); [F03](details/01_flows_and_checkpoints.md#f03) explains the flow context. No fixed checker is declared for this semantic gate. |
 | Figures | [Two-stage structure](details/01_flows_and_checkpoints.md#f03) and [wish-0005 journey](review/01_wish_status.md#v03). |
 | Status | Flow modeled; wish-0005 has a delivered, evidence-backed historical run. |
 
@@ -151,7 +152,7 @@ run or factory has been designed.
 | Purpose and stages | Wish → verify for a SysML model and its documentation, with no implementation stage ([F03](details/01_flows_and_checkpoints.md#f03)). |
 | Exit checkpoints | `sysmlDeliverableAccepted` is syntactic and names the pinned compiler; inherited `outcomeAccepted` is semantic and needs an agent or human judgment. |
 | Run and factory | Generic `FlowExecution` records and `Controller::receiveWish`; no DesignFlow-specific run class or factory. |
-| Rules and checks | Pinned compiler `parse`/`check` results establish supported SysML checks ([T02](details/03_toolchain.md#t02)); the semantic outcome criteria remain in [F03](details/01_flows_and_checkpoints.md#f03). |
+| Rules and checks | Pinned compiler `parse`/`check` results establish supported SysML checks ([T02](details/03_toolchain.md#t02)); the inherited semantic outcome criteria are declared in `mbse/model/architecture.sysml` (`WishVerifyFlow`). |
 | Figures | The [wish-0006 design journey](review/01_wish_status.md#v05) shows one recorded run; no dedicated DesignFlow definition figure is embedded. |
 | Status | Flow modeled and used for design deliveries; the wish-0008 record and its current assessment are in [V07](review/01_wish_status.md#v07). |
 
@@ -195,7 +196,7 @@ and [V04](review/01_wish_status.md#v04); wish-0008's own outcome must be read fr
 | --- | --- | --- |
 | Functional requirements | Working; no SRR freeze | [R13](requirements/01_baseline.md#r13), [V09](review/02_checklist.md#v09) |
 | Allocated architecture and module design | Working; no PDR or CDR freeze | [B28](arch/02_design.md#b28), [D40](details/simple_flow/05_module_design.md#d40) |
-| Product | Workflow application and planned gate commands incomplete; no FRR | [V08](review/02_checklist.md#v08) |
+| Product | Four-stage SimpleFlow slice executed; complete workflow application and VModel gate commands incomplete; no FRR | [P08](prj_manage/03_simple_flow_execution_record.md#p08), [V08](review/02_checklist.md#v08) |
 | SysML model and rendered figures | Revision-4 parse/check, render, audit, and figure verification passed for their stated scopes | [V07](review/01_wish_status.md#v07) |
 
 Run the pinned compiler and inspect its diagnostics as described in [T02](details/03_toolchain.md#t02).
@@ -217,5 +218,5 @@ their own corresponding evidence.
 | --- | --- | --- |
 | Complete per-requirement method, phase, and acceptance criteria | An SRR cannot freeze an incomplete verification plan ([R11](requirements/01_baseline.md#r11)) | Requirements owner, unassigned |
 | Choose and justify architecture and interface baselines | PDR lacks concept comparison and the draft ICD has open contracts ([B28](arch/02_design.md#b28), [I09](icd/01_interfaces.md#i09)) | Architect and integrator, unassigned |
-| Implement and verify SimpleFlow commands and application behavior | The module design and planned rules have no running gate implementation ([D40](details/simple_flow/05_module_design.md#d40)) | Module owner, unassigned |
+| Integrate the workflow application and VModel commands | The four-stage SimpleFlow run and commands execute, but generic controller integration, durable persistence, and three VModel gate commands remain open ([D40](details/simple_flow/05_module_design.md#d40), [P12](prj_manage/04_simple_flow_review_fix_record.md#p12)) | Module owner, unassigned |
 | Hold SRR, PDR, CDR, and FRR with revision-bound evidence | Stage documents and individual wish assessments do not constitute those gate decisions ([V14](review/02_checklist.md#v14)) | Review authorities, unassigned |

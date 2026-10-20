@@ -181,6 +181,9 @@ fn malformed_plans_are_rejected_before_run() {
     p.stages[1].stage_id = "requirements".into();
     assert_eq!(p.validate(), Err(RsPlanError::DuplicateStageId));
     let mut p = valid.clone();
+    p.checkpoints[1].checkpoint_id = p.checkpoints[0].checkpoint_id.clone();
+    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    let mut p = valid.clone();
     p.checkpoints[0].stage_id = "verify".into();
     assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
     let mut p = valid.clone();
@@ -224,6 +227,15 @@ fn initial_visits_stage_scope_and_mixed_verify_gates() {
         .visits()
         .iter()
         .all(|v| v.visit_index() == 0 && v.artifact_revision() == 0));
+    assert_eq!(
+        run.visits().iter().map(|v| v.status()).collect::<Vec<_>>(),
+        vec![
+            RsStageStatus::Active,
+            RsStageStatus::Pending,
+            RsStageStatus::Pending,
+            RsStageStatus::Pending,
+        ]
+    );
     assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
     reach_verify(&mut run, &dir);
     add_artifact(&mut run, &dir, "verification.txt", "verification fixture");
@@ -524,6 +536,21 @@ fn failed_correction_reuses_visit_and_completed_run_needs_reopen() {
     assert_eq!(run.current().artifact_revision(), 0);
     assert_eq!(run.current().status(), RsStageStatus::Active);
     assert!(!run.reopen_stage("verify"));
+
+    add_artifact(&mut run, &dir, "verify-revisit.txt", "revisit");
+    assert!(run
+        .evaluate_gates()
+        .iter()
+        .all(|entry| entry.outcome == RsCheckpointOutcome::Passed));
+    let prior_verify_artifact = format!("{dir}/verify.txt");
+    fs::write(&prior_verify_artifact, "changed after reopen").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    assert_eq!(run.visits()[3].status(), RsStageStatus::Completed);
+    fs::write(&prior_verify_artifact, "verify").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::CompleteRun);
+    assert_eq!(run.current().visit_index(), 1);
+    assert_eq!(run.visits().len(), count + 1);
 }
 
 #[test]

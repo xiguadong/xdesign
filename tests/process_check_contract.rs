@@ -224,3 +224,40 @@ with open(report_uri, 'w', encoding='utf-8') as destination:
     omitted.command_uri = wrapper;
     assert_eq!(run_check(&omitted), Err(RsGateError::CommandFailed));
 }
+
+#[test]
+fn retained_plan_read_is_covered_by_the_frozen_plan_uri() {
+    let dir = fixture_dir();
+    let (run, wish) = prepared_requirements_run(&dir);
+    let wrapper = format!("{dir}/include_plan.py");
+    fs::write(
+        &wrapper,
+        r#"import json
+import subprocess
+import sys
+
+arguments = sys.argv[1:]
+completed = subprocess.run([sys.executable, 'tools/checks/simple_requirements.py', *arguments])
+if completed.returncode:
+    sys.exit(completed.returncode)
+report_uri = arguments[arguments.index('--report') + 1]
+plan_uri = arguments[arguments.index('--plan-uri') + 1]
+with open(report_uri, encoding='utf-8') as source:
+    report = json.load(source)
+report['rules'][0]['inputs'].append(plan_uri)
+with open(report_uri, 'w', encoding='utf-8') as destination:
+    json.dump(report, destination)
+"#,
+    )
+    .unwrap();
+    let mut checker = run.plan().checkpoints[0].checker.as_ref().unwrap().clone();
+    checker.command_uri = wrapper;
+    checker.rules[0]
+        .reads
+        .push("retained plan serialization".into());
+    assert!(
+        invoke_requirements(&run, &wish, &dir, &checker)
+            .unwrap()
+            .holds
+    );
+}

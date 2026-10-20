@@ -8,7 +8,7 @@
 ## U50 RsConformanceKind
 
 ```rust
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum RsConformanceKind {
     ArtifactPresence,
     IdentifierConformance,

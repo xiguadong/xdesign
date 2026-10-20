@@ -7,7 +7,7 @@
 ## U35 RsCheckerSpec
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsCheckerSpec {
     pub checker_id: String,
     pub command_uri: String,

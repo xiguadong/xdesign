@@ -7,7 +7,7 @@
 ## U31 RsActivityEntry
 
 ```rust
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsActivityEntry {
     pub description: String,
     pub performed_by: String,

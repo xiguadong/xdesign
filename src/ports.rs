@@ -256,6 +256,7 @@ impl RsCheckCommand for RsProcessCheck {
                 for read in &declared.reads {
                     let covered = match read.as_str() {
                         "runtime run record JSON" => inputs.contains(run_record),
+                        "retained plan serialization" => inputs.contains(plan_uri),
                         "recorded artifact URIs" => {
                             let source_visits: Vec<_> = if stage == "implement" {
                                 vec![visit_json]

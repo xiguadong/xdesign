@@ -26,9 +26,9 @@ This split keeps "the gate says no" and "the gate cannot say" distinct.
 | Variant | Meaning | Raised when |
 | --- | --- | --- |
 | `CheckerMissing` | Plan defect reaches runtime | Syntactic spec with `checker == None` (normally caught by `validate`) |
-| `CommandFailed` | No trustworthy report | The command errored, timed out, or its report violates the report invariants |
-| `JudgmentRefused` | No verdict | The judge returned `Unevaluated` |
-| `JudgeNotPermitted` | Invalid authority | The judge's authority is not allowed by this semantic gate |
-| `MissingEvidence` | Unsupported pass | A semantic judge passed without citing any current artifact or evidence URI |
+| `CommandFailed` | No trustworthy report | The command errored, inputs were unreadable, or its report violates the report invariants; no timeout is implemented |
+| `JudgmentRefused` | No verdict | The judge returned `Unevaluated` or an empty rationale |
+| `JudgeNotPermitted` | Invalid authority | The judge's authority is not allowed by this semantic gate or its identity is blank |
+| `MissingEvidence` | Unsupported pass | A semantic judge passed without a current artifact or evidence URI, or cited an invalid or missing file |
 
 **See also:** [`evaluate_checkpoint`](05_evaluate_checkpoint.md#u20), [`RsPlanError`](30_plan_error.md#u45), [`RsCheckpointOutcome`](27_checkpoint_outcome.md#u42).
