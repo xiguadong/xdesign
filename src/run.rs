@@ -152,12 +152,25 @@ impl RsSimpleFlowRun {
                 return Err(format!("invalid artifact removal: {uri}"));
             }
         }
-        if activity
+        let mut named = HashSet::new();
+        for uri in &activity.artifact_uris {
+            if !valid_relative_path(uri) || !named.insert(uri.as_str()) {
+                return Err(format!("invalid or duplicate activity artifact URI: {uri}"));
+            }
+        }
+        if activity.artifacts_changed {
+            let changed: HashSet<_> = updated.union(&removed).copied().collect();
+            if named != changed {
+                return Err(
+                    "activity artifact URIs must match updated and removed artifacts".into(),
+                );
+            }
+        } else if activity
             .artifact_uris
             .iter()
-            .any(|uri| !valid_relative_path(uri))
+            .any(|uri| !Path::new(uri).is_file())
         {
-            return Err("invalid artifact URI".into());
+            return Err("unchanged activity names a missing artifact".into());
         }
         if activity.artifacts_changed && self.current().artifact_revision() == u32::MAX {
             return Err("artifact revision exhausted".into());
@@ -265,21 +278,47 @@ impl RsSimpleFlowRun {
         out
     }
 
+    fn passed_evidence_retained(&self) -> bool {
+        self.visits.iter().enumerate().all(|(index, visit)| {
+            (index != self.current_visit && visit.status() != RsStageStatus::Completed)
+                || visit.verify_passed_evidence()
+        })
+    }
+
+    fn visited_artifacts_match(&self) -> bool {
+        self.visits.iter().enumerate().all(|(index, visit)| {
+            (index != self.current_visit && visit.status() != RsStageStatus::Completed)
+                || visit.verify_artifacts()
+        })
+    }
+
+    fn remain_blocked(&mut self) -> RsAdvanceOutcome {
+        self.status = RsFlowStatus::Blocked;
+        self.visits[self.current_visit].status = RsStageStatus::Blocked;
+        self.persist();
+        RsAdvanceOutcome::RemainBlocked
+    }
+
     pub fn advance(&mut self) -> RsAdvanceOutcome {
         if self.status == RsFlowStatus::Completed {
+            if self.plan.validate().is_err()
+                || !self.visited_artifacts_match()
+                || !self.current().completion_authorized(&self.plan)
+                || !self.passed_evidence_retained()
+            {
+                return self.remain_blocked();
+            }
             return RsAdvanceOutcome::CompleteRun;
         }
         if self.persistence_error && !self.persist() {
-            return RsAdvanceOutcome::RemainBlocked;
+            return self.remain_blocked();
         }
         if self.plan.validate().is_err()
-            || !self.current().verify_artifacts()
+            || !self.visited_artifacts_match()
             || !self.current().completion_authorized(&self.plan)
+            || !self.passed_evidence_retained()
         {
-            self.status = RsFlowStatus::Blocked;
-            self.visits[self.current_visit].status = RsStageStatus::Blocked;
-            self.persist();
-            return RsAdvanceOutcome::RemainBlocked;
+            return self.remain_blocked();
         }
         let old_visits = self.visits.clone();
         let old_index = self.current_visit;
@@ -294,23 +333,17 @@ impl RsSimpleFlowRun {
             self.visits = old_visits;
             self.current_visit = old_index;
             self.status = old_status;
-            return RsAdvanceOutcome::RemainBlocked;
+            return self.remain_blocked();
         }
         let Some(next_stage) = self.plan.next_stage(&stage).map(|s| s.stage_id.clone()) else {
-            self.status = RsFlowStatus::Blocked;
-            self.visits[self.current_visit].status = RsStageStatus::Blocked;
-            self.persist();
-            return RsAdvanceOutcome::RemainBlocked;
+            return self.remain_blocked();
         };
         let Some(index) = self
             .visits
             .iter()
             .position(|v| v.stage_id() == next_stage && v.status() == RsStageStatus::Pending)
         else {
-            self.status = RsFlowStatus::Blocked;
-            self.visits[self.current_visit].status = RsStageStatus::Blocked;
-            self.persist();
-            return RsAdvanceOutcome::RemainBlocked;
+            return self.remain_blocked();
         };
         self.visits[self.current_visit].status = RsStageStatus::Completed;
         self.current_visit = index;
@@ -322,7 +355,7 @@ impl RsSimpleFlowRun {
             self.visits = old_visits;
             self.current_visit = old_index;
             self.status = old_status;
-            RsAdvanceOutcome::RemainBlocked
+            self.remain_blocked()
         }
     }
 

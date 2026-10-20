@@ -181,9 +181,16 @@ checker commands that a rule inspects. Otherwise the command cannot establish th
 its answer belongs to the visited snapshot and returns an unevaluated command error.
 The frozen plan, executable run-record input, and newly written report are separate
 exchange artifacts: including the run record or its own report in the visit digest
-would make the check circular. A raw report may additionally list its read-file
-digests to make the decision auditable; the visit digest remains the authorization
-anchor for these repository inputs.
+would make the check circular. The raw report lists its read-file digests to
+make the decision auditable; the visit digest remains the authorization anchor
+for these repository inputs.
+
+The implemented report adapter requires hashes for the wish, frozen plan, and run
+record bytes and for every input named by a passed rule. It checks that each
+passed rule's inputs cover its declared file or runtime reads. The record checker
+also rejects malformed visit, assessment, and lifecycle fields before applying
+its seven rules. These checks bind the report to the bytes it evaluated; command
+and harness version binding remains a separate delivery obligation.
 
 | Planned checker | Designed command contract |
 | --- | --- |

@@ -26,9 +26,14 @@ run record identity, stage, revision, and artifact snapshot bytes. It then runs
 snapshot digest, and report path arguments. The raw report must identify the same
 checker/stage/revision/digest, contain each declared rule once with a verdict,
 nonempty input and observation data, and have an aggregate verdict equal to the
-conjunction. Its `input_sha256` entries are rehashed; requirements and design
-inputs, other than the wish identity, must belong to the current visit's artifact
-snapshot. Any process or validation failure yields `CommandFailed`.
+conjunction. The wish, frozen plan, and run record must have matching
+`input_sha256` entries; all other entries are rehashed. Every passed rule input
+must have a matching entry and cover its declared file or runtime read.
+For design rules that read `tools/checks/`, the report must name all four
+checker command files from the frozen plan.
+Requirements and design source inputs, other than the wish, plan, and record,
+must belong to the current visit's artifact snapshot. Any process or validation
+failure yields `CommandFailed`.
 
 **Logic** — validate inputs; choose a UUID-suffixed JSON report path; execute the
 command; retain stdout/stderr; parse and validate its JSON and input hashes; map

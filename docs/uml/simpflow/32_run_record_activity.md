@@ -17,6 +17,9 @@ recording corrective activity resumes that same visit. The visit's
 `activity.artifacts_changed` is true, including an edit at an unchanged URI.
 The caller supplies the content digests of changed artifacts for the new
 snapshot. The run does not create a new visit on gate failure.
+For a changed activity, `artifact_uris` must name exactly the files in
+`artifact_digests` and `removed_artifact_uris`. For an unchanged activity, any
+named file must exist when the activity is recorded.
 
 **Parameters**
 
@@ -27,9 +30,11 @@ snapshot. The run does not create a new visit on gate failure.
 **Returns** — `Ok(())` after the updated JSON record is written.
 
 **Errors** — `Err(String)` when the run is completed, required activity metadata
-is empty, a change declaration conflicts with its digest or removal list, a
+is empty, a change declaration conflicts with its digest or removal list, the
+named artifact URIs differ from the changed and removed URI set, a
 digest does not match actual file bytes, a removal names an absent prior artifact,
-an artifact path is invalid, or JSON record persistence fails. The controller
+an artifact path is invalid, an unchanged activity names a missing file, or JSON
+record persistence fails. The controller
 must call [`reopen_stage`](33_reopen_stage.md#u49) before work on a completed run.
 An unsuccessful write is retained in `last_error()` and blocks advancement.
 The activity may already have changed the in-memory visit when a later JSON
@@ -40,7 +45,7 @@ retained evidence.
 
 ```
 1. reject completed run or invalid activity metadata, paths, content digests,
-   change declaration, or removals
+   change declaration, URI set, or removals
 2. current_mut().record_activity(activity)
 3. if self.status == Blocked:
        current_mut().status := Active

@@ -159,7 +159,13 @@ def load_context(args: argparse.Namespace, root: Path = ROOT) -> Context:
     if not wish_uri.endswith(".sysml"):
         raise CheckInputError("wish model must be a SysML file")
     wish_bytes = read_bytes(root, wish_uri)
-    record = read_json(root, args.record)
+    record_bytes = read_bytes(root, args.record)
+    try:
+        record = json.loads(record_bytes.decode("utf-8"))
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise CheckInputError(f"invalid JSON at {args.record}: {error}") from error
+    if not isinstance(record, dict):
+        raise CheckInputError(f"JSON object required at {args.record}")
     if record.get("wish_model_uri") is not None and relative_uri(root, record["wish_model_uri"]) != wish_uri:
         raise CheckInputError("record wish model differs from request")
     if record.get("plan_id") != args.plan_id or record.get("plan_sha256") != args.plan_sha256:
@@ -201,7 +207,11 @@ def load_context(args: argparse.Namespace, root: Path = ROOT) -> Context:
         normalized_artifacts.append({"uri": uri, "sha256": digest})
     if snapshot_digest(normalized_artifacts) != args.snapshot_digest:
         raise CheckInputError("canonical artifact snapshot differs from request")
-    return Context(root, args, record, plan, visit, hashes, {wish_uri: sha256(wish_bytes)})
+    return Context(root, args, record, plan, visit, hashes, {
+        wish_uri: sha256(wish_bytes),
+        relative_uri(root, args.record): sha256(record_bytes),
+        relative_uri(root, plan_uri): sha256(plan_bytes),
+    })
 
 
 def result(rule_id: str, inputs: list[str], observed: Any, failures: list[str]) -> dict[str, Any]:
@@ -322,6 +332,20 @@ def emit_report(context: Context, checker_id: str, rules: tuple[str, ...], resul
     report_uri = relative_uri(context.root, context.args.report)
     if not report_uri.startswith("cache/"):
         raise CheckInputError("report must be retained under cache/")
+    input_hashes = dict(context.input_hashes)
+    for item in results:
+        for uri in item["inputs"]:
+            try:
+                normalized = relative_uri(context.root, uri)
+                if normalized != uri:
+                    raise CheckInputError(f"rule input URI is not normalized: {uri}")
+                if repository_path(context.root, uri).is_file():
+                    input_hashes[uri] = sha256(read_bytes(context.root, uri))
+                elif item["verdict"] == "passed":
+                    raise CheckInputError(f"passed rule input is absent: {uri}")
+            except CheckInputError:
+                if item["verdict"] == "passed":
+                    raise
     report = {
         "checker_id": checker_id,
         "stage": context.args.stage,
@@ -330,7 +354,7 @@ def emit_report(context: Context, checker_id: str, rules: tuple[str, ...], resul
         "report_uri": report_uri,
         "overall_verdict": "passed" if all(item["verdict"] == "passed" for item in results) else "failed",
         "rules": results,
-        "input_sha256": dict(sorted(context.input_hashes.items())),
+        "input_sha256": dict(sorted(input_hashes.items())),
     }
     destination = repository_path(context.root, report_uri)
     destination.parent.mkdir(parents=True, exist_ok=True)

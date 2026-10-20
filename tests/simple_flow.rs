@@ -321,6 +321,142 @@ fn latest_verdict_and_revision_control_authorization() {
 }
 
 #[test]
+fn activity_artifact_uris_match_digest_and_removal_changes() {
+    let dir = test_dir();
+    let (mut run, _) = run_with(&dir, &[], judge(RsCheckpointOutcome::Passed));
+    let old = fixture(&dir, "old.txt", "old content");
+    let new = fixture(&dir, "new.txt", "new content");
+    let entry = RsActivityEntry {
+        description: "record changed artifact".into(),
+        performed_by: "test".into(),
+        occurred_at: "2026-10-20T00:00:00Z".into(),
+        artifact_uris: vec![old.clone()],
+        artifacts_changed: true,
+        artifact_digests: vec![hash_artifact(&old).unwrap()],
+        removed_artifact_uris: vec![],
+    };
+    for names in [
+        vec![format!("{dir}/missing.txt")],
+        vec![],
+        vec![old.clone(), old.clone()],
+    ] {
+        let mut invalid = entry.clone();
+        invalid.artifact_uris = names;
+        assert!(run.record_activity(invalid).is_err());
+        assert_eq!(run.current().artifact_revision(), 0);
+        assert!(run.current().activities().is_empty());
+    }
+    run.record_activity(entry).unwrap();
+    assert_eq!(run.current().artifact_revision(), 1);
+
+    let replacement = RsActivityEntry {
+        description: "replace artifact".into(),
+        performed_by: "test".into(),
+        occurred_at: "2026-10-20T00:00:01Z".into(),
+        artifact_uris: vec![old.clone(), new.clone()],
+        artifacts_changed: true,
+        artifact_digests: vec![hash_artifact(&new).unwrap()],
+        removed_artifact_uris: vec![old.clone()],
+    };
+    let mut missing_removal_name = replacement.clone();
+    missing_removal_name.artifact_uris = vec![new.clone()];
+    assert!(run.record_activity(missing_removal_name).is_err());
+    run.record_activity(replacement).unwrap();
+    assert_eq!(run.current().artifact_revision(), 2);
+    assert_eq!(run.current().artifact_digests()[0].uri, new);
+    assert_eq!(run.current().artifact_digests().len(), 1);
+
+    let no_change = RsActivityEntry {
+        description: "inspect artifact".into(),
+        performed_by: "test".into(),
+        occurred_at: "2026-10-20T00:00:02Z".into(),
+        artifact_uris: vec![format!("{dir}/missing.txt")],
+        artifacts_changed: false,
+        artifact_digests: vec![],
+        removed_artifact_uris: vec![],
+    };
+    assert!(run.record_activity(no_change.clone()).is_err());
+    assert_eq!(run.current().artifact_revision(), 2);
+    let mut inspected = no_change;
+    inspected.artifact_uris = vec![new];
+    run.record_activity(inspected).unwrap();
+    assert_eq!(run.current().artifact_revision(), 2);
+}
+
+#[test]
+fn missing_passed_evidence_blocks_current_and_completed_visits() {
+    let dir = test_dir();
+    let (mut run, _) = run_with(&dir, &[], judge(RsCheckpointOutcome::Passed));
+    add_artifact(&mut run, &dir, "requirements.txt", "requirements");
+    let first = run.evaluate_gates();
+    assert_eq!(first[0].outcome, RsCheckpointOutcome::Passed);
+    assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
+    let first_report = &first[0].evidence_uris[0];
+    let first_bytes = fs::read(first_report).unwrap();
+    fs::remove_file(first_report).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    assert_eq!(run.current().status(), RsStageStatus::Blocked);
+    fs::write(first_report, first_bytes).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::EnterNextStage);
+
+    for stage in ["design", "implement"] {
+        add_artifact(&mut run, &dir, &format!("{stage}.txt"), stage);
+        assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
+        assert_eq!(run.advance(), RsAdvanceOutcome::EnterNextStage);
+    }
+    add_artifact(&mut run, &dir, "verification.txt", "verification");
+    let verification = run.evaluate_gates();
+    assert!(verification
+        .iter()
+        .all(|entry| entry.outcome == RsCheckpointOutcome::Passed));
+
+    let prior_report = run.visits()[0].assessments()[0].evidence_uris[0].clone();
+    let prior_bytes = fs::read(&prior_report).unwrap();
+    fs::remove_file(&prior_report).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.current().status(), RsStageStatus::Blocked);
+    fs::write(&prior_report, prior_bytes).unwrap();
+
+    let verify_report = verification[0].evidence_uris[0].clone();
+    let verify_bytes = fs::read(&verify_report).unwrap();
+    fs::remove_file(&verify_report).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    fs::write(&verify_report, verify_bytes).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::CompleteRun);
+
+    fs::remove_file(&prior_report).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    fs::write(&prior_report, "mock report").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::CompleteRun);
+}
+
+#[test]
+fn changed_completed_visit_artifact_blocks_terminal_advance() {
+    let dir = test_dir();
+    let (mut run, _) = run_with(&dir, &[], judge(RsCheckpointOutcome::Passed));
+    reach_verify(&mut run, &dir);
+    add_artifact(&mut run, &dir, "verification.txt", "verification");
+    assert!(run
+        .evaluate_gates()
+        .iter()
+        .all(|entry| entry.outcome == RsCheckpointOutcome::Passed));
+
+    let earlier = format!("{dir}/requirements.txt");
+    fs::write(&earlier, "changed after record check").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    fs::write(&earlier, "requirements").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::CompleteRun);
+
+    fs::write(&earlier, "changed after completion").unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+}
+
+#[test]
 fn later_unevaluated_supersedes_pass_at_same_revision() {
     let dir = test_dir();
     let (mut run, _) = run_with(
@@ -473,6 +609,10 @@ fn failed_record_write_cannot_authorize_advancement() {
             removed_artifact_uris: vec![]
         })
         .is_err());
+    assert_eq!(run.status(), RsFlowStatus::Active);
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    assert_eq!(run.current().status(), RsStageStatus::Blocked);
     assert_eq!(
         run.evaluate_gates()[0].outcome,
         RsCheckpointOutcome::Unevaluated
@@ -480,4 +620,21 @@ fn failed_record_write_cannot_authorize_advancement() {
     assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
     assert!(run.last_error().is_some());
     assert_eq!(run.current_visit_index(), 0);
+}
+
+#[test]
+fn failed_transition_write_rolls_back_to_blocked_visit() {
+    let dir = test_dir();
+    let (mut run, _) = run_with(&dir, &[], judge(RsCheckpointOutcome::Passed));
+    add_artifact(&mut run, &dir, "requirements.txt", "requirements");
+    assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
+    let record_path = run.run_record_uri().to_owned();
+    fs::remove_file(&record_path).unwrap();
+    fs::create_dir(&record_path).unwrap();
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert_eq!(run.current_visit_index(), 0);
+    assert_eq!(run.status(), RsFlowStatus::Blocked);
+    assert_eq!(run.current().status(), RsStageStatus::Blocked);
+    assert_eq!(run.visits()[1].status(), RsStageStatus::Pending);
+    assert!(run.last_error().is_some());
 }

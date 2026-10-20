@@ -66,7 +66,14 @@ REQUIRED_VIEW_FIGURES = {
 DOC_SECTION = re.compile(r'@XDesignCommon::DocSection\s*\{\s*document\s*=\s*"([^"\n]+)"\s*;\s*section\s*=\s*"([^"\n]+)"\s*;\s*\}')
 DOC_FIGURE = re.compile(r'@XDesignCommon::DocFigure\s*\{\s*document\s*=\s*"([^"\n]+)"\s*;\s*figure\s*=\s*"([^"\n]+)"\s*;\s*\}')
 COMMAND_URI = re.compile(r'\battribute\s+redefines\s+commandUri\s*=\s*"([^"\n]+)"\s*;')
-TOP_LEVEL = r"^    ((?:(?:part|action|port|interface|occurrence|item|enum|metadata|viewpoint|constraint|state)\s+def|use\s+case\s+def|use\s+case|part|item|view|viewpoint)\s+([A-Za-z_]\w*)[^\n{]*\{)"
+ELEMENT_KINDS = {
+    "action", "allocation", "analysis", "attribute", "behavior", "calc",
+    "connection", "constraint", "enum", "flow", "interface", "item",
+    "metadata", "occurrence", "package", "part", "port", "requirement",
+    "state", "succession", "verification", "view", "viewpoint",
+}
+DECLARATION_MODIFIERS = {"abstract", "individual", "private", "protected", "public", "ref", "variation"}
+IDENTIFIER = re.compile(r"'?[A-Za-z_]\w*'?")
 
 
 def live_matches(source: str, pattern: re.Pattern[str]) -> list[re.Match[str]]:
@@ -78,12 +85,90 @@ def annotations(source: str, pattern: re.Pattern[str]) -> list[tuple[str, str]]:
     return [(match.group(1), match.group(2)) for match in live_matches(source, pattern)]
 
 
+def direct_annotations(source: str, pattern: re.Pattern[str]) -> list[tuple[str, str]]:
+    """Only annotations directly owned by a brace-delimited declaration."""
+    masked = code_mask(source)
+    return [(match.group(1), match.group(2)) for match in live_matches(source, pattern)
+            if masked[:match.start()].count("{") - masked[:match.start()].count("}") == 1]
+
+
+def _closing_brace(masked: str, opening: int) -> int:
+    depth = 0
+    for cursor in range(opening, len(masked)):
+        if masked[cursor] == "{":
+            depth += 1
+        elif masked[cursor] == "}":
+            depth -= 1
+            if depth == 0:
+                return cursor
+    raise CheckInputError("unclosed top-level detailed design element")
+
+
+def _element_name(header: str) -> str:
+    words = [match.group().strip("'") for match in IDENTIFIER.finditer(header)]
+    index = 0
+    while index < len(words) and words[index] in DECLARATION_MODIFIERS:
+        index += 1
+    if words[index:index + 2] == ["use", "case"]:
+        index += 2
+    elif index < len(words) and words[index] in ELEMENT_KINDS:
+        index += 1
+    else:
+        raise CheckInputError(f"unclassified top-level detailed design declaration: {header.strip()}")
+    if index < len(words) and words[index] == "def":
+        index += 1
+    if index < len(words) and words[index] == "redefines":
+        index += 1
+    if index >= len(words):
+        raise CheckInputError(f"unnamed top-level detailed design declaration: {header.strip()}")
+    return words[index]
+
+
 def top_level(source: str) -> list[tuple[str, str]]:
+    """Scan immediate package members independently of line breaks and indentation.
+
+    The pinned parser validates syntax before this scan. Unknown member forms raise
+    an input error, so a newly introduced declaration cannot silently evade the
+    documentation rule.
+    """
     packages = find_blocks(source, r"\bpackage\s+XDesignDetailedDesign\s*\{")
     if len(packages) != 1:
         raise CheckInputError("expected exactly one XDesignDetailedDesign package")
     package = packages[0][1]
-    return [(match.group(2), body) for match, body, _ in find_blocks(package, TOP_LEVEL)]
+    masked = code_mask(package)
+    elements = []
+    cursor = 1
+    while cursor < len(masked) - 1:
+        while cursor < len(masked) - 1 and masked[cursor].isspace():
+            cursor += 1
+        if cursor >= len(masked) - 1:
+            break
+        if re.match(r"doc\b", masked[cursor:]):
+            cursor += 3  # Its comment or string is blanked by code_mask.
+            continue
+        delimiter = next((index for index in range(cursor, len(masked))
+                          if masked[index] in "{;}"), None)
+        if delimiter is None or masked[delimiter] == "}":
+            raise CheckInputError("unclosed top-level detailed design declaration")
+        header = masked[cursor:delimiter]
+        if masked[cursor] == "@":
+            # Metadata usages annotate the package or the following member.
+            cursor = _closing_brace(masked, delimiter) + 1 if masked[delimiter] == "{" else delimiter + 1
+            continue
+        if re.fullmatch(r"\s*(?:(?:private|protected|public)\s+)?import\b[^;{}]*", header):
+            if masked[delimiter] != ";":
+                raise CheckInputError("an import in detailed design lacks a semicolon")
+            cursor = delimiter + 1
+            continue
+        name = _element_name(header)
+        if masked[delimiter] == "{":
+            ending = _closing_brace(masked, delimiter)
+            elements.append((name, package[delimiter:ending + 1]))
+            cursor = ending + 1
+        else:
+            elements.append((name, ""))
+            cursor = delimiter + 1
+    return elements
 
 
 def attribute_expression(body: str, field: str) -> str | None:
@@ -219,11 +304,7 @@ def evaluate(context: Context) -> list[dict]:
     if not top:
         section_failures.append("No top-level detailed design elements were found.")
     for name, body in top:
-        targets = annotations(body, DOC_SECTION)
-        # A top-level annotation is in its declaration prefix, before any child declaration.
-        first_child = re.search(r"^ {8}(?:part|action|item|view|port|interface|attribute|perform|ref|event|exhibit|assert)\b", code_mask(body), re.MULTILINE)
-        prefix = body[:first_child.start()] if first_child else body
-        targets = annotations(prefix, DOC_SECTION)
+        targets = direct_annotations(body, DOC_SECTION) if body else []
         if len(targets) != 1:
             section_failures.append(f"Design element {name} has no resolvable DocSection document and anchor.")
             sections.append({"element": name, "target": None, "resolved": False})
@@ -251,7 +332,9 @@ def evaluate(context: Context) -> list[dict]:
         commands.append({"checker": name, "command_uri": command, "exists": exists})
         if not exists:
             command_failures.append(f"Checker {name} names missing command {command}.")
-    results.append(result(RULES[3], [DESIGN], {"commands": commands}, command_failures))
+    results.append(result(RULES[3], [DESIGN] + [entry["command"] for entry in checker_map.values()
+                                               if entry["command"]],
+                          {"commands": commands}, command_failures))
 
     declared = []
     declaration_failures = []

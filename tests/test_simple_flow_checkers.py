@@ -83,7 +83,7 @@ class CheckerCases(unittest.TestCase):
 
     def make_record(self, current: int, artifacts: list[dict] | None = None) -> dict:
         default_artifacts = [artifact("mbse/model/requirements.sysml")]
-        visits = [visit(stage, default_artifacts.copy(), "completed" if index < current else
+        visits = [visit(stage, default_artifacts.copy() if index <= current else [], "completed" if index < current else
                         ("active" if index == current else "pending"))
                   for index, stage in enumerate(self.stages)]
         if artifacts is not None:
@@ -192,6 +192,82 @@ class CheckerCases(unittest.TestCase):
         self.assertTrue(failures["evidence-exists"])
         self.assertEqual(report["overall_verdict"], "failed")
 
+    def test_record_rejects_schema_and_lifecycle_bypasses(self) -> None:
+        baseline = self.make_record(3, [artifact("mbse/model/requirements.sysml")])
+
+        def all_visits_pending(record: dict) -> None:
+            record["status"] = "completed"
+            for item in record["visits"]:
+                item.update(status="pending", artifact_revision=0,
+                            artifact_snapshot_digest=common.snapshot_digest([]),
+                            artifact_digests=[], activities=[], assessments=[])
+
+        def current_pending_with_missing_evidence(record: dict) -> None:
+            current = record["visits"][3]
+            current["status"] = "pending"
+            current["assessments"] = [{
+                "checkpoint_id": "verificationAccepted", "evaluated_revision": current["artifact_revision"],
+                "evaluated_snapshot_digest": current["artifact_snapshot_digest"],
+                "outcome": "passed", "judged_by": "human", "assessor": "test",
+                "rationale": "checked", "evidence_uris": [uri(self.directory / "missing.txt")],
+            }]
+
+        mutations = [
+            ("completed run with pending visits", all_visits_pending, "historical but not completed"),
+            ("unknown historical status", lambda item: item["visits"][0].__setitem__("status", "Completed"),
+             "status is not a supported value"),
+            ("pending historical visit", lambda item: item["visits"][0].__setitem__("status", "pending"),
+             "historical but not completed"),
+            ("current pending hides evidence", current_pending_with_missing_evidence,
+             "pending but contains work"),
+            ("missing visit revision", lambda item: item["visits"][0].pop("artifact_revision"),
+             "artifact_revision must be"),
+            ("missing assessment revision", lambda item: item["visits"][0]["assessments"][0].pop("evaluated_revision"),
+             "evaluated_revision must be"),
+            ("unknown assessment outcome", lambda item: item["visits"][0]["assessments"][0].__setitem__("outcome", "Passed"),
+             "outcome is not a supported value"),
+        ]
+        for label, mutate, diagnostic in mutations:
+            with self.subTest(case=label):
+                record = copy.deepcopy(baseline)
+                mutate(record)
+                completed, report = self.invoke("simple_record.py", simple_record.CHECKER_ID, record)
+                self.assertEqual(completed.returncode, 2, completed.stderr)
+                self.assertIsNone(report)
+                self.assertIn(diagnostic, completed.stderr)
+
+    def test_record_accepts_completed_and_reopened_visit_history(self) -> None:
+        record = self.make_record(3, [artifact("mbse/model/requirements.sysml")])
+
+        def authorize(item: dict) -> None:
+            item["assessments"] = [
+                {"checkpoint_id": gate, "evaluated_revision": item["artifact_revision"],
+                 "evaluated_snapshot_digest": item["artifact_snapshot_digest"],
+                 "outcome": "passed", "judged_by": "script", "assessor": "test",
+                 "rationale": "checked", "evidence_uris": [uri(self.evidence_path)]}
+                for gate in self.gates[item["stage_id"]]
+            ]
+
+        record["status"] = "completed"
+        record["visits"][3]["status"] = "completed"
+        authorize(record["visits"][3])
+        completed, report = self.invoke("simple_record.py", simple_record.CHECKER_ID, record)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(report["overall_verdict"], "passed")
+
+        for stage in self.stages:
+            item = visit(stage, [artifact("mbse/model/requirements.sysml")],
+                         "active" if stage == "verify" else "completed")
+            item["visit_index"] = 1
+            if stage != "verify":
+                authorize(item)
+            record["visits"].append(item)
+        record["status"] = "active"
+        record["current_visit"] = len(record["visits"]) - 1
+        completed, report = self.invoke("simple_record.py", simple_record.CHECKER_ID, record)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(report["overall_verdict"], "passed")
+
     def test_requirements_rationale_and_link_targets_fail_independently(self) -> None:
         fixture = self.directory / "source"
         for path in simple_requirements.INPUTS:
@@ -207,9 +283,9 @@ class CheckerCases(unittest.TestCase):
         hashes = {path: hashlib.sha256((fixture / path).read_bytes()).hexdigest() for path in simple_requirements.INPUTS}
         context = common.Context(fixture, argparse.Namespace(), {}, {}, {}, hashes, {})
         results = simple_requirements.evaluate(context)
-        self.assertEqual([item["verdict"] for item in results], ["failed", "passed"])
+        self.assertEqual([item["verdict"] for item in results], ["failed", "failed"])
         self.assertTrue(any("checkpointKindIsDeclared" in failure for failure in results[0]["failures"]))
-        # The injected link is outside the package, so it is intentionally ignored.
+        self.assertTrue(any("nonexistentRequirement" in failure for failure in results[1]["failures"]))
         trace_source = trace_file.read_text().replace('    satisfy checkpointKindIsDeclared by Checkpoint.kind;',
                                                        '    satisfy nonexistentRequirement by Checkpoint.kind;')
         trace_file.write_text(trace_source)
@@ -254,6 +330,77 @@ class CheckerCases(unittest.TestCase):
         self.assertTrue(simple_requirements.resolves_target("XDesignRequirements.checkpointKindIsDeclared", declared))
         self.assertFalse(simple_requirements.resolves_target("OtherPackage::checkpointKindIsDeclared", declared))
         self.assertFalse(simple_requirements.resolves_target("::checkpointKindIsDeclared", declared))
+
+    def test_requirements_inspect_specialized_abstract_and_external_links(self) -> None:
+        fixture = self.directory / "requirement-forms"
+        for path in simple_requirements.INPUTS:
+            destination = fixture / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / path, destination)
+        requirement_file = fixture / simple_requirements.INPUTS[0]
+        marker = "    requirement checkpointKindIsDeclared : XDesignRequirement {"
+        original = requirement_file.read_text()
+        self.assertIn(marker, original)
+        requirement_file.write_text(original.replace(
+            marker,
+            "    requirement specialForm :> XDesignRequirement { }\n"
+            "    abstract requirement abstractForm : XDesignRequirement { }\n\n" + marker, 1))
+        trace_file = fixture / simple_requirements.INPUTS[1]
+        trace_file.write_text(trace_file.read_text() +
+                              "\npackage OtherTrace {\n    satisfy ghostRequirement by Checkpoint.kind;\n}\n")
+        hashes = {path: hashlib.sha256((fixture / path).read_bytes()).hexdigest()
+                  for path in simple_requirements.INPUTS}
+        context = common.Context(fixture, argparse.Namespace(), {}, {}, {}, hashes, {})
+        results = simple_requirements.evaluate(context)
+        self.assertEqual([item["verdict"] for item in results], ["failed", "failed"])
+        self.assertIn("specialForm", results[0]["observed"]["requirement_ids"])
+        self.assertIn("abstractForm", results[0]["observed"]["requirement_ids"])
+        self.assertTrue(any("specialForm" in failure for failure in results[0]["failures"]))
+        self.assertTrue(any("abstractForm" in failure for failure in results[0]["failures"]))
+        self.assertTrue(any("ghostRequirement" in failure for failure in results[1]["failures"]))
+        self.assertTrue(any(link["target"] == "ghostRequirement"
+                            for link in results[1]["observed"]["satisfy_links"]))
+
+    def test_empty_requirements_and_trace_links_do_not_pass(self) -> None:
+        fixture = self.directory / "empty-requirement-sources"
+        requirements = fixture / simple_requirements.INPUTS[0]
+        traceability = fixture / simple_requirements.INPUTS[1]
+        requirements.parent.mkdir(parents=True, exist_ok=True)
+        requirements.write_text("package XDesignRequirements {}\n")
+        traceability.write_text("package XDesignTraceability {}\n")
+        hashes = {path: hashlib.sha256((fixture / path).read_bytes()).hexdigest()
+                  for path in simple_requirements.INPUTS}
+        context = common.Context(fixture, argparse.Namespace(), {}, {}, {}, hashes, {})
+        results = simple_requirements.evaluate(context)
+        self.assertEqual([item["verdict"] for item in results], ["failed", "failed"])
+
+    def test_nested_project_requirement_resolves_by_qualified_name(self) -> None:
+        fixture = self.directory / "nested-requirement"
+        for path in simple_requirements.INPUTS:
+            destination = fixture / path
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(ROOT / path, destination)
+        requirement_file = fixture / simple_requirements.INPUTS[0]
+        marker = "    requirement checkpointKindIsDeclared : XDesignRequirement {"
+        requirement_file.write_text(requirement_file.read_text().replace(
+            marker,
+            "    package Nested {\n"
+            "        requirement nestedRequirement : XDesignRequirement {\n"
+            "            attribute redefines rationale = \"Nested reason\";\n"
+            "        }\n"
+            "    }\n\n" + marker, 1))
+        trace_file = fixture / simple_requirements.INPUTS[1]
+        trace_file.write_text(trace_file.read_text() +
+                              "\npackage OtherTrace {\n"
+                              "    satisfy XDesignRequirements::Nested::nestedRequirement by Checkpoint.kind;\n"
+                              "}\n")
+        hashes = {path: hashlib.sha256((fixture / path).read_bytes()).hexdigest()
+                  for path in simple_requirements.INPUTS}
+        context = common.Context(fixture, argparse.Namespace(), {}, {}, {}, hashes, {})
+        results = simple_requirements.evaluate(context)
+        self.assertEqual([item["verdict"] for item in results], ["passed", "passed"])
+        self.assertIn("Nested::nestedRequirement", results[0]["observed"]["requirement_ids"])
+        self.assertTrue(results[1]["observed"]["satisfy_links"][-1]["resolved_requirement"])
 
     def test_outer_requirement_does_not_borrow_nested_rationale(self) -> None:
         body = '{\n  requirement child : XDesignRequirement { attribute redefines rationale = "Child reason"; }\n}'
@@ -389,7 +536,7 @@ class CheckerCases(unittest.TestCase):
 
         cases = [
             ("flow-is-supported", lambda item: item.__setitem__("plan_id", "otherFlow")),
-            ("every-stage-visited", lambda item: item["visits"].pop(1)),
+            ("every-stage-visited", lambda item: item["visits"][1].__setitem__("stage_id", "outsidePlan")),
             ("completed-visits-authorized", lambda item: item["visits"][0]["assessments"][0].__setitem__("outcome", "failed")),
             ("assessments-name-exit-gates", lambda item: item["visits"][0]["assessments"][0].__setitem__("checkpoint_id", "simpleDesignAccepted")),
             ("passed-assessments-carry-evidence", lambda item: item["visits"][0]["assessments"][0].__setitem__("evidence_uris", [])),

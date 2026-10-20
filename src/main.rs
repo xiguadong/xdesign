@@ -43,6 +43,33 @@ fn timestamp() -> String {
         .unwrap_or_else(|| "unknown".into())
 }
 
+fn stage_artifact_paths(
+    stage: &str,
+    verification_evidence: &str,
+) -> Result<BTreeSet<String>, String> {
+    let mut paths = BTreeSet::new();
+    match stage {
+        "requirements" => {
+            paths.extend(list_checker_inputs("tools/checks/simple_requirements.py")?);
+        }
+        "design" => paths.extend(list_checker_inputs("tools/checks/simple_design.py")?),
+        "implement" => {
+            paths.insert("Cargo.toml".into());
+            for entry in fs::read_dir("src").map_err(|e| e.to_string())? {
+                let path = entry.map_err(|e| e.to_string())?.path();
+                if path.extension().is_some_and(|x| x == "rs") {
+                    paths.insert(path.to_string_lossy().to_string());
+                }
+            }
+        }
+        "verify" => {
+            paths.insert(verification_evidence.into());
+        }
+        _ => return Err(format!("unknown stage: {stage}")),
+    }
+    Ok(paths)
+}
+
 fn run_demo(args: &[String]) -> Result<(), String> {
     let wish = option(args, "--wish-model")?;
     let plan_uri = option(args, "--plan")?;
@@ -99,27 +126,7 @@ fn run_demo(args: &[String]) -> Result<(), String> {
                 run.current().stage_id()
             ));
         }
-        let mut paths = BTreeSet::new();
-        match stage {
-            "requirements" => {
-                paths.extend(list_checker_inputs("tools/checks/simple_requirements.py")?);
-                paths.insert(wish.clone());
-            }
-            "design" => paths.extend(list_checker_inputs("tools/checks/simple_design.py")?),
-            "implement" => {
-                paths.insert("Cargo.toml".into());
-                for entry in fs::read_dir("src").map_err(|e| e.to_string())? {
-                    let path = entry.map_err(|e| e.to_string())?.path();
-                    if path.extension().is_some_and(|x| x == "rs") {
-                        paths.insert(path.to_string_lossy().to_string());
-                    }
-                }
-            }
-            "verify" => {
-                paths.insert(verification_evidence.clone());
-            }
-            _ => unreachable!(),
-        }
+        let paths = stage_artifact_paths(stage, &verification_evidence)?;
         let digests = paths
             .iter()
             .map(|p| hash_artifact(p))
@@ -153,6 +160,9 @@ fn run_demo(args: &[String]) -> Result<(), String> {
     println!("completed run {}: {record_uri}", run.run_id());
     Ok(())
 }
+
+#[cfg(test)]
+mod main_wish_tests;
 
 fn main() {
     let args: Vec<_> = env::args().collect();

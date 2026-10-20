@@ -29,16 +29,22 @@ previously completed terminal stage is a separate operation
 | `RsAdvanceOutcome::RemainBlocked` | The current visit is not authorized | current visit and run are `Blocked`; no new visit is created |
 
 **Errors** — none; the decision is total over the run's states.
-Calling it again after completion returns `CompleteRun` without changing the record.
-A failed plan validation, changed artifact bytes, unresolved record-write failure,
-or missing latest pass keeps the run blocked.
+Calling it again after completion returns `CompleteRun` while the plan, current
+and completed artifact snapshots, latest gate assessments, and retained passed-assessment
+evidence remain valid. A failed plan validation, changed artifact bytes, absent
+evidence on a current or completed visit, unresolved record-write failure, or
+missing latest pass returns `RemainBlocked` and marks the run and current visit
+`Blocked`.
 
 **Logic**
 
 ```
-1. if self.status == Completed: return CompleteRun  // idempotent
-2. require plan.validate(), current().verify_artifacts(), and a durable
-   current record; otherwise retain the current visit as Blocked
+1. if self.status == Completed: recheck plan, current and completed artifacts, latest
+   assessments, and all passed evidence on current/completed visits;
+   return CompleteRun only while they remain valid
+2. require plan.validate(), current and completed artifact snapshots, all passed evidence
+   on current/completed visits, and a durable current record;
+   otherwise retain the current visit as Blocked
 3. if visit.completion_authorized(&self.plan):
 4.     if self.plan.stage(visit.stage_id()).completes_flow:
 4.         current_mut().status := Completed
@@ -52,14 +58,14 @@ or missing latest pass keeps the run blocked.
 12. else:
 13.    current_mut().status := Blocked       // same visit retained ([D48])
 14.    self.status := Blocked
-15.    return RemainBlocked
+15.    persist blocked state when possible; return RemainBlocked
 ```
 
 **Other**
 
 | Item | Value |
 | --- | --- |
-| Side effects | Rehashes current artifacts, mutates visit statuses and `current_visit`, writes the JSON record; a failed transition write rolls back the in-memory transition |
+| Side effects | Rehashes current and completed artifacts, checks retained passed evidence, mutates visit statuses and `current_visit`, writes the JSON record; a failed transition write rolls back the transition and marks the current visit blocked |
 | Complexity | O(gates + visits) via `completion_authorized` |
 | Thread safety | `&mut self` — caller serializes |
 

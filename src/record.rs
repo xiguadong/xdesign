@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, HashMap, HashSet},
     fs,
+    path::Path,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -161,6 +162,18 @@ impl RsStageVisit {
                     .map(|actual| actual.sha256 == a.sha256)
                     .unwrap_or(false)
         })
+    }
+    pub(crate) fn verify_passed_evidence(&self) -> bool {
+        self.assessments
+            .iter()
+            .filter(|assessment| assessment.outcome == RsCheckpointOutcome::Passed)
+            .all(|assessment| {
+                !assessment.evidence_uris.is_empty()
+                    && assessment
+                        .evidence_uris
+                        .iter()
+                        .all(|uri| valid_relative_path(uri) && Path::new(uri).is_file())
+            })
     }
     pub(crate) fn record_activity(&mut self, activity: RsActivityEntry) -> bool {
         let changed = activity.artifacts_changed;

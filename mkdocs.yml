@@ -90,6 +90,7 @@ nav:
       - Review synthesis: prj_manage/01_review_synthesis.md
       - SimpleFlow implementation plan: prj_manage/02_simple_flow_implementation_plan.md
       - SimpleFlow execution record: prj_manage/03_simple_flow_execution_record.md
+      - SimpleFlow review fixes: prj_manage/04_simple_flow_review_fix_record.md
   - Interface control:
       - Overview: icd/00_overview.md
       - Interface contracts: icd/01_interfaces.md

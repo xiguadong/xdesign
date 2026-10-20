@@ -98,12 +98,12 @@ pub fn designed_simple_flow_plan() -> RsFlowPlan {
     let design = checker("simpleDesignCheck", "tools/checks/simple_design.py",
         vec![RsConformanceKind::ArtifactPresence, RsConformanceKind::DefinitionCoverage], vec![
             rule("design-declarations-present", "The run, factory, gate, advance, designed flow, checkpoint class, both adaptations, and checkpoint evaluation action are declared.", &["mbse/model/detailedDesign.sysml"]),
-            rule("every-stage-gated", "Every stage names nonempty exit gates declared by this flow and typed by SimpleFlowCheckpoint.", &["mbse/model/detailedDesign.sysml"]),
+            rule("every-stage-gated", "Every stage names nonempty exit gates declared by this flow and typed by SimpleFlowCheckpoint; each syntactic exit binds its designated one of the four fixed SimpleFlow checkers.", &["mbse/model/detailedDesign.sysml"]),
             rule("design-elements-carry-doc-sections", "Every top-level detailed design element has a DocSection that resolves to a document and section.", &["mbse/model/detailedDesign.sysml", "docs/"]),
             rule("checker-commands-exist", "Every declared SimpleFlow checker command URI names an existing repository file.", &["mbse/model/detailedDesign.sysml", "tools/checks/"]),
-            rule("checker-rules-are-declared", "Every SimpleFlow checker declares at least one rule with a nonempty ID, condition and reads value.", &["mbse/model/detailedDesign.sysml"]),
-            rule("rule-sets-agree-with-commands", "Each checker's declared rule IDs exactly equal its command's rule ID list.", &["mbse/model/detailedDesign.sysml", "tools/checks/"]),
-            rule("structure-graphs-are-carried", "Every required SimpleFlow model figure exists and is embedded in the document named by its DocFigure annotation.", &["mbse/model/detailedDesign.sysml", "docs/"]),
+            rule("checker-rules-are-declared", "All four fixed SimpleFlow checkers are declared, each with at least one rule with a nonempty ID, condition and reads value.", &["mbse/model/detailedDesign.sysml"]),
+            rule("rule-sets-agree-with-commands", "Each of the four fixed checkers' declared rule IDs exactly equal its command's rule ID list.", &["mbse/model/detailedDesign.sysml", "tools/checks/"]),
+            rule("structure-graphs-are-carried", "Each of the nine primary SimpleFlow views names a distinct model figure, and every required figure exists and is embedded in the document named by its DocFigure annotation.", &["mbse/model/detailedDesign.sysml", "docs/"]),
         ]);
     let implementation = checker("simpleImplementationCheck", "tools/checks/simple_implementation.py",
         vec![RsConformanceKind::ArtifactPresence], vec![

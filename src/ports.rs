@@ -1,5 +1,5 @@
 use crate::{
-    plan::{sha256_bytes, RsCheckerSpec},
+    plan::{sha256_bytes, valid_relative_path, RsCheckerSpec},
     record::RsStageVisit,
     status::{RsCheckpointOutcome, RsGateError, RsJudgeAuthority},
 };
@@ -181,7 +181,15 @@ impl RsCheckCommand for RsProcessCheck {
         {
             return Err(RsGateError::CommandFailed);
         }
-        if raw.input_sha256.is_empty() {
+        if raw.input_sha256.get(wish_model).map(String::as_str)
+            != Some(
+                sha256_bytes(&fs::read(wish_model).map_err(|_| RsGateError::CommandFailed)?)
+                    .as_str(),
+            )
+            || raw.input_sha256.get(run_record).map(String::as_str)
+                != Some(sha256_bytes(&record_bytes).as_str())
+            || raw.input_sha256.get(plan_uri).map(String::as_str) != Some(plan_sha256)
+        {
             return Err(RsGateError::CommandFailed);
         }
         let bound: HashMap<_, _> = visit
@@ -190,12 +198,17 @@ impl RsCheckCommand for RsProcessCheck {
             .map(|d| (d.uri.as_str(), d.sha256.as_str()))
             .collect();
         for (uri, digest) in &raw.input_sha256 {
+            if !valid_relative_path(uri) {
+                return Err(RsGateError::CommandFailed);
+            }
             let bytes = fs::read(uri).map_err(|_| RsGateError::CommandFailed)?;
             if sha256_bytes(&bytes) != *digest {
                 return Err(RsGateError::CommandFailed);
             }
             if (stage == "requirements" || stage == "design")
                 && uri != wish_model
+                && uri != run_record
+                && uri != plan_uri
                 && bound.get(uri.as_str()).copied() != Some(digest.as_str())
             {
                 return Err(RsGateError::CommandFailed);
@@ -208,15 +221,103 @@ impl RsCheckCommand for RsProcessCheck {
         let mut seen = HashSet::new();
         let mut rules = Vec::new();
         for rule in raw.rules {
+            let Some(declared) = checker.rules.iter().find(|r| r.rule_id == rule.rule_id) else {
+                return Err(RsGateError::CommandFailed);
+            };
+            let inputs: HashSet<_> = rule.inputs.iter().map(String::as_str).collect();
             if !expected.contains(rule.rule_id.as_str())
                 || !seen.insert(rule.rule_id.clone())
                 || !["passed", "failed"].contains(&rule.verdict.as_str())
                 || rule.inputs.is_empty()
+                || rule.inputs.iter().any(|input| input.trim().is_empty())
                 || rule.observed.is_null()
+                || rule
+                    .observed
+                    .as_object()
+                    .is_some_and(|value| value.is_empty())
+                || rule
+                    .observed
+                    .as_array()
+                    .is_some_and(|value| value.is_empty())
+                || rule.observed.as_str().is_some_and(str::is_empty)
                 || (rule.verdict == "passed" && !rule.failures.is_empty())
                 || (rule.verdict == "failed" && rule.failures.is_empty())
             {
                 return Err(RsGateError::CommandFailed);
+            }
+            if rule.verdict == "passed" {
+                if rule
+                    .inputs
+                    .iter()
+                    .any(|input| !raw.input_sha256.contains_key(input))
+                {
+                    return Err(RsGateError::CommandFailed);
+                }
+                for read in &declared.reads {
+                    let covered = match read.as_str() {
+                        "runtime run record JSON" => inputs.contains(run_record),
+                        "recorded artifact URIs" => {
+                            let source_visits: Vec<_> = if stage == "implement" {
+                                vec![visit_json]
+                            } else {
+                                record["visits"]
+                                    .as_array()
+                                    .ok_or(RsGateError::CommandFailed)?
+                                    .iter()
+                                    .filter(|v| v["status"] == "completed")
+                                    .collect()
+                            };
+                            source_visits.iter().all(|source| {
+                                source["artifact_digests"]
+                                    .as_array()
+                                    .is_some_and(|artifacts| {
+                                        artifacts.iter().all(|item| {
+                                            item["uri"]
+                                                .as_str()
+                                                .is_some_and(|uri| inputs.contains(uri))
+                                        })
+                                    })
+                            })
+                        }
+                        "recorded evidence URIs" => record["visits"]
+                            .as_array()
+                            .ok_or(RsGateError::CommandFailed)?
+                            .iter()
+                            .enumerate()
+                            .filter(|(index, v)| *index == idx || v["status"] == "completed")
+                            .all(|(_, v)| {
+                                v["assessments"].as_array().is_some_and(|assessments| {
+                                    assessments.iter().filter(|a| a["outcome"] == "passed").all(
+                                        |a| {
+                                            a["evidence_uris"].as_array().is_some_and(|uris| {
+                                                uris.iter().all(|uri| {
+                                                    uri.as_str()
+                                                        .is_some_and(|uri| inputs.contains(uri))
+                                                })
+                                            })
+                                        },
+                                    )
+                                })
+                            }),
+                        "tools/checks/" => {
+                            plan_json["checkpoints"].as_array().is_some_and(|gates| {
+                                let commands: Vec<_> = gates
+                                    .iter()
+                                    .filter_map(|gate| gate["checker"]["command_uri"].as_str())
+                                    .collect();
+                                commands.len() == 4
+                                    && commands.iter().all(|command| inputs.contains(command))
+                            })
+                        }
+                        prefix if prefix.ends_with('/') => {
+                            inputs.iter().any(|input| input.starts_with(prefix))
+                        }
+                        path => inputs.contains(path),
+                    };
+                    if !covered {
+                        return Err(RsGateError::CommandFailed);
+                    }
+                }
             }
             let diagnostic = if rule.failures.is_empty() {
                 None
