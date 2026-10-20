@@ -15,7 +15,10 @@ Read the [review synthesis](01_review_synthesis.md#p02), then the
 [xdesign integration reconciliation](07_xdesign_integration_reconciliation.md#p17).
 The [API layering restructure plan](08_api_layering_restructure_plan.md#p20)
 records the core/simple_flow split of the model, the `docs/api/` reference, and
-the crate source.
+the crate source. The
+[WishVerifyFlow implementation plan](09_wish_verify_flow_implementation_plan.md#p25)
+records the designed two-stage judged flow: its model, documentation, the
+`xdesign::wish_verify` module, and its acceptance cases.
 The [SimpleFlow file plan and verification cases](06_file_plan_and_verification.md#d53)
 record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,

@@ -140,4 +140,37 @@ package XDesignVerification {
             verify requirement declaredRules :> XDesignRequirements::checkerRulesAreDeclared;
         }
     }
+
+    verification def WishVerifyFlowBehaviorVerification {
+        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P28"; }
+        doc /* Planned executable cases for the designed wish-verify flow. Load a
+           valid two-stage plan whose wish and verify exits are both semantic
+           gates. Reject a plan with an absent, duplicate or foreign exit gate
+           or a syntactic gate naming a checker. Evaluate each stage and assert
+           that only its own exit gate receives an assessment. An unpermitted
+           judge, an empty rationale or missing evidence must never produce a
+           passed assessment. No result is claimed by this declaration. */
+        subject run : WishVerifyFlowRun;
+        objective gateBehavior {
+            verify requirement stageGates :> XDesignRequirements::designedFlowGatesEveryStage;
+            verify requirement judgeAuthority :> XDesignRequirements::semanticCheckNamesItsJudges;
+        }
+    }
+
+    verification def WishVerifyFlowFilePlanVerification {
+        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P28"; }
+        doc /* Planned file-level conformance case. Compare every path in
+           wishVerifyFlowFilePlan with the repository and back, and compare the
+           wishVerify Rust module's elements with the design elements they
+           realize. Require the pinned SysML parse/check, the documentation
+           audit, figure regeneration and the strict site build to pass, with
+           reports retained under cache/. The documentation set gains a second
+           developed flow without renumbering an existing section. A file's
+           presence alone does not establish its behavior; run the behavior
+           cases separately. */
+        objective fileCoverage {
+            verify requirement mapping :> XDesignRequirements::rustUmlDesignMapsEveryDesignElement;
+            verify requirement flows :> XDesignRequirements::documentationSupportsMultipleFlows;
+        }
+    }
 }

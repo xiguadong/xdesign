@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1140pt" height="373pt" viewBox="0.00 0.00 1140.00 373.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Wish-verify Rust additions</title><desc id="diagram-desc">Which Rust elements does the wish-verify module add, and what does each realize?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 355)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-355 1122.38,-355 1122.38,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="414.56" y="-307.1" font-family="Arial" font-weight="bold" font-size="22.00">Wish-verify Rust additions</text>
+<text xml:space="preserve" text-anchor="start" x="299.06" y="-278.75" font-family="Arial" font-size="14.00" fill="#52657a">Which Rust elements does the wish-verify module add, and what does each realize?</text>
+
+<g class="edge" data-native-id="df6b0c18-b4c7-577f-b9fe-bfe02f32dd76" data-source-id="7098d404-889a-5941-b2a6-22cfe5f166a9" data-target-id="95cab922-2a32-5e3d-a438-34815d597e63" data-edge-kind="reference">
+<title>ref plan
+FeatureTyping of native feature 4aeb5441-a0cd-5c87-941d-b79b3e0ab11b
+df6b0c18-b4c7-577f-b9fe-bfe02f32dd76</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M140.6,-147.55C175.8,-128.32 233.85,-96.6 279.29,-71.77" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="286.23,-67.98 280.94,-74.97 284.18,-69.27 279.28,-71.94 279.21,-71.81 279.14,-71.68 284.04,-69 277.48,-68.65 286.23,-67.98" />
+<text xml:space="preserve" text-anchor="middle" x="257.23" y="-95.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref plan</text>
+</g>
+
+<g class="edge" data-native-id="22fc8ee8-71fa-5d6d-aa5b-b728bd420021" data-source-id="7098d404-889a-5941-b2a6-22cfe5f166a9" data-target-id="8a61df24-97b6-5fd4-95c5-6f22b99a8b6c" data-edge-kind="reference">
+<title>ref run
+FeatureTyping of native feature f3028813-540d-503d-8759-be9fc17fe5bd
+22fc8ee8-71fa-5d6d-aa5b-b728bd420021</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M217.91,-165.75C238.84,-165.75 260.17,-165.75 279.27,-165.75" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="287.17,-165.75 279.17,-169.35 284.75,-165.9 279.17,-165.9 279.17,-165.75 279.17,-165.6 284.75,-165.6 279.17,-162.15 287.17,-165.75" />
+<text xml:space="preserve" text-anchor="middle" x="253.5" y="-171.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref run</text>
+</g>
+
+<g class="edge" data-native-id="50589c3e-76dd-566a-ad23-ad5eba06ca1c" data-source-id="7098d404-889a-5941-b2a6-22cfe5f166a9" data-target-id="e745a37a-3026-50b4-9b8d-0bd07c90d3e5" data-edge-kind="reference">
+<title>ref judgment
+FeatureTyping of native feature 9591c642-102a-5ac2-94b1-b5e6619b9487
+50589c3e-76dd-566a-ad23-ad5eba06ca1c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M173.02,-184.1C236.99,-202.48 326,-228.04 326,-228.04 326,-228.04 400.25,-228.04 400.25,-228.04 400.25,-228.04 456.09,-205.44 500.5,-187.46" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="507.74,-184.53 501.67,-190.87 505.55,-185.57 500.38,-187.67 500.32,-187.53 500.26,-187.39 505.44,-185.3 498.97,-184.19 507.74,-184.53" />
+<text xml:space="preserve" text-anchor="middle" x="363.12" y="-226.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref judgment</text>
+</g>
+
+<g class="edge" data-native-id="83d50afc-5b87-52b0-b472-aceaee0d2c08" data-source-id="8a61df24-97b6-5fd4-95c5-6f22b99a8b6c" data-target-id="95cab922-2a32-5e3d-a438-34815d597e63" data-edge-kind="composition">
+<title>owns plan
+FeatureTyping of native feature 4e1aceeb-04ce-51a0-8269-5ce97f3ba702
+83d50afc-5b87-52b0-b472-aceaee0d2c08</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M346.12,-120.8C346.12,-103.59 346.12,-84.18 346.12,-68.2" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="346.13,-120.96 349.33,-125.76 346.13,-130.56 342.93,-125.76 346.13,-120.96" />
+<text xml:space="preserve" text-anchor="middle" x="376.5" y="-95.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns plan</text>
+</g>
+
+<g class="edge" data-native-id="0b78d5dc-c0e9-5ecf-9862-0fc21d11057b" data-source-id="8a61df24-97b6-5fd4-95c5-6f22b99a8b6c" data-target-id="e745a37a-3026-50b4-9b8d-0bd07c90d3e5" data-edge-kind="reference">
+<title>ref judgment
+FeatureTyping of native feature 83424a37-c2e6-5ac7-841e-c735d7c7234b
+0b78d5dc-c0e9-5ecf-9862-0fc21d11057b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M403.24,-165.75C433.41,-165.75 470.23,-165.75 499.95,-165.75" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="507.75,-165.75 499.75,-169.35 505.33,-165.9 499.75,-165.9 499.75,-165.75 499.75,-165.6 505.33,-165.6 499.75,-162.15 507.75,-165.75" />
+<text xml:space="preserve" text-anchor="middle" x="456.31" y="-171.4" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref judgment</text>
+</g>
+
+<g class="edge" data-native-id="3f8f909d-cd0f-512f-9601-13bac576b3a9" data-source-id="cdb4d04d-fea8-5527-80ce-4339a764207f" data-target-id="95cab922-2a32-5e3d-a438-34815d597e63" data-edge-kind="reference">
+<title>ref plan
+FeatureTyping of native feature 11cfad3f-4fae-5fb3-8c0b-06fc811f94fa
+3f8f909d-cd0f-512f-9601-13bac576b3a9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M693.46,-147.42C621.13,-124.06 492.35,-82.47 413.56,-57.03" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="406.18,-54.65 414.9,-53.68 408.53,-55.24 413.84,-56.96 413.8,-57.1 413.75,-57.25 408.44,-55.53 412.69,-60.53 406.18,-54.65" />
+<text xml:space="preserve" text-anchor="middle" x="581.15" y="-95.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref plan</text>
+</g>
+
+<g class="edge" data-native-id="2ed8dd0e-2df5-5d1d-bb5c-4cb994fd9f44" data-source-id="2fe39b10-2527-5541-97e6-f55b608f1b6d" data-target-id="95cab922-2a32-5e3d-a438-34815d597e63" data-edge-kind="reference">
+<title>ref plan
+FeatureTyping of native feature a1b095ea-22e2-540e-aaa2-ff79e51ccd84
+2ed8dd0e-2df5-5d1d-bb5c-4cb994fd9f44</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M937.14,-147.44C907.74,-139.36 879.12,-131.5 879.12,-131.5 879.12,-131.5 557.83,-73.48 414.15,-47.53" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="406.5,-46.15 415.02,-44.03 408.91,-46.44 414.4,-47.43 414.38,-47.58 414.35,-47.72 408.86,-46.73 413.74,-51.12 406.5,-46.15" />
+<text xml:space="preserve" text-anchor="middle" x="758.68" y="-95.15" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref plan</text>
+</g>
+
+<g id="n2e162dcd9b6f78f1ce7a" class="node diagram-node shape-box" data-native-id="7098d404-889a-5941-b2a6-22cfe5f166a9" data-shape="box">
+<title>XDesignRustUml::RsCreateWishVerifyRun
+7098d404-889a-5941-b2a6-22cfe5f166a9
+ref part plan : RsFlowPlan
+attribute wishModelUri
+attribute runRecordUri
+ref part judgment : RsJudge
+ref part run : RsFlowRun
+7098d404-889a-5941-b2a6-22cfe5f166a9</title>
+<rect fill="white" stroke="none" x="0.0" y="-184.12" width="218.25" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="0.0" y="-184.12" width="218.25" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="9" y="-160.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Create Wish Verify Run</text>
+</g>
+
+<g id="n85693b3ada09ffab17fd" class="node diagram-node shape-box" data-native-id="95cab922-2a32-5e3d-a438-34815d597e63" data-shape="box">
+<title>XDesignRustUml::RsFlowPlan
+95cab922-2a32-5e3d-a438-34815d597e63
+attribute planId
+attribute planUri
+attribute planSha256
+attribute initialStageId
+part stages : RsStageSpec [0..*]
+part checkpoints : RsCheckpointSpec [0..*]
+performaction validate : RsValidatePlan
+95cab922-2a32-5e3d-a438-34815d597e63</title>
+<rect fill="white" stroke="none" x="287.25" y="-68.5" width="117.75" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="287.25" y="-68.5" width="117.75" height="68.5" /><text xml:space="preserve" text-anchor="start" x="296.25" y="-46.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="296.25" y="-13.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Flow Plan</text>
+</g>
+
+<g id="naaa0148ef457b249751d" class="node diagram-node shape-box" data-native-id="8a61df24-97b6-5fd4-95c5-6f22b99a8b6c" data-shape="box">
+<title>XDesignRustUml::RsFlowRun
+8a61df24-97b6-5fd4-95c5-6f22b99a8b6c
+attribute runId
+attribute planId
+attribute planUri
+attribute planSha256
+attribute wishModelUri
+attribute runRecordUri
+part plan : RsFlowPlan
+attribute status : RsFlowStatus
+part visits : RsStageVisit [1..*]
+attribute currentVisit
+ref part check : RsCheckCommand
+ref part judgment : RsJudge
+attribute persistenceError
+attribute lastError [0..1]
+performaction evaluateGates : RsEvaluateGates
+performaction advance : RsAdvance
+performaction recordActivity : RsRunRecordActivity
+performaction reopenStage : RsReopenStage
+exhibitstate lifecycle : RsRunLifecycle
+eventoccurrence evaluationRequested
+eventoccurrence advanceRequested
+self
+8a61df24-97b6-5fd4-95c5-6f22b99a8b6c</title>
+<rect fill="white" stroke="none" x="288.75" y="-200.0" width="114.75" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="288.75" y="-200.0" width="114.75" height="68.5" /><text xml:space="preserve" text-anchor="start" x="297.75" y="-178.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="297.75" y="-145.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Flow Run</text>
+</g>
+
+<g id="n1a95266b34d63453ee96" class="node diagram-node shape-box" data-native-id="e745a37a-3026-50b4-9b8d-0bd07c90d3e5" data-shape="box">
+<title>XDesignRustUml::RsJudge
+e745a37a-3026-50b4-9b8d-0bd07c90d3e5
+performaction review
+performaction authority
+performaction identity
+eventoccurrence reviewRequested
+eventoccurrence verdictReturned
+e745a37a-3026-50b4-9b8d-0bd07c90d3e5</title>
+<rect fill="white" stroke="none" x="509.12" y="-200.0" width="90.0" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="509.12" y="-200.0" width="90.0" height="68.5" /><text xml:space="preserve" text-anchor="start" x="518.12" y="-178.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="518.12" y="-145.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Judge</text>
+</g>
+
+<g id="n9bb842e055b73c452101" class="node diagram-node shape-box" data-native-id="cdb4d04d-fea8-5527-80ce-4339a764207f" data-shape="box">
+<title>XDesignRustUml::RsValidateWishVerifyPlan
+cdb4d04d-fea8-5527-80ce-4339a764207f
+ref part plan : RsFlowPlan
+cdb4d04d-fea8-5527-80ce-4339a764207f</title>
+<rect fill="white" stroke="none" x="630.88" y="-184.12" width="232.5" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="630.88" y="-184.12" width="232.5" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="639.88" y="-160.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Validate Wish Verify Plan</text>
+</g>
+
+<g id="nf6fb488a3b487434a4f6" class="node diagram-node shape-box" data-native-id="2fe39b10-2527-5541-97e6-f55b608f1b6d" data-shape="box">
+<title>XDesignRustUml::RsWishVerifyFlowPlan
+2fe39b10-2527-5541-97e6-f55b608f1b6d
+ref part plan : RsFlowPlan
+2fe39b10-2527-5541-97e6-f55b608f1b6d</title>
+<rect fill="white" stroke="none" x="895.88" y="-184.12" width="208.5000000000001" height="36.74000000000001" class="node" /><rect fill="none" stroke="#647a91" x="895.88" y="-184.12" width="208.5000000000001" height="36.74000000000001" /><text xml:space="preserve" text-anchor="start" x="904.88" y="-160.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Wish Verify Flow Plan</text>
+</g>
+</g>
+</svg>

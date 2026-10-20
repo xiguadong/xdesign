@@ -98,6 +98,22 @@ FIGURES = [
     ("api/assets/01_crate_layers", "packages", "XDesignRustUml::rustCrateLayers"),
     ("prj_manage/assets/06_file_plan", "file_plan", "XDesignDetailedDesign::simpleFlowFilePlanView"),
     ("review/assets/01_journey_wish0009", "sequence", "Wish0009Journey"),
+    ("details/wish_verify_flow/assets/01_designed_flow", "declared", "XDesignDetailedDesign::wishVerifyFlowTree"),
+    ("details/wish_verify_flow/assets/01_design_classes", "declared", "XDesignDetailedDesign::wishVerifyDesignTree"),
+    ("details/wish_verify_flow/assets/01_factory", "declared", "XDesignDetailedDesign::wishVerifyFactoryFlow"),
+    ("details/wish_verify_flow/assets/01_gate_evaluation", "declared", "XDesignDetailedDesign::wishVerifyGateEvaluationFlow"),
+    ("details/wish_verify_flow/assets/02_checkpoint_evaluation", "activity", "XDesignDetailedDesign::wishVerifyActivityDiagram"),
+    ("details/wish_verify_flow/assets/04_packages", "packages", "XDesignDetailedDesign::wishVerifyPackageDiagram"),
+    ("details/wish_verify_flow/assets/04_block_definition", "block_definition", "XDesignDetailedDesign::wishVerifyBlockDefinitionDiagram"),
+    ("details/wish_verify_flow/assets/04_internal_block", "internal_block", "XDesignDetailedDesign::wishVerifyInternalBlockDiagram"),
+    ("details/wish_verify_flow/assets/04_sequence", "declared_sequence", "XDesignDetailedDesign::wishVerifySequenceDiagram"),
+    ("details/wish_verify_flow/assets/04_state_machine", "state_machine", "XDesignDetailedDesign::wishVerifyStateMachineDiagram"),
+    ("details/wish_verify_flow/assets/04_requirements", "requirements", "XDesignDetailedDesign::wishVerifyRequirementsDiagram"),
+    ("details/wish_verify_flow/assets/04_parametric", "parametric", "XDesignDetailedDesign::wishVerifyParametricDiagram"),
+    ("details/wish_verify_flow/assets/04_use_cases", "use_cases", "XDesignDetailedDesign::wishVerifyUseCaseDiagram"),
+    ("details/wish_verify_flow/assets/05_modules", "packages", "XDesignRustUml::wishVerifyRustModules"),
+    ("details/wish_verify_flow/assets/05_class_structure", "block_definition", "XDesignRustUml::wishVerifyRustTypes"),
+    ("prj_manage/assets/09_file_plan", "file_plan", "XDesignDetailedDesign::wishVerifyFlowFilePlanView"),
 ]
 
 

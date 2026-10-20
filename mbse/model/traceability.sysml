@@ -22,7 +22,11 @@ package XDesignTraceability {
        Each linked requirement below names one satisfier, except semanticCheckNamesItsJudges,
        which names two because a semantic checkpoint needs both judge flags. The export
        cannot attribute two satisfy usages of one requirement to their requirement — an
-       attribution question that is still open.
+       attribution question that is still open. The designed wish-verify flow's coverage
+       of designedFlowGatesEveryStage, flowRunIsRealizedByDesign and runRealizesItsDesign
+       is therefore recorded by its planned verification case and its design
+       documentation, not by second satisfy usages here: adding them removed the
+       existing edges from the requirements figure's export.
 
        The documentation entry and per-flow organization requirements have no model
        satisfier: their product is the documentation set itself. The new links below

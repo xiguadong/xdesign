@@ -33,6 +33,13 @@ nav:
           - View coverage: details/simple_flow/04_sysml_diagrams.md
           - Module design: details/simple_flow/05_module_design.md
           - Rust UML design: details/simple_flow/06_rust_uml_design.md
+      - WishVerifyFlow:
+          - Overview: details/wish_verify_flow/00_overview.md
+          - Run design: details/wish_verify_flow/01_run_design.md
+          - Gates and judgment: details/wish_verify_flow/02_gates_and_judgment.md
+          - View coverage: details/wish_verify_flow/03_sysml_diagrams.md
+          - Module design: details/wish_verify_flow/04_module_design.md
+          - Rust UML design: details/wish_verify_flow/05_rust_uml_design.md
   - API reference:
       - Overview: api/00_overview.md
       - Crate structure: api/01_struct.md
@@ -90,6 +97,12 @@ nav:
           - validate_designed_plan: api/simple_flow/02_validate_designed_plan.md
           - create_designed_run: api/simple_flow/03_create_designed_run.md
           - RsProcessCheck: api/simple_flow/04_process_check.md
+      - WishVerifyFlow:
+          - Overview: api/wish_verify_flow/00_overview.md
+          - wish_verify_flow_plan: api/wish_verify_flow/01_wish_verify_flow_plan.md
+          - validate_wish_verify_plan: api/wish_verify_flow/02_validate_wish_verify_plan.md
+          - create_wish_verify_run: api/wish_verify_flow/03_create_wish_verify_run.md
+          - RsUnusedCheck: api/wish_verify_flow/04_unused_check.md
   - Project management:
       - Overview: prj_manage/00_overview.md
       - Review synthesis: prj_manage/01_review_synthesis.md
@@ -100,6 +113,7 @@ nav:
       - SimpleFlow file plan and verification: prj_manage/06_file_plan_and_verification.md
       - xdesign flow integration reconciliation: prj_manage/07_xdesign_integration_reconciliation.md
       - API layering restructure plan: prj_manage/08_api_layering_restructure_plan.md
+      - WishVerifyFlow implementation plan: prj_manage/09_wish_verify_flow_implementation_plan.md
   - Interface control:
       - Overview: icd/00_overview.md
       - Interface contracts: icd/01_interfaces.md

@@ -10,21 +10,23 @@ package XDesignRustUml {
 
     doc /* The Rust software design of the whole xdesign crate, expressed as UML
        views over this SysML model: a generic core of flow-agnostic plan, record,
-       ports and run-engine infrastructure, plus one designed flow module,
-       simpleFlow. The views present the crate's layer and module layout, the
-       structs, enums and traits the crate implements, the gate-evaluation
-       interaction, and the run's state handling. The xdesign crate exists in
-       src/, and model realization dependencies connect its designed elements to
-       the architecture and detailed design. */
+       ports and run-engine infrastructure, plus one designed flow module per
+       realized flow — simpleFlow for the designed four-stage flow and
+       wishVerify for the designed two-stage wish-verify flow. The views present
+       the crate's layer and module layout, the structs, enums and traits the
+       crate implements, the gate-evaluation interaction, and the run's state
+       handling. The xdesign crate exists in src/, and model realization
+       dependencies connect its designed elements to the architecture and
+       detailed design. */
 
     package crate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
         doc /* Module layout of the implemented xdesign crate, in two layers:
-           core owns the flow-agnostic infrastructure; simpleFlow owns the
-           designed four-stage flow built on it. One module owns one concern;
-           dependencies point toward the data definitions, so the run behavior
-           never reaches back into its callers, and simpleFlow may depend on
-           core, never the reverse. */
+           core owns the flow-agnostic infrastructure; one module per realized
+           designed flow — simpleFlow and wishVerify — builds on it. One module
+           owns one concern; dependencies point toward the data definitions, so
+           the run behavior never reaches back into its callers, and a flow
+           module may depend on core, never the reverse. */
 
         package core {
             doc /* Flow-agnostic infrastructure of the xdesign crate: status and
@@ -128,6 +130,39 @@ package XDesignRustUml {
         }
 
         dependency simpleFlowUsesCore from crate::simpleFlow to crate::core;
+
+        package wishVerify {
+            doc /* The designed two-stage wish-verify flow module within
+               xdesign: the designedWishVerifyFlow plan as data with its
+               blueprint conformance, and the designed-run factory. Both gates
+               are semantic, so the module declares no checker adapter; its
+               never-invoked check stub lives in the factory. It depends on
+               core; core never depends on it. */
+
+            package blueprint {
+                doc /* The designed two-stage plan as data and its blueprint
+                   conformance: construct the modeled designedWishVerifyFlow and
+                   reject any plan that differs from it. Depends on core::plan
+                   and core::status. */
+            }
+            package factory {
+                doc /* Designed-run construction create_wish_verify_run:
+                   validate blueprint conformance, then construct the run through
+                   the generic create_run with the unused-check stub and the
+                   caller's judge. Depends on blueprint, core::run, core::plan,
+                   core::ports and core::status. */
+            }
+
+            dependency wishVerifyBlueprintUsesCorePlan from crate::wishVerify::blueprint to crate::core::plan;
+            dependency wishVerifyBlueprintUsesCoreStatus from crate::wishVerify::blueprint to crate::core::status;
+            dependency wishVerifyFactoryUsesBlueprint from crate::wishVerify::factory to crate::wishVerify::blueprint;
+            dependency wishVerifyFactoryUsesCoreRun from crate::wishVerify::factory to crate::core::run;
+            dependency wishVerifyFactoryUsesCorePlan from crate::wishVerify::factory to crate::core::plan;
+            dependency wishVerifyFactoryUsesCorePorts from crate::wishVerify::factory to crate::core::ports;
+            dependency wishVerifyFactoryUsesCoreStatus from crate::wishVerify::factory to crate::core::status;
+        }
+
+        dependency wishVerifyUsesCore from crate::wishVerify to crate::core;
     }
 
     enum def RsFlowStatus {
@@ -273,10 +308,12 @@ package XDesignRustUml {
 
     part def RsCheckpointSpec {
         @XDesignCommon::DocSection { document = "docs/api/core/14_checkpoint_spec.md"; section = "U34"; }
-        doc /* Rust struct realizing SimpleFlowCheckpoint and its two
-           adaptations: kind selects the scripted or the judged path, checker
-           is present only for the syntactic kind, and the judge flags name
-           who may judge a semantic gate. */
+        doc /* Rust struct realizing the designed flows' checkpoint classes and
+           their adaptations — SimpleFlowCheckpoint with its two adaptations,
+           and WishVerifyCheckpoint with its semantic adaptation: kind selects
+           the scripted or the judged path, checker is present only for the
+           syntactic kind, and the judge flags name who may judge a semantic
+           gate. */
         attribute checkpointId : String;
         attribute stageId : String;
         attribute kind : RsCheckKind;
@@ -507,7 +544,9 @@ package XDesignRustUml {
            trait objects it is automated through. The persistence fields latch a
            failed record write so a later advancement cannot treat it as a saved
            result. Its state handling is RsRunLifecycle. A run whose plan is the
-           frozen designedSimpleFlow blueprint plays the SimpleFlowRun role. */
+           frozen designedSimpleFlow blueprint plays the SimpleFlowRun role; a
+           run whose plan is the frozen designedWishVerifyFlow blueprint plays
+           the WishVerifyFlowRun role. */
         attribute runId : String;
         attribute planId : String;
         attribute planUri : String;
@@ -516,7 +555,7 @@ package XDesignRustUml {
         attribute runRecordUri : String;
         part plan : RsFlowPlan;
         attribute status : RsFlowStatus;
-        part visits : RsStageVisit [4..*];
+        part visits : RsStageVisit [1..*];
         attribute currentVisit : Integer;
         ref part check : RsCheckCommand;
         ref part judgment : RsJudge;
@@ -717,18 +756,22 @@ package XDesignRustUml {
         expose XDesignRustUml::crate::*;
         expose XDesignRustUml::crate::core::*;
         expose XDesignRustUml::crate::simpleFlow::*;
+        expose XDesignRustUml::crate::wishVerify::*;
     }
 
     view rustCrateLayers : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Crate layers"; question = "How is the xdesign crate divided into layers, and which direction may dependencies point?"; }
         @XDesignCommon::DocSection { document = "docs/api/01_struct.md"; section = "U68"; }
         @XDesignCommon::DocFigure { document = "docs/api/01_struct.md"; figure = "docs/api/assets/01_crate_layers.svg"; }
-        doc /* The crate's two layers — core infrastructure and the simpleFlow
-           designed flow — and the one-way dependency between them. */
+        doc /* The crate's layers — core infrastructure and one designed flow
+           module per realized flow, simpleFlow and wishVerify — and the one-way
+           dependencies between them. */
         expose XDesignRustUml::crate;
         expose XDesignRustUml::crate::core;
         expose XDesignRustUml::crate::simpleFlow;
+        expose XDesignRustUml::crate::wishVerify;
         expose XDesignRustUml::crate::simpleFlowUsesCore;
+        expose XDesignRustUml::crate::wishVerifyUsesCore;
     }
 
     view rustClassStructure : StandardViewDefinitions::GeneralView {
@@ -826,5 +869,96 @@ package XDesignRustUml {
         subject rustRunStates;
         attribute redefines concernText = "When does the Rust run activate, block, resume, complete or reopen?";
         attribute redefines stakeholderRole = "maintainer";
+    }
+
+    action def RsWishVerifyFlowPlan {
+        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/01_wish_verify_flow_plan.md"; section = "U74"; }
+        doc /* Rust fn wish_verify_flow_plan: construct the modeled
+           designedWishVerifyFlow as plan data — the two stages in order with
+           their two semantic exit checkpoints and their judge flags — before
+           freezing binds the plan's bytes. */
+        out part plan : RsFlowPlan;
+    }
+    dependency rsWishVerifyFlowPlanProjects from RsWishVerifyFlowPlan to XDesignDetailedDesign::DesignedWishVerifyFlow;
+
+    action def RsValidateWishVerifyPlan {
+        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/02_validate_wish_verify_plan.md"; section = "U75"; }
+        doc /* Rust fn validate_wish_verify_plan: blueprint conformance — reject
+           any plan whose stages, checkpoints, kinds or judge flags differ from
+           the designed two-stage blueprint, including a syntactic gate the
+           design does not declare. Structural validity is RsValidatePlan's
+           separate concern. */
+        in part plan : RsFlowPlan;
+    }
+    dependency rsValidateWishVerifyPlanConformance from RsValidateWishVerifyPlan to XDesignDetailedDesign::DesignedWishVerifyFlow;
+
+    action def RsCreateWishVerifyRun {
+        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/03_create_wish_verify_run.md"; section = "U76"; }
+        doc /* Rust fn create_wish_verify_run realizing WishVerifyFlowRunFactory:
+           validate the plan's blueprint conformance, then construct the run
+           through the generic create_run. The designed flow declares no
+           syntactic gate, so the check-command boundary the generic
+           construction requires is satisfied by a stub that fails any call —
+           an all-semantic plan never invokes it. The stub is a Rust-side
+           addition with no matching UML class, like RsProcessCheck. */
+        in part plan : RsFlowPlan;
+        in attribute wishModelUri : String;
+        in attribute runRecordUri : String;
+        in ref part judgment : RsJudge;
+        out part run : RsFlowRun;
+    }
+    dependency rsCreateWishVerifyRunRealizes from RsCreateWishVerifyRun to XDesignDetailedDesign::WishVerifyFlowRunFactory;
+
+    /* Realization of the wish-verify design by the generic core elements,
+       alongside the simple-flow realizations recorded above: one Rust element
+       realizes both designed flows' elements where the design is shared. */
+    dependency rsFlowRunRealizesWishVerifyRun from RsFlowRun to XDesignDetailedDesign::WishVerifyFlowRun;
+    dependency rsCheckpointSpecRealizesWishVerify from RsCheckpointSpec to XDesignDetailedDesign::WishVerifyCheckpoint;
+    dependency rsCheckpointSpecRealizesWishVerifySemantic from RsCheckpointSpec to XDesignDetailedDesign::WishVerifySemanticCheckpoint;
+    dependency rsEvaluateCheckpointRealizesWishVerify from RsEvaluateCheckpoint to XDesignDetailedDesign::EvaluateWishVerifyCheckpoint;
+    dependency rsEvaluateCheckpointTakesWishVerifyJudgment from RsEvaluateCheckpoint to XDesignDetailedDesign::TakeWishVerifyJudgment;
+    dependency rsEvaluateGatesRealizesWishVerify from RsEvaluateGates to XDesignDetailedDesign::EvaluateWishVerifyGate;
+    dependency rsAdvanceRealizesWishVerify from RsAdvance to XDesignDetailedDesign::AdvanceWishVerifyRun;
+    dependency rsReopenStageRealizesWishVerify from RsReopenStage to XDesignDetailedDesign::ReopenWishVerifyStage;
+    dependency rsCompletionAuthorizedRealizesWishVerify from RsCompletionAuthorized to XDesignDetailedDesign::WishVerifyAuthorization;
+    dependency rsRunLifecycleMirrorsWishVerify from RsRunLifecycle to XDesignDetailedDesign::WishVerifyRunLifecycle;
+
+    view wishVerifyRustModules : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify module"; question = "Where does the wish-verify module sit in the crate, and what may it depend on?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D76"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; figure = "docs/details/wish_verify_flow/assets/05_modules.svg"; }
+        doc /* The wishVerify package beside simpleFlow over the shared core, and
+           its allowed dependency directions. */
+        expose XDesignRustUml::crate::wishVerify;
+        expose XDesignRustUml::crate::wishVerify::*;
+        expose XDesignRustUml::crate::core;
+    }
+
+    view wishVerifyRustTypes : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify Rust additions"; question = "Which Rust elements does the wish-verify module add, and what does each realize?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D77"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; figure = "docs/details/wish_verify_flow/assets/05_class_structure.svg"; }
+        doc /* The module's three functions and the core types they build on,
+           with the realization dependencies back to the wish-verify design. */
+        expose XDesignRustUml::RsWishVerifyFlowPlan;
+        expose XDesignRustUml::RsValidateWishVerifyPlan;
+        expose XDesignRustUml::RsCreateWishVerifyRun;
+        expose XDesignRustUml::RsFlowPlan;
+        expose XDesignRustUml::RsFlowRun;
+        expose XDesignRustUml::RsJudge;
+    }
+
+    viewpoint wishVerifyRustModulesConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D76"; }
+        subject wishVerifyRustModules;
+        attribute redefines concernText = "Where does the wish-verify module sit in the crate, and what may it depend on?";
+        attribute redefines stakeholderRole = "crate maintainer";
+    }
+
+    viewpoint wishVerifyRustTypesConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D77"; }
+        subject wishVerifyRustTypes;
+        attribute redefines concernText = "Which Rust elements does the wish-verify module add, and what does each realize?";
+        attribute redefines stakeholderRole = "implementer";
     }
 }

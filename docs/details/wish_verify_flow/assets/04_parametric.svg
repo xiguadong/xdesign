@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="603pt" height="699pt" viewBox="0.00 0.00 603.00 699.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Visit authorization</title><desc id="diagram-desc">Which current visit values authorize advancement?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 681.25)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-681.25 585,-681.25 585,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="188.62" y="-633.35" font-family="Arial" font-weight="bold" font-size="22.00">Visit authorization</text>
+<text xml:space="preserve" text-anchor="start" x="130.5" y="-605" font-family="Arial" font-size="14.00" fill="#52657a">Which current visit values authorize advancement?</text>
+
+<g class="edge" data-native-id="46872e4a-57eb-54b0-bf4b-10ac45189fa7" data-source-id="9ecfe1dc-02b7-5664-b91c-e7779932db1b" data-target-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-edge-kind="binding" data-target-port-id="75d8c0a2-e6c2-5826-bf2a-bd8b62162f86">
+<title>=
+authorized → authorization.authorized
+46872e4a-57eb-54b0-bf4b-10ac45189fa7</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M185.4,-131.8C197.23,-141.33 205.5,-148 205.5,-148 205.5,-148 264,-228.09 264,-228.09" />
+<text xml:space="preserve" text-anchor="middle" x="233.25" y="-193.1" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">=</text>
+</g>
+
+<g class="edge" data-native-id="d959b969-a684-5171-876a-2bf7d661d7d9" data-source-id="19de0092-32ae-535b-b853-4aa00cf6ea91" data-target-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-edge-kind="binding" data-target-port-id="8b4d09d1-60e5-5340-90b4-1bc261bc3b74">
+<title>=
+passedGates → authorization.passedGates
+d959b969-a684-5171-876a-2bf7d661d7d9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M183.88,-334.98C223.94,-321.48 264,-307.97 264,-307.97" />
+<text xml:space="preserve" text-anchor="middle" x="233.25" y="-320.95" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">=</text>
+</g>
+
+<g class="edge" data-native-id="52e73024-93bf-5b7f-bff9-c22750025df4" data-source-id="5938926d-05e6-59bd-b450-553774c34670" data-target-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-edge-kind="binding" data-target-port-id="b03072c9-0af4-580c-8e07-ba96d668cc99">
+<title>=
+requiredGates → authorization.requiredGates
+52e73024-93bf-5b7f-bff9-c22750025df4</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M172.46,-470.62C190.74,-455.89 205.5,-444 205.5,-444 205.5,-444 264,-347.91 264,-347.91" />
+<text xml:space="preserve" text-anchor="middle" x="233.25" y="-407.21" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">=</text>
+</g>
+
+<g class="edge" data-native-id="95c8d0cb-4ad2-5059-a493-187278a35a3e" data-source-id="160ed493-c631-5e1a-8060-a4feada8a28d" data-target-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-edge-kind="binding" data-target-port-id="62e1f3a4-d311-5b80-920f-03679009587d">
+<title>=
+subFlowComplete → authorization.subFlowComplete
+95c8d0cb-4ad2-5059-a493-187278a35a3e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M205.24,-248.22C237.04,-258.94 264,-268.03 264,-268.03" />
+<text xml:space="preserve" text-anchor="middle" x="233.25" y="-260.35" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">=</text>
+</g>
+
+<g id="n43a5b78f2a767aefb83d" class="node diagram-node shape-constraint" data-native-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-shape="constraint">
+<title>XDesignDetailedDesign::WishVerifyAuthorization::authorization
+94806d0d-be43-5284-be8d-5ec612fb898c
+94806d0d-be43-5284-be8d-5ec612fb898c</title>
+<rect x="271.0" y="-369.88" width="291.5" height="163.76" fill="#F2F7FC" stroke="#647A91" stroke-width="1.3" class="node" /><g id="p30d3933d0fc27e445574" class="diagram-port" data-native-id="b03072c9-0af4-580c-8e07-ba96d668cc99" data-owner-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-side="W"><rect fill="#d9eaf7" stroke="none" x="265.0" y="-355.78" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="265.0" y="-355.78" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="268.75" y="-339.78" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="292.62" y="-343.03" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Required Gates</text>
+<g id="pa3a2abf3b0ae008fd81b" class="diagram-port" data-native-id="8b4d09d1-60e5-5340-90b4-1bc261bc3b74" data-owner-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-side="W"><rect fill="#d9eaf7" stroke="none" x="265.0" y="-315.84" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="265.0" y="-315.84" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="268.75" y="-299.84" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="297.5" y="-303.09" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Passed Gates</text>
+<g id="p3e8c52d92c21adddb8bc" class="diagram-port" data-native-id="62e1f3a4-d311-5b80-920f-03679009587d" data-owner-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-side="W"><rect fill="#d9eaf7" stroke="none" x="265.0" y="-275.91" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="265.0" y="-275.91" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="268.75" y="-259.91" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="281" y="-263.16" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Sub Flow Complete</text>
+<g id="pd079a230fff5ade1d0af" class="diagram-port" data-native-id="75d8c0a2-e6c2-5826-bf2a-bd8b62162f86" data-owner-id="94806d0d-be43-5284-be8d-5ec612fb898c" data-side="W"><rect fill="#d9eaf7" stroke="none" x="265.0" y="-235.97" width="12.0" height="15.75" /><rect fill="none" stroke="#334b64" x="265.0" y="-235.97" width="12.0" height="15.75" /><text xml:space="preserve" text-anchor="start" x="268.75" y="-219.97" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="308" y="-223.22" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Authorized</text>
+<rect fill="none" stroke="none" x="403.5" y="-369.88" width="159.0" height="163.76" /><polygon fill="#647a91" stroke="#647a91" points="403.5,-302.38 403.5,-302.38 562.5,-302.38 562.5,-302.38 403.5,-302.38" />
+<rect fill="none" stroke="none" x="403.5" y="-369.88" width="159.0" height="163.76" /><text xml:space="preserve" text-anchor="start" x="453.75" y="-348.12" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">constraint</text>
+<text xml:space="preserve" text-anchor="start" x="412.5" y="-314.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Gate authorization</text>
+<text xml:space="preserve" text-anchor="start" x="412.5" y="-281.62" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">authorized = (passed =</text>
+<text xml:space="preserve" text-anchor="start" x="412.5" y="-249.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">required) and subflow</text>
+<text xml:space="preserve" text-anchor="start" x="412.5" y="-218.12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">complete</text>
+<text xml:space="preserve" text-anchor="start" x="562.5" y="-282.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+
+<g id="nf51446f254bd63803abd" class="node diagram-node shape-box" data-native-id="9ecfe1dc-02b7-5664-b91c-e7779932db1b" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyAuthorization::authorized
+9ecfe1dc-02b7-5664-b91c-e7779932db1b
+visit.completionAuthorized
+9ecfe1dc-02b7-5664-b91c-e7779932db1b</title>
+<rect fill="white" stroke="none" x="16.12" y="-132.0" width="173.26" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="16.12,-64.5 16.12,-64.5 189.38,-64.5 189.38,-64.5 16.12,-64.5" />
+<rect fill="none" stroke="#647a91" x="16.12" y="-132.0" width="173.26" height="132.0" /><text xml:space="preserve" text-anchor="start" x="25.12" y="-110.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">value</text>
+<text xml:space="preserve" text-anchor="start" x="25.12" y="-77.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Advance allowed</text>
+<text xml:space="preserve" text-anchor="start" x="25.12" y="-43.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Current visit completion is</text>
+<text xml:space="preserve" text-anchor="start" x="25.12" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">authorized</text>
+</g>
+
+<g id="nb8b0da74999e9af99209" class="node diagram-node shape-box" data-native-id="19de0092-32ae-535b-b853-4aa00cf6ea91" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyAuthorization::passedGates
+19de0092-32ae-535b-b853-4aa00cf6ea91
+size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })
+19de0092-32ae-535b-b853-4aa00cf6ea91</title>
+<rect fill="white" stroke="none" x="21.38" y="-428.0" width="162.74" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="21.38,-360.5 21.38,-360.5 184.12,-360.5 184.12,-360.5 21.38,-360.5" />
+<rect fill="none" stroke="#647a91" x="21.38" y="-428.0" width="162.74" height="132.0" /><text xml:space="preserve" text-anchor="start" x="30.38" y="-406.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">value</text>
+<text xml:space="preserve" text-anchor="start" x="30.38" y="-373.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Passed gates</text>
+<text xml:space="preserve" text-anchor="start" x="30.38" y="-339.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Current revision; distinct</text>
+<text xml:space="preserve" text-anchor="start" x="30.38" y="-308" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">required gates</text>
+</g>
+
+<g id="n85d7c4088f923bc8fb39" class="node diagram-node shape-box" data-native-id="5938926d-05e6-59bd-b450-553774c34670" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyAuthorization::requiredGates
+5938926d-05e6-59bd-b450-553774c34670
+size(visit.stage.exitCheckpoints)
+5938926d-05e6-59bd-b450-553774c34670</title>
+<rect fill="white" stroke="none" x="33.0" y="-592.0" width="139.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="33,-524.5 33,-524.5 172.5,-524.5 172.5,-524.5 33,-524.5" />
+<rect fill="none" stroke="#647a91" x="33.0" y="-592.0" width="139.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="42" y="-570.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">value</text>
+<text xml:space="preserve" text-anchor="start" x="42" y="-537.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Required gates</text>
+<text xml:space="preserve" text-anchor="start" x="42" y="-503.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Count of distinct exit</text>
+<text xml:space="preserve" text-anchor="start" x="42" y="-472" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">checkpoints</text>
+</g>
+
+<g id="n29f36ee49baf8cb24b63" class="node diagram-node shape-box" data-native-id="160ed493-c631-5e1a-8060-a4feada8a28d" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyAuthorization::subFlowComplete
+160ed493-c631-5e1a-8060-a4feada8a28d
+visit.subFlowSatisfied
+160ed493-c631-5e1a-8060-a4feada8a28d</title>
+<rect fill="white" stroke="none" x="0.0" y="-264.12" width="205.5" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-196.62 0,-196.62 205.5,-196.62 205.5,-196.62 0,-196.62" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-264.12" width="205.5" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="9" y="-242.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">value</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-209.18" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Subflow complete</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-175.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Any nested flow has completed</text>
+</g>
+</g>
+</svg>

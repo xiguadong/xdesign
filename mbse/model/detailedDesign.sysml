@@ -1237,4 +1237,770 @@ package XDesignDetailedDesign {
         attribute redefines concernText = "How do the project model concerns depend on one another?";
         attribute redefines stakeholderRole = "model maintainer";
     }
+
+    part def DesignedWishVerifyFlow :> WishVerifyFlow {
+        @XDesignCommon::DiagramPresentation { label = "Gated wish-verify flow"; summary = "Two judged stages with explicit exit gates"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
+        doc /* The wish-verify flow specialization: the same two stages in the
+           same order, with every stage's exit gated. Both gates are semantic —
+           the architecture states that nothing in this flow's outcome is
+           established by a fixed check, so the designed flow declares no
+           checker, and a permitted agent or human judges each exit.
+           xdesign.designedWishVerifyFlow is the selectable usage of this
+           definition. */
+
+        part redefines checkpoints : WishVerifyCheckpoint [2];
+
+        part wishAccepted : WishVerifySemanticCheckpoint subsets checkpoints {
+            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D61"; }
+            doc /* Exit gate of the wish stage. The wish stage has no exit gate
+               in the architecture's flow; a designed flow gates every stage, so
+               the judgment that the request and its answering artifacts are
+               recorded is made explicit here. */
+            ref part redefines sourceStage = wish;
+            attribute redefines criteria = (
+                "The wish statement is recorded, and the artifacts that answer it are named in the current visit.",
+                "A reader can see from the recorded artifacts what the wish asked and what was produced for it, without re-asking the requester.");
+            attribute redefines agentMayJudge = true;
+            attribute redefines humanMayJudge = true;
+        }
+
+        part redefines wish {
+            ref part redefines exitCheckpoints = wishAccepted;
+        }
+        part redefines 'verify' {
+            ref part redefines exitCheckpoints = outcomeAccepted;
+        }
+        part redefines outcomeAccepted : WishVerifySemanticCheckpoint {
+            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D61"; }
+            doc /* The flow's inherited terminal gate, retyped to the designed
+               checkpoint class so the run evaluates it through the class. Its
+               criteria, kind and judge flags stay exactly as the architecture
+               states them. */
+        }
+    }
+
+    part def WishVerifyCheckpoint :> Checkpoint {
+        @XDesignCommon::DiagramPresentation { label = "Checkpoint"; summary = "Presents one gate's criteria to a permitted judge"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        doc /* One checkpoint of the designed wish-verify flow. Unlike the simple
+           flow's class it needs no syntactic adaptation: this flow's gates are
+           all judged. The class owns the evaluate operation and the assessments
+           that operation produces, so a gate is judged through the class and
+           the record points back to it — the loop closes on the class. */
+
+        ref item assessments : CheckpointAssessment [0..*];
+
+        perform action evaluate : EvaluateWishVerifyCheckpoint;
+    }
+
+    part def WishVerifySemanticCheckpoint :> WishVerifyCheckpoint {
+        @XDesignCommon::DiagramPresentation { label = "Semantic judgment"; summary = "A permitted judge records a reasoned verdict"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        doc /* The only adaptation of the wish-verify checkpoint class: criteria
+           a permitted judge reads, with no checker. Its evaluate operation
+           presents the criteria and the visit's artifacts and evidence to the
+           judge and records the rationale. The logic a criterion states stays
+           prose for the judge; the design fixes who may judge it and what the
+           run records. */
+
+        attribute redefines kind = CheckKind::semantic;
+
+        perform action redefines evaluate : TakeWishVerifyJudgment;
+
+        assert constraint criteriaAreJudged {
+            size(checkers) == 0 and (agentMayJudge or humanMayJudge)
+        }
+    }
+
+    action def EvaluateWishVerifyCheckpoint {
+        @XDesignCommon::DiagramPresentation { label = "Evaluate checkpoint"; summary = "Present criteria to a permitted judge"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        doc /* The evaluate operation of the wish-verify checkpoint class, for one
+           gate and one visit: read the gate's criteria and the judges its flags
+           permit, take the judgment, and append one assessment. The designed
+           flow declares no syntactic gate, so the operation has a single judged
+           path. */
+
+        in part checkpoint : WishVerifyCheckpoint;
+        in part visit : StageRecord;
+        out item assessment : CheckpointAssessment [0..1];
+
+        action readCriteria {
+            @XDesignCommon::DiagramPresentation { label = "Read criteria"; }
+            doc /* The gate's criteria and the judge authorities its flags
+               permit. */
+            out attribute criteria : String [0..*];
+        }
+        then action takeJudgment {
+            @XDesignCommon::DiagramPresentation { label = "Request judgment"; }
+            doc /* Present the criteria and the visit's artifacts and evidence
+               through the judgment port to a permitted judge; the outcome and
+               its rationale come back. */
+        }
+        then action appendAssessment {
+            @XDesignCommon::DiagramPresentation { label = "Keep assessment"; }
+            doc /* Append the assessment to the visit; its checkpoint is this
+               class, and the class keeps the assessment as a member of its own
+               evaluation history. */
+        }
+
+        first start then readCriteria;
+    }
+
+    action def TakeWishVerifyJudgment :> EvaluateWishVerifyCheckpoint {
+        @XDesignCommon::DiagramPresentation { label = "Take judgment"; summary = "Review criteria with artifacts and evidence"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        doc /* The semantic implementation of the wish-verify checkpoint class's
+           evaluate operation: a permitted judge reads the criteria with the
+           visit's artifacts and evidence, and the outcome and rationale are
+           recorded. */
+
+        in part redefines checkpoint : WishVerifySemanticCheckpoint;
+    }
+
+    part def WishVerifyFlowRun :> FlowExecution {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify run"; summary = "Two stage visits, judgments and advancement"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D58"; }
+        doc /* One run of the designed wish-verify flow: the class a wish's
+           execution has. It refines the generic FlowExecution with the designed
+           flow's plan — a visit to each of its two stages, more visits when the
+           terminal stage is reworked — and carries operations to evaluate the
+           current visit's gates, advance when authorized, and explicitly reopen
+           a completed terminal visit. Its only automation port presents its
+           gates to a judge; no check command exists to invoke. The factory
+           creates it; the controller keeps it in the wish's trace. */
+
+        ref part redefines assignedFlow : DesignedWishVerifyFlow;
+        ref part checkpoints : WishVerifyCheckpoint [0..*] = assignedFlow.checkpoints;
+        part redefines stageRecords : StageRecord [2..*];
+
+        port judgment : ~JudgmentExchange {
+            @XDesignCommon::DiagramPresentation { label = "review"; summary = "Present criteria and receive verdict"; }
+        }
+
+        event occurrence created;
+        event occurrence completed;
+
+        exhibit state lifecycle : WishVerifyRunLifecycle;
+        bind lifecycle.run = self;
+
+        perform action evaluateGate : EvaluateWishVerifyGate;
+        perform action advance : AdvanceWishVerifyRun;
+        perform action reopenStage : ReopenWishVerifyStage;
+
+        assert constraint visitsRealizeThePlannedStages {
+            stageRecords->forAll { in record : StageRecord;
+                assignedFlow.stages->includes(record.stage)
+            } and
+            assignedFlow.stages->forAll { in stage : Stage;
+                stageRecords->exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+        }
+    }
+
+    part def WishVerifyFlowRunFactory {
+        @XDesignCommon::DiagramPresentation { label = "Run factory"; summary = "Creates a run and its initial visits"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
+        doc /* The factory of a wish-verify run: given a wish and the designed
+           flow's plan, it creates the run the controller will hold. It realizes
+           registration for this flow — the part of Controller::receiveWish that
+           assigns the flow, opens the run and enters its initial stage — so an
+           implementation of this flow does not have to re-invent it from the
+           generic controller. */
+
+        perform action createRun {
+            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
+            doc /* Open a run of the designed wish-verify flow for a wish: create
+               the run bound to the plan, add one pending visit per stage, enter
+               the wish visit as current, and activate the run. The wish itself
+               stays an item of the workflow; the trace that holds the run is
+               the controller's, produced by receiveWish. */
+
+            in part wish : Wish;
+            out part run : WishVerifyFlowRun;
+
+            action openRun {
+                doc /* Create the run, bound to the designed flow's plan and
+                   without visits yet. */
+                out part run : WishVerifyFlowRun;
+            }
+            action addStageVisits {
+                doc /* Add one pending visit per stage of the plan — wish and
+                   verify — each bound to its stage. */
+                in part redefines run = openRun.run;
+            }
+            action enterInitialStage {
+                doc /* The wish visit becomes the current visit and is marked
+                   active at artifact revision 0; the verify visit stays pending
+                   at revision 0. Recording a content-change activity increments
+                   a visit's revision before a gate assesses it. */
+                in part redefines run = openRun.run;
+            }
+            action activateRun {
+                doc /* The run becomes active, so the controller records
+                   activities against its current visit and evaluates its gates. */
+                in part redefines run = openRun.run;
+            }
+
+            first start then openRun;
+            succession visitsAdded first openRun then addStageVisits;
+            succession stageEntered first addStageVisits then enterInitialStage;
+            succession runActivated first enterInitialStage then activateRun;
+        }
+    }
+
+    action def EvaluateWishVerifyGate {
+        @XDesignCommon::DiagramPresentation { label = "Evaluate stage gates"; summary = "Record one judgment per exit gate"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        doc /* Evaluate exactly the exit checkpoints of this visit's stage, once
+           per checkpoint, in plan order. Each gate's own evaluate operation
+           takes the judged path: its criteria and the visit's artifacts and
+           evidence go through the judgment port to a permitted judge, whose
+           rationale is recorded. Each evaluation appends one
+           CheckpointAssessment to the visit; a gate with no current assessment
+           authorizes nothing. */
+
+        in part visit : StageRecord;
+        ref part checkpoints : WishVerifyCheckpoint [0..*];
+        out item assessments : CheckpointAssessment [0..*];
+
+        action readGates {
+            doc /* The checkpoint class instances of the visit's stage, read from
+               the assigned flow's plan. Other stages' gates are excluded. */
+            out part gates : WishVerifyCheckpoint [0..*] = checkpoints->select {
+                in gate : WishVerifyCheckpoint;
+                visit.stage.exitCheckpoints->includes(gate)
+            };
+        }
+        then for gate in readGates.gates {
+            action evaluateCurrentGate : EvaluateWishVerifyCheckpoint {
+                doc /* The judged path is fixed by the gate's adaptation; this
+                   action is performed once for each selected exit gate. */
+                in part redefines checkpoint = gate;
+                in part redefines visit = EvaluateWishVerifyGate::visit;
+            }
+        }
+
+        first start then readGates;
+    }
+
+    action def AdvanceWishVerifyRun {
+        @XDesignCommon::DiagramPresentation { label = "Advance flow run"; summary = "Authorization selects the next visit or completion"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        doc /* The successor rule of the designed wish-verify flow, for one run:
+           when the current visit is authorized — its exit gate passed and cited
+           at the visited revision — decide where the run goes. The wish stage
+           hands the run to the verify stage's pending visit, which becomes
+           current. The verify stage has none: the run completes and the flow
+           status becomes completed, which is what lets the controller deliver
+           the trace. An unauthorized visit remains current and blocked for
+           correction at a later artifact revision. Reopening a completed
+           terminal stage is a separate action. */
+
+        in part run : WishVerifyFlowRun;
+        out part nextVisit : StageRecord [0..1];
+
+        action checkAuthorization {
+            doc /* completionAuthorized at the visited revision: every exit gate
+               of the current visit has a passed assessment cited at it, and any
+               subflow has completed. */
+        }
+        then decide advancePath;
+        action enterNextStage {
+            doc /* The pending visit of the verify stage becomes the current
+               visit; the run stays active. */
+        }
+        action retainBlockedVisit {
+            doc /* Keep the unauthorized current visit selected and mark both the
+               visit and the run blocked. Corrective work records a
+               content-change activity in this visit and increments its artifact
+               revision. */
+            in part blockedVisit : StageRecord = run.currentRecord;
+            assert constraint sameVisitIsBlocked {
+                run.currentRecord == blockedVisit and
+                blockedVisit.status == StageStatus::blocked and
+                run.status == FlowStatus::blocked
+            }
+        }
+        action completeRun {
+            doc /* The current visit is the verify visit, whose stage completes
+               the flow: the run completes and stays its current record. */
+        }
+
+        first start then checkAuthorization;
+        succession nextStageChosen first advancePath
+            if run.currentRecord.completionAuthorized and
+            not run.currentRecord.stage.completesFlow then enterNextStage;
+        succession runCompleted first advancePath
+            if run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow then completeRun;
+        succession gateBlocked first advancePath
+            if not run.currentRecord.completionAuthorized then retainBlockedVisit;
+    }
+
+    action def ReopenWishVerifyStage {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        doc /* Explicit rework of a completed terminal visit. A completed run can
+           reopen its terminal verify stage only on a recorded rework request.
+           Keep the completed visit and its assessments immutable, append a new
+           active visit for that stage at the next visit index with artifact
+           revision 0, and return the run to active. Reopening an earlier
+           completed stage requires downstream invalidation rules and is outside
+           this action. */
+
+        in part run : WishVerifyFlowRun;
+        in part completedVisit : StageRecord = run.currentRecord;
+        out part newVisit : StageRecord;
+
+        action requireCompletedTerminal {
+            doc /* Reject unless the run is completed and the current visit is a
+               completed terminal stage. */
+            assert constraint terminalReopenPrecondition {
+                run.status == FlowStatus::completed and
+                completedVisit.status == StageStatus::completed and
+                completedVisit.stage.completesFlow
+            }
+        }
+        then action appendNewVisit {
+            doc /* Preserve the prior visit and add a new active visit of the
+               same stage with visitIndex one greater and artifactRevision 0. */
+            assert constraint freshVisit {
+                newVisit.stage == completedVisit.stage and
+                newVisit.visitIndex == completedVisit.visitIndex + 1 and
+                newVisit.artifactRevision == 0 and
+                newVisit.status == StageStatus::active
+            }
+        }
+        then action reactivateRun {
+            doc /* Make the new visit current and the run active. */
+            assert constraint newVisitIsCurrent {
+                run.currentRecord == newVisit and
+                run.status == FlowStatus::active
+            }
+        }
+
+        first start then requireCompletedTerminal;
+    }
+
+    part def WishVerifyAutomation {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify automation"; summary = "Run and judge connected by the judgment port"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
+        doc /* The parts a run of the designed wish-verify flow is automated by,
+           wired by their interfaces: the factory creates the run, and the run
+           presents its gates to a judge through the judgment interface. No
+           checker command is wired: this flow declares no syntactic gate. */
+
+        part runner : WishVerifyFlowRun {
+            @XDesignCommon::DiagramPresentation { label = "Flow run"; summary = "Automates the current stage visit"; }
+        }
+        part factory : WishVerifyFlowRunFactory;
+        ref part checkpoints : WishVerifyCheckpoint [0..*] = runner.checkpoints;
+        part judge : Judge {
+            @XDesignCommon::DiagramPresentation { label = "Judge"; summary = "Agent or human reviews evidence"; }
+        }
+
+        interface judging : JudgmentInterface
+            connect runner.judgment to judge.judgment;
+    }
+
+    occurrence def WishVerifyRunTimeline {
+        @XDesignCommon::DiagramPresentation { label = "Run interactions"; summary = "Controller events enter and assess the two stages"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        doc /* One run of the designed wish-verify flow over time, whatever wish
+           it answers: the run is created, the wish stage is entered and its
+           gate assessed, the verify stage follows, and its completion finishes
+           the run. The messages are the moments the flow defines; a particular
+           wish's journey is the same shape with its own records. */
+
+        ref part controller : Controller;
+        ref part run : WishVerifyFlowRun;
+        ref part 'flow' : DesignedWishVerifyFlow = run.assignedFlow;
+        ref part wish : Stage = 'flow'.wish;
+        ref part 'verify' : Stage = 'flow'.'verify';
+
+        message createRun from controller.entering to run.created;
+        message enterWish from controller.entering to wish.entered;
+        message assessWish from controller.assessing to wish.assessed;
+        message enterVerify from controller.entering to 'verify'.entered;
+        message assessVerify from controller.assessing to 'verify'.assessed;
+        message completeRun from controller.delivering to run.completed;
+    }
+
+    part def WishVerifyAuthorization {
+        @XDesignCommon::DiagramPresentation { label = "Visit authorization"; summary = "Bind current visit values to the authorization constraint"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
+        doc /* Parametric context for a wish-verify stage visit, binding the same
+           GateAuthorization constraint the simple flow defines. Counting gates
+           rather than assessments prevents duplicate passes from compensating
+           for a missing gate. A stale or failed assessment contributes
+           nothing. */
+        ref part visit : StageRecord;
+        attribute requiredGates : Integer = size(visit.stage.exitCheckpoints) {
+            @XDesignCommon::DiagramPresentation { label = "Required gates"; summary = "Count of distinct exit checkpoints"; }
+        }
+        attribute passedGates : Integer = size(visit.stage.exitCheckpoints->select {
+            in gate : Checkpoint;
+            visit.currentAssessments->exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        }) {
+            @XDesignCommon::DiagramPresentation { label = "Passed gates"; summary = "Current revision; distinct required gates"; }
+        }
+        attribute subFlowComplete : Boolean = visit.subFlowSatisfied {
+            @XDesignCommon::DiagramPresentation { label = "Subflow complete"; summary = "Any nested flow has completed"; }
+        }
+        attribute authorized : Boolean = visit.completionAuthorized {
+            @XDesignCommon::DiagramPresentation { label = "Advance allowed"; summary = "Current visit completion is authorized"; }
+        }
+        constraint authorization : GateAuthorization {
+            @XDesignCommon::DiagramPresentation { label = "Gate authorization"; summary = "authorized = (passed = required) and subflow complete"; }
+        }
+        bind requiredGates = authorization.requiredGates;
+        bind passedGates = authorization.passedGates;
+        bind subFlowComplete = authorization.subFlowComplete;
+        bind authorized = authorization.authorized;
+    }
+
+    state def WishVerifyRunLifecycle {
+        @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; summary = "Activation, blocking, correction and completion"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        doc /* Lifecycle of one wish-verify run, distinct from the two
+           engineering stages. The factory activates the run. A failed, missing
+           or stale judgment blocks it; corrective work resumes the same current
+           visit at a new artifact revision. Only authorization of the terminal
+           verify visit permits completion. Advancing an already completed run
+           revalidates its retained artifacts and passed assessment evidence;
+           loss blocks it, and restoration permits completion again. An explicit
+           rework action appends a new terminal visit without erasing history. */
+        ref part run : WishVerifyFlowRun;
+        state pending {
+            @XDesignCommon::DiagramPresentation { label = "Pending"; }
+        }
+        state active {
+            @XDesignCommon::DiagramPresentation { label = "Active"; }
+        }
+        state blocked {
+            @XDesignCommon::DiagramPresentation { label = "Blocked"; }
+        }
+        state completed {
+            @XDesignCommon::DiagramPresentation { label = "Completed"; }
+        }
+        first start then pending;
+        transition activate first pending
+            if run.status == FlowStatus::active then active;
+        @XDesignCommon::DiagramPresentation about activate { label = "Activate"; summary = "run is active"; }
+        transition gateBlocked first active
+            if run.status == FlowStatus::blocked and
+            not run.currentRecord.completionAuthorized then blocked;
+        @XDesignCommon::DiagramPresentation about gateBlocked { label = "Block"; summary = "gate not authorized"; }
+        transition resumeAfterCorrection first blocked
+            if run.currentRecord.status == StageStatus::active then active;
+        @XDesignCommon::DiagramPresentation about resumeAfterCorrection { label = "Resume"; summary = "corrected visit active"; }
+        transition advanceStage first active
+            if run.currentRecord.completionAuthorized and
+            not run.currentRecord.stage.completesFlow then active;
+        @XDesignCommon::DiagramPresentation about advanceStage { label = "Next stage"; summary = "nonterminal visit authorized"; }
+        transition complete first active
+            if run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow then completed;
+        @XDesignCommon::DiagramPresentation about complete { label = "Complete"; summary = "terminal visit authorized"; }
+        transition revalidateCompleted first completed
+            if run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized then completed;
+        @XDesignCommon::DiagramPresentation about revalidateCompleted { label = "Revalidate"; summary = "retained evidence still available"; }
+        transition completedEvidenceLost first completed
+            if run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked then blocked;
+        @XDesignCommon::DiagramPresentation about completedEvidenceLost { label = "Evidence lost"; summary = "completed run is blocked"; }
+        transition restoredCompletion first blocked
+            if run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
+            run.currentRecord.stage.completesFlow then completed;
+        @XDesignCommon::DiagramPresentation about restoredCompletion { label = "Restore"; summary = "retained evidence restored"; }
+        transition reopenForRework first completed
+            if run.status == FlowStatus::active and
+            run.currentRecord.status == StageStatus::active then active;
+        @XDesignCommon::DiagramPresentation about reopenForRework { label = "Rework"; summary = "run and new visit active"; }
+    }
+
+    use case def ProgressJudgedOutcome {
+        @XDesignCommon::DiagramPresentation { label = "Progress judged outcome"; summary = "Reach an evidence-backed judged delivery"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        doc /* The requester's goal for a judged artifact: progress the wish to a
+           delivery whose outcome a permitted judge accepted on recorded
+           evidence. Gate evaluation is internal behavior, not another external
+           user goal. */
+        subject automation : WishVerifyAutomation;
+        actor requester : WishRequester;
+    }
+
+    use case def JudgeRecordedOutcome {
+        @XDesignCommon::DiagramPresentation { label = "Judge recorded outcome"; summary = "Return a reasoned verdict on the recorded outcome"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        doc /* A permitted agent or human judge reviews the gate criteria with
+           the recorded artifacts and evidence, and returns a reasoned verdict
+           through JudgmentInterface. */
+        subject automation : WishVerifyAutomation;
+        actor reviewer : Judge;
+    }
+
+    use case progressJudgedOutcome : ProgressJudgedOutcome {
+        @XDesignCommon::DiagramPresentation { label = "Progress judged outcome"; summary = "Reach an evidence-backed judged delivery"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+    }
+    use case judgeRecordedOutcome : JudgeRecordedOutcome {
+        @XDesignCommon::DiagramPresentation { label = "Judge recorded outcome"; summary = "Return a reasoned verdict on the recorded outcome"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+    }
+
+    item wishVerifyFlowFilePlan {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify file plan"; summary = "Flow module and test files"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P27"; }
+        doc /* Planned repository layout for the executable wish-verify slice.
+           Only the files this slice owns are entries; the shared crate files it
+           extends — src/lib.rs, src/main.rs and tests/plan_model_sync.rs among
+           them — keep their SimpleFlow file-plan entries and responsibilities.
+           Generated reports and tool caches belong under cache/ and are not
+           source entries here. */
+
+        item flowModule {
+            item module : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/wish_verify/mod.rs"; attribute redefines responsibility = "WishVerifyFlow public API within xdesign"; }
+            item blueprint : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/wish_verify/blueprint.rs"; attribute redefines responsibility = "The designed two-stage plan as data and its blueprint conformance"; }
+            item factory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/wish_verify/factory.rs"; attribute redefines responsibility = "Create a conforming designed wish-verify run with the unused-check stub"; }
+        }
+        item testCases {
+            item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/wish_verify.rs"; attribute redefines responsibility = "Plan conformance, judgment, authorization, recovery and reopen cases"; }
+        }
+    }
+
+    view wishVerifyFlowFilePlanView : StandardViewDefinitions::BrowserView {
+        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P27"; }
+        @XDesignCommon::DocFigure { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; figure = "docs/prj_manage/assets/09_file_plan.svg"; }
+        doc /* Which repository files realize the wish-verify flow module and its
+           executable verification, with generated evidence kept in cache/. */
+        expose XDesignDetailedDesign::wishVerifyFlowFilePlan;
+    }
+
+    view wishVerifyFlowTree : StandardViewDefinitions::BrowserView {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_designed_flow.svg"; }
+        doc /* What the designed wish-verify flow is made of: its two stages and
+           the two semantic exit checkpoints it declares for them. */
+        expose XDesignDetailedDesign::DesignedWishVerifyFlow;
+    }
+
+    view wishVerifyDesignTree : StandardViewDefinitions::BrowserView {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D58"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_design_classes.svg"; }
+        doc /* The design's classes, factory and functions with their members:
+           the run's visits, judgment port and operations, the factory's
+           creation steps, and the gate function's single judged path. */
+        expose XDesignDetailedDesign::WishVerifyFlowRun;
+        expose XDesignDetailedDesign::WishVerifyFlowRunFactory;
+        expose XDesignDetailedDesign::EvaluateWishVerifyGate;
+        expose XDesignDetailedDesign::AdvanceWishVerifyRun;
+        expose XDesignDetailedDesign::WishVerifyCheckpoint;
+        expose XDesignDetailedDesign::WishVerifySemanticCheckpoint;
+        expose XDesignDetailedDesign::EvaluateWishVerifyCheckpoint;
+    }
+
+    view wishVerifyFactoryFlow : StandardViewDefinitions::ActionFlowView {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_factory.svg"; }
+        doc /* The factory's creation steps in order: open the run, add the
+           visits, enter the initial stage, activate. */
+        expose XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun;
+        expose XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun::*;
+        render Views::asInterconnectionDiagram;
+    }
+
+    view wishVerifyGateEvaluationFlow : StandardViewDefinitions::ActionFlowView {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_gate_evaluation.svg"; }
+        doc /* The gate function's shape: select only the visit stage's exit
+           gates and delegate each to its judged evaluation path before
+           recording one assessment per gate. */
+        expose XDesignDetailedDesign::EvaluateWishVerifyGate;
+        expose XDesignDetailedDesign::EvaluateWishVerifyGate::*;
+        render Views::asInterconnectionDiagram;
+    }
+
+    view wishVerifyActivityDiagram : StandardViewDefinitions::ActionFlowView {
+        @XDesignCommon::DiagramPresentation { label = "Checkpoint evaluation"; question = "How does one gate produce an assessment?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; figure = "docs/details/wish_verify_flow/assets/02_checkpoint_evaluation.svg"; }
+        doc /* How is one checkpoint evaluated by a permitted judge? This flow
+           declares no syntactic gate, so the activity has a single judged
+           path. */
+        expose XDesignDetailedDesign::EvaluateWishVerifyCheckpoint;
+        expose XDesignDetailedDesign::EvaluateWishVerifyCheckpoint::*;
+        render Views::asInterconnectionDiagram;
+    }
+
+    view wishVerifyPackageDiagram : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Wish-verify packages"; question = "Which model packages carry this flow's design?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D65"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_packages.svg"; }
+        doc /* The packages that carry this flow's design: the architecture's
+           WishVerifyFlow, this file's designed specialization, the composition's
+           selectable usage, the Rust UML mapping and the planned verification. */
+        expose XDesignArchitecture;
+        expose XDesignDetailedDesign;
+        expose XDesignComposition;
+        expose XDesignRustUml;
+        expose XDesignVerification;
+    }
+
+    view wishVerifyBlockDefinitionDiagram : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Run structure"; question = "Which reusable types make up a wish-verify run?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D66"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_block_definition.svg"; }
+        doc /* Which reusable types form a wish-verify run, and how do they
+           specialize and compose? */
+        expose XDesignDetailedDesign::WishVerifyFlowRun;
+        expose XDesignArchitecture::FlowExecution;
+        expose XDesignDetailedDesign::WishVerifyFlowRunFactory;
+        expose XDesignDetailedDesign::WishVerifyCheckpoint;
+        expose XDesignDetailedDesign::WishVerifySemanticCheckpoint;
+        expose XDesignArchitecture::StageRecord;
+        expose XDesignArchitecture::CheckpointAssessment;
+    }
+
+    view wishVerifyInternalBlockDiagram : StandardViewDefinitions::InterconnectionView {
+        @XDesignCommon::DiagramPresentation { label = "Automation connections"; question = "How do the run and the judge connect?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_internal_block.svg"; }
+        doc /* How do this automation's run and judge connect through ports? No
+           checker command is wired: this flow declares no syntactic gate. */
+        expose XDesignDetailedDesign::WishVerifyAutomation;
+        render Views::asInterconnectionDiagram;
+    }
+
+    view wishVerifySequenceDiagram : StandardViewDefinitions::SequenceView {
+        @XDesignCommon::DiagramPresentation { label = "Run interactions"; question = "In which order are the two stages entered and assessed?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_sequence.svg"; }
+        doc /* In which order do the controller, run and stages exchange events? */
+        expose XDesignDetailedDesign::WishVerifyRunTimeline;
+    }
+
+    view wishVerifyStateMachineDiagram : StandardViewDefinitions::StateTransitionView {
+        @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; question = "When does a wish-verify run activate, block, resume or complete?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_state_machine.svg"; }
+        doc /* Which conditions activate, block, resume and complete a run? */
+        expose XDesignDetailedDesign::WishVerifyRunLifecycle;
+        expose XDesignDetailedDesign::WishVerifyRunLifecycle::*;
+        render Views::asInterconnectionDiagram;
+    }
+
+    view wishVerifyRequirementsDiagram : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Requirements coverage"; question = "Which requirements does this flow satisfy, and what verification is planned?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D69"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_requirements.svg"; }
+        doc /* Which requirements have design satisfiers in this flow and a
+           planned review case? A verify relationship states coverage; it does
+           not assert a passed test. */
+        expose XDesignRequirements::designedFlowGatesEveryStage;
+        expose XDesignRequirements::semanticCheckNamesItsJudges;
+        expose XDesignRequirements::flowRunIsRealizedByDesign;
+        expose XDesignRequirements::runRealizesItsDesign;
+        expose XDesignDetailedDesign::DesignedWishVerifyFlow;
+        expose XDesignDetailedDesign::WishVerifyFlowRun;
+        expose XDesignVerification::WishVerifyFlowBehaviorVerification;
+    }
+
+    view wishVerifyParametricDiagram : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Visit authorization"; question = "Which current visit values authorize advancement?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_parametric.svg"; }
+        doc /* Which bound record values determine authorization at this
+           revision? */
+        expose XDesignDetailedDesign::WishVerifyAuthorization;
+        expose XDesignDetailedDesign::WishVerifyAuthorization::*;
+        expose XDesignDetailedDesign::GateAuthorization;
+    }
+
+    view wishVerifyUseCaseDiagram : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Actor goals"; question = "Which goals belong to each external actor?"; }
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_use_cases.svg"; }
+        doc /* Which external actors have which goals at this automation's
+           boundary? */
+        expose XDesignDetailedDesign::ProgressJudgedOutcome;
+        expose XDesignDetailedDesign::JudgeRecordedOutcome;
+        expose XDesignDetailedDesign::progressJudgedOutcome;
+        expose XDesignDetailedDesign::judgeRecordedOutcome;
+        expose XDesignDetailedDesign::WishVerifyAutomation;
+        expose XDesignWorkflow::WishRequester;
+        expose XDesignDetailedDesign::Judge;
+    }
+
+    viewpoint wishVerifyBlockDefinitionConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D66"; }
+        subject wishVerifyBlockDefinitionDiagram;
+        attribute redefines concernText = "Which reusable types make up a wish-verify run?";
+        attribute redefines stakeholderRole = "flow designer";
+    }
+
+    viewpoint wishVerifyInternalBlockConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
+        subject wishVerifyInternalBlockDiagram;
+        attribute redefines concernText = "How do the run and the judge connect?";
+        attribute redefines stakeholderRole = "integrator";
+    }
+
+    viewpoint wishVerifyRequirementsConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D69"; }
+        subject wishVerifyRequirementsDiagram;
+        attribute redefines concernText = "Which requirements does this flow satisfy, and what verification is planned?";
+        attribute redefines stakeholderRole = "requirements reviewer";
+    }
+
+    viewpoint wishVerifyParametricConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
+        subject wishVerifyParametricDiagram;
+        attribute redefines concernText = "Which current visit values authorize advancement?";
+        attribute redefines stakeholderRole = "verification engineer";
+    }
+
+    viewpoint wishVerifyUseCaseConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        subject wishVerifyUseCaseDiagram;
+        attribute redefines concernText = "Which goals belong to each external actor?";
+        attribute redefines stakeholderRole = "requester";
+    }
+
+    viewpoint wishVerifyActivityConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        subject wishVerifyActivityDiagram;
+        attribute redefines concernText = "How does one gate produce an assessment?";
+        attribute redefines stakeholderRole = "implementer";
+    }
+
+    viewpoint wishVerifySequenceConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        subject wishVerifySequenceDiagram;
+        attribute redefines concernText = "In which order are the two stages entered and assessed?";
+        attribute redefines stakeholderRole = "integrator";
+    }
+
+    viewpoint wishVerifyStateMachineConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        subject wishVerifyStateMachineDiagram;
+        attribute redefines concernText = "When does a wish-verify run activate, block, resume or complete?";
+        attribute redefines stakeholderRole = "maintainer";
+    }
+
+    viewpoint wishVerifyPackageConcern : DocumentationViewpoint {
+        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D65"; }
+        subject wishVerifyPackageDiagram;
+        attribute redefines concernText = "Which model packages carry this flow's design?";
+        attribute redefines stakeholderRole = "model maintainer";
+    }
 }

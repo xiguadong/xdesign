@@ -1,0 +1,824 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="535pt" height="608pt" viewBox="0.00 0.00 535.00 608.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Wish-verify packages</title><desc id="diagram-desc">Which model packages carry this flow's design?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 590.33)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-590.33 517.28,-590.33 517.28,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="138.64" y="-542.43" font-family="Arial" font-weight="bold" font-size="22.00">Wish-verify packages</text>
+<text xml:space="preserve" text-anchor="start" x="105.64" y="-514.08" font-family="Arial" font-size="14.00" fill="#52657a">Which model packages carry this flow's design?</text>
+
+<g class="edge" data-native-id="2b54664b-7dcb-577a-98d3-53295575289d" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<title>imports
+
+2b54664b-7dcb-577a-98d3-53295575289d</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M111.15,-281.64C128.64,-229.04 157.89,-141.02 157.89,-141.02 157.89,-141.02 187.45,-111.89 214.82,-84.92" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="220.22,-79.6 217.05,-87.78 218.6,-81.4 214.63,-85.32 214.52,-85.21 214.42,-85.11 218.39,-81.19 211.99,-82.65 220.22,-79.6" />
+<text xml:space="preserve" text-anchor="middle" x="179.64" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="ba5f3f16-cff0-5bd6-88a1-5110c37ab4cb" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
+<title>imports
+
+ba5f3f16-cff0-5bd6-88a1-5110c37ab4cb</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M143.09,-281.69C163.7,-264 188.27,-242.92 209.59,-224.63" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="215.48,-219.57 211.75,-227.51 213.74,-221.26 209.5,-224.9 209.41,-224.78 209.31,-224.67 213.55,-221.03 207.06,-222.05 215.48,-219.57" />
+<text xml:space="preserve" text-anchor="middle" x="206" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="1f7935dd-c854-52d0-a18e-62897cddd1be" data-source-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<title>imports
+
+1f7935dd-c854-52d0-a18e-62897cddd1be</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M260.39,-140.67C260.39,-124.26 260.39,-104.93 260.39,-87.62" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="260.39,-79.82 263.99,-87.82 260.54,-82.24 260.54,-87.82 260.39,-87.82 260.24,-87.82 260.24,-82.24 256.79,-87.82 260.39,-79.82" />
+<text xml:space="preserve" text-anchor="middle" x="282.14" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="48b7c79d-348f-55a6-83b2-9063e3194517" data-source-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<title>imports
+
+48b7c79d-348f-55a6-83b2-9063e3194517</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M401.89,-281.54C394.14,-262.29 386.39,-243.04 386.39,-243.04 386.39,-243.04 312.39,-102.02 312.39,-102.02 312.39,-102.02 306.51,-95.01 298.7,-85.69" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="293.75,-79.79 301.65,-83.61 295.42,-81.55 299,-85.82 298.89,-85.92 298.77,-86.02 295.19,-81.74 296.13,-88.23 293.75,-79.79" />
+<text xml:space="preserve" text-anchor="middle" x="395.16" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="2d5b164b-5e68-5c7d-aaba-6c0f42af3309" data-source-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
+<title>imports
+
+2d5b164b-5e68-5c7d-aaba-6c0f42af3309</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M368.57,-281.48C352.6,-268.87 338.89,-258.04 338.89,-258.04 338.89,-258.04 323.32,-242.77 306.05,-225.83" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="300.77,-220.64 309,-223.68 302.6,-222.23 306.59,-226.14 306.48,-226.25 306.38,-226.35 302.39,-222.44 303.96,-228.82 300.77,-220.64" />
+<text xml:space="preserve" text-anchor="middle" x="360.64" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf" data-source-id="640470ec-0731-5073-b510-e03b3f6c7741" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
+<title>imports
+
+e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M283.01,-422.59C279.76,-394.05 275.89,-360.06 275.89,-360.06 275.89,-360.06 269.11,-281.73 264.52,-228.69" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="263.85,-221.01 268.13,-228.67 264.21,-223.41 264.69,-228.97 264.54,-228.98 264.39,-229 263.91,-223.43 260.96,-229.3 263.85,-221.01" />
+<text xml:space="preserve" text-anchor="middle" x="297.64" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="927aaa8d-d5f8-59aa-bcea-a096de44fbcc" data-source-id="640470ec-0731-5073-b510-e03b3f6c7741" data-target-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-edge-kind="dependency">
+<title>imports
+
+927aaa8d-d5f8-59aa-bcea-a096de44fbcc</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M323.26,-422.71C339.31,-405.54 358.36,-385.18 375.11,-367.27" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="380.56,-361.44 377.72,-369.74 379.02,-363.3 375.2,-367.38 375.09,-367.28 374.98,-367.18 378.8,-363.1 372.46,-364.82 380.56,-361.44" />
+<text xml:space="preserve" text-anchor="middle" x="378.04" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g id="n8a6587bb82900770864f" class="node diagram-node shape-package" data-native-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-shape="package">
+<title>XDesignArchitecture
+7def8b87-d29a-5822-b4d9-666bd91325c8
+part Stage
+part Checkpoint
+item Checker
+item CheckerRule
+part Flow
+part VModel
+part SimpleFlow
+part WishVerifyFlow
+part DesignFlow
+item ActivityRecord
+item CheckpointAssessment
+part StageRecord
+part FlowExecution
+item Wish
+part Trace
+part Controller
+part XDesign
+part NestedFlowExample
+view recordStructure
+kind != CheckKind::syntactic or
+            (size(checkers) &gt; 0 and not agentMayJudge and not humanMayJudge)
+kind != CheckKind::semantic or
+            (size(checkers) == 0 and (agentMayJudge or humanMayJudge))
+stages-&gt;forAll { in stage : Stage;
+                stages-&gt;includes(stage.nextStages) and
+                stages-&gt;includes(stage.verifiesStage) and
+                checkpoints-&gt;includes(stage.exitCheckpoints) and
+                (not stage.completesFlow or
+                    (size(stage.nextStages) == 0 and size(stage.exitCheckpoints) &gt; 0)) and
+                stage.exitCheckpoints-&gt;forAll { in checkpoint : Checkpoint;
+                    checkpoint.sourceStage == stage and
+                    checkers-&gt;includes(checkpoint.checkers)
+                }
+            }
+wishIntake
+stakeholderNeeds
+intakeAccepted
+systemRequirements
+needsAccepted
+systemArchitecture
+requirementsAccepted
+detailedDesign
+architectureAccepted
+implementation
+designAccepted
+componentVerification
+implementationReady
+integrationVerification
+componentsVerified
+detailedDesign
+systemVerification
+integrationVerified
+systemArchitecture
+acceptanceValidation
+systemVerified
+systemRequirements
+delivery
+wishValidated
+stakeholderNeeds
+()
+deliveryAccepted
+ConformanceKind::traceConformance
+ConformanceKind::artifactPresence
+ConformanceKind::artifactPresence
+wishIntake
+CheckKind::semantic
+stakeholderNeeds
+CheckKind::semantic
+systemRequirements
+CheckKind::syntactic
+requirementTraceCheck
+systemArchitecture
+CheckKind::semantic
+detailedDesign
+CheckKind::semantic
+implementation
+CheckKind::syntactic
+implementationArtifactCheck
+componentVerification
+CheckKind::semantic
+integrationVerification
+CheckKind::semantic
+systemVerification
+CheckKind::semantic
+acceptanceValidation
+CheckKind::semantic
+delivery
+CheckKind::syntactic
+deliveryRecordCheck
+requirements
+design
+()
+implement
+()
+'verify'
+()
+()
+verificationAccepted
+requirements
+'verify'
+CheckKind::semantic
+wish
+'verify'
+()
+()
+outcomeAccepted
+wish
+'verify'
+CheckKind::semantic
+sysmlDeliverableAccepted
+ConformanceKind::identifierConformance
+'verify'
+CheckKind::syntactic
+sysmlCompilerCheck
+CheckpointOutcome::unevaluated
+outcome != CheckpointOutcome::passed or size(evidenceUris) &gt; 0
+(checkpoint.kind != CheckKind::syntactic or judgedBy == JudgeAuthority::script) and
+            (checkpoint.kind != CheckKind::semantic or judgedBy != JudgeAuthority::script)
+StageStatus::pending
+currentAssessments-&gt;forAll { in candidate : CheckpointAssessment;
+                stage.exitCheckpoints-&gt;includes(candidate.checkpoint) and
+                candidate == (assessments-&gt;select { in historical : CheckpointAssessment;
+                    historical.checkpoint == candidate.checkpoint
+                })-&gt;last()
+            }
+stage.exitCheckpoints-&gt;forAll { in checkpoint : Checkpoint;
+                currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                    assessment.checkpoint == checkpoint and
+                    assessment.outcome == CheckpointOutcome::passed and
+                    assessment.evaluatedRevision == artifactRevision
+                }
+            }
+subFlowExecution-&gt;forAll { in execution : FlowExecution;
+                execution.assignedFlow == stage.subFlow
+            }
+size(stage.subFlow) == 0 or
+            subFlowExecution-&gt;exists { in execution : FlowExecution;
+                execution.assignedFlow == stage.subFlow and
+                execution.status == FlowStatus::completed
+            }
+subFlowSatisfied and checkpointsSatisfied
+status != StageStatus::completed or completionAuthorized
+FlowStatus::pending
+assignedFlow.stages-&gt;forAll { in requiredStage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == requiredStage
+                }
+            }
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            }
+status != FlowStatus::completed or
+            currentRecord-&gt;exists { in record : StageRecord;
+                record.stage.completesFlow and
+                record.status == StageStatus::completed and
+                record.completionAuthorized
+            }
+WishStatus::received
+status != WishStatus::delivered or
+            execution.status == FlowStatus::completed
+defaultFlow
+availableFlows-&gt;includes(selectedFlow)
+trace.execution
+currentRecord == execution.currentRecord and
+                    execution.assignedFlow.stages-&gt;includes(currentRecord.stage)
+selectCurrentExecution.currentRecord
+selectCurrentExecution.currentRecord.completionAuthorized
+selectCurrentExecution.currentRecord
+selectCurrentExecution.execution
+selectCurrentExecution.currentRecord
+decideNextStep.nextStage
+completedRecord.completionAuthorized and
+                        ((completedRecord.stage.completesFlow and nextStage == null) or
+                            (not completedRecord.stage.completesFlow and
+                             completedRecord.stage.nextStages-&gt;includes(nextStage) and
+                             updatedExecution.assignedFlow.stages-&gt;includes(nextStage) and
+                             nextStage != null))
+selectCurrentExecution.execution
+selectCurrentExecution.currentRecord
+trace
+availableFlows
+selectedFlow
+wishes
+traces
+wishes-&gt;forAll { in wish : Wish;
+                size(traces-&gt;select { in trace : Trace;
+                    trace.wish == wish
+                }) == 1
+            } and
+            traces-&gt;forAll { in trace : Trace;
+                wishes-&gt;includes(trace.wish)
+            }
+Wish
+Trace
+FlowExecution
+StageRecord
+ActivityRecord
+CheckpointAssessment
+7def8b87-d29a-5822-b4d9-666bd91325c8</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="323.9,-78.02 320.9,-82.02 299.9,-82.02 296.9,-78.02 196.88,-78.02 196.88,0 323.9,0 323.9,-78.02" />
+<rect fill="white" stroke="none" x="205.51" y="-72.26" width="109.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="213.51" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="213.51" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Architecture</text>
+</g>
+
+<g id="ncb69d91dabdf04ec0cdf" class="node diagram-node shape-package" data-native-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-shape="package">
+<title>XDesignComposition
+3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327
+ref part xdesign : XDesign
+vModel
+3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="196.78,-360.06 193.78,-364.06 172.78,-364.06 169.78,-360.06 0,-360.06 0,-282.04 196.78,-282.04 196.78,-360.06" />
+<rect fill="white" stroke="none" x="8.64" y="-354.3" width="179.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="16.64" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">XDesign composition</text>
+</g>
+
+<g id="na1feb391c32f5b036614" class="node diagram-node shape-package" data-native-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-shape="package">
+<title>XDesignDetailedDesign
+c51d2447-c5bd-5f59-8c8c-d63d6cd44461
+part DesignedSimpleFlow
+part SimpleFlowCheckpoint
+part SimpleFlowSyntacticCheckpoint
+part SimpleFlowSemanticCheckpoint
+action EvaluateSimpleFlowCheckpoint
+action RunSyntacticCheck
+action TakeSemanticJudgment
+part SimpleFlowRun
+part SimpleFlowRunFactory
+action EvaluateSimpleFlowGate
+action AdvanceSimpleFlowRun
+action ReopenSimpleFlowStage
+port CheckCommandExchange
+interface CheckCommandInterface
+port JudgmentExchange
+interface JudgmentInterface
+part CheckerCommand
+part Judge
+part SimpleFlowAutomation
+occurrence SimpleFlowRunTimeline
+view designedFlowTree
+view designTree
+view factoryFlow
+view gateEvaluationFlow
+view checkpointEvaluationFlow
+item SimpleFlowFileEntry
+ref item simpleFlowFilePlan
+view simpleFlowFilePlanView
+view interfaceStructure
+constraint GateAuthorization
+part SimpleFlowAuthorization
+state SimpleFlowRunLifecycle
+usecase ProgressWish
+usecase ReviewEvidence
+usecase progressWish : ProgressWish
+usecase reviewEvidence : ReviewEvidence
+part DiagramDocumentationRenderer
+viewpoint DocumentationViewpoint
+view blockDefinitionDiagram
+view internalBlockDiagram
+view requirementsDiagram
+view parametricDiagram
+view useCaseDiagram
+view activityDiagram
+view sequenceDiagram
+view stateMachineDiagram
+view packageDiagram
+viewpoint blockDefinitionConcern : DocumentationViewpoint
+viewpoint internalBlockConcern : DocumentationViewpoint
+viewpoint requirementsConcern : DocumentationViewpoint
+viewpoint parametricConcern : DocumentationViewpoint
+viewpoint useCaseConcern : DocumentationViewpoint
+viewpoint activityConcern : DocumentationViewpoint
+viewpoint sequenceConcern : DocumentationViewpoint
+viewpoint stateMachineConcern : DocumentationViewpoint
+viewpoint packageConcern : DocumentationViewpoint
+part DesignedWishVerifyFlow
+part WishVerifyCheckpoint
+part WishVerifySemanticCheckpoint
+action EvaluateWishVerifyCheckpoint
+action TakeWishVerifyJudgment
+part WishVerifyFlowRun
+part WishVerifyFlowRunFactory
+action EvaluateWishVerifyGate
+action AdvanceWishVerifyRun
+action ReopenWishVerifyStage
+part WishVerifyAutomation
+occurrence WishVerifyRunTimeline
+part WishVerifyAuthorization
+state WishVerifyRunLifecycle
+usecase ProgressJudgedOutcome
+usecase JudgeRecordedOutcome
+usecase progressJudgedOutcome : ProgressJudgedOutcome
+usecase judgeRecordedOutcome : JudgeRecordedOutcome
+ref item wishVerifyFlowFilePlan
+view wishVerifyFlowFilePlanView
+view wishVerifyFlowTree
+view wishVerifyDesignTree
+view wishVerifyFactoryFlow
+view wishVerifyGateEvaluationFlow
+view wishVerifyActivityDiagram
+view wishVerifyPackageDiagram
+view wishVerifyBlockDefinitionDiagram
+view wishVerifyInternalBlockDiagram
+view wishVerifySequenceDiagram
+view wishVerifyStateMachineDiagram
+view wishVerifyRequirementsDiagram
+view wishVerifyParametricDiagram
+view wishVerifyUseCaseDiagram
+viewpoint wishVerifyBlockDefinitionConcern : DocumentationViewpoint
+viewpoint wishVerifyInternalBlockConcern : DocumentationViewpoint
+viewpoint wishVerifyRequirementsConcern : DocumentationViewpoint
+viewpoint wishVerifyParametricConcern : DocumentationViewpoint
+viewpoint wishVerifyUseCaseConcern : DocumentationViewpoint
+viewpoint wishVerifyActivityConcern : DocumentationViewpoint
+viewpoint wishVerifySequenceConcern : DocumentationViewpoint
+viewpoint wishVerifyStateMachineConcern : DocumentationViewpoint
+viewpoint wishVerifyPackageConcern : DocumentationViewpoint
+ConformanceKind::identifierConformance
+ConformanceKind::artifactPresence
+ConformanceKind::artifactPresence
+ConformanceKind::traceConformance
+requirements
+CheckKind::syntactic
+simpleRequirementsCheck
+design
+CheckKind::syntactic
+simpleDesignCheck
+implement
+CheckKind::syntactic
+simpleImplementationCheck
+'verify'
+CheckKind::syntactic
+simpleRecordCheck
+simpleRequirementsAccepted
+simpleDesignAccepted
+simpleImplementationAccepted
+simpleRecordAccepted
+CheckKind::syntactic
+CheckKind::semantic
+size(checkers) == 0 and (agentMayJudge or humanMayJudge)
+assignedFlow.checkpoints
+self
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            } and
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+openRun.run
+openRun.run
+openRun.run
+checkpoints-&gt;select {
+                in gate : SimpleFlowCheckpoint;
+                visit.stage.exitCheckpoints-&gt;includes(gate)
+            }
+readGates.gates
+gate
+EvaluateSimpleFlowGate::visit
+run.currentRecord
+run.currentRecord == blockedVisit and
+                blockedVisit.status == StageStatus::blocked and
+                run.status == FlowStatus::blocked
+run.currentRecord
+run.status == FlowStatus::completed and
+                completedVisit.status == StageStatus::completed and
+                completedVisit.stage.completesFlow
+newVisit.stage == completedVisit.stage and
+                newVisit.visitIndex == completedVisit.visitIndex + 1 and
+                newVisit.artifactRevision == 0 and
+                newVisit.status == StageStatus::active
+run.currentRecord == newVisit and
+                run.status == FlowStatus::active
+runner.checkpoints
+run.assignedFlow
+'flow'.requirements
+'flow'.design
+'flow'.implement
+'flow'.'verify'
+XDesignDetailedDesign::DesignedSimpleFlow
+XDesignDetailedDesign::SimpleFlowRun
+XDesignDetailedDesign::SimpleFlowRunFactory
+XDesignDetailedDesign::EvaluateSimpleFlowGate
+XDesignDetailedDesign::AdvanceSimpleFlowRun
+XDesignDetailedDesign::SimpleFlowCheckpoint
+XDesignDetailedDesign::SimpleFlowSyntacticCheckpoint
+XDesignDetailedDesign::SimpleFlowSemanticCheckpoint
+XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint
+XDesignDetailedDesign::SimpleFlowRunFactory::createRun
+XDesignDetailedDesign::SimpleFlowRunFactory::createRun::*
+XDesignDetailedDesign::EvaluateSimpleFlowGate
+XDesignDetailedDesign::EvaluateSimpleFlowGate::*
+XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint
+XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::*
+XDesignDetailedDesign::simpleFlowFilePlan
+XDesignDetailedDesign::SimpleFlowAutomation
+XDesignDetailedDesign::SimpleFlowAutomation::*
+XDesignDetailedDesign::CheckerCommand
+XDesignDetailedDesign::Judge
+XDesignDetailedDesign::CheckCommandInterface
+XDesignDetailedDesign::JudgmentInterface
+authorized == (passedGates == requiredGates and subFlowComplete)
+size(visit.stage.exitCheckpoints)
+size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })
+visit.subFlowSatisfied
+visit.completionAuthorized
+authorization.requiredGates
+authorization.passedGates
+authorization.subFlowComplete
+authorization.authorized
+run.status == FlowStatus::active
+run.status == FlowStatus::blocked and
+            not run.currentRecord.completionAuthorized
+run.currentRecord.status == StageStatus::active
+run.currentRecord.completionAuthorized and
+            not run.currentRecord.stage.completesFlow
+run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized
+run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked
+run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::active and
+            run.currentRecord.status == StageStatus::active
+XDesignDetailedDesign::SimpleFlowRun
+XDesignArchitecture::FlowExecution
+XDesignDetailedDesign::SimpleFlowRunFactory
+XDesignDetailedDesign::SimpleFlowCheckpoint
+XDesignDetailedDesign::SimpleFlowSyntacticCheckpoint
+XDesignDetailedDesign::SimpleFlowSemanticCheckpoint
+XDesignArchitecture::StageRecord
+XDesignArchitecture::CheckpointAssessment
+XDesignDetailedDesign::SimpleFlowAutomation
+XDesignRequirements::flowRunIsRealizedByDesign
+XDesignRequirements::designedFlowGatesEveryStage
+XDesignRequirements::structureGraphsAreDocumented
+XDesignDetailedDesign::SimpleFlowRun
+XDesignDetailedDesign::DesignedSimpleFlow
+XDesignCommon::DocFigure
+XDesignVerification::SimpleFlowViewReview
+XDesignDetailedDesign::SimpleFlowAuthorization
+XDesignDetailedDesign::SimpleFlowAuthorization::*
+XDesignDetailedDesign::GateAuthorization
+XDesignDetailedDesign::ProgressWish
+XDesignDetailedDesign::ReviewEvidence
+XDesignDetailedDesign::progressWish
+XDesignDetailedDesign::reviewEvidence
+XDesignDetailedDesign::SimpleFlowAutomation
+XDesignWorkflow::WishRequester
+XDesignDetailedDesign::Judge
+XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint
+XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::*
+XDesignDetailedDesign::SimpleFlowRunTimeline
+XDesignDetailedDesign::SimpleFlowRunLifecycle
+XDesignDetailedDesign::SimpleFlowRunLifecycle::*
+XDesignCommon
+XDesignRequirements
+XDesignArchitecture
+XDesignWorkflow
+XDesignDetailedDesign
+XDesignVerification
+XDesignTraceability
+wish
+wishAccepted
+outcomeAccepted
+CheckKind::semantic
+size(checkers) == 0 and (agentMayJudge or humanMayJudge)
+assignedFlow.checkpoints
+self
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            } and
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+openRun.run
+openRun.run
+openRun.run
+checkpoints-&gt;select {
+                in gate : WishVerifyCheckpoint;
+                visit.stage.exitCheckpoints-&gt;includes(gate)
+            }
+readGates.gates
+gate
+EvaluateWishVerifyGate::visit
+run.currentRecord
+run.currentRecord == blockedVisit and
+                blockedVisit.status == StageStatus::blocked and
+                run.status == FlowStatus::blocked
+run.currentRecord
+run.status == FlowStatus::completed and
+                completedVisit.status == StageStatus::completed and
+                completedVisit.stage.completesFlow
+newVisit.stage == completedVisit.stage and
+                newVisit.visitIndex == completedVisit.visitIndex + 1 and
+                newVisit.artifactRevision == 0 and
+                newVisit.status == StageStatus::active
+run.currentRecord == newVisit and
+                run.status == FlowStatus::active
+runner.checkpoints
+run.assignedFlow
+'flow'.wish
+'flow'.'verify'
+size(visit.stage.exitCheckpoints)
+size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })
+visit.subFlowSatisfied
+visit.completionAuthorized
+authorization.requiredGates
+authorization.passedGates
+authorization.subFlowComplete
+authorization.authorized
+run.status == FlowStatus::active
+run.status == FlowStatus::blocked and
+            not run.currentRecord.completionAuthorized
+run.currentRecord.status == StageStatus::active
+run.currentRecord.completionAuthorized and
+            not run.currentRecord.stage.completesFlow
+run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized
+run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked
+run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::active and
+            run.currentRecord.status == StageStatus::active
+XDesignDetailedDesign::wishVerifyFlowFilePlan
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignDetailedDesign::WishVerifyFlowRunFactory
+XDesignDetailedDesign::EvaluateWishVerifyGate
+XDesignDetailedDesign::AdvanceWishVerifyRun
+XDesignDetailedDesign::WishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun
+XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun::*
+XDesignDetailedDesign::EvaluateWishVerifyGate
+XDesignDetailedDesign::EvaluateWishVerifyGate::*
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint::*
+XDesignArchitecture
+XDesignDetailedDesign
+XDesignComposition
+XDesignRustUml
+XDesignVerification
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignArchitecture::FlowExecution
+XDesignDetailedDesign::WishVerifyFlowRunFactory
+XDesignDetailedDesign::WishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignArchitecture::StageRecord
+XDesignArchitecture::CheckpointAssessment
+XDesignDetailedDesign::WishVerifyAutomation
+XDesignDetailedDesign::WishVerifyRunTimeline
+XDesignDetailedDesign::WishVerifyRunLifecycle
+XDesignDetailedDesign::WishVerifyRunLifecycle::*
+XDesignRequirements::designedFlowGatesEveryStage
+XDesignRequirements::semanticCheckNamesItsJudges
+XDesignRequirements::flowRunIsRealizedByDesign
+XDesignRequirements::runRealizesItsDesign
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignVerification::WishVerifyFlowBehaviorVerification
+XDesignDetailedDesign::WishVerifyAuthorization
+XDesignDetailedDesign::WishVerifyAuthorization::*
+XDesignDetailedDesign::GateAuthorization
+XDesignDetailedDesign::ProgressJudgedOutcome
+XDesignDetailedDesign::JudgeRecordedOutcome
+XDesignDetailedDesign::progressJudgedOutcome
+XDesignDetailedDesign::judgeRecordedOutcome
+XDesignDetailedDesign::WishVerifyAutomation
+XDesignWorkflow::WishRequester
+XDesignDetailedDesign::Judge
+c51d2447-c5bd-5f59-8c8c-d63d6cd44461</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="303.65,-219.04 300.65,-223.04 279.65,-223.04 276.65,-219.04 217.12,-219.04 217.12,-141.02 303.65,-141.02 303.65,-219.04" />
+<rect fill="white" stroke="none" x="225.76" y="-213.28" width="69.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="233.76" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="233.76" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Design</text>
+</g>
+
+<g id="nfe1bc2ac1143d5f4812e" class="node diagram-node shape-package" data-native-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-shape="package">
+<title>XDesignRustUml
+9205a8df-2aad-58f0-9bcf-1635d9b40a60
+enum RsFlowStatus
+enum RsStageStatus
+enum RsCheckKind
+enum RsCheckpointOutcome
+enum RsJudgeAuthority
+enum RsAdvanceOutcome
+enum RsConformanceKind
+enum RsPlanError
+enum RsGateError
+part RsFlowPlan
+action RsValidatePlan
+part RsStageSpec
+part RsCheckpointSpec
+part RsCheckerSpec
+part RsCheckerRuleSpec
+part RsStageVisit
+action RsRecordActivity
+action RsAppendAssessment
+action RsCompletionAuthorized
+part RsActivityEntry
+part RsAssessmentEntry
+part RsArtifactDigest
+part RsCheckCommand
+part RsJudge
+part RsGateReport
+part RsRuleReport
+action RsEvaluateCheckpoint
+part RsFlowRun
+action RsEvaluateGates
+action RsAdvance
+action RsRunRecordActivity
+action RsReopenStage
+action RsCreateRun
+action RsDesignedSimpleFlowPlan
+action RsValidateDesignedPlan
+action RsCreateDesignedRun
+part XDesignCrate
+ref part xdesignCrate : XDesignCrate
+occurrence RsGateEvaluationInteraction
+state RsRunLifecycle
+view rustModuleLayout
+view rustCrateLayers
+view rustClassStructure
+view rustGateSequence
+view rustRunStates
+view projectPackageIntegration
+viewpoint rustModuleLayoutConcern : DocumentationViewpoint
+viewpoint rustClassStructureConcern : DocumentationViewpoint
+viewpoint rustGateSequenceConcern : DocumentationViewpoint
+viewpoint rustRunStatesConcern : DocumentationViewpoint
+action RsWishVerifyFlowPlan
+action RsValidateWishVerifyPlan
+action RsCreateWishVerifyRun
+view wishVerifyRustModules
+view wishVerifyRustTypes
+viewpoint wishVerifyRustModulesConcern : DocumentationViewpoint
+viewpoint wishVerifyRustTypesConcern : DocumentationViewpoint
+self
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::blocked
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::blocked
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::active
+XDesignRustUml::crate
+XDesignRustUml::crate::*
+XDesignRustUml::crate::core::*
+XDesignRustUml::crate::simpleFlow::*
+XDesignRustUml::crate::wishVerify::*
+XDesignRustUml::crate
+XDesignRustUml::crate::core
+XDesignRustUml::crate::simpleFlow
+XDesignRustUml::crate::wishVerify
+XDesignRustUml::crate::simpleFlowUsesCore
+XDesignRustUml::crate::wishVerifyUsesCore
+XDesignRustUml::RsFlowRun
+XDesignRustUml::RsStageVisit
+XDesignRustUml::RsActivityEntry
+XDesignRustUml::RsAssessmentEntry
+XDesignRustUml::RsArtifactDigest
+XDesignRustUml::RsFlowPlan
+XDesignRustUml::RsStageSpec
+XDesignRustUml::RsCheckpointSpec
+XDesignRustUml::RsCheckerSpec
+XDesignRustUml::RsCheckerRuleSpec
+XDesignRustUml::RsGateReport
+XDesignRustUml::RsRuleReport
+XDesignRustUml::RsCheckCommand
+XDesignRustUml::RsJudge
+XDesignRustUml::RsFlowStatus
+XDesignRustUml::RsStageStatus
+XDesignRustUml::RsCheckKind
+XDesignRustUml::RsConformanceKind
+XDesignRustUml::RsCheckpointOutcome
+XDesignRustUml::RsJudgeAuthority
+XDesignRustUml::RsAdvanceOutcome
+XDesignRustUml::RsPlanError
+XDesignRustUml::RsGateError
+XDesignRustUml::RsGateEvaluationInteraction
+XDesignRustUml::RsRunLifecycle
+XDesignRustUml::RsRunLifecycle::*
+XDesignCommon
+XDesignRequirements
+XDesignArchitecture
+XDesignWorkflow
+XDesignDetailedDesign
+XDesignComposition
+XDesignRustUml
+XDesignVerification
+XDesignTraceability
+XDesignRustUml::crate::wishVerify
+XDesignRustUml::crate::wishVerify::*
+XDesignRustUml::crate::core
+XDesignRustUml::RsWishVerifyFlowPlan
+XDesignRustUml::RsValidateWishVerifyPlan
+XDesignRustUml::RsCreateWishVerifyRun
+XDesignRustUml::RsFlowPlan
+XDesignRustUml::RsFlowRun
+XDesignRustUml::RsJudge
+9205a8df-2aad-58f0-9bcf-1635d9b40a60</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="499.28,-360.06 496.28,-364.06 475.28,-364.06 472.28,-360.06 335.5,-360.06 335.5,-282.04 499.28,-282.04 499.28,-360.06" />
+<rect fill="white" stroke="none" x="344.14" y="-354.3" width="146.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="352.14" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="352.14" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rust UML design</text>
+</g>
+
+<g id="n9981f09fb4b8bf838297" class="node diagram-node shape-package" data-native-id="640470ec-0731-5073-b510-e03b3f6c7741" data-shape="package">
+<title>XDesignVerification
+640470ec-0731-5073-b510-e03b3f6c7741
+verificationcase SimpleFlowViewReview
+verificationcase DiagramPresentationReview
+verificationcase DocumentationContractReview
+verificationcase RustUmlDesignReview
+verificationcase SimpleFlowGateBehaviorVerification
+verificationcase SimpleFlowRecoveryVerification
+verificationcase SimpleFlowFilePlanVerification
+verificationcase WishVerifyFlowBehaviorVerification
+verificationcase WishVerifyFlowFilePlanVerification
+640470ec-0731-5073-b510-e03b3f6c7741</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="347.15,-501.08 344.15,-505.08 323.15,-505.08 320.15,-501.08 227.62,-501.08 227.62,-423.06 347.15,-423.06 347.15,-501.08" />
+<rect fill="white" stroke="none" x="236.26" y="-495.32" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="244.26" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="244.26" y="-441.37" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Verification</text>
+</g>
+</g>
+</svg>

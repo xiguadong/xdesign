@@ -1,7 +1,8 @@
 # xdesign API reference
 
-> Project: xdesign | Status: the `xdesign::core` + `xdesign::simple_flow` slice is
-> implemented; the generic project controller remains at the SysML design level |
+> Project: xdesign | Status: the `xdesign::core` + `xdesign::simple_flow` +
+> `xdesign::wish_verify` slices are implemented; the generic project controller
+> remains at the SysML design level |
 > Audience: application integrators, module owners, and reviewers.
 > This directory is the class-and-function API reference of the `xdesign` crate,
 > organized after the PyTorch API reference: one inventory (this page), one crate
@@ -11,12 +12,15 @@
 
 ## U01 What this directory owns
 
-The class-and-function level of the `xdesign` crate's software design, in two
+The class-and-function level of the `xdesign` crate's software design, in three
 layers: [`core/`](core/00_overview.md#u71), the flow-agnostic infrastructure —
 status vocabulary, plan, record, ports, gate evaluation, the run engine, and
-construction — and [`simple_flow/`](simple_flow/00_overview.md#u72), the designed
+construction — [`simple_flow/`](simple_flow/00_overview.md#u72), the designed
 four-stage flow: blueprint data, blueprint conformance, the designed-run factory,
-and the fixed-checker adapter. The crate's layer map is
+and the fixed-checker adapter — and
+[`wish_verify_flow/`](wish_verify_flow/00_overview.md#u73), the designed two-stage
+judged flow: blueprint data, blueprint conformance, the designed-run factory, and
+the unused-check stub. The crate's layer map is
 [01_struct.md](01_struct.md#u68).
 
 | Document | Question it answers |
@@ -24,20 +28,22 @@ and the fixed-checker adapter. The crate's layer map is
 | this overview | What does the crate offer, what is the project boundary, and what are the conventions? |
 | [01_struct.md](01_struct.md#u68) | How is the crate divided into layers, and which direction may dependencies point? |
 | [core/00_overview.md](core/00_overview.md#u71) | What does the core layer own, and in which order should its groups be read? |
-| [simple_flow/00_overview.md](simple_flow/00_overview.md#u72) | What does the flow layer own, and which core APIs does it build on? |
+| [simple_flow/00_overview.md](simple_flow/00_overview.md#u72) | What does the four-stage flow layer own, and which core APIs does it build on? |
+| [wish_verify_flow/00_overview.md](wish_verify_flow/00_overview.md#u73) | What does the two-stage judged flow layer own, and which core APIs does it build on? |
 
 This directory does not own system structure, module behavior contracts, or test
 evidence: those belong to the architecture design and the detailed design, which
-embed their own views. A module's UML design lives with that module — today that
-is the [SimpleFlow Rust UML design](../details/simple_flow/06_rust_uml_design.md#d44).
+embed their own views. A module's UML design lives with that module — today those
+are the [SimpleFlow Rust UML design](../details/simple_flow/06_rust_uml_design.md#d44)
+and the [wish-verify Rust UML design](../details/wish_verify_flow/05_rust_uml_design.md#d75).
 
 <a id="u65"></a>
 
 ## U65 API boundary and reading order
 
 `xdesign` is the Rust package for this project. Its library entry point is
-`src/lib.rs`, which exposes the `core` and `simple_flow` modules. The
-[crate inventory](#u14) below and the one-API-per-page reference under the two
+`src/lib.rs`, which exposes the `core`, `simple_flow`, and `wish_verify` modules. The
+[crate inventory](#u14) below and the one-API-per-page reference under the three
 layer directories describe that implemented slice. `src/main.rs` is a local
 four-stage demonstration command; it is not the public controller for every
 selectable flow.
@@ -47,7 +53,9 @@ Read the [crate structure](01_struct.md#u68), the
 [SimpleFlow Rust design](../details/simple_flow/06_rust_uml_design.md#d44), and
 then the [implemented API inventory](#u14). The
 [implementation plan](../prj_manage/02_simple_flow_implementation_plan.md#p03)
-sets the first executable slice's acceptance boundary.
+sets the first executable slice's acceptance boundary, and the
+[wish-verify plan](../prj_manage/09_wish_verify_flow_implementation_plan.md#p25)
+sets the second slice's.
 
 <a id="u66"></a>
 
@@ -65,6 +73,7 @@ replace that composition.
 | `Trace` and `FlowExecution` for a wish | xdesign trace and run API | Modeled; `xdesign::core`'s run engine realizes `FlowExecution` with a local, specialized run record |
 | `designedSimpleFlow` construction, gate evaluation, and advancement | `xdesign::core` + `xdesign::simple_flow` | Implemented four-stage slice; [API inventory](#u14) |
 | Fixed checker commands | `tools/checks/simple_*.py` used by `xdesign::simple_flow` | Implemented for that slice |
+| `designedWishVerifyFlow` construction, judgment evaluation, and advancement | `xdesign::core` + `xdesign::wish_verify` | Implemented two-stage judged slice — both gates semantic, no checker commands; [API inventory](#u14) |
 
 The intended integration is for the project controller to select a flow and create
 its execution, then delegate a `designedSimpleFlow` execution to
@@ -96,16 +105,19 @@ those future integration decisions.
 
 The public and crate-visible APIs of the `xdesign` crate — structs, enums, traits,
 functions and methods — grouped by layer and role, core first. The code implements
-the gated four-stage slice described here. The modeled UML and the executable tests
-have different evidence roles: consult the
+the gated four-stage slice and the gated two-stage judged slice described here. The
+modeled UML and the executable tests have different evidence roles: consult the
 [implementation plan](../prj_manage/02_simple_flow_implementation_plan.md#p06)
+and the [wish-verify plan](../prj_manage/09_wish_verify_flow_implementation_plan.md#p28)
 for executed results and remaining delivery limits. Each layer's overview gives
 its module-to-file map: [core](core/00_overview.md#u71),
-[simple_flow](simple_flow/00_overview.md#u72).
+[simple_flow](simple_flow/00_overview.md#u72),
+[wish_verify_flow](wish_verify_flow/00_overview.md#u73).
 
 Reading order for a newcomer: the inventory below top to bottom, then the pages of
-`create_run`, `RsFlowRun`, `evaluate_gates`, `advance`, and the flow layer's
-`designed_simple_flow_plan` → `validate_designed_plan` → `create_designed_run`
+`create_run`, `RsFlowRun`, `evaluate_gates`, `advance`, and the flow layers'
+`designed_simple_flow_plan` → `validate_designed_plan` → `create_designed_run` or
+`wish_verify_flow_plan` → `validate_wish_verify_plan` → `create_wish_verify_run`
 path.
 
 <a id="u14"></a>
@@ -207,6 +219,15 @@ path.
 | `create_designed_run` | `fn create_designed_run(plan, wish_model_uri, run_record_uri, check, judgment) -> Result<RsFlowRun, RsPlanError>` | Check blueprint conformance, then construct through `create_run` | [simple_flow/03](simple_flow/03_create_designed_run.md#u70) |
 | `RsProcessCheck` | struct, implements `RsCheckCommand` | Invoke and validate a fixed Python checker command | [simple_flow/04](simple_flow/04_process_check.md#u58) |
 
+### Wish-verify flow — the designed judged flow
+
+| API | Signature | One-liner | Page |
+| --- | --- | --- | --- |
+| `wish_verify_flow_plan` | `fn wish_verify_flow_plan() -> RsFlowPlan` | Construct the modeled two-stage judged plan before freezing its bytes | [wish_verify_flow/01](wish_verify_flow/01_wish_verify_flow_plan.md#u74) |
+| `validate_wish_verify_plan` | `fn validate_wish_verify_plan(plan: &RsFlowPlan) -> Result<(), RsPlanError>` | Reject any plan that differs from the `designedWishVerifyFlow` blueprint, including one with a syntactic gate | [wish_verify_flow/02](wish_verify_flow/02_validate_wish_verify_plan.md#u75) |
+| `create_wish_verify_run` | `fn create_wish_verify_run(plan, wish_model_uri, run_record_uri, judgment) -> Result<RsFlowRun, RsPlanError>` | Check blueprint conformance, then construct through `create_run` with the unused-check stub | [wish_verify_flow/03](wish_verify_flow/03_create_wish_verify_run.md#u76) |
+| `RsUnusedCheck` | struct, implements `RsCheckCommand` | Never-invoked check stub: every call returns a command-failed error | [wish_verify_flow/04](wish_verify_flow/04_unused_check.md#u77) |
+
 <a id="u15"></a>
 
 ## U15 Conventions
@@ -266,12 +287,14 @@ formats and rules is `cache/kimi_template/docs/detailed-design/DD-API参考级�
 ## U02 Reading order
 
 1. [01_struct.md](01_struct.md#u68): the crate's layer map — dependencies point one
-   way, `simple_flow` → `core`.
+   way, `simple_flow` → `core` and `wish_verify` → `core`.
 2. The module's own UML design document, used with its architecture design and
-   interface contract; today that is
-   [06_rust_uml_design.md](../details/simple_flow/06_rust_uml_design.md#d44).
+   interface contract; today those are
+   [06_rust_uml_design.md](../details/simple_flow/06_rust_uml_design.md#d44) and the
+   [wish-verify Rust UML design](../details/wish_verify_flow/05_rust_uml_design.md#d75).
 3. The layer overviews — [core/00_overview.md](core/00_overview.md#u71), then
-   [simple_flow/00_overview.md](simple_flow/00_overview.md#u72) — then the
+   [simple_flow/00_overview.md](simple_flow/00_overview.md#u72) and
+   [wish_verify_flow/00_overview.md](wish_verify_flow/00_overview.md#u73) — then the
    [inventory](#u14) and the pages of the APIs being used.
 
 <a id="u03"></a>
@@ -296,14 +319,17 @@ through `DocSection` annotations.
 
 ## U04 Current state and limits
 
-- The implemented slice is `xdesign::core` + `xdesign::simple_flow`: the gated
-  four-stage SimpleFlow with executable behavior and checker tests. This is not
-  the complete V-model workflow — the generic controller, persistence, and
-  project-level acceptance remain modeled-only ([U66](#u66)).
+- The implemented slices are `xdesign::core` + `xdesign::simple_flow` — the gated
+  four-stage SimpleFlow with executable behavior and checker tests — and
+  `xdesign::wish_verify` — the gated two-stage judged flow with both gates
+  semantic. Neither is the complete V-model workflow — the generic controller,
+  persistence, and project-level acceptance remain modeled-only ([U66](#u66)).
 - The layered split documented here is realized in the SysML model
   (`XDesignRustUml`), in this reference, and in the source: the crate has been
   `src/core/` + `src/simple_flow/` since step 3 of the
-  [restructure plan](../prj_manage/08_api_layering_restructure_plan.md#p22).
+  [restructure plan](../prj_manage/08_api_layering_restructure_plan.md#p22), with
+  `src/wish_verify/` added as the second flow layer by the
+  [wish-verify plan](../prj_manage/09_wish_verify_flow_implementation_plan.md#p27).
 - The crate-layer figure in [01_struct.md](01_struct.md#u68) is a model projection
   rendered by the pinned toolchain; its render step follows this documentation
   step. The inventory above is the load-bearing text.

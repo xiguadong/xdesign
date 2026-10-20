@@ -60,7 +60,8 @@ the document and the identifier, for example
 
 `docs/api/` owns the crate's class-and-function-level API reference: one inventory in
 `docs/api/00_overview.md` (U14), one crate-level structure map in
-`docs/api/01_struct.md` (U68), then per-layer directories (`core/`, `simple_flow/`)
+`docs/api/01_struct.md` (U68), then per-layer directories (`core/`, `simple_flow/`,
+`wish_verify_flow/`)
 with one page per API following the construction rules
 (`docs/api/00_overview.md#u47`). A module's UML design views stay with the module
 under `docs/details/` (for example

@@ -25,6 +25,7 @@ WORKFLOW_SELECTED = "XDesignWorkflow::Workflow::selectedFlow"
 DEFINITION_ORDER = (
     "Flow", "VModel", "SimpleFlow", "WorkflowFlow",
     "DesignedSimpleFlow", "NestedFlowExample", "WishVerifyFlow", "DesignFlow",
+    "DesignedWishVerifyFlow",
 )
 ROWS = {
     "Flow": 145,
@@ -35,9 +36,10 @@ ROWS = {
     "NestedFlowExample": 585,
     "WishVerifyFlow": 670,
     "DesignFlow": 755,
+    "DesignedWishVerifyFlow": 840,
 }
 WIDTH = 1140
-HEIGHT = 980
+HEIGHT = 1055
 CARD_HEIGHT = 54
 
 
@@ -128,7 +130,7 @@ def _model(raw: list) -> tuple[Projection, dict, dict, str, dict]:
         usages[typed] = (key, origin_relation, portfolio_relation)
     selectable = descendants - {root, definitions["SimpleFlow"]}
     if set(usages) != selectable:
-        raise ValueError("xdesign portfolio differs from the six shown usages; review the figure.")
+        raise ValueError("xdesign portfolio differs from the seven shown usages; review the figure.")
 
     default = _reference(model, selected_feature)
     if default not in {usage[0] for usage in usages.values()}:
@@ -157,7 +159,7 @@ def render_flow_relationships(raw: list) -> tuple[str, dict]:
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-labelledby="figure-title figure-desc">',
         '<title id="figure-title">Flow definitions and selectable flows owned by xdesign</title>',
-        '<desc id="figure-desc">On the left, three definition branches inherit from Flow. On the right, six usages belong to the xdesign portfolio and each has one definition type. A separate Workflow configuration feature is identified below.</desc>',
+        '<desc id="figure-desc">On the left, three definition branches inherit from Flow. On the right, seven usages belong to the xdesign portfolio and each has one definition type. A separate Workflow configuration feature is identified below.</desc>',
         '<defs><marker id="type-arrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto"><path d="M 1 1 L 10 5.5 L 1 10" fill="none" stroke="#476e9a" stroke-width="1.8"/></marker></defs>',
         '<style>text{font-family:Arial,Helvetica,sans-serif;fill:#1b2e44}.title{font-size:26px;font-weight:700}.subtitle{font-size:16px;fill:#52657a}.lane{font-size:17px;font-weight:700;fill:#365e80}.hint{font-size:14px;fill:#52657a}.definition{fill:#f2f7fc;stroke:#527496;stroke-width:1.5}.base{fill:#e2eef9;stroke:#315b81;stroke-width:2}.usage{fill:#f1f8f1;stroke:#609268;stroke-width:1.5}.default{fill:#e3f3e4;stroke:#39804b;stroke-width:2}.card-text{font-size:18px;font-weight:600}.secondary{font-size:14px;fill:#4d6278}.inherit{fill:none;stroke:#6d8297;stroke-width:2}.portfolio{fill:none;stroke:#6c9975;stroke-width:2.1}.typing{fill:none;stroke:#476e9a;stroke-width:1.8;marker-end:url(#type-arrow)}.legend{font-size:14px;fill:#52657a}.note{fill:#fbfbf6;stroke:#aaa991;stroke-width:1.2}.note-title{font-size:17px;font-weight:700}.note-text{font-size:15px;fill:#3f5060}</style>',
         '<rect width="100%" height="100%" fill="#fff"/>',
@@ -165,9 +167,9 @@ def render_flow_relationships(raw: list) -> tuple[str, dict]:
         '<text x="54" y="75" class="subtitle">Definitions describe the plan shape. Usages are the plans a wish can select.</text>',
         '<text x="54" y="116" class="lane">FLOW DEFINITIONS</text>',
         '<text x="690" y="116" class="lane">XDESIGN PORTFOLIO USAGES</text>',
-        '<text x="54" y="852" class="legend">Gray branches: :&gt; definition inheritance</text>',
-        '<text x="385" y="852" class="legend">Blue arrows: usage typed by definition</text>',
-        '<text x="746" y="852" class="legend">Green branches: subsets availableFlows and :&gt; xdesign.\'flow\'</text>',
+        '<text x="54" y="927" class="legend">Gray branches: :&gt; definition inheritance</text>',
+        '<text x="385" y="927" class="legend">Blue arrows: usage typed by definition</text>',
+        '<text x="746" y="927" class="legend">Green branches: subsets availableFlows and :&gt; xdesign.\'flow\'</text>',
     ]
 
     # The native Subclassification relations determine which branch connects
@@ -198,7 +200,7 @@ def render_flow_relationships(raw: list) -> tuple[str, dict]:
         svg.append(f'<path class="inherit" d="{path}" data-native-id="{relation}"><title>{escape(model.index[child]["qualifiedName"])} specializes {escape(model.index[parent]["qualifiedName"])}</title></path>')
 
     # The xdesign backbone starts from the inherited abstract Flow feature.
-    svg.append('<path class="portfolio" d="M 1050 172 H 1081 V 782"/>')
+    svg.append('<path class="portfolio" d="M 1050 172 H 1081 V 867"/>')
     for name in DEFINITION_ORDER:
         key = definitions[name]
         x, y, width = coords[name]
@@ -235,9 +237,9 @@ def render_flow_relationships(raw: list) -> tuple[str, dict]:
         '<text class="card-text" x="705" y="179">xdesign.\'flow\' : Flow</text>',
         '</g>',
         f'<text x="690" y="224" class="hint" data-native-id="{links["selected"]}">selectedFlow → xdesign.{escape(default_name)} (default)</text>',
-        '<rect class="note" x="54" y="880" width="1032" height="75" rx="10"/>',
-        '<text x="72" y="907" class="note-title">Why Workflow.\'flow\' also appears in the model</text>',
-        f'<text x="72" y="932" class="note-text" data-native-id="{links["wrapper"]}">It redefines XDesign.\'flow\' in the separate Workflow configuration and is typed WorkflowFlow; xdesign.workflowFlow is the portfolio usage.</text>',
+        '<rect class="note" x="54" y="960" width="1032" height="75" rx="10"/>',
+        '<text x="72" y="987" class="note-title">Why Workflow.\'flow\' also appears in the model</text>',
+        f'<text x="72" y="1012" class="note-text" data-native-id="{links["wrapper"]}">It redefines XDesign.\'flow\' in the separate Workflow configuration and is typed WorkflowFlow; xdesign.workflowFlow is the portfolio usage.</text>',
         '</svg>',
     ])
     return "\n".join(svg) + "\n", {

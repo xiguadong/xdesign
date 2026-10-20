@@ -36,6 +36,11 @@ package XDesignComposition {
             @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
             doc /* Executable gated four-stage path with a frozen plan identity. */
         }
+        part designedWishVerifyFlow : DesignedWishVerifyFlow :> 'flow' subsets availableFlows {
+            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
+            doc /* Executable gated two-stage path for judged outcomes; both
+               exits are judged by a permitted agent or human. */
+        }
         part nestedFlowExample : NestedFlowExample :> 'flow' subsets availableFlows {
             @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F05"; }
             doc /* Example of a flow with a design-stage subflow. */

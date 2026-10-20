@@ -389,6 +389,48 @@ viewpoint activityConcern : DocumentationViewpoint
 viewpoint sequenceConcern : DocumentationViewpoint
 viewpoint stateMachineConcern : DocumentationViewpoint
 viewpoint packageConcern : DocumentationViewpoint
+part DesignedWishVerifyFlow
+part WishVerifyCheckpoint
+part WishVerifySemanticCheckpoint
+action EvaluateWishVerifyCheckpoint
+action TakeWishVerifyJudgment
+part WishVerifyFlowRun
+part WishVerifyFlowRunFactory
+action EvaluateWishVerifyGate
+action AdvanceWishVerifyRun
+action ReopenWishVerifyStage
+part WishVerifyAutomation
+occurrence WishVerifyRunTimeline
+part WishVerifyAuthorization
+state WishVerifyRunLifecycle
+usecase ProgressJudgedOutcome
+usecase JudgeRecordedOutcome
+usecase progressJudgedOutcome : ProgressJudgedOutcome
+usecase judgeRecordedOutcome : JudgeRecordedOutcome
+ref item wishVerifyFlowFilePlan
+view wishVerifyFlowFilePlanView
+view wishVerifyFlowTree
+view wishVerifyDesignTree
+view wishVerifyFactoryFlow
+view wishVerifyGateEvaluationFlow
+view wishVerifyActivityDiagram
+view wishVerifyPackageDiagram
+view wishVerifyBlockDefinitionDiagram
+view wishVerifyInternalBlockDiagram
+view wishVerifySequenceDiagram
+view wishVerifyStateMachineDiagram
+view wishVerifyRequirementsDiagram
+view wishVerifyParametricDiagram
+view wishVerifyUseCaseDiagram
+viewpoint wishVerifyBlockDefinitionConcern : DocumentationViewpoint
+viewpoint wishVerifyInternalBlockConcern : DocumentationViewpoint
+viewpoint wishVerifyRequirementsConcern : DocumentationViewpoint
+viewpoint wishVerifyParametricConcern : DocumentationViewpoint
+viewpoint wishVerifyUseCaseConcern : DocumentationViewpoint
+viewpoint wishVerifyActivityConcern : DocumentationViewpoint
+viewpoint wishVerifySequenceConcern : DocumentationViewpoint
+viewpoint wishVerifyStateMachineConcern : DocumentationViewpoint
+viewpoint wishVerifyPackageConcern : DocumentationViewpoint
 ConformanceKind::identifierConformance
 ConformanceKind::artifactPresence
 ConformanceKind::artifactPresence
@@ -545,6 +587,129 @@ XDesignWorkflow
 XDesignDetailedDesign
 XDesignVerification
 XDesignTraceability
+wish
+wishAccepted
+outcomeAccepted
+CheckKind::semantic
+size(checkers) == 0 and (agentMayJudge or humanMayJudge)
+assignedFlow.checkpoints
+self
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            } and
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+openRun.run
+openRun.run
+openRun.run
+checkpoints-&gt;select {
+                in gate : WishVerifyCheckpoint;
+                visit.stage.exitCheckpoints-&gt;includes(gate)
+            }
+readGates.gates
+gate
+EvaluateWishVerifyGate::visit
+run.currentRecord
+run.currentRecord == blockedVisit and
+                blockedVisit.status == StageStatus::blocked and
+                run.status == FlowStatus::blocked
+run.currentRecord
+run.status == FlowStatus::completed and
+                completedVisit.status == StageStatus::completed and
+                completedVisit.stage.completesFlow
+newVisit.stage == completedVisit.stage and
+                newVisit.visitIndex == completedVisit.visitIndex + 1 and
+                newVisit.artifactRevision == 0 and
+                newVisit.status == StageStatus::active
+run.currentRecord == newVisit and
+                run.status == FlowStatus::active
+runner.checkpoints
+run.assignedFlow
+'flow'.wish
+'flow'.'verify'
+size(visit.stage.exitCheckpoints)
+size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })
+visit.subFlowSatisfied
+visit.completionAuthorized
+authorization.requiredGates
+authorization.passedGates
+authorization.subFlowComplete
+authorization.authorized
+run.status == FlowStatus::active
+run.status == FlowStatus::blocked and
+            not run.currentRecord.completionAuthorized
+run.currentRecord.status == StageStatus::active
+run.currentRecord.completionAuthorized and
+            not run.currentRecord.stage.completesFlow
+run.currentRecord.completionAuthorized and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::completed and
+            run.currentRecord.completionAuthorized
+run.status == FlowStatus::blocked and
+            run.currentRecord.status == StageStatus::blocked
+run.status == FlowStatus::completed and
+            run.currentRecord.status == StageStatus::completed and
+            run.currentRecord.stage.completesFlow
+run.status == FlowStatus::active and
+            run.currentRecord.status == StageStatus::active
+XDesignDetailedDesign::wishVerifyFlowFilePlan
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignDetailedDesign::WishVerifyFlowRunFactory
+XDesignDetailedDesign::EvaluateWishVerifyGate
+XDesignDetailedDesign::AdvanceWishVerifyRun
+XDesignDetailedDesign::WishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun
+XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun::*
+XDesignDetailedDesign::EvaluateWishVerifyGate
+XDesignDetailedDesign::EvaluateWishVerifyGate::*
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint
+XDesignDetailedDesign::EvaluateWishVerifyCheckpoint::*
+XDesignArchitecture
+XDesignDetailedDesign
+XDesignComposition
+XDesignRustUml
+XDesignVerification
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignArchitecture::FlowExecution
+XDesignDetailedDesign::WishVerifyFlowRunFactory
+XDesignDetailedDesign::WishVerifyCheckpoint
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignArchitecture::StageRecord
+XDesignArchitecture::CheckpointAssessment
+XDesignDetailedDesign::WishVerifyAutomation
+XDesignDetailedDesign::WishVerifyRunTimeline
+XDesignDetailedDesign::WishVerifyRunLifecycle
+XDesignDetailedDesign::WishVerifyRunLifecycle::*
+XDesignRequirements::designedFlowGatesEveryStage
+XDesignRequirements::semanticCheckNamesItsJudges
+XDesignRequirements::flowRunIsRealizedByDesign
+XDesignRequirements::runRealizesItsDesign
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifyFlowRun
+XDesignVerification::WishVerifyFlowBehaviorVerification
+XDesignDetailedDesign::WishVerifyAuthorization
+XDesignDetailedDesign::WishVerifyAuthorization::*
+XDesignDetailedDesign::GateAuthorization
+XDesignDetailedDesign::ProgressJudgedOutcome
+XDesignDetailedDesign::JudgeRecordedOutcome
+XDesignDetailedDesign::progressJudgedOutcome
+XDesignDetailedDesign::judgeRecordedOutcome
+XDesignDetailedDesign::WishVerifyAutomation
+XDesignWorkflow::WishRequester
+XDesignDetailedDesign::Judge
 c51d2447-c5bd-5f59-8c8c-d63d6cd44461</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="364.03,-501.08 361.03,-505.08 340.03,-505.08 337.03,-501.08 277.5,-501.08 277.5,-423.06 364.03,-423.06 364.03,-501.08" />
 <rect fill="white" stroke="none" x="286.14" y="-495.32" width="69.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="294.14" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -606,6 +771,8 @@ verificationcase RustUmlDesignReview
 verificationcase SimpleFlowGateBehaviorVerification
 verificationcase SimpleFlowRecoveryVerification
 verificationcase SimpleFlowFilePlanVerification
+verificationcase WishVerifyFlowBehaviorVerification
+verificationcase WishVerifyFlowFilePlanVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="119.53,-642.1 116.53,-646.1 95.53,-646.1 92.53,-642.1 0,-642.1 0,-564.08 119.53,-564.08 119.53,-642.1" />
 <rect fill="white" stroke="none" x="8.64" y="-636.34" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="472pt" height="258pt" viewBox="0.00 0.00 472.00 258.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Automation connections</title><desc id="diagram-desc">How do the run and the judge connect?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 240.25)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-240.25 454.25,-240.25 454.25,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="89.5" y="-192.35" font-family="Arial" font-weight="bold" font-size="22.00">Automation connections</text>
+<text xml:space="preserve" text-anchor="start" x="100.38" y="-164" font-family="Arial" font-size="14.00" fill="#52657a">How do the run and the judge connect?</text>
+<g id="cluster_b15e2fe0a83be4654528" class="cluster diagram-group" data-native-id="726f7a28-24ad-5e73-98c0-b02c0a97483b">
+<title>cluster_b15e2fe0a83be4654528</title>
+<path fill="white" stroke="#91a9bd" stroke-width="1.3" d="M20,-8C20,-8 416.25,-8 416.25,-8 422.25,-8 428.25,-14 428.25,-20 428.25,-20 428.25,-131 428.25,-131 428.25,-137 422.25,-143 416.25,-143 416.25,-143 20,-143 20,-143 14,-143 8,-137 8,-131 8,-131 8,-20 8,-20 8,-14 14,-8 20,-8" />
+<text xml:space="preserve" text-anchor="middle" x="98.5" y="-123.8" font-family="Arial" font-size="16.00">Wish-verify automation</text>
+</g>
+
+<g class="edge" data-native-id="a4213760-25ef-575f-b82c-13a274082823" data-source-id="bb7c42ac-172f-53fa-a70a-8cee0eebe50a" data-target-id="92e2b861-0ab5-5382-bb12-4eff7ae44211" data-edge-kind="connection" data-source-port-id="065f5fa2-066b-5606-8f22-2279cf6bed75" data-target-port-id="e287b49e-42a1-57b4-8dee-0a17c10fbdee">
+<title>Judging
+runner.judgment → judge.judgment
+a4213760-25ef-575f-b82c-13a274082823</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M177.25,-62C177.25,-62 278.5,-62 278.5,-62" />
+<text xml:space="preserve" text-anchor="middle" x="227.88" y="-64.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Judging</text>
+</g>
+
+<g id="n756b77103318b0358d8f" class="node diagram-node shape-box" data-native-id="92e2b861-0ab5-5382-bb12-4eff7ae44211" data-shape="box" data-group-id="726f7a28-24ad-5e73-98c0-b02c0a97483b">
+<title>XDesignDetailedDesign::WishVerifyAutomation::judge
+92e2b861-0ab5-5382-bb12-4eff7ae44211
+92e2b861-0ab5-5382-bb12-4eff7ae44211</title>
+<rect x="285.5" y="-96.25" width="118.25" height="68.5" fill="white" stroke="#647A91" stroke-width="1.3" class="node" /><g id="p36ef6ac524fef59f9f7b" class="diagram-port" data-native-id="e287b49e-42a1-57b4-8dee-0a17c10fbdee" data-owner-id="92e2b861-0ab5-5382-bb12-4eff7ae44211" data-side="W"><rect fill="#d9eaf7" stroke="none" x="279.5" y="-69.88" width="12.0" height="15.759999999999998" /><rect fill="none" stroke="#334b64" x="279.5" y="-69.88" width="12.0" height="15.759999999999998" /><text xml:space="preserve" text-anchor="start" x="283.25" y="-53.88" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+<text xml:space="preserve" text-anchor="start" x="295.5" y="-57.12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">review</text>
+<rect fill="none" stroke="none" x="338.5" y="-96.25" width="65.25" height="68.5" /><rect fill="none" stroke="none" x="338.5" y="-96.25" width="65.25" height="68.5" /><text xml:space="preserve" text-anchor="start" x="347.5" y="-74.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="347.5" y="-41.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Judge</text>
+<text xml:space="preserve" text-anchor="start" x="403.75" y="-56.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+
+<g id="n4a033233fb57cfd03338" class="node diagram-node shape-box" data-native-id="bb7c42ac-172f-53fa-a70a-8cee0eebe50a" data-shape="box" data-group-id="726f7a28-24ad-5e73-98c0-b02c0a97483b">
+<title>XDesignDetailedDesign::WishVerifyAutomation::runner
+bb7c42ac-172f-53fa-a70a-8cee0eebe50a
+bb7c42ac-172f-53fa-a70a-8cee0eebe50a</title>
+<rect x="32.5" y="-96.25" width="137.75" height="68.5" fill="white" stroke="#647A91" stroke-width="1.3" class="node" /><text xml:space="preserve" text-anchor="start" x="28" y="-56.38" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+<rect fill="none" stroke="none" x="32.5" y="-96.25" width="84.75" height="68.5" /><rect fill="none" stroke="none" x="32.5" y="-96.25" width="84.75" height="68.5" /><text xml:space="preserve" text-anchor="start" x="41.5" y="-74.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part</text>
+<text xml:space="preserve" text-anchor="start" x="41.5" y="-41.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Flow run</text>
+<text xml:space="preserve" text-anchor="start" x="121.25" y="-57.12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">review</text>
+<g id="pc5308097821827be4093" class="diagram-port" data-native-id="065f5fa2-066b-5606-8f22-2279cf6bed75" data-owner-id="bb7c42ac-172f-53fa-a70a-8cee0eebe50a" data-side="E"><rect fill="#d9eaf7" stroke="none" x="164.25" y="-69.88" width="12.0" height="15.759999999999998" /><rect fill="none" stroke="#334b64" x="164.25" y="-69.88" width="12.0" height="15.759999999999998" /><text xml:space="preserve" text-anchor="start" x="168" y="-53.88" font-family="Arial" font-size="16.00" fill="#172b43" class="name"> </text>
+</g>
+</g>
+</g>
+</svg>

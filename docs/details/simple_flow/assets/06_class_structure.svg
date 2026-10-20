@@ -132,12 +132,12 @@ FeatureTyping of native feature 83424a37-c2e6-5ac7-841e-c735d7c7234b
 </g>
 
 <g class="edge" data-native-id="2873c187-332a-593f-92ae-f967f2c3d8e0" data-source-id="8a61df24-97b6-5fd4-95c5-6f22b99a8b6c" data-target-id="c2f4702c-b750-5c80-a88d-72636c8adca7" data-edge-kind="composition">
-<title>owns visits [4..*]
+<title>owns visits [1..*]
 FeatureTyping of native feature 60c8895b-6d4c-5399-9f9f-61d3db5128a0
 2873c187-332a-593f-92ae-f967f2c3d8e0</title>
 <path fill="none" stroke="#647a91" stroke-width="1.3" d="M645.89,-518.23C660.7,-500.31 677.82,-479.59 691.77,-462.7" />
 <polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="646.14,-517.93 645.55,-523.67 640.02,-525.33 640.61,-519.59 646.14,-517.93" />
-<text xml:space="preserve" text-anchor="middle" x="717.08" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns visits [4..*]</text>
+<text xml:space="preserve" text-anchor="middle" x="717.08" y="-489.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns visits [1..*]</text>
 </g>
 
 <g class="edge" data-native-id="33d678e7-d80c-558a-9179-aadaf74dd8fa" data-source-id="2dd85b61-5755-50a7-9883-bca3ba157373" data-target-id="1198094e-55f3-573d-9a03-89b184ff7599" data-edge-kind="composition">
@@ -362,7 +362,7 @@ attribute wishModelUri
 attribute runRecordUri
 part plan : RsFlowPlan
 attribute status : RsFlowStatus
-part visits : RsStageVisit [4..*]
+part visits : RsStageVisit [1..*]
 attribute currentVisit
 ref part check : RsCheckCommand
 ref part judgment : RsJudge

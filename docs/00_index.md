@@ -23,8 +23,8 @@ A flow may be the full V-model, a four-stage SimpleFlow, or a shorter design or
 two-stage wish or design flow. The model's definitions and recorded runs must be read separately.
 
 The present repository contains model definitions, documentation, a figure renderer, the
-documentation site, and an executable four-stage SimpleFlow module in the xdesign
-crate with four gate commands.
+documentation site, and executable four-stage SimpleFlow and two-stage wish-verify
+modules in the xdesign crate, with four gate commands for the SimpleFlow slice.
 It does not yet contain the complete workflow application or the three VModel gate
 commands ([T01](details/03_toolchain.md#t01),
 [V04](review/01_wish_status.md#v04)). A clean compiler result establishes only its
@@ -56,9 +56,10 @@ review, the SimpleFlow implementation plan, its acceptance checks, and remaining
 | Requirements and traceability | [requirements overview](requirements/00_overview.md#r15), [specification](requirements/01_baseline.md#r04), [inventory](requirements/01_baseline.md#r01), and [trace](requirements/01_baseline.md#r02) | Stage topics written; missing acceptance methods and targets remain explicit |
 | Architecture and concept selection | [wish-to-delivery route](arch/03_wish_to_delivery.md#b30), [architecture design](arch/02_design.md#b05), [composition](arch/01_system_composition.md#b01), and [flows](details/01_flows_and_checkpoints.md#f01) | Stage topics written; deployment, concept comparison, and PDR evidence remain incomplete |
 | Detailed module design | [shared design overview](details/00_overview.md#d42), [SimpleFlow overview](details/simple_flow/00_overview.md#d43), [module design](details/simple_flow/05_module_design.md#d32), [run](details/simple_flow/01_run_design.md#d01), and [gates](details/simple_flow/02_gates_and_rules.md#d05) | Figures embedded with module topics; a four-stage Rust and checker slice runs, while the full application remains open |
+| WishVerifyFlow module design | [WishVerifyFlow overview](details/wish_verify_flow/00_overview.md#d56), [run design](details/wish_verify_flow/01_run_design.md#d57), [gates and judgment](details/wish_verify_flow/02_gates_and_judgment.md#d61), [module design](details/wish_verify_flow/04_module_design.md#d65), and [Rust UML design](details/wish_verify_flow/05_rust_uml_design.md#d75) | Two-stage judged slice designed with figures embedded; `xdesign::wish_verify` exists, executed verification pending in the plan |
 | Interface control and decisions | [interface overview](icd/00_overview.md#i10), [ICD](icd/01_interfaces.md#i01), [ADR overview and register](adr/00_overview.md#j01) | Model-level exchanges documented; transport/versioning undecided and no ADR accepted |
 | Views and figure provenance | [nine-question coverage](details/simple_flow/04_sysml_diagrams.md#d12), [presentation](details/04_diagram_presentation.md#d22), and [toolchain](details/03_toolchain.md#t03) | Figures are embedded in their requirements, architecture, or module section; coverage and provenance are indexed separately |
-| API reference and UML software design | [xdesign API reference](api/00_overview.md#u01), [crate structure](api/01_struct.md#u68), [SimpleFlow Rust UML design](details/simple_flow/06_rust_uml_design.md#d44) | Two-layer inventory with one page per API; the core + simple_flow slice has a first executable implementation |
+| API reference and UML software design | [xdesign API reference](api/00_overview.md#u01), [crate structure](api/01_struct.md#u68), [SimpleFlow Rust UML design](details/simple_flow/06_rust_uml_design.md#d44), [wish-verify Rust UML design](details/wish_verify_flow/05_rust_uml_design.md#d75) | Three-layer inventory with one page per API; the core + simple_flow slice has a first executable implementation, and the wish_verify slice follows it |
 | Project management | [Review synthesis, implementation plan, file plan, acceptance cases, and execution record](prj_manage/00_overview.md#p01) | Review findings, implementation sequence, observed test results, and limits |
 | Reviews and wish outcomes | [review overview](review/00_overview.md#v15), [stage checklist](review/02_checklist.md#v08), and [wish status](review/01_wish_status.md#v02) | Stage gate gaps and historical wish assessments are distinguished |
 
@@ -68,9 +69,9 @@ The actual directory map is:
 | --- | --- |
 | `docs/requirements/` | Requirements specification and traceability |
 | `docs/arch/` | Architecture design and system composition |
-| `docs/details/` | Cross-flow contracts, toolchain, and detailed designs under `simple_flow/` |
+| `docs/details/` | Cross-flow contracts, toolchain, and detailed designs under `simple_flow/` and `wish_verify_flow/` |
 | `docs/icd/`, `docs/adr/`, `docs/review/`, `docs/prj_manage/` | Interface control, decision records, reviews, and project planning |
-| `docs/api/` | The xdesign crate's class-and-function API reference: [inventory and project boundary](api/00_overview.md#u65), [crate structure map](api/01_struct.md#u68), and one page per API under `core/` and `simple_flow/`; module-level UML design stays with its module |
+| `docs/api/` | The xdesign crate's class-and-function API reference: [inventory and project boundary](api/00_overview.md#u65), [crate structure map](api/01_struct.md#u68), and one page per API under `core/`, `simple_flow/`, and `wish_verify_flow/`; module-level UML design stays with its module |
 | Each document directory's `assets/` | Model-rendered figures beside their carrying documents, for example `docs/arch/assets/` and `docs/details/simple_flow/assets/` |
 | `mbse/model/`, `mbse/wishes/` | Reusable project model and independent per-wish traces |
 
@@ -127,6 +128,17 @@ record apply where no specialized run or factory has been designed.
 | Figures | [Designed plan](details/simple_flow/01_run_design.md#d01), [structure](details/simple_flow/03_structure_graphs.md#d08), and the [nine-question coverage index](details/simple_flow/04_sysml_diagrams.md#d12), whose figures sit in stage-owned sections. |
 | Status | Detailed design and generated figures exist; the `xdesign::simple_flow` module, factory, checkers, and local run execute ([P08](prj_manage/03_simple_flow_execution_record.md#p08), [P12](prj_manage/04_simple_flow_review_fix_record.md#p12)). Generic controller integration and durable persistence remain open. |
 
+**`xdesign.designedWishVerifyFlow : DesignedWishVerifyFlow` — gated two-stage judged usage**
+
+| Item | Current design |
+| --- | --- |
+| Purpose and stages | Wish → verify for a judged artifact, with a designed semantic gate at each stage exit ([D57](details/wish_verify_flow/01_run_design.md#d57)). |
+| Exit checkpoints | Two semantic gates, both judged by an agent or a human: `wishAccepted` at the wish stage (this design's addition) and the inherited terminal `outcomeAccepted` at verify ([D61](details/wish_verify_flow/02_gates_and_judgment.md#d61)). |
+| Run and factory | `WishVerifyFlowRun` and `WishVerifyFlowRunFactory::createRun` are modeled in [D58–D59](details/wish_verify_flow/01_run_design.md#d58) and realized by `xdesign::wish_verify` ([U73](api/wish_verify_flow/00_overview.md#u73)). |
+| Rules and checks | No syntactic checkpoint and no checker command exists for this flow; the judgment contract — who may judge, what a judgment must carry, what never becomes a pass — is [D62](details/wish_verify_flow/02_gates_and_judgment.md#d62). |
+| Figures | [Nine-question coverage index](details/wish_verify_flow/03_sysml_diagrams.md#d64), whose figures sit in the sections that answer each question. |
+| Status | Designed and implemented slice per the [wish-verify plan](prj_manage/09_wish_verify_flow_implementation_plan.md#p25); executed cases WV-01–WV-10 are recorded in [P28](prj_manage/09_wish_verify_flow_implementation_plan.md#p28) as they run. Generic controller integration and durable persistence remain open. |
+
 **`xdesign.wishVerifyFlow : WishVerifyFlow` — judged artifact**
 
 | Item | Current design |
@@ -170,6 +182,8 @@ the document structure does not presume only SimpleFlow.
 | `mbse/model/requirements.sysml`, `traceability.sysml` | [inventory](requirements/01_baseline.md#r01), [trace](requirements/01_baseline.md#r02) | Requirements and their model relationships |
 | `mbse/model/architecture.sysml`, `workflow.sysml`, `composition.sysml` | [composition](arch/01_system_composition.md#b01), [flows](details/01_flows_and_checkpoints.md#f03), [records](details/02_records_and_evidence.md#e01) | Structure and lifecycle figures |
 | `mbse/model/detailedDesign.sysml`, `verification.sysml` | [run design](details/simple_flow/01_run_design.md#d01), [file plan and cases](prj_manage/06_file_plan_and_verification.md#d53), [requirement view](requirements/01_baseline.md#d15), [package view](arch/02_design.md#d21), [viewpoint contract](details/05_documentation_contract.md#d29) | Declared viewpoints and stage-owned figures with planned verification |
+| `mbse/model/detailedDesign.sysml` (wishVerify elements), `verification.sysml` (wish-verify cases) | [run design](details/wish_verify_flow/01_run_design.md#d57), [gates and judgment](details/wish_verify_flow/02_gates_and_judgment.md#d61), [module design](details/wish_verify_flow/04_module_design.md#d65), [view coverage](details/wish_verify_flow/03_sysml_diagrams.md#d64), [wish-verify plan](prj_manage/09_wish_verify_flow_implementation_plan.md#p25) | Declared wish-verify viewpoints and figures with planned verification |
+| `mbse/model/uml.sysml` (`crate::wishVerify` and realization dependencies) | [wish-verify Rust UML design](details/wish_verify_flow/05_rust_uml_design.md#d75), [wish-verify API layer](api/wish_verify_flow/00_overview.md#u73) | wishVerify module layout, three flow-level functions, and the realization mapping to the wish-verify design |
 | `mbse/model/uml.sysml` | [Rust UML design](details/simple_flow/06_rust_uml_design.md#d44) | xdesign crate boundary, core + simple_flow layer layout, Rust types, gate interaction, run states, and realization mapping; the [API inventory and boundary](api/00_overview.md#u65) and [crate structure](api/01_struct.md#u68) expand the design |
 | `mbse/wishes/wish-0001.sysml` through `wish-0003.sysml` | [wish status](review/01_wish_status.md#v02) | Independent per-wish trace and assessment evidence |
 | `mbse/wishes/wish-0004.sysml` through `wish-0009.sysml` | [wish-0004](review/01_wish_status.md#v04), [wish-0005](review/01_wish_status.md#v03), [wish-0006](review/01_wish_status.md#v05), [wish-0007](review/01_wish_status.md#v06), [wish-0008](review/01_wish_status.md#v07), [wish-0009](review/01_wish_status.md#v16) | Each independent trace links to its own review section |
@@ -194,7 +208,7 @@ and [V04](review/01_wish_status.md#v04); wish-0008's own outcome must be read fr
 | --- | --- | --- |
 | Functional requirements | Working; no SRR freeze | [R13](requirements/01_baseline.md#r13), [V09](review/02_checklist.md#v09) |
 | Allocated architecture and module design | Working; no PDR or CDR freeze | [B28](arch/02_design.md#b28), [D40](details/simple_flow/05_module_design.md#d40) |
-| Product | Four-stage SimpleFlow slice executed; complete workflow application and VModel gate commands incomplete; no FRR | [P08](prj_manage/03_simple_flow_execution_record.md#p08), [V08](review/02_checklist.md#v08) |
+| Product | Four-stage SimpleFlow slice and two-stage wish-verify slice executed; complete workflow application and VModel gate commands incomplete; no FRR | [P08](prj_manage/03_simple_flow_execution_record.md#p08), [P28](prj_manage/09_wish_verify_flow_implementation_plan.md#p28), [V08](review/02_checklist.md#v08) |
 | SysML model and rendered figures | Revision-4 parse/check, render, audit, and figure verification passed for their stated scopes | [V07](review/01_wish_status.md#v07) |
 
 Run the pinned compiler and inspect its diagnostics as described in [T02](details/03_toolchain.md#t02).

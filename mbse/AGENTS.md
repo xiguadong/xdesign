@@ -13,7 +13,8 @@ model/
 ├── architecture.sysml    → All architecture: logical, physical, and decisions.
 ├── detailedDesign.sysml  → All detailed design.
 ├── uml.sysml             → Software (UML) designs of designed flows, including
-│                           the xdesign crate and its SimpleFlow module.
+│                           the xdesign crate with its SimpleFlow and wishVerify
+│                           modules.
 ├── composition.sysml     → The xdesign instance and its selectable flow portfolio.
 ├── verification.sysml    → All verification cases.
 └── traceability.sysml    → All traceability relationships in the project model.

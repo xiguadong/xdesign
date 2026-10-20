@@ -24,6 +24,7 @@ verify an implementation.
 | [Diagram presentation](04_diagram_presentation.md#d22) | How are model views rendered and checked for readability? | Nine primary views have presentation evidence |
 | [Documentation contract](05_documentation_contract.md#d27) | How do `DocSection`, `DocFigure`, views, and documents stay linked? | Locator audit implemented; engineering meaning still needs review |
 | [SimpleFlow overview](simple_flow/00_overview.md#d43) | Where is the developed SimpleFlow run and module design? | Four-stage crate and commands execute; complete application and VModel commands remain open |
+| [WishVerifyFlow overview](wish_verify_flow/00_overview.md#d56) | Where is the developed wish-verify run and module design? | Two-stage judged slice designed and implemented on the shared core engine; executed verification pending in its plan |
 
 Other modeled flows have overview blocks in [A10](../00_index.md#a10). A new developed
 flow should get its own numbered subdirectory with `00_overview.md`, then its module

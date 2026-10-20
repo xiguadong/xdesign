@@ -9,36 +9,54 @@
 <title>imports
 
 81132f19-e080-5750-84bc-ea466e9b927a</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M342.31,-140.67C342.31,-124.26 342.31,-104.93 342.31,-87.62" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="342.31,-79.82 345.91,-87.82 342.46,-82.24 342.46,-87.82 342.31,-87.82 342.16,-87.82 342.16,-82.24 338.71,-87.82 342.31,-79.82" />
-<text xml:space="preserve" text-anchor="middle" x="364.06" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M287.93,-140.67C297.27,-123.81 308.32,-103.86 318.11,-86.18" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="321.74,-79.63 321.02,-88.37 320.71,-81.81 318,-86.7 317.87,-86.62 317.74,-86.55 320.44,-81.67 314.72,-84.88 321.74,-79.63" />
+<text xml:space="preserve" text-anchor="middle" x="329.25" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="89ebefaa-1cb4-5643-a0ee-f746f3b40407" data-source-id="f1f9d4bd-6b4c-5458-a0c5-fad852080942" data-target-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-edge-kind="dependency">
+<title>imports
+
+89ebefaa-1cb4-5643-a0ee-f746f3b40407</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M400.17,-140.67C390.7,-123.81 379.51,-103.86 369.59,-86.18" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="365.91,-79.62 372.97,-84.84 367.23,-81.66 369.96,-86.53 369.83,-86.6 369.7,-86.67 366.96,-81.8 366.69,-88.36 365.91,-79.62" />
+<text xml:space="preserve" text-anchor="middle" x="406.78" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g id="nd7a672ef04ce87f6876a" class="node diagram-node shape-package" data-native-id="a699c535-8fa6-56f0-af1d-500500d4a5c4" data-shape="package">
 <title>XDesignRustUml::crate
 a699c535-8fa6-56f0-af1d-500500d4a5c4
 a699c535-8fa6-56f0-af1d-500500d4a5c4</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="246.45,-219.04 243.45,-223.04 222.45,-223.04 219.45,-219.04 162.17,-219.04 162.17,-141.02 246.45,-141.02 246.45,-219.04" />
-<rect fill="white" stroke="none" x="170.81" y="-213.28" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="178.81" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="178.81" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Crate</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="170.83,-219.04 167.83,-223.04 146.83,-223.04 143.83,-219.04 86.55,-219.04 86.55,-141.02 170.83,-141.02 170.83,-219.04" />
+<rect fill="white" stroke="none" x="95.19" y="-213.28" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="103.19" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="103.19" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Crate</text>
 </g>
 
 <g id="nafe7f785c44045286d0c" class="node diagram-node shape-package" data-native-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-shape="package">
 <title>XDesignRustUml::crate::core
 6b5e3e99-35c1-5d24-a5b6-8fc12374a532
 6b5e3e99-35c1-5d24-a5b6-8fc12374a532</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="384.45,-78.02 381.45,-82.02 360.45,-82.02 357.45,-78.02 300.17,-78.02 300.17,0 384.45,0 384.45,-78.02" />
-<rect fill="white" stroke="none" x="308.81" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="316.81" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="316.81" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Core</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="385.83,-78.02 382.83,-82.02 361.83,-82.02 358.83,-78.02 301.55,-78.02 301.55,0 385.83,0 385.83,-78.02" />
+<rect fill="white" stroke="none" x="310.19" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="318.19" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="318.19" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Core</text>
 </g>
 
 <g id="n273358b4ecf7f4c055ab" class="node diagram-node shape-package" data-native-id="9d0cb894-ff95-5086-b7c9-a80dad121276" data-shape="package">
 <title>XDesignRustUml::crate::simpleFlow
 9d0cb894-ff95-5086-b7c9-a80dad121276
 9d0cb894-ff95-5086-b7c9-a80dad121276</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="405.83,-219.04 402.83,-223.04 381.83,-223.04 378.83,-219.04 278.8,-219.04 278.8,-141.02 405.83,-141.02 405.83,-219.04" />
-<rect fill="white" stroke="none" x="287.44" y="-213.28" width="109.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="295.44" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="295.44" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Simple Flow</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="330.2,-219.04 327.2,-223.04 306.2,-223.04 303.2,-219.04 203.17,-219.04 203.17,-141.02 330.2,-141.02 330.2,-219.04" />
+<rect fill="white" stroke="none" x="211.81" y="-213.28" width="109.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="219.81" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="219.81" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Simple Flow</text>
+</g>
+
+<g id="nd1d71c5944cdb87b5797" class="node diagram-node shape-package" data-native-id="f1f9d4bd-6b4c-5458-a0c5-fad852080942" data-shape="package">
+<title>XDesignRustUml::crate::wishVerify
+f1f9d4bd-6b4c-5458-a0c5-fad852080942
+f1f9d4bd-6b4c-5458-a0c5-fad852080942</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="481.45,-219.04 478.45,-223.04 457.45,-223.04 454.45,-219.04 361.92,-219.04 361.92,-141.02 481.45,-141.02 481.45,-219.04" />
+<rect fill="white" stroke="none" x="370.56" y="-213.28" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="378.56" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="378.56" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Wish Verify</text>
 </g>
 </g>
 </svg>

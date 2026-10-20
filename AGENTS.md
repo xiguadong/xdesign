@@ -26,18 +26,21 @@ The project MBSE model expresses the first. An independent SysML traceability mo
 
 Store all local project environments, including development and test environments, under `cache/`. Configure tools to place all caches, temporary data, and temporary files there as well. The entire `cache/` directory is excluded from version control.
 
-## SimpleFlow-First Implementation
+## Executable Flow Slices
 
-The active implementation sequence is recorded in
-`docs/prj_manage/02_simple_flow_implementation_plan.md`. Read its review basis,
+The SimpleFlow implementation sequence is recorded in
+`docs/prj_manage/02_simple_flow_implementation_plan.md`, and the executable
+two-stage wish-verify slice that followed it in
+`docs/prj_manage/09_wish_verify_flow_implementation_plan.md`. Read a plan's review basis,
 source-file plan, verification cases, and acceptance boundary before changing the
-SimpleFlow model, API, checker commands, or run code. Keep the plan and its linked
+corresponding flow's model, API, checker commands, or run code. Keep the plan and its linked
 design documents current when a decision, source path, or verification result changes.
 The local `cn_todos` template supplied a useful task/analysis/acceptance structure;
 this repository uses the English plan in `docs/prj_manage/` as its project record.
 
-Implement and verify the gated four-stage SimpleFlow as the first executable slice.
-Do not describe that slice as a complete V-model workflow: the default V-model gate
+The gated four-stage SimpleFlow and the gated two-stage wish-verify flow are the
+executed executable slices.
+Do not describe those slices as a complete V-model workflow: the default V-model gate
 commands, generic controller integration, persistence, and project-level acceptance
 have separate obligations. A declared verification case or a passing SysML compiler
 check is not an executed engineering result; retain command logs and evidence under

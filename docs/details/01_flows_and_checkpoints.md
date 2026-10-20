@@ -55,7 +55,8 @@ wish-0002 and recorded in its trace ([T04](03_toolchain.md#t04)).
 
 `XDesignArchitecture::Flow` is the reusable workflow type. Its definitions form
 three branches: `VModel`; `SimpleFlow` with `WorkflowFlow`, `DesignedSimpleFlow`, and
-`NestedFlowExample`; and `WishVerifyFlow` with `DesignFlow`. In particular,
+`NestedFlowExample`; and `WishVerifyFlow` with `DesignFlow` and
+`DesignedWishVerifyFlow`. In particular,
 `WorkflowFlow` and `DesignedSimpleFlow` are siblings. One does not inherit the other.
 
 `XDesignComposition::xdesign` owns the concrete selectable usages. The abstract
@@ -96,6 +97,7 @@ application.
 | `xdesign.wishVerifyFlow : WishVerifyFlow` | `wish` → `'verify'` | `outcomeAccepted` (semantic) | A judged artifact, such as documentation or analysis |
 | `xdesign.designFlow : DesignFlow` | `wish` → `'verify'` | `sysmlDeliverableAccepted` (syntactic, judged by the pinned compiler), `outcomeAccepted` (semantic) | A SysML design deliverable and its documentation, before implementation ([V05](../review/01_wish_status.md#v05)) |
 | `xdesign.designedSimpleFlow : DesignedSimpleFlow` | The four `SimpleFlow` stages, in order | 5: four fixed syntactic gates and inherited semantic `verificationAccepted` | An executable gated run ([D01](simple_flow/01_run_design.md#d01), [D07](simple_flow/02_gates_and_rules.md#d07), [P08](../prj_manage/03_simple_flow_execution_record.md#p08)) |
+| `xdesign.designedWishVerifyFlow : DesignedWishVerifyFlow` | The two `WishVerifyFlow` stages, `wish` → `'verify'`, in order | 2, both semantic: `wishAccepted` (added at the wish stage) and inherited terminal `outcomeAccepted`, each judged by a permitted agent or human | An executable gated judged run ([D57](wish_verify_flow/01_run_design.md#d57), [D61](wish_verify_flow/02_gates_and_judgment.md#d61), [P25](../prj_manage/09_wish_verify_flow_implementation_plan.md#p25)) |
 | `xdesign.nestedFlowExample : NestedFlowExample` | Four `SimpleFlow` stages; `design` has a nested four-stage subflow | `verificationAccepted` (semantic) at the outer terminal stage | Demonstrates the subflow completion rule ([F05](#f05)) |
 
 ![The wish → verify flow: two stages, one semantic checkpoint](assets/01_wish_verify_flow.svg)
@@ -129,6 +131,18 @@ and commands for each syntactic gate are implemented in the four-stage local sli
 [D06](simple_flow/02_gates_and_rules.md#d06),
 [D07](simple_flow/02_gates_and_rules.md#d07),
 [P08](../prj_manage/03_simple_flow_execution_record.md#p08)).
+
+`DesignedWishVerifyFlow` specializes `WishVerifyFlow` the same way, without changing
+the historical `xdesign.wishVerifyFlow` usage or its wish-0005 and wish-0009 records.
+It adds a semantic exit gate, `wishAccepted`, to the wish stage the architecture left
+ungated — a designed flow gates every stage — and retypes the inherited terminal
+`outcomeAccepted` so the run evaluates both gates through one checkpoint class. Both
+gates are judged by a permitted agent or human; the flow declares no syntactic
+checkpoint and no checker, because the architecture states that nothing in this flow's
+outcome is established by a fixed check. Its design, judgment contract, and views are
+documented under [details/wish_verify_flow/](wish_verify_flow/00_overview.md#d56),
+and its Rust slice is `xdesign::wish_verify`
+([P25](../prj_manage/09_wish_verify_flow_implementation_plan.md#p25)).
 
 The shared flow definitions and controller rules stay in this document. A flow's
 specialized design belongs in its own addressable location: the current developed

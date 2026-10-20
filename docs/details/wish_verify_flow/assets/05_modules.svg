@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="542pt" height="326pt" viewBox="0.00 0.00 542.00 326.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Wish-verify module</title><desc id="diagram-desc">Where does the wish-verify module sit in the crate, and what may it depend on?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 308.29)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-308.29 523.75,-308.29 523.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="152.38" y="-260.39" font-family="Arial" font-weight="bold" font-size="22.00">Wish-verify module</text>
+<text xml:space="preserve" text-anchor="start" x="14" y="-232.04" font-family="Arial" font-size="14.00" fill="#52657a">Where does the wish-verify module sit in the crate, and what may it depend on?</text>
+
+<g class="edge" data-native-id="89ebefaa-1cb4-5643-a0ee-f746f3b40407" data-source-id="f1f9d4bd-6b4c-5458-a0c5-fad852080942" data-target-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-edge-kind="dependency">
+<title>imports
+
+89ebefaa-1cb4-5643-a0ee-f746f3b40407</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M188.5,-140.67C188.5,-124.26 188.5,-104.93 188.5,-87.62" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="188.5,-79.82 192.1,-87.82 188.65,-82.24 188.65,-87.82 188.5,-87.82 188.35,-87.82 188.35,-82.24 184.9,-87.82 188.5,-79.82" />
+<text xml:space="preserve" text-anchor="middle" x="210.25" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="d6cdf66d-7c03-58f3-a174-c94a8c7c2abc" data-source-id="d07b47df-4241-5a75-8e35-52b3b84c5edf" data-target-id="1ef39000-a091-55ab-8390-2a9f31cc8540" data-edge-kind="dependency">
+<title>imports
+
+d6cdf66d-7c03-58f3-a174-c94a8c7c2abc</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M325.5,-140.67C325.5,-124.26 325.5,-104.93 325.5,-87.62" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="325.5,-79.82 329.1,-87.82 325.65,-82.24 325.65,-87.82 325.5,-87.82 325.35,-87.82 325.35,-82.24 321.9,-87.82 325.5,-79.82" />
+<text xml:space="preserve" text-anchor="middle" x="347.25" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g id="nafe7f785c44045286d0c" class="node diagram-node shape-package" data-native-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-shape="package">
+<title>XDesignRustUml::crate::core
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="230.64,-78.02 227.64,-82.02 206.64,-82.02 203.64,-78.02 146.36,-78.02 146.36,0 230.64,0 230.64,-78.02" />
+<rect fill="white" stroke="none" x="155.0" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="163" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="163" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Core</text>
+</g>
+
+<g id="nd1d71c5944cdb87b5797" class="node diagram-node shape-package" data-native-id="f1f9d4bd-6b4c-5458-a0c5-fad852080942" data-shape="package">
+<title>XDesignRustUml::crate::wishVerify
+f1f9d4bd-6b4c-5458-a0c5-fad852080942
+f1f9d4bd-6b4c-5458-a0c5-fad852080942</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="248.26,-219.04 245.26,-223.04 224.26,-223.04 221.26,-219.04 128.74,-219.04 128.74,-141.02 248.26,-141.02 248.26,-219.04" />
+<rect fill="white" stroke="none" x="137.38" y="-213.28" width="102.24000000000001" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="145.38" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="145.38" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Wish Verify</text>
+</g>
+
+<g id="ndc6af9f52c7ad5df33f9" class="node diagram-node shape-package" data-native-id="1ef39000-a091-55ab-8390-2a9f31cc8540" data-shape="package">
+<title>XDesignRustUml::crate::wishVerify::blueprint
+1ef39000-a091-55ab-8390-2a9f31cc8540
+1ef39000-a091-55ab-8390-2a9f31cc8540</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="377.01,-78.02 374.01,-82.02 353.01,-82.02 350.01,-78.02 273.99,-78.02 273.99,0 377.01,0 377.01,-78.02" />
+<rect fill="white" stroke="none" x="282.62" y="-72.26" width="85.75999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="290.62" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="290.62" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Blueprint</text>
+</g>
+
+<g id="n13a19d9aa96251e54842" class="node diagram-node shape-package" data-native-id="d07b47df-4241-5a75-8e35-52b3b84c5edf" data-shape="package">
+<title>XDesignRustUml::crate::wishVerify::factory
+d07b47df-4241-5a75-8e35-52b3b84c5edf
+d07b47df-4241-5a75-8e35-52b3b84c5edf</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="371.01,-219.04 368.01,-223.04 347.01,-223.04 344.01,-219.04 279.99,-219.04 279.99,-141.02 371.01,-141.02 371.01,-219.04" />
+<rect fill="white" stroke="none" x="288.62" y="-213.28" width="73.75999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="296.62" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="296.62" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Factory</text>
+</g>
+</g>
+</svg>

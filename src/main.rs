@@ -9,6 +9,7 @@ use xdesign::core::{
     RsJudgeAuthority, RsSuppliedJudge,
 };
 use xdesign::simple_flow::{create_designed_run, designed_simple_flow_plan, RsProcessCheck};
+use xdesign::wish_verify::{create_wish_verify_run, wish_verify_flow_plan};
 
 fn option(args: &[String], name: &str) -> Result<String, String> {
     let index = args
@@ -172,6 +173,89 @@ fn run_demo(args: &[String]) -> Result<(), String> {
     Ok(())
 }
 
+fn run_wish_verify_demo(args: &[String]) -> Result<(), String> {
+    let wish = option(args, "--wish-model")?;
+    let plan_uri = option(args, "--plan")?;
+    let record_uri = option(args, "--record")?;
+    let verify_evidence = option(args, "--verify-evidence")?;
+    let judge_authority = match option(args, "--judge-authority")?.as_str() {
+        "agent" => RsJudgeAuthority::Agent,
+        "human" => RsJudgeAuthority::Human,
+        _ => return Err("--judge-authority must be agent or human".into()),
+    };
+    let judge_outcome = match option(args, "--judge-outcome")?.as_str() {
+        "passed" => RsCheckpointOutcome::Passed,
+        "failed" => RsCheckpointOutcome::Failed,
+        "unevaluated" => RsCheckpointOutcome::Unevaluated,
+        _ => return Err("--judge-outcome must be passed, failed, or unevaluated".into()),
+    };
+    let judge_identity = option(args, "--judge-identity")?;
+    let judge_rationale = option(args, "--judge-rationale")?;
+    if judge_identity.trim().is_empty() || judge_rationale.trim().is_empty() {
+        return Err("judge identity and rationale must be nonempty".into());
+    }
+    if !plan_uri.starts_with("cache/") || !record_uri.starts_with("cache/") {
+        return Err("plan and record output must be under cache/".into());
+    }
+    if !Path::new(&wish).is_file() || !wish.ends_with(".sysml") {
+        return Err("wish model must be an existing .sysml file".into());
+    }
+    if !Path::new(&verify_evidence).is_file() {
+        return Err("verification evidence file is missing".into());
+    }
+    let mut plan = wish_verify_flow_plan();
+    plan.freeze(plan_uri).map_err(|e| format!("plan: {e:?}"))?;
+    let judge = RsSuppliedJudge {
+        authority: judge_authority,
+        identity: judge_identity,
+        outcome: judge_outcome,
+        rationale: judge_rationale,
+    };
+    let mut run = create_wish_verify_run(plan, &wish, &record_uri, judge)
+        .map_err(|e| format!("create run: {e:?}"))?;
+    run.write_record()?;
+    for stage in ["wish", "verify"] {
+        if run.current().stage_id() != stage {
+            return Err(format!(
+                "expected {stage}, got {}",
+                run.current().stage_id()
+            ));
+        }
+        let artifact = match stage {
+            "wish" => &wish,
+            "verify" => &verify_evidence,
+            _ => return Err(format!("unknown stage: {stage}")),
+        };
+        let activity = RsActivityEntry {
+            description: format!("Record {stage} stage input artifacts"),
+            performed_by: "xdesign wish-verify demo caller".into(),
+            occurred_at: timestamp(),
+            artifact_uris: vec![artifact.clone()],
+            artifacts_changed: true,
+            artifact_digests: vec![hash_artifact(artifact)?],
+            removed_artifact_uris: vec![],
+        };
+        run.record_activity(activity)?;
+        let entries = run.evaluate_gates();
+        println!(
+            "{stage}: {}",
+            serde_json::to_string(&entries).map_err(|e| e.to_string())?
+        );
+        let outcome = run.advance();
+        println!("{stage} advance: {outcome:?}");
+        if outcome == RsAdvanceOutcome::RemainBlocked {
+            return Err(format!(
+                "run blocked at {stage}; record retained at {record_uri}"
+            ));
+        }
+    }
+    if run.status() != RsFlowStatus::Completed {
+        return Err("run did not complete".into());
+    }
+    println!("completed run {}: {record_uri}", run.run_id());
+    Ok(())
+}
+
 #[cfg(test)]
 mod main_wish_tests;
 
@@ -181,7 +265,10 @@ fn main() {
         Some("simple-flow") if args.get(2).map(String::as_str) == Some("demo") => {
             run_demo(&args[3..])
         }
-        _ => Err("usage: xdesign simple-flow demo --wish-model PATH --plan cache/PLAN.json --record cache/RECORD.json --verify-evidence PATH --judge-authority agent|human --judge-identity NAME --judge-outcome passed|failed|unevaluated --judge-rationale TEXT".into()),
+        Some("wish-verify") if args.get(2).map(String::as_str) == Some("demo") => {
+            run_wish_verify_demo(&args[3..])
+        }
+        _ => Err("usage: xdesign <simple-flow|wish-verify> demo --wish-model PATH --plan cache/PLAN.json --record cache/RECORD.json --verify-evidence PATH --judge-authority agent|human --judge-identity NAME --judge-outcome passed|failed|unevaluated --judge-rationale TEXT".into()),
     };
     if let Err(error) = result {
         eprintln!("xdesign: {error}");

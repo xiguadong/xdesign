@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="767pt" height="824pt" viewBox="0.00 0.00 767.00 824.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Run structure</title><desc id="diagram-desc">Which reusable types make up a wish-verify run?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 806.25)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-806.25 748.88,-806.25 748.88,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="293.81" y="-758.35" font-family="Arial" font-weight="bold" font-size="22.00">Run structure</text>
+<text xml:space="preserve" text-anchor="start" x="217.69" y="-730" font-family="Arial" font-size="14.00" fill="#52657a">Which reusable types make up a wish-verify run?</text>
+
+<g class="edge" data-native-id="af1b5d83-04bf-593b-99fe-ef4708a52c83" data-source-id="2e904b11-914f-5b18-aa3c-ab9e4d42c4db" data-target-id="b677b6dc-c8ac-5c88-87e1-dcad50036d5a" data-edge-kind="specialization">
+<title>
+
+af1b5d83-04bf-593b-99fe-ef4708a52c83</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M534.82,-575.45C531.46,-558.81 528.88,-546 528.88,-546 528.88,-546 519.78,-535.48 507.83,-521.68" />
+<polygon fill="none" stroke="#647a91" stroke-width="1.3" points="532.04,-575.81 536.36,-583.09 537.53,-574.7 532.04,-575.81" />
+</g>
+
+<g class="edge" data-native-id="49f011f0-0e6d-5dc8-bc80-7b155286a856" data-source-id="4036ec66-3f7d-51db-aeb2-7830d8ebdfbd" data-target-id="46378ea8-ab0b-5d58-ab13-1286e4886d4c" data-edge-kind="composition">
+<title>owns assessments [0..*]
+FeatureTyping of native feature d976bad9-81cf-5a25-8f33-de2840fe2589
+49f011f0-0e6d-5dc8-bc80-7b155286a856</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M449.55,-184.61C449.29,-176.43 449.12,-171 449.12,-171 449.12,-171 449.12,-156 449.12,-156 449.12,-156 449.45,-145.48 449.88,-131.68" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="449.54,-184.55 452.89,-189.25 449.84,-194.15 446.49,-189.45 449.54,-184.55" />
+<text xml:space="preserve" text-anchor="middle" x="521.5" y="-158.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns assessments [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="4f53565a-70a1-5103-b962-a2c2e2baec87" data-source-id="c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff" data-target-id="46378ea8-ab0b-5d58-ab13-1286e4886d4c" data-edge-kind="reference">
+<title>ref assessments [0..*]
+FeatureTyping of native feature 3c25f372-d77e-5d93-a1dd-e963c96dc6ec
+4f53565a-70a1-5103-b962-a2c2e2baec87</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M154.82,-585.06C229.46,-508.05 343.88,-390 343.88,-390 343.88,-390 601.88,-366 601.88,-366 601.88,-366 601.88,-351 601.88,-351 601.88,-351 597.88,-156 597.88,-156 597.88,-156 579.19,-144.61 555.18,-129.98" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="548.57,-125.95 557.28,-127.04 550.71,-127.08 555.48,-129.98 555.4,-130.11 555.33,-130.24 550.56,-127.33 553.53,-133.18 548.57,-125.95" />
+<text xml:space="preserve" text-anchor="middle" x="666.38" y="-353.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref assessments [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="efa9b306-094a-5b5f-b0c7-827b9b683c80" data-source-id="c78e47ef-5ea9-5b12-84b4-54010d132f0c" data-target-id="c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff" data-edge-kind="specialization">
+<title>
+
+efa9b306-094a-5b5f-b0c7-827b9b683c80</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M91.88,-575.51C91.88,-557.85 91.88,-539.16 91.88,-521.96" />
+<polygon fill="none" stroke="#647a91" stroke-width="1.3" points="89.08,-575.23 91.88,-583.23 94.68,-575.23 89.08,-575.23" />
+</g>
+
+<g class="edge" data-native-id="6e6115e2-976d-53a1-b67f-300a72a796b1" data-source-id="2e904b11-914f-5b18-aa3c-ab9e4d42c4db" data-target-id="4036ec66-3f7d-51db-aeb2-7830d8ebdfbd" data-edge-kind="composition">
+<title>owns stage records [2..*]
+FeatureTyping of native feature 909b3cab-b3ac-5e03-a6bd-c8ae495664a8
+6e6115e2-976d-53a1-b67f-300a72a796b1</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M449.76,-379.61C449.53,-371.43 449.38,-366 449.38,-366 449.38,-366 449.38,-351 449.38,-351 449.38,-351 449.67,-340.48 450.06,-326.68" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="449.76,-379.55 453.09,-384.26 450.03,-389.15 446.69,-384.44 449.76,-379.55" />
+<text xml:space="preserve" text-anchor="middle" x="523.62" y="-353.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns stage records [2..*]</text>
+</g>
+
+<g class="edge" data-native-id="13d05b74-8c89-56c5-847a-dbf43fe4f5aa" data-source-id="2e904b11-914f-5b18-aa3c-ab9e4d42c4db" data-target-id="c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff" data-edge-kind="reference">
+<title>ref checkpoints [0..*]
+FeatureTyping of native feature f1e10bfc-4c0f-5b36-8f27-2c5863864f7e
+13d05b74-8c89-56c5-847a-dbf43fe4f5aa</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M400.64,-521.98C384.07,-543 369.88,-561 369.88,-561 369.88,-561 198.88,-585 198.88,-585 198.88,-585 195.81,-586.86 190.72,-589.95" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="183.98,-594.05 188.95,-586.82 185.96,-592.67 190.74,-589.77 190.82,-589.9 190.89,-590.02 186.12,-592.92 192.68,-592.97 183.98,-594.05" />
+<text xml:space="preserve" text-anchor="middle" x="441.16" y="-548.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref checkpoints [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="ab8f5bf6-66b7-5319-8555-5f5e80b39016" data-source-id="1e04c650-c0ac-5e10-93e5-07339fd2468e" data-target-id="2e904b11-914f-5b18-aa3c-ab9e4d42c4db" data-edge-kind="reference">
+<title>returns run
+
+ab8f5bf6-66b7-5319-8555-5f5e80b39016</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M301.51,-585.32C301.01,-571.52 300.62,-561 300.62,-561 300.62,-561 300.62,-546 300.62,-546 300.62,-546 323.96,-532.27 352.29,-515.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="359.04,-511.63 353.97,-518.79 357.03,-512.98 352.22,-515.81 352.14,-515.69 352.07,-515.56 356.88,-512.72 350.32,-512.58 359.04,-511.63" />
+<text xml:space="preserve" text-anchor="middle" x="333.25" y="-548.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">returns run</text>
+</g>
+
+<g id="n9e3e4fd3877d7e6b6424" class="node diagram-node shape-box" data-native-id="46378ea8-ab0b-5d58-ab13-1286e4886d4c" data-shape="box">
+<title>XDesignArchitecture::CheckpointAssessment
+46378ea8-ab0b-5d58-ab13-1286e4886d4c
+ref part checkpoint : Checkpoint
+attribute evaluatedRevision
+attribute outcome : CheckpointOutcome
+attribute judgedBy : JudgeAuthority
+attribute assessor
+attribute rationale
+attribute evidenceUris [0..*]
+ref item activities : ActivityRecord [0..*]
+assertconstraint passedAssessmentHasEvidence
+assertconstraint judgmentMatchesCheckpointKind
+CheckpointOutcome::unevaluated
+outcome != CheckpointOutcome::passed or size(evidenceUris) &gt; 0
+(checkpoint.kind != CheckKind::syntactic or judgedBy == JudgeAuthority::script) and
+            (checkpoint.kind != CheckKind::semantic or judgedBy != JudgeAuthority::script)
+46378ea8-ab0b-5d58-ab13-1286e4886d4c</title>
+<rect fill="white" stroke="none" x="356.25" y="-132.0" width="191.25" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="356.25,-64.5 356.25,-64.5 547.5,-64.5 547.5,-64.5 356.25,-64.5" />
+<rect fill="none" stroke="#647a91" x="356.25" y="-132.0" width="191.25" height="132.0" /><text xml:space="preserve" text-anchor="start" x="365.25" y="-110.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-77.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Assessment</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-43.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Verdict, evidence and judged</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">revision</text>
+</g>
+
+<g id="ne0290fdabbbc38f0f121" class="node diagram-node shape-box" data-native-id="b677b6dc-c8ac-5c88-87e1-dcad50036d5a" data-shape="box">
+<title>XDesignArchitecture::FlowExecution
+b677b6dc-c8ac-5c88-87e1-dcad50036d5a
+ref part assignedFlow : Flow
+attribute status : FlowStatus
+part stageRecords : StageRecord [1..*]
+ref part currentRecord : StageRecord [0..1]
+assertconstraint recordsEveryFlowStage
+assertconstraint recordsUseAssignedFlow
+assertconstraint completedFlowHasAuthorizedTerminalStage
+FlowStatus::pending
+assignedFlow.stages-&gt;forAll { in requiredStage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == requiredStage
+                }
+            }
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            }
+status != FlowStatus::completed or
+            currentRecord-&gt;exists { in record : StageRecord;
+                record.stage.completesFlow and
+                record.status == StageStatus::completed and
+                record.completionAuthorized
+            }
+b677b6dc-c8ac-5c88-87e1-dcad50036d5a</title>
+<rect fill="white" stroke="none" x="464.38" y="-717.0" width="171.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="464.38,-649.5 464.38,-649.5 635.38,-649.5 635.38,-649.5 464.38,-649.5" />
+<rect fill="none" stroke="#647a91" x="464.38" y="-717.0" width="171.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="473.38" y="-695.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="473.38" y="-662.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run record</text>
+<text xml:space="preserve" text-anchor="start" x="473.38" y="-628.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Owns the history of stage</text>
+<text xml:space="preserve" text-anchor="start" x="473.38" y="-597" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">visits</text>
+</g>
+
+<g id="n3d459be97c088abe2300" class="node diagram-node shape-box" data-native-id="4036ec66-3f7d-51db-aeb2-7830d8ebdfbd" data-shape="box">
+<title>XDesignArchitecture::StageRecord
+4036ec66-3f7d-51db-aeb2-7830d8ebdfbd
+ref part stage : Stage
+attribute visitIndex
+attribute status : StageStatus
+attribute artifactRevision
+part subFlowExecution : FlowExecution [0..1]
+item activities : ActivityRecord [0..*]
+item assessments : CheckpointAssessment [0..*]
+ref item currentAssessments : CheckpointAssessment [0..*]
+assertconstraint selectsLatestAssessments
+attribute checkpointsSatisfied
+assertconstraint subFlowExecutionMatchesStage
+attribute subFlowSatisfied
+attribute completionAuthorized
+assertconstraint completedStageIsAuthorized
+StageStatus::pending
+currentAssessments-&gt;forAll { in candidate : CheckpointAssessment;
+                stage.exitCheckpoints-&gt;includes(candidate.checkpoint) and
+                candidate == (assessments-&gt;select { in historical : CheckpointAssessment;
+                    historical.checkpoint == candidate.checkpoint
+                })-&gt;last()
+            }
+stage.exitCheckpoints-&gt;forAll { in checkpoint : Checkpoint;
+                currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                    assessment.checkpoint == checkpoint and
+                    assessment.outcome == CheckpointOutcome::passed and
+                    assessment.evaluatedRevision == artifactRevision
+                }
+            }
+subFlowExecution-&gt;forAll { in execution : FlowExecution;
+                execution.assignedFlow == stage.subFlow
+            }
+size(stage.subFlow) == 0 or
+            subFlowExecution-&gt;exists { in execution : FlowExecution;
+                execution.assignedFlow == stage.subFlow and
+                execution.status == FlowStatus::completed
+            }
+subFlowSatisfied and checkpointsSatisfied
+status != StageStatus::completed or completionAuthorized
+4036ec66-3f7d-51db-aeb2-7830d8ebdfbd</title>
+<rect fill="white" stroke="none" x="356.25" y="-327.0" width="191.25" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="356.25,-259.5 356.25,-259.5 547.5,-259.5 547.5,-259.5 356.25,-259.5" />
+<rect fill="none" stroke="#647a91" x="356.25" y="-327.0" width="191.25" height="132.0" /><text xml:space="preserve" text-anchor="start" x="365.25" y="-305.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-272.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Stage visit</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Artifacts and assessments at</text>
+<text xml:space="preserve" text-anchor="start" x="365.25" y="-207" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">one revision</text>
+</g>
+
+<g id="n524e55f03e909e182814" class="node diagram-node shape-box" data-native-id="c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyCheckpoint
+c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff
+ref item assessments : CheckpointAssessment [0..*]
+performaction evaluate : EvaluateWishVerifyCheckpoint
+c1bdcb3a-caf2-54b7-a64f-ee011d1fcbff</title>
+<rect fill="white" stroke="none" x="1.12" y="-717.0" width="181.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="1.12,-649.5 1.12,-649.5 182.62,-649.5 182.62,-649.5 1.12,-649.5" />
+<rect fill="none" stroke="#647a91" x="1.12" y="-717.0" width="181.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="10.12" y="-695.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="10.12" y="-662.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Checkpoint</text>
+<text xml:space="preserve" text-anchor="start" x="10.12" y="-628.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Presents one gate's criteria</text>
+<text xml:space="preserve" text-anchor="start" x="10.12" y="-597" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">to a permitted judge</text>
+</g>
+
+<g id="n1e50ec8acbf9e3aa764d" class="node diagram-node shape-box" data-native-id="2e904b11-914f-5b18-aa3c-ab9e4d42c4db" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyFlowRun
+2e904b11-914f-5b18-aa3c-ab9e4d42c4db
+ref part assignedFlow : DesignedWishVerifyFlow
+ref part checkpoints : WishVerifyCheckpoint [0..*]
+part stageRecords : StageRecord [2..*]
+port judgment : ~JudgmentExchange
+eventoccurrence created
+eventoccurrence completed
+exhibitstate lifecycle : WishVerifyRunLifecycle
+performaction evaluateGate : EvaluateWishVerifyGate
+performaction advance : AdvanceWishVerifyRun
+performaction reopenStage : ReopenWishVerifyStage
+assertconstraint visitsRealizeThePlannedStages
+assignedFlow.checkpoints
+self
+stageRecords-&gt;forAll { in record : StageRecord;
+                assignedFlow.stages-&gt;includes(record.stage)
+            } and
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
+                stageRecords-&gt;exists { in record : StageRecord;
+                    record.stage == stage
+                }
+            }
+2e904b11-914f-5b18-aa3c-ab9e4d42c4db</title>
+<rect fill="white" stroke="none" x="360.0" y="-522.0" width="183.75" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="360,-454.5 360,-454.5 543.75,-454.5 543.75,-454.5 360,-454.5" />
+<rect fill="none" stroke="#647a91" x="360.0" y="-522.0" width="183.75" height="132.0" /><text xml:space="preserve" text-anchor="start" x="369" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="369" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Wish-verify run</text>
+<text xml:space="preserve" text-anchor="start" x="369" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Two stage visits, judgments</text>
+<text xml:space="preserve" text-anchor="start" x="369" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">and advancement</text>
+</g>
+
+<g id="na04cd35af5d3c777f139" class="node diagram-node shape-box" data-native-id="1e04c650-c0ac-5e10-93e5-07339fd2468e" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifyFlowRunFactory
+1e04c650-c0ac-5e10-93e5-07339fd2468e
+performaction createRun
+openRun.run
+openRun.run
+openRun.run
+1e04c650-c0ac-5e10-93e5-07339fd2468e</title>
+<rect fill="white" stroke="none" x="215.0" y="-717.0" width="177.75" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="215,-649.5 215,-649.5 392.75,-649.5 392.75,-649.5 215,-649.5" />
+<rect fill="none" stroke="#647a91" x="215.0" y="-717.0" width="177.75" height="132.0" /><text xml:space="preserve" text-anchor="start" x="224" y="-695.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="224" y="-662.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run factory</text>
+<text xml:space="preserve" text-anchor="start" x="224" y="-628.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Creates a run and its initial</text>
+<text xml:space="preserve" text-anchor="start" x="224" y="-597" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">visits</text>
+</g>
+
+<g id="n5bc79fa796af9cbee518" class="node diagram-node shape-box" data-native-id="c78e47ef-5ea9-5b12-84b4-54010d132f0c" data-shape="box">
+<title>XDesignDetailedDesign::WishVerifySemanticCheckpoint
+c78e47ef-5ea9-5b12-84b4-54010d132f0c
+attribute kind
+performaction evaluate : TakeWishVerifyJudgment
+assertconstraint criteriaAreJudged
+CheckKind::semantic
+size(checkers) == 0 and (agentMayJudge or humanMayJudge)
+c78e47ef-5ea9-5b12-84b4-54010d132f0c</title>
+<rect fill="white" stroke="none" x="0.0" y="-522.0" width="183.75" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-454.5 0,-454.5 183.75,-454.5 183.75,-454.5 0,-454.5" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-522.0" width="183.75" height="132.0" /><text xml:space="preserve" text-anchor="start" x="9" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Semantic judgment</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">A permitted judge records a</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">reasoned verdict</text>
+</g>
+</g>
+</svg>

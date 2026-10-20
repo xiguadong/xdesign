@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1014pt" height="239pt" viewBox="0.00 0.00 1014.00 239.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">XDesignDetailedDesign::wishVerifyGateEvaluationFlow · Views::asInterconnectionDiagram</title><desc id="diagram-desc">4 nodes · 0 resolved relationships · native element IDs retained · 2 unresolved endpoint projections omitted; inspect native export. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.
+SuccessionAsUsage 3439e4d0-14f8-59fd-a501-3d792cd20b36: no complete pair of direct-part endpoint paths.
+SuccessionAsUsage 03a71406-b571-53ca-9069-48dcd3cc3397: no complete pair of direct-part endpoint paths.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 221)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-221 995.5,-221 995.5,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="14" y="-173.1" font-family="Arial" font-weight="bold" font-size="22.00">XDesignDetailedDesign::wishVerifyGateEvaluationFlow · Views::asInterconnectionDiagram</text>
+<text xml:space="preserve" text-anchor="start" x="227" y="-144.75" font-family="Arial" font-size="14.00" fill="#52657a">4 nodes · 0 resolved relationships · native element IDs retained · 2 unresolved endpoint</text>
+<text xml:space="preserve" text-anchor="start" x="366.12" y="-129" font-family="Arial" font-size="14.00" fill="#52657a">projections omitted; inspect native export</text>
+
+<g id="n779206a5fa146c472a9e" class="node diagram-node shape-box" data-native-id="b7c16eb7-52ca-513a-98be-71b6df31724d" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateWishVerifyGate::assessments
+type: CheckpointAssessment
+b7c16eb7-52ca-513a-98be-71b6df31724d</title>
+<rect fill="white" stroke="none" x="67.62" y="-108.12" width="192.76" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="67.62,-40.62 67.62,-40.62 260.38,-40.62 260.38,-40.62 67.62,-40.62" />
+<rect fill="none" stroke="#647a91" x="67.62" y="-108.12" width="192.76" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="76.62" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ItemUsage</text>
+<text xml:space="preserve" text-anchor="start" x="76.62" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">assessments</text>
+<text xml:space="preserve" text-anchor="start" x="76.62" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: CheckpointAssessment</text>
+</g>
+
+<g id="n2830d166c299c39d9c94" class="node diagram-node shape-box" data-native-id="e2814620-64ce-546d-bef2-579d25030ca1" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateWishVerifyGate::checkpoints
+type: WishVerifyCheckpoint
+e2814620-64ce-546d-bef2-579d25030ca1</title>
+<rect fill="white" stroke="none" x="292.5" y="-108.12" width="183.0" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="292.5,-40.62 292.5,-40.62 475.5,-40.62 475.5,-40.62 292.5,-40.62" />
+<rect fill="none" stroke="#647a91" x="292.5" y="-108.12" width="183.0" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="301.5" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="301.5" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">checkpoints</text>
+<text xml:space="preserve" text-anchor="start" x="301.5" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: WishVerifyCheckpoint</text>
+</g>
+
+<g id="nb136e7832c8b88606b30" class="node diagram-node shape-box" data-native-id="698fb020-deb5-5800-a5d9-6be2227c583a" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateWishVerifyGate::readGates
+ref part gates : WishVerifyCheckpoint [0..*]
+698fb020-deb5-5800-a5d9-6be2227c583a</title>
+<rect fill="white" stroke="none" x="507.62" y="-116.0" width="240.76" height="116.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="507.62,-48.5 507.62,-48.5 748.38,-48.5 748.38,-48.5 507.62,-48.5" />
+<rect fill="none" stroke="#647a91" x="507.62" y="-116.0" width="240.76" height="116.0" /><text xml:space="preserve" text-anchor="start" x="516.62" y="-94.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ActionUsage</text>
+<text xml:space="preserve" text-anchor="start" x="516.62" y="-61.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">readGates</text>
+<text xml:space="preserve" text-anchor="start" x="516.62" y="-27.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">ref part gates : WishVerifyCheckpoint</text>
+<text xml:space="preserve" text-anchor="start" x="614.12" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">[0..*]</text>
+</g>
+
+<g id="n50d6a92e0bee33f41bdf" class="node diagram-node shape-box" data-native-id="4a2ed09a-6ac8-580a-b3e1-f1bc7ca17638" data-shape="box">
+<title>XDesignDetailedDesign::EvaluateWishVerifyGate::visit
+type: StageRecord
+4a2ed09a-6ac8-580a-b3e1-f1bc7ca17638</title>
+<rect fill="white" stroke="none" x="780.12" y="-108.12" width="129.76" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="780.12,-40.62 780.12,-40.62 909.88,-40.62 909.88,-40.62 780.12,-40.62" />
+<rect fill="none" stroke="#647a91" x="780.12" y="-108.12" width="129.76" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="789.12" y="-86.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
+<text xml:space="preserve" text-anchor="start" x="789.12" y="-53.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">visit</text>
+<text xml:space="preserve" text-anchor="start" x="789.12" y="-19.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: StageRecord</text>
+</g>
+</g>
+</svg>
