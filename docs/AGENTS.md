@@ -49,23 +49,26 @@ document can refer to one section instead of a whole document:
 
 Prefixes in use: `A` overview, `B` architecture, `D` design, `R` requirements, `F` flows,
 `E` records, `T` toolchain, `I` interface control, `J` decisions, `V` review, and
-`U` UML, and `P` project management. Identifiers are unique across all documents, so a
-section keeps its identifier wherever its document is renamed or split. A reference names
+`U` API reference, and `P` project management. Identifiers are unique across all documents, so a
+section keeps its identifier wherever its document is renamed or split. The `U` prefix
+serves the API reference level; its identifiers stay stable from the former UML
+documentation level. A reference names
 the document and the identifier, for example
 `docs/details/01_flows_and_checkpoints.md#f01`.
 
-## UML documentation
+## API reference documentation
 
-`docs/uml/` owns the C4/UML notation guide and the view-applicability contract; a
-module's UML design lives with that module (for example
-`docs/details/simple_flow/06_rust_uml_design.md`) and follows the guide's selection,
-figure-block, and status rules. A software module's class-and-function level is an
-API reference under `docs/uml/<module>/`: one inventory page listing every public
-API, then one page per API with its signature, contracts and stepwise logic
-(`docs/uml/01_c4_and_uml_guide.md#U47`). UML figures are SysML projections rendered
-by the pinned toolchain, labelled tables marked table-substitute, or explicitly
-sourced external-tool figures — never unanchored drawings. A software design states
-its implementation status honestly: designed-only until code exists in the repository.
+`docs/api/` owns the crate's class-and-function-level API reference: one inventory in
+`docs/api/00_overview.md` (U14), one crate-level structure map in
+`docs/api/01_struct.md` (U68), then per-layer directories (`core/`, `simple_flow/`)
+with one page per API following the construction rules
+(`docs/api/00_overview.md#u47`). A module's UML design views stay with the module
+under `docs/details/` (for example
+`docs/details/simple_flow/06_rust_uml_design.md`), and figures remain SysML
+projections per the documentation contract: rendered by the pinned toolchain, labelled
+tables marked table-substitute, or explicitly sourced external-tool figures — never
+unanchored drawings. A software design states its implementation status honestly:
+designed-only until code exists in the repository.
 
 ## Project management documents
 

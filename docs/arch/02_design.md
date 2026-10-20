@@ -152,8 +152,11 @@ inventory IDs, not production interface versions. Their directions and item type
 specified in the model and [ICD](../icd/01_interfaces.md#i01). Runtime payload schemas,
 failure and timing behavior, contract owners, review authorities, criticality ratings,
 and a frozen ICD baseline remain open. Package organization is modeled by
-`SimpleFlowRustUml::projectPackageIntegration`; its documentation
-belongs here because dependency direction is an architecture concern.
+`XDesignRustUml::projectPackageIntegration`; its documentation
+belongs here because dependency direction is an architecture concern. The Rust UML
+package models the implemented `xdesign::core` + `xdesign::simple_flow` slice, not a
+separately owned application or independent Rust crate
+([U65](../api/00_overview.md#u65)).
 
 <a id="d21"></a>
 
@@ -163,18 +166,21 @@ belongs here because dependency direction is an architecture concern.
 
 > **Figure D21-1 — Project packages.**  
 > **Question:** How is the selected project model organized, and which packages depend on others?  
-> **Model view:** `SimpleFlowRustUml::projectPackageIntegration`, a package-dependency projection.  
+> **Model view:** `XDesignRustUml::projectPackageIntegration`, a package-dependency projection.  
 > **Companions:** [D13](../details/simple_flow/05_module_design.md#d13) for types and [D15](../requirements/01_baseline.md#d15) for requirement relationships.  
 > **Status:** renderable-now; design reviewed.  
-> **Reading:** Eight project packages, including the Rust UML design, appear within the selected model boundary. Dependency arrows describe model organization and the direction in which changes may have effects.  
+> **Reading:** Nine project packages, including xdesign composition and the Rust UML design, appear within the selected model boundary. Dependency arrows describe model organization and the direction in which changes may have effects.  
 > **Limits:** Package dependencies are neither runtime messages nor an executed verification result.
 
 `projectPackageIntegration` selects the project packages used by the simple-flow design. Common
 definitions provide the shared vocabulary; requirements declare obligations; architecture
-defines the system and generic flow; workflow assembles the workflow; detailed design
-refines the simple flow; traceability links satisfiers; verification declares planned
-verification cases; and Rust UML maps the software design back to the detailed design.
-The selected package boundary contains these eight project packages.
+defines the system and generic flow; workflow defines interfaces and lifecycle actions;
+composition owns the selectable flows and their default; detailed design refines the
+simple flow; traceability links satisfiers; verification declares planned
+verification cases; and Rust UML maps the `xdesign` crate's software design
+(`core` + `simple_flow`) back to the detailed design. A model package is a namespace and dependency unit here; the
+runtime module belongs to the xdesign crate.
+The selected package boundary contains these nine project packages.
 The separate wish package consumes the project model to record derivation and delivery;
 it is outside this view's selected project-model boundary.
 
@@ -183,12 +189,12 @@ it is outside this view's selected project-model boundary.
 > **Figure D21-2 — SimpleFlow package selection.**  
 > **Question:** Which project packages does the nine-view SimpleFlow design select for its architecture concern?  
 > **Model view:** `XDesignDetailedDesign::packageDiagram`, the original SimpleFlow package view.  
-> **Companions:** [Figure D21-1](#d21) adds the Rust UML package to show its whole-project integration; [D12](../details/simple_flow/04_sysml_diagrams.md#d12) records the nine-view coverage.  
+> **Companions:** [Figure D21-1](#d21) adds composition and Rust UML to show whole-project integration; [D12](../details/simple_flow/04_sysml_diagrams.md#d12) records the nine-view coverage.  
 > **Status:** renderable-now; retained as the SimpleFlow package concern.  
-> **Reading:** The seven packages used by the original detailed-design view remain visible, while D21-1 includes the software design package that realizes them.  
+> **Reading:** The seven packages used by the original detailed-design view remain visible, while D21-1 adds composition and the software design package.  
 > **Limits:** A package arrow indicates a model dependency, not a runtime call or an approval.
 
-Package symbols and short captions distinguish the eight selected packages. Their full
+Package symbols and short captions distinguish the nine selected packages. Their full
 qualified names remain in the source details. Package arrows represent the model's imports
 and dependencies. They organize model
 elements and identify what changes may affect another package. They do not represent run

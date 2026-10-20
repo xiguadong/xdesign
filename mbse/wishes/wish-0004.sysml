@@ -4,6 +4,7 @@ package Wish0004 {
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
+    private import XDesignComposition::*;
 
     doc /* The independent traceability model for wish-0004, registered at intake and
        deliberately left there. No requirements have been derived from it, no design
@@ -33,34 +34,34 @@ package Wish0004 {
         attribute redefines traceabilityModelUri = "mbse/wishes/wish-0004.sysml";
 
         part redefines execution : FlowExecution {
-            ref part redefines assignedFlow = workflow.'flow';
+            ref part redefines assignedFlow = xdesign.workflowFlow;
             attribute redefines status = FlowStatus::active;
             part redefines stageRecords : StageRecord [4];
             ref part redefines currentRecord = requirementsRecord;
 
             part requirementsRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.requirements;
+                ref part redefines stage = xdesign.workflowFlow.requirements;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::active;
                 attribute redefines artifactRevision = 0;
             }
 
             part designRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.design;
+                ref part redefines stage = xdesign.workflowFlow.design;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::pending;
                 attribute redefines artifactRevision = 0;
             }
 
             part implementRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.implement;
+                ref part redefines stage = xdesign.workflowFlow.implement;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::pending;
                 attribute redefines artifactRevision = 0;
             }
 
             part verifyRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.'verify';
+                ref part redefines stage = xdesign.workflowFlow.'verify';
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::pending;
                 attribute redefines artifactRevision = 0;

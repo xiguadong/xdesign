@@ -93,15 +93,16 @@ package XDesignWorkflow {
 
     part def Workflow :> XDesign {
         @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
-        doc /* The controller progresses wishes through the default SimpleFlow.
+        doc /* A four-stage workflow configuration and lifecycle scenario.
            Typed interfaces carry the request, registration and flow definition.
-           Inherited bindings preserve ownership and one trace per wish. */
+           The concrete selectable usage is owned by xdesign's flow portfolio. */
 
-        part redefines 'flow' : WorkflowFlow {
+        part redefines 'flow' : WorkflowFlow subsets availableFlows {
             doc /* Requirements -> design -> implementation -> verification.
                The final checkpoint requires evidence that the implementation
                satisfies the requirements before the flow can complete. */
         }
+        ref part redefines selectedFlow = 'flow';
 
         part redefines controller : WorkflowController {
             doc /* Receives wishes, records activities, evaluates checkpoints
@@ -196,10 +197,6 @@ package XDesignWorkflow {
             succession verificationRetried first correctiveWork then verificationReady;
             first delivered then done;
         }
-    }
-
-    part workflow : Workflow {
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E06"; }
     }
 
     view wishLifecycle : StandardViewDefinitions::ActionFlowView {

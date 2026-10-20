@@ -4,15 +4,16 @@ package Wish0009 {
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
+    private import XDesignComposition::*;
     private import StandardViewDefinitions::*;
     private import Views::*;
 
     doc /* The independent traceability model for wish-0009: a Rust UML design of the
-       designed simple flow, produced as a judged artifact on WishVerifyFlow —
+       designed simple flow, produced as a judged artifact on xdesign.wishVerifyFlow —
        requirements where they apply, the SimpleFlowRustUml design model, the UML
        guide and the module's UML design document, without code implementation.
 
-       The wish was registered directly on WishVerifyFlow: the outcome is a software
+       The wish was registered on xdesign.wishVerifyFlow: the outcome is a software
        design document set whose acceptance is a reading, and no fixed check can
        establish that the mapping covers the design or that the status claims are
        honest. The requirements, design model, verification case and documentation
@@ -41,13 +42,13 @@ package Wish0009 {
         attribute redefines traceabilityModelUri = "mbse/wishes/wish-0009.sysml";
 
         part redefines execution : FlowExecution {
-            ref part redefines assignedFlow = wishVerifyFlow;
+            ref part redefines assignedFlow = xdesign.wishVerifyFlow;
             attribute redefines status = FlowStatus::completed;
             part redefines stageRecords : StageRecord [6];
             ref part redefines currentRecord = verifyGuideRecord;
 
             part wishRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.wish;
+                ref part redefines stage = xdesign.wishVerifyFlow.wish;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -79,7 +80,7 @@ package Wish0009 {
             }
 
             part verifyRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.'verify';
+                ref part redefines stage = xdesign.wishVerifyFlow.'verify';
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -95,7 +96,7 @@ package Wish0009 {
                 ref item redefines currentAssessments = outcomeAssessment;
 
                 item outcomeAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = wishVerifyFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.wishVerifyFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 1;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -107,7 +108,7 @@ package Wish0009 {
             }
 
             part wishApiRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.wish;
+                ref part redefines stage = xdesign.wishVerifyFlow.wish;
                 attribute redefines visitIndex = 1;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 2;
@@ -128,7 +129,7 @@ package Wish0009 {
             }
 
             part verifyApiRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.'verify';
+                ref part redefines stage = xdesign.wishVerifyFlow.'verify';
                 attribute redefines visitIndex = 1;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 2;
@@ -144,7 +145,7 @@ package Wish0009 {
                 ref item redefines currentAssessments = apiOutcomeAssessment;
 
                 item apiOutcomeAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = wishVerifyFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.wishVerifyFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 2;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -155,7 +156,7 @@ package Wish0009 {
                 }
             }
             part wishGuideRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.wish;
+                ref part redefines stage = xdesign.wishVerifyFlow.wish;
                 attribute redefines visitIndex = 2;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 3;
@@ -176,7 +177,7 @@ package Wish0009 {
             }
 
             part verifyGuideRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.'verify';
+                ref part redefines stage = xdesign.wishVerifyFlow.'verify';
                 attribute redefines visitIndex = 2;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 3;
@@ -192,7 +193,7 @@ package Wish0009 {
                 ref item redefines currentAssessments = guideOutcomeAssessment;
 
                 item guideOutcomeAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = wishVerifyFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.wishVerifyFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 3;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -212,9 +213,9 @@ package Wish0009 {
            with the API-reference structure. Visit 2 closed the wish at revision 3
            by adopting the structure into the UML guide and repository conventions. */
 
-        ref part controller : Controller = workflow.controller;
-        ref part wish : Stage = wishVerifyFlow.wish;
-        ref part 'verify' : Stage = wishVerifyFlow.'verify';
+        ref part controller : Controller = xdesign.controller;
+        ref part wish : Stage = xdesign.wishVerifyFlow.wish;
+        ref part 'verify' : Stage = xdesign.wishVerifyFlow.'verify';
         ref part trace : Trace = trace0009;
 
         message enterWish from controller.entering to wish.entered;

@@ -197,7 +197,7 @@ be2862eb-6643-55e4-a332-9df95ba4b674</title>
 <g id="ne014c93ef4157289e335" class="node diagram-node shape-box" data-native-id="f61a622f-ca01-594c-8e2e-0c6c361bd04b" data-shape="box">
 <title>XDesignDetailedDesign::SimpleFlowRun
 f61a622f-ca01-594c-8e2e-0c6c361bd04b
-ref part assignedFlow
+ref part assignedFlow : DesignedSimpleFlow
 ref part checkpoints : SimpleFlowCheckpoint [0..*]
 part stageRecords : StageRecord [4..*]
 port check : ~CheckCommandExchange
@@ -209,13 +209,12 @@ performaction evaluateGate : EvaluateSimpleFlowGate
 performaction advance : AdvanceSimpleFlowRun
 performaction reopenStage : ReopenSimpleFlowStage
 assertconstraint visitsRealizeThePlannedStages
-designedSimpleFlow
-designedSimpleFlow.checkpoints
+assignedFlow.checkpoints
 self
 stageRecords-&gt;forAll { in record : StageRecord;
-                designedSimpleFlow.stages-&gt;includes(record.stage)
+                assignedFlow.stages-&gt;includes(record.stage)
             } and
-            designedSimpleFlow.stages-&gt;forAll { in stage : Stage;
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
                 stageRecords-&gt;exists { in record : StageRecord;
                     record.stage == stage
                 }

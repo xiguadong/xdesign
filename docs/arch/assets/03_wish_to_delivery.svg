@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="1169" viewBox="0 0 1280 1169" role="img" aria-labelledby="figure-title figure-desc">
+<title id="figure-title">Wish to delivery: default VModel stage and checkpoint overview</title>
+<desc id="figure-desc">Follow the solid arrows down the left side to implementation, then up the right side to delivery. Dashed cross links identify which development stage each verification stage checks.</desc>
+<defs><marker id="flow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#365e80" stroke-width="1.8"/></marker><marker id="verify-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M 1 1 L 8 4.5 L 1 8" fill="none" stroke="#87909b" stroke-width="1.5"/></marker></defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#172b43}.title{font-size:26px;font-weight:700}.subtitle{font-size:15px;fill:#52657a}.lane{font-size:16px;font-weight:700;fill:#365e80;letter-spacing:.05em}.stage{fill:#fff;stroke:#647a91;stroke-width:1.5}.stage.delivery{fill:#eef7ef;stroke:#599a68}.stage.implementation{fill:#fff7e6;stroke:#b88e44}.number{font-size:13px;font-weight:700;fill:#52657a}.name{font-size:21px;font-weight:700}.gate{font-size:15px;fill:#334b64}.kind{font-size:13px;fill:#52657a}.flow{fill:none;stroke:#365e80;stroke-width:2.5;marker-end:url(#flow-arrow)}.pair{fill:none;stroke:#87909b;stroke-width:1.7;stroke-dasharray:6 6;marker-end:url(#verify-arrow)}.pair-label{font-size:12px;fill:#667582}.footer{font-size:14px;fill:#52657a}</style>
+<rect width="100%" height="100%" fill="#fff"/>
+<text x="72" y="53" class="title">From wish to implementation and delivery</text>
+<text x="72" y="80" class="subtitle">Default VModel definition · solid arrows: progression after a passed exit gate · dashed arrows: verifies stage</text>
+<text x="72" y="125" class="lane">DEFINITION AND BUILD ↓</text>
+<text x="838" y="125" class="lane">VERIFICATION AND DELIVERY ↑</text>
+<path class="flow" d="M 257 259 L 257 299"><title>XDesignArchitecture::VModel::wishIntake → XDesignArchitecture::VModel::stakeholderNeeds</title></path>
+<path class="flow" d="M 257 416 L 257 456"><title>XDesignArchitecture::VModel::stakeholderNeeds → XDesignArchitecture::VModel::systemRequirements</title></path>
+<path class="flow" d="M 257 573 L 257 613"><title>XDesignArchitecture::VModel::systemRequirements → XDesignArchitecture::VModel::systemArchitecture</title></path>
+<path class="flow" d="M 257 730 L 257 770"><title>XDesignArchitecture::VModel::systemArchitecture → XDesignArchitecture::VModel::detailedDesign</title></path>
+<path class="flow" d="M 397 887 L 501 943"><title>XDesignArchitecture::VModel::detailedDesign → XDesignArchitecture::VModel::implementation</title></path>
+<path class="flow" d="M 779 943 L 884 890"><title>XDesignArchitecture::VModel::implementation → XDesignArchitecture::VModel::componentVerification</title></path>
+<path class="flow" d="M 1023 773 L 1023 733"><title>XDesignArchitecture::VModel::componentVerification → XDesignArchitecture::VModel::integrationVerification</title></path>
+<path class="flow" d="M 1023 616 L 1023 576"><title>XDesignArchitecture::VModel::integrationVerification → XDesignArchitecture::VModel::systemVerification</title></path>
+<path class="flow" d="M 1023 459 L 1023 419"><title>XDesignArchitecture::VModel::systemVerification → XDesignArchitecture::VModel::acceptanceValidation</title></path>
+<path class="flow" d="M 1023 302 L 1023 262"><title>XDesignArchitecture::VModel::acceptanceValidation → XDesignArchitecture::VModel::delivery</title></path>
+<path class="pair" d="M 830 830 L 450 830"><title>XDesignArchitecture::VModel::componentVerification verifies XDesignArchitecture::VModel::detailedDesign</title></path>
+<text class="pair-label" x="640" y="820" text-anchor="middle">verifies</text>
+<path class="pair" d="M 830 673 L 450 673"><title>XDesignArchitecture::VModel::integrationVerification verifies XDesignArchitecture::VModel::systemArchitecture</title></path>
+<text class="pair-label" x="640" y="663" text-anchor="middle">verifies</text>
+<path class="pair" d="M 830 516 L 450 516"><title>XDesignArchitecture::VModel::systemVerification verifies XDesignArchitecture::VModel::systemRequirements</title></path>
+<text class="pair-label" x="640" y="506" text-anchor="middle">verifies</text>
+<path class="pair" d="M 830 359 L 450 359"><title>XDesignArchitecture::VModel::acceptanceValidation verifies XDesignArchitecture::VModel::stakeholderNeeds</title></path>
+<text class="pair-label" x="640" y="349" text-anchor="middle">verifies</text>
+<g id="stage-96a6bef5-7331-5295-b667-7d7e0d2af4dd" aria-label="wishIntake; exit checkpoint intakeAccepted">
+<title>XDesignArchitecture::VModel::wishIntake
+Exit: intakeAccepted (semantic)
+The wish, scope and intended outcome are recorded.</title>
+<rect class="stage " x="72" y="150" width="370" height="104" rx="11"/>
+<text class="number" x="89" y="172">01</text>
+<text class="name" x="89" y="200">Wish intake</text>
+<text class="gate" x="89" y="226">Exit: intakeAccepted</text>
+<text class="kind" x="89" y="245">semantic · permitted judge</text>
+</g>
+<g id="stage-76d2440f-b955-59e2-a6b4-edf7142c51c2" aria-label="stakeholderNeeds; exit checkpoint needsAccepted">
+<title>XDesignArchitecture::VModel::stakeholderNeeds
+Exit: needsAccepted (semantic)
+Stakeholder needs and acceptance criteria are agreed.</title>
+<rect class="stage " x="72" y="307" width="370" height="104" rx="11"/>
+<text class="number" x="89" y="329">02</text>
+<text class="name" x="89" y="357">Stakeholder needs</text>
+<text class="gate" x="89" y="383">Exit: needsAccepted</text>
+<text class="kind" x="89" y="402">semantic · permitted judge</text>
+</g>
+<g id="stage-c3185521-61bd-56ba-8f50-bd7e04ca2f62" aria-label="systemRequirements; exit checkpoint requirementsAccepted">
+<title>XDesignArchitecture::VModel::systemRequirements
+Exit: requirementsAccepted (syntactic)
+Requirements and their verification criteria trace to the wish.</title>
+<rect class="stage " x="72" y="464" width="370" height="104" rx="11"/>
+<text class="number" x="89" y="486">03</text>
+<text class="name" x="89" y="514">System requirements</text>
+<text class="gate" x="89" y="540">Exit: requirementsAccepted</text>
+<text class="kind" x="89" y="559">syntactic · fixed checker</text>
+</g>
+<g id="stage-5e1f9bd0-ceff-56ae-8bdf-010b65570024" aria-label="systemArchitecture; exit checkpoint architectureAccepted">
+<title>XDesignArchitecture::VModel::systemArchitecture
+Exit: architectureAccepted (semantic)
+System parts, relationships and interfaces address the requirements.</title>
+<rect class="stage " x="72" y="621" width="370" height="104" rx="11"/>
+<text class="number" x="89" y="643">04</text>
+<text class="name" x="89" y="671">System architecture</text>
+<text class="gate" x="89" y="697">Exit: architectureAccepted</text>
+<text class="kind" x="89" y="716">semantic · permitted judge</text>
+</g>
+<g id="stage-016bcccd-7fee-52c3-925f-4ecad72cbbad" aria-label="detailedDesign; exit checkpoint designAccepted">
+<title>XDesignArchitecture::VModel::detailedDesign
+Exit: designAccepted (semantic)
+The detailed design supports implementation and component verification.</title>
+<rect class="stage " x="72" y="778" width="370" height="104" rx="11"/>
+<text class="number" x="89" y="800">05</text>
+<text class="name" x="89" y="828">Detailed design</text>
+<text class="gate" x="89" y="854">Exit: designAccepted</text>
+<text class="kind" x="89" y="873">semantic · permitted judge</text>
+</g>
+<g id="stage-b79dbdec-7d9f-57bf-b076-8f67a25bc2c6" aria-label="implementation; exit checkpoint implementationReady">
+<title>XDesignArchitecture::VModel::implementation
+Exit: implementationReady (syntactic)
+Implementation artifacts and build evidence are available.</title>
+<rect class="stage implementation" x="455" y="951" width="370" height="104" rx="11"/>
+<text class="number" x="472" y="973">06</text>
+<text class="name" x="472" y="1001">Implementation</text>
+<text class="gate" x="472" y="1027">Exit: implementationReady</text>
+<text class="kind" x="472" y="1046">syntactic · fixed checker</text>
+</g>
+<g id="stage-4ed973e8-0221-5ece-a5f0-89e3c4259582" aria-label="componentVerification; exit checkpoint componentsVerified">
+<title>XDesignArchitecture::VModel::componentVerification
+Exit: componentsVerified (semantic)
+Component verification provides evidence against the detailed design.</title>
+<rect class="stage " x="838" y="778" width="370" height="104" rx="11"/>
+<text class="number" x="855" y="800">07</text>
+<text class="name" x="855" y="828">Component verification</text>
+<text class="gate" x="855" y="854">Exit: componentsVerified</text>
+<text class="kind" x="855" y="873">semantic · permitted judge</text>
+</g>
+<g id="stage-f3fa79d6-67d1-5489-8a8e-34fb33084661" aria-label="integrationVerification; exit checkpoint integrationVerified">
+<title>XDesignArchitecture::VModel::integrationVerification
+Exit: integrationVerified (semantic)
+Integration verification provides evidence for architectural interfaces.</title>
+<rect class="stage " x="838" y="621" width="370" height="104" rx="11"/>
+<text class="number" x="855" y="643">08</text>
+<text class="name" x="855" y="671">Integration verification</text>
+<text class="gate" x="855" y="697">Exit: integrationVerified</text>
+<text class="kind" x="855" y="716">semantic · permitted judge</text>
+</g>
+<g id="stage-99bb43ab-4e05-5fa5-a79f-53d5d56425eb" aria-label="systemVerification; exit checkpoint systemVerified">
+<title>XDesignArchitecture::VModel::systemVerification
+Exit: systemVerified (semantic)
+System verification provides evidence against the system requirements.</title>
+<rect class="stage " x="838" y="464" width="370" height="104" rx="11"/>
+<text class="number" x="855" y="486">09</text>
+<text class="name" x="855" y="514">System verification</text>
+<text class="gate" x="855" y="540">Exit: systemVerified</text>
+<text class="kind" x="855" y="559">semantic · permitted judge</text>
+</g>
+<g id="stage-558e7002-4477-5d84-ac24-33303fb69e61" aria-label="acceptanceValidation; exit checkpoint wishValidated">
+<title>XDesignArchitecture::VModel::acceptanceValidation
+Exit: wishValidated (semantic)
+Validation demonstrates the intended stakeholder outcome.</title>
+<rect class="stage " x="838" y="307" width="370" height="104" rx="11"/>
+<text class="number" x="855" y="329">10</text>
+<text class="name" x="855" y="357">Acceptance validation</text>
+<text class="gate" x="855" y="383">Exit: wishValidated</text>
+<text class="kind" x="855" y="402">semantic · permitted judge</text>
+</g>
+<g id="stage-aa70cc1b-a0f0-557a-9a05-e02627656107" aria-label="delivery; exit checkpoint deliveryAccepted">
+<title>XDesignArchitecture::VModel::delivery
+Exit: deliveryAccepted (syntactic)
+Delivery artifacts, traceability and acceptance evidence are recorded.</title>
+<rect class="stage delivery" x="838" y="150" width="370" height="104" rx="11"/>
+<text class="number" x="855" y="172">11</text>
+<text class="name" x="855" y="200">Delivery</text>
+<text class="gate" x="855" y="226">Exit: deliveryAccepted</text>
+<text class="kind" x="855" y="245">syntactic · fixed checker</text>
+</g>
+<text class="footer" x="72" y="1124">Definition view. Each wish records its own visits, assessments, and evidence; this figure is not a completed run or a calendar plan.</text>
+</svg>

@@ -53,25 +53,54 @@ wish-0002 and recorded in its trace ([T04](03_toolchain.md#t04)).
 
 ## F03 The flows in this model
 
-Five flow part-definitions are present: `VModel`, `SimpleFlow`, `WorkflowFlow`,
-`WishVerifyFlow`, and `DesignFlow`. The latter two specialized definitions inherit
-their parent flow behavior; the six usages below are selectable. A wish is registered with
-one of them: `receiveWish` takes the selected flow, defaulting to the controller's
-`defaultFlow` (which the composition binds — `xdesign` binds `controller.defaultFlow =
-'flow'`, and its `'flow'` is the `VModel`).
+`XDesignArchitecture::Flow` is the reusable workflow type. Its definitions form
+three branches: `VModel`; `SimpleFlow` with `WorkflowFlow`, `DesignedSimpleFlow`, and
+`NestedFlowExample`; and `WishVerifyFlow` with `DesignFlow`. In particular,
+`WorkflowFlow` and `DesignedSimpleFlow` are siblings. One does not inherit the other.
+
+`XDesignComposition::xdesign` owns the concrete selectable usages. The abstract
+`xdesign.'flow' : Flow` is their shared feature origin; each usage is typed by one
+definition, specializes that origin, and belongs to `availableFlows`. In the model,
+`part def DesignedSimpleFlow :> SimpleFlow` means **definition inheritance**;
+`part designedSimpleFlow : DesignedSimpleFlow :> 'flow'` means **an xdesign-owned
+usage with a definition type and a shared feature origin**. These are different
+relationships, drawn separately below.
+
+![Flow definition inheritance and the xdesign-owned selectable usages](assets/01_flow_relationships.svg)
+
+> **Figure F03-1 — Flow definitions and selectable usages.**  
+> **Question:** How do the named flows relate to `Flow` and `xdesign.'flow'`?  
+> **Model view:** Compiler-export projection of `Flow` subclassifications, `XDesignComposition::xdesign` feature typing and portfolio subsettings, and the separate `Workflow.'flow'` redefinition.  
+> **Companions:** [F01](#f01) for the reusable flow contract and [B01](../arch/01_system_composition.md#b01) for xdesign ownership and controller bindings.  
+> **Status:** renderable-now.  
+> **Reading:** Follow gray branches for definition inheritance, blue arrows for each usage's type, and green branches for the usages that share `xdesign.'flow'` and `availableFlows`. `selectedFlow` identifies `xdesign.vModel` as the default.  
+> **Limits:** This shows type and ownership relationships, not stage order, gate outcomes, or evidence from a wish run.
+
+`XDesignWorkflow::Workflow` is another *definition* that specializes `XDesign`.
+Its `Workflow.'flow' : WorkflowFlow` redefines the inherited `'flow'` feature for
+the `Workflow::executeWish` scenario. The concrete portfolio in this project is
+`XDesignComposition::xdesign : XDesign`; its corresponding selectable member is
+`xdesign.workflowFlow`. This explains why both names appear in model views.
+
+`xdesign.selectedFlow` points to `xdesign.vModel` by default. The composition
+binds the controller's `availableFlows` and `defaultFlow` to its portfolio and
+selection. `receiveWish` may choose another owned member and records that choice
+in the trace. Its `selectedFlowIsAvailable` assertion requires portfolio
+membership; the generic controller is a model specification, not an implemented
+application.
 
 | Flow usage | Stages | Exit checkpoints | Selected when |
 | --- | --- | --- | --- |
-| `workflow.'flow' : WorkflowFlow :> SimpleFlow` | `requirements` → `design` → `implement` → `'verify'` | `verificationAccepted` (semantic) | The `workflow` composition's own flow; wishes that derive requirements and code, and the lifecycle scenario `Workflow::executeWish` |
-| `simpleFlow : SimpleFlow` | `requirements` → `design` → `implement` → `'verify'` | `verificationAccepted` (semantic) | A separately selectable, ungated example usage of the same four-stage definition; unlike `designedSimpleFlow`, it adds no stage-exit checkpoints |
-| `xdesign.'flow' : VModel` | 11 stages: `wishIntake` → `stakeholderNeeds` → `systemRequirements` → `systemArchitecture` → `detailedDesign` → `implementation` → `componentVerification` → `integrationVerification` → `systemVerification` → `acceptanceValidation` → `delivery` | 11, one per stage: 3 syntactic (`requirementsAccepted`, `implementationReady`, `deliveryAccepted`), 8 semantic | The full V-model; the `xdesign` composition's default flow |
-| `wishVerifyFlow : WishVerifyFlow` | `wish` → `'verify'` | `outcomeAccepted` (semantic) | A wish whose outcome is a judged artifact — documentation, an analysis — with nothing to derive that a fixed check can establish |
-| `designedSimpleFlow : SimpleFlow` | The definition's four, in its order | 5: `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted` (syntactic), `verificationAccepted` (semantic) | A wish that wants every stage gated; the four checker commands and specialized run now execute ([D01](simple_flow/01_run_design.md#d01), [D07](simple_flow/02_gates_and_rules.md#d07), [P08](../prj_manage/03_simple_flow_execution_record.md#p08)) |
-| `designFlow : DesignFlow` | `wish` → `'verify'` | `sysmlDeliverableAccepted` (syntactic, judged by the pinned compiler), `outcomeAccepted` (semantic) | A wish whose outcome is a SysML design deliverable and its documentation, before implementation ([V05](../review/01_wish_status.md#v05)) |
+| `xdesign.vModel : VModel` | 11 stages: `wishIntake` → `stakeholderNeeds` → `systemRequirements` → `systemArchitecture` → `detailedDesign` → `implementation` → `componentVerification` → `integrationVerification` → `systemVerification` → `acceptanceValidation` → `delivery` | 11, one per stage: 3 syntactic (`requirementsAccepted`, `implementationReady`, `deliveryAccepted`), 8 semantic | The default full V-model |
+| `xdesign.workflowFlow : WorkflowFlow` | `requirements` → `design` → `implement` → `'verify'` | `verificationAccepted` (semantic) | Historical four-stage runs for wishes 0001–0004 and 0007; also the plan illustrated by `Workflow::executeWish` |
+| `xdesign.wishVerifyFlow : WishVerifyFlow` | `wish` → `'verify'` | `outcomeAccepted` (semantic) | A judged artifact, such as documentation or analysis |
+| `xdesign.designFlow : DesignFlow` | `wish` → `'verify'` | `sysmlDeliverableAccepted` (syntactic, judged by the pinned compiler), `outcomeAccepted` (semantic) | A SysML design deliverable and its documentation, before implementation ([V05](../review/01_wish_status.md#v05)) |
+| `xdesign.designedSimpleFlow : DesignedSimpleFlow` | The four `SimpleFlow` stages, in order | 5: four fixed syntactic gates and inherited semantic `verificationAccepted` | An executable gated run ([D01](simple_flow/01_run_design.md#d01), [D07](simple_flow/02_gates_and_rules.md#d07), [P08](../prj_manage/03_simple_flow_execution_record.md#p08)) |
+| `xdesign.nestedFlowExample : NestedFlowExample` | Four `SimpleFlow` stages; `design` has a nested four-stage subflow | `verificationAccepted` (semantic) at the outer terminal stage | Demonstrates the subflow completion rule ([F05](#f05)) |
 
 ![The wish → verify flow: two stages, one semantic checkpoint](assets/01_wish_verify_flow.svg)
 
-> **Figure F03-1 — Wish-to-verification flow.**  
+> **Figure F03-2 — Wish-to-verification flow.**  
 > **Question:** How is a judged artifact delivered without implementation stages?  
 > **Model view:** Internal-structure projection of `XDesignArchitecture::WishVerifyFlow`.  
 > **Companions:** [F02](#f02) for checkpoint kinds and [V03](../review/01_wish_status.md#v03) for a recorded run.  
@@ -91,10 +120,10 @@ its documentation; verification is a syntactic check by the pinned compiler
 language is selected ([V05](../review/01_wish_status.md#v05),
 [D07](simple_flow/02_gates_and_rules.md#d07)).
 
-`designedSimpleFlow` is `SimpleFlow` as designed: the definition itself is unchanged —
-gating it now would un-authorize the completed visits of the runs already recorded
-against it — and the usage adds an exit gate to every stage, the first three syntactic and
-verification by a syntactic record gate plus the inherited semantic judgment. The rules
+`DesignedSimpleFlow` specializes `SimpleFlow` without changing the historical
+`xdesign.workflowFlow` stages or gates. Its concrete usage adds an exit gate to every
+stage, the first three syntactic and verification by a syntactic record gate plus the
+inherited semantic judgment. The rules
 and commands for each syntactic gate are implemented in the four-stage local slice
 ([D05](simple_flow/02_gates_and_rules.md#d05),
 [D06](simple_flow/02_gates_and_rules.md#d06),
@@ -103,11 +132,10 @@ and commands for each syntactic gate are implemented in the four-stage local sli
 
 The shared flow definitions and controller rules stay in this document. A flow's
 specialized design belongs in its own addressable location: the current developed
-SimpleFlow design is under [details/simple_flow/](simple_flow/01_run_design.md#d01),
-while the [documentation entry](../00_index.md) gives each defined flow a separate
-overview and links to any developed design. Adding a flow adds a new overview row and,
-when needed, a sibling design directory with its own `00` numbering; it does not recast
-SimpleFlow sections or make its gates apply to another flow
+SimpleFlow design is under [details/simple_flow/](simple_flow/01_run_design.md#d01).
+A new selectable plan must be added to the `xdesign` portfolio and documented in the
+[entry](../00_index.md); its design can have a sibling directory when needed. Adding
+one does not recast SimpleFlow sections or make its gates apply to another flow
 ([D30](05_documentation_contract.md#d30)).
 
 <a id="f04"></a>
@@ -148,7 +176,7 @@ not a claim that the generic controller runs in the current crate.
   next `visitIndex`; earlier visits and their evidence are kept
   ([E03](02_records_and_evidence.md#e03)).
 - **A subflow must finish first.** If a stage declares a `subFlow`
-  (`XDesignArchitecture::nestedFlowExample` shows one), the parent stage cannot complete
+  (`XDesignComposition::xdesign.nestedFlowExample` shows one), the parent stage cannot complete
   until that execution is completed (`StageRecord::subFlowSatisfied`).
 - **The terminal stage decides.** Only a stage with `completesFlow` leaves the flow with no
   successor, and its exit checkpoint is what authorizes delivery

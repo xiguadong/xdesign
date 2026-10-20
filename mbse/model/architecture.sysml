@@ -561,7 +561,8 @@ package XDesignArchitecture {
            evaluates checkpoints and decides the next step. Incomplete subflows
            or failed, missing or stale assessments prevent stage completion. */
 
-        ref part defaultFlow : Flow;
+        ref part availableFlows : Flow [1..*];
+        ref part defaultFlow : Flow subsets availableFlows;
         ref item wishes : Wish [0..*];
         ref part traces : Trace [0..*];
 
@@ -580,6 +581,10 @@ package XDesignArchitecture {
             in part selectedFlow : Flow default defaultFlow;
             out item registeredWish : Wish;
             out part registeredTrace : Trace;
+
+            assert constraint selectedFlowIsAvailable {
+                availableFlows->includes(selectedFlow)
+            }
         }
 
         perform action recordActivity {
@@ -676,16 +681,20 @@ package XDesignArchitecture {
 
     part def XDesign {
         @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B01"; }
-        doc /* Composes the default flow, controller, wishes and their separate
-           traces. The controller can select any Flow specialization for a wish.
-           Each wish has one independent trace; nested executions stay in it. */
+        doc /* Owns the shared flow origin and a portfolio of concrete flow usages.
+           The selected flow is the default; the controller may register a wish on
+           any owned portfolio member. Each wish has one independent trace;
+           nested executions stay in it. */
 
-        part 'flow' : Flow;
+        abstract part 'flow' : Flow;
+        part availableFlows : Flow [1..*];
+        ref part selectedFlow : Flow subsets availableFlows;
         part controller : Controller;
         item wishes : Wish [0..*];
         part traces : Trace [0..*];
 
-        bind controller.defaultFlow = 'flow';
+        bind controller.availableFlows = availableFlows;
+        bind controller.defaultFlow = selectedFlow;
         bind controller.wishes = wishes;
         bind controller.traces = traces;
 
@@ -701,29 +710,7 @@ package XDesignArchitecture {
         }
     }
 
-    part xdesign : XDesign {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B01"; }
-        part redefines 'flow' : VModel;
-    }
-
-    part simpleFlow : SimpleFlow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
-        doc /* Example workflow selectable when registering a wish. */
-    }
-
-    part wishVerifyFlow : WishVerifyFlow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
-        doc /* Selectable when a wish's outcome is a judged artifact, such as
-           documentation, rather than a requirement or a code change. */
-    }
-
-    part designFlow : DesignFlow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
-        doc /* Selectable when a wish's outcome is a SysML design deliverable and its
-           documentation, before any implementation stage. */
-    }
-
-    part nestedFlowExample : SimpleFlow {
+    part def NestedFlowExample :> SimpleFlow {
         @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F05"; }
         doc /* The design stage contains its own four-stage SimpleFlow. */
 

@@ -7,12 +7,12 @@ design lives in `mbse/model/detailedDesign.sysml`; every top-level element there
 ([B04](../../arch/01_system_composition.md#b04)), and every figure is rendered from the model
 by `tools/render_docs.py`.
 
-The flow *definition* is unchanged. `XDesignArchitecture::SimpleFlow` still gates only
-verification ([F03](../01_flows_and_checkpoints.md#f03)), so the runs already
-recorded against `workflow.'flow'` — wishes 0001–0004 and 0007 — stay valid: they were judged by
-the gates that existed when they ran, and completed visits stay authorized. The design adds
-a *designed usage*, `XDesignDetailedDesign::designedSimpleFlow`, which a wish selects at
-registration when it wants every stage gated.
+The base `XDesignArchitecture::SimpleFlow` still gates only verification
+([F03](../01_flows_and_checkpoints.md#f03)). Historical runs on
+`xdesign.workflowFlow` — wishes 0001–0004 and 0007 — retain their original
+gates and assessments. This file defines `XDesignDetailedDesign::DesignedSimpleFlow`
+as a gated specialization. `XDesignComposition::xdesign.designedSimpleFlow` is its
+concrete selectable usage in the system's flow portfolio.
 
 The checkpoints themselves are instances of one checkpoint class with syntactic and
 semantic adaptations, and the run evaluates a gate through its class's operation rather than
@@ -33,14 +33,14 @@ below.
 ![What the designed flow is made of](assets/01_designed_flow.svg)
 
 > **Figure D01-1 — Designed SimpleFlow plan.**  
-> **Question:** Which stages and exit gates make up the designed flow usage?  
-> **Model view:** `XDesignDetailedDesign::designedFlowTree`, a browser view of `designedSimpleFlow`.  
+> **Question:** Which stages and exit gates make up the designed flow?  
+> **Model view:** `XDesignDetailedDesign::designedFlowTree`, a browser view of `DesignedSimpleFlow`.  
 > **Companions:** [D05](02_gates_and_rules.md#d05) for gate criteria and [F03](../01_flows_and_checkpoints.md#f03) for selectable flows.  
 > **Status:** renderable-now; design view with a tested first executable slice.  
 > **Reading:** Four stages retain the SimpleFlow order and the usage adds gates to their exits. The table below distinguishes the four declared fixed checks from the final semantic judgment.  
 > **Limits:** The figure does not show implemented checker commands or a run that passed these gates.
 
-`designedSimpleFlow : SimpleFlow` keeps the four stages in the definition's order and adds
+`DesignedSimpleFlow :> SimpleFlow` keeps the four stages in the definition's order and adds
 an exit gate to every one of them. Four gates are syntactic — facts the implemented
 fixed commands check; the one judgment stays where the definition put it, at the end:
 
@@ -58,11 +58,12 @@ command paths, and 18 rules are declared in the model and explained in
 the command must run and return a valid, retained, revision-bound report
 ([D07](02_gates_and_rules.md#d07)).
 
-Why the definition is not the place for this: adding gates to `SimpleFlow` would apply them
-to `workflow.'flow'` and to every run already recorded against it. A completed visit whose
+Why the base definition is not the place for this: adding gates to `SimpleFlow` would
+apply them to `xdesign.workflowFlow` and to every run already recorded against it. A completed visit whose
 stage gained a new exit checkpoint would lose its authorization retrospectively — the
 record would be rewritten by a design change. The design instead states the gated
-configuration as a usage, the same way `nestedFlowExample` states a nested one
+specialization and instantiates it as `xdesign.designedSimpleFlow`; the same portfolio
+instantiates `NestedFlowExample` for the nested case
 ([F05](../01_flows_and_checkpoints.md#f05)).
 
 <a id="d02"></a>
@@ -87,7 +88,7 @@ not a declaration beside it ([R01](../../requirements/01_baseline.md#r01),
 
 | Member | What it is |
 | --- | --- |
-| `assignedFlow` (redefined) = `designedSimpleFlow` | The plan this run executes |
+| `assignedFlow : DesignedSimpleFlow` (redefined) | The class of plan this run executes; a concrete run binds the `xdesign.designedSimpleFlow` usage |
 | `stageRecords : StageRecord [4..*]` (redefined) | A visit to each of the four stages; a reworked stage appends a further visit, so the count grows |
 | `check : ~CheckCommandExchange`, `judgment : ~JudgmentExchange` | The run's ports — the interfaces it invokes checks and presents judgments through ([D10](03_structure_graphs.md#d10)) |
 | `created`, `completed` | The run's events — the ends of its timeline ([D08](03_structure_graphs.md#d08)) |
@@ -185,4 +186,4 @@ needs downstream invalidation rules and is outside this action.
 These action bodies are specifications, not executed results: the compiler resolves
 their names but does not evaluate their `assert constraint` bodies
 ([T04](../03_toolchain.md#t04)). The executable cases in
-[D54](07_file_plan_and_verification.md#d54) must establish their behavior.
+[D54](../../prj_manage/06_file_plan_and_verification.md#d54) must establish their behavior.

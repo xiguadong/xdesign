@@ -5,6 +5,12 @@ Each section names the model elements it documents; the model carries the revers
 (`XDesignCommon::DocSection`, see [B04](01_system_composition.md#b04)). Every figure is
 rendered from the model by `tools/render_docs.py`; none is drawn by hand.
 
+Read [B30, the wish-to-delivery route](03_wish_to_delivery.md#b30) for the complete
+default stage and gate sequence, then [A03](#a03) for the controller behavior that
+repeats within each stage. [System composition](01_system_composition.md#b01)
+shows the parts; [architecture design](02_design.md#b05) records the design status
+and open decisions.
+
 <a id="a01"></a>
 
 ## A01 What the project does
@@ -18,7 +24,8 @@ must answer two questions:
 
 The first question is answered by the project MBSE model under `mbse/model/`. The second
 by an independent SysML traceability model per wish under `mbse/wishes/`. The composition
-that holds both is `XDesignArchitecture::XDesign`.
+that holds both is defined by `XDesignArchitecture::XDesign` and instantiated as
+`XDesignComposition::xdesign`.
 
 <a id="a02"></a>
 
@@ -65,6 +72,9 @@ Those literals describe the trace's outcome, distinct from a stage visit's statu
 ([E02](../details/02_records_and_evidence.md#e02)) or a flow execution's status
 ([E01](../details/02_records_and_evidence.md#e01)).
 
+For the whole wish → implementation → verification → delivery route, including
+stage exit gates and V-model verification pairings, see [B30](03_wish_to_delivery.md#b30).
+
 <a id="a04"></a>
 
 ## A04 Repository layout
@@ -75,16 +85,17 @@ mbse/
             requirements.sysml  the requirements baseline
             architecture.sysml  flows, checkpoints, records, controller, XDesign
             detailedDesign.sysml  the simple flow's design: run class, factory, functions, checkpoint class, gates
+            composition.sysml  the xdesign instance and selectable flow portfolio
             verification.sysml  planned design-review coverage, separate from results
             workflow.sysml      ports, interfaces and the executed lifecycle scenario
             traceability.sysml  which model element satisfies which requirement
-            uml.sysml           SimpleFlow Rust crate and API design projections
+            uml.sysml           xdesign Rust package and SimpleFlow module projections
   wishes/   wish-0001.sysml …   one independent traceability model per wish
 docs/       00_index.md         entry, reading paths and model/flow map
-            arch/ requirements/ details/ review/ uml/ prj_manage/  this documentation, by concern
+            arch/ requirements/ details/ review/ api/ prj_manage/  this documentation, by concern
             details/05_documentation_contract.md  model/documentation specification
             details/simple_flow/  one flow's detailed design, decomposed
-            uml/simpflow/       SimpleFlow public API contract, one page per API
+            api/core/ api/simple_flow/  the crate's API reference, one page per API
             arch/assets/ requirements/assets/ details/assets/   figures beside their document topics
             details/simple_flow/assets/   SimpleFlow figures beside their design topics
 tools/      sysml_web/          the pinned compiler and the local workbench
@@ -104,7 +115,7 @@ to different stages of the workflow's V-model (`VModel`, see
 | `requirements/` | The requirements baseline and its enforcement | `systemRequirements` |
 | `details/` | The mechanisms: flows, records, toolchain | `detailedDesign`, `implementation` |
 | `details/simple_flow/` | The SimpleFlow design: its run, gates, rules, and coordinated SysML views | `detailedDesign` |
-| `uml/` | Software design notation and the SimpleFlow public API contract | `detailedDesign` |
+| `api/` | The xdesign crate's class-and-function API reference and crate layer structure | `detailedDesign` |
 | `prj_manage/` | Review synthesis and implementation plan | Project planning across stages |
 | `review/` | How verification is done and where each wish stands | `systemVerification`, `acceptanceValidation` |
 
@@ -155,10 +166,10 @@ Where each model module and sub-module is documented. Section identifiers are st
 | Documentation audit and SimpleFlow checker rules | [D31](../details/05_documentation_contract.md#d31), [D06](../details/simple_flow/02_gates_and_rules.md#d06) |
 | `XDesignRequirements`, `XDesignRequirement`, every requirement | [R01](../requirements/01_baseline.md#r01) |
 | `XDesignTraceability` | [R02](../requirements/01_baseline.md#r02) |
-| `SimpleFlowRustUml` and its crate and API elements | [D44](../details/simple_flow/06_rust_uml_design.md#d44), [U13](../uml/simpflow/00_overview.md#u13) |
+| `XDesignRustUml` and the xdesign crate's API elements | [D44](../details/simple_flow/06_rust_uml_design.md#d44), [U65](../api/00_overview.md#u65), [U14](../api/00_overview.md#u14) |
 | `RustUmlDesignReview` | [D52](../details/simple_flow/06_rust_uml_design.md#d52) |
-| `simpleFlowFilePlan`, `simpleFlowFilePlanView` | [D53](../details/simple_flow/07_file_plan_and_verification.md#d53) |
-| `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification` | [D54](../details/simple_flow/07_file_plan_and_verification.md#d54) |
+| `simpleFlowFilePlan`, `simpleFlowFilePlanView` | [D53](../prj_manage/06_file_plan_and_verification.md#d53) |
+| `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification` | [D54](../prj_manage/06_file_plan_and_verification.md#d54) |
 | `XDesignArchitecture` | [A05](#a05), [B05](02_design.md#b05) |
 | `Flow`, `Stage` | [F01](../details/01_flows_and_checkpoints.md#f01) |
 | `Checkpoint`, `Checker` | [F02](../details/01_flows_and_checkpoints.md#f02) |

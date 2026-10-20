@@ -14,20 +14,29 @@ and how the model points at this documentation.
 > **Model view:** Internal-structure projection of `XDesignArchitecture::XDesign`.  
 > **Companions:** [B02](#b02) for typed interfaces and [E01](../details/02_records_and_evidence.md#e01) for record definitions.  
 > **Status:** renderable-now.  
-> **Reading:** The flow, controller, wishes, and traces are parts of one composition. Their bindings give the controller its default flow and the records it manages.  
+> **Reading:** The abstract flow origin, owned flow portfolio, selected default, controller, wishes, and traces form one composition. Bindings give the controller its available plans and default selection.  
 > **Limits:** Ownership and bindings do not show a run's stage order or prove its delivery invariants.
 
-`XDesignArchitecture::XDesign` composes four parts and binds them:
+`XDesignArchitecture::XDesign` defines the system composition.
+`XDesignComposition::xdesign` supplies its concrete flow portfolio:
 
 | Part | Type | Role |
 | --- | --- | --- |
-| `'flow'` | `VModel` (redefined in `xdesign`) | The stages and checkpoints every wish is run through by default |
-| `controller` | `Controller` | Registers wishes and traces, records activities, evaluates checkpoints, advances or blocks. `Workflow` redefines this part as `WorkflowController` |
+| `'flow'` | abstract `Flow` | Common origin specialized by each selectable flow usage; it is not itself run |
+| `availableFlows` | `Flow [1..*]` | Owned portfolio of the concrete plan usages under `xdesign` |
+| `selectedFlow` | reference to `Flow` | Default portfolio member; `xdesign` binds it to `vModel` |
+| `controller` | `Controller` | Registers wishes and traces, records activities, evaluates checkpoints, advances or blocks. It may select only a portfolio member |
 | `wishes` | `Wish [0..*]` | The requested outcomes |
 | `traces` | `Trace [0..*]` | One execution record per wish |
 
-Bindings: `controller.defaultFlow = 'flow'`, `controller.wishes = wishes`,
-`controller.traces = traces`. One assertion holds the composition together:
+Bindings: `controller.availableFlows = availableFlows`,
+`controller.defaultFlow = selectedFlow`, `controller.wishes = wishes`, and
+`controller.traces = traces`. The portfolio usages are
+`xdesign.vModel`, `xdesign.workflowFlow`, `xdesign.wishVerifyFlow`,
+`xdesign.designFlow`, `xdesign.designedSimpleFlow`, and
+`xdesign.nestedFlowExample`; each specializes `xdesign.'flow'`
+([F03](../details/01_flows_and_checkpoints.md#f03)). One assertion holds the
+composition together:
 `XDesign::everyWishHasOneTrace` — every wish has exactly one trace, and every trace
 belongs to a wish.
 
@@ -45,7 +54,9 @@ belongs to a wish.
 > **Reading:** The wish interface carries a submission in and registered wish and trace references out. The flow interface supplies the selected flow definition to the controller.  
 > **Limits:** The figure defines connections and item flows, not message timing or a particular wish's result.
 
-`XDesignWorkflow::Workflow` adds the requester and the typed interfaces:
+`XDesignWorkflow::Workflow` is the four-stage interface and lifecycle configuration.
+Its `WorkflowFlow` definition is instantiated as `xdesign.workflowFlow` in the
+portfolio. The configuration adds the requester and typed interfaces:
 
 | Interface | Connected ports | Flows |
 | --- | --- | --- |
@@ -54,13 +65,17 @@ belongs to a wish.
 
 The port directions say who owns what: `WishExchange` takes a description in and returns
 the wish and its trace out; `FlowExchange` publishes a flow definition. Wishes and traces
-stay owned by the workflow; the requester receives references through its port.
+stay owned by the workflow composition; the requester receives references through
+its port. The figure specifies the interface type and does not assert that the
+current generic `xdesign.controller` has implemented those ports.
 
 <a id="b03"></a>
 
 ## B03 Ownership and delivery invariants
 
-Four rules hold regardless of which flow a wish runs:
+The controller's `selectedFlowIsAvailable` assertion requires every selected plan to
+belong to the composition's portfolio. Four record rules hold regardless of which
+member a wish runs:
 
 - A wish's execution records every stage of its assigned flow, and no others
   (`FlowExecution::recordsEveryFlowStage`, `recordsUseAssignedFlow`).

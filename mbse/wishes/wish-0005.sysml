@@ -4,6 +4,7 @@ package Wish0005 {
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
+    private import XDesignComposition::*;
     private import StandardViewDefinitions::*;
     private import Views::*;
 
@@ -35,13 +36,13 @@ package Wish0005 {
         attribute redefines traceabilityModelUri = "mbse/wishes/wish-0005.sysml";
 
         part redefines execution : FlowExecution {
-            ref part redefines assignedFlow = wishVerifyFlow;
+            ref part redefines assignedFlow = xdesign.wishVerifyFlow;
             attribute redefines status = FlowStatus::completed;
             part redefines stageRecords : StageRecord [2];
             ref part redefines currentRecord = verifyRecord;
 
             part wishRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.wish;
+                ref part redefines stage = xdesign.wishVerifyFlow.wish;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -67,7 +68,7 @@ package Wish0005 {
             }
 
             part verifyRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = wishVerifyFlow.'verify';
+                ref part redefines stage = xdesign.wishVerifyFlow.'verify';
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -83,7 +84,7 @@ package Wish0005 {
                 ref item redefines currentAssessments = verificationAssessment;
 
                 item verificationAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = wishVerifyFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.wishVerifyFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 1;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -102,9 +103,9 @@ package Wish0005 {
            were produced, enters verification, assesses the flow's only checkpoint once,
            and delivers the wish. There is no rework, so assessVerification appears once. */
 
-        ref part controller : Controller = workflow.controller;
-        ref part wish : Stage = wishVerifyFlow.wish;
-        ref part 'verify' : Stage = wishVerifyFlow.'verify';
+        ref part controller : Controller = xdesign.controller;
+        ref part wish : Stage = xdesign.wishVerifyFlow.wish;
+        ref part 'verify' : Stage = xdesign.wishVerifyFlow.'verify';
         ref part trace : Trace = trace0005;
 
         message enterWish from controller.entering to wish.entered;

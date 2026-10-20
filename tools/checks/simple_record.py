@@ -264,8 +264,8 @@ def evaluate(context: Context) -> list[dict]:
                           {"evidence": evidence_inspected}, evidence_existence_failures))
 
     execution_type = context.record.get("execution_type")
-    type_failures = [] if execution_type == "SimpleFlowRun" else [
-        "Run on designedSimpleFlow lacks SimpleFlowRun typing."
+    type_failures = [] if execution_type == "FlowRun" else [
+        "Run on designedSimpleFlow lacks FlowRun typing."
     ]
     results.append(result(RULES[6], [context.args.record], {
         "plan_id": context.record.get("plan_id"), "execution_type": execution_type,

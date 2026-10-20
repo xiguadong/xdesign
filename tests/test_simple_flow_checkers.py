@@ -98,7 +98,7 @@ class CheckerCases(unittest.TestCase):
                 for gate in self.gates[self.stages[index]]
             ]
         record = {
-            "run_id": "fixture-run", "execution_type": "SimpleFlowRun",
+            "run_id": "fixture-run", "execution_type": "FlowRun",
             "plan_id": "designedSimpleFlow", "plan_uri": uri(self.plan_path),
             "plan_sha256": self.plan_sha256, "wish_model_uri": self.wish,
             "status": "active", "current_visit": current, "visits": visits,

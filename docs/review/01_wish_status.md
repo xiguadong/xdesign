@@ -38,15 +38,15 @@ assessments; [V04](#v04) records those limits.
 
 | Wish | Flow | Status | What its record establishes | Note |
 | --- | --- | --- | --- | --- |
-| wish-0001 — export the project model as a reviewable report | `workflow.'flow'` | recorded delivered; evidence not presently verifiable | Verification failed at revision 3 and was recorded as passed at revision 4 after corrective work, in one visit | Every recorded evidence URI and the named artifacts (`src/report.rs`, `cache/build/report.xml`) are absent. The activity now describes four candidate checks, while the unchanged passed-assessment rationale claims four requirements without retained derivation links. The historical assessment is read as written, not accepted as current proof. |
-| wish-0002 — split checkpoints into syntactic and semantic | `workflow.'flow'` | delivered | Three assessments over three revisions; the export's truncation of multi-valued values was found and worked around | Its five requirements now live in `mbse/model/`; the file keeps the derivation ([R02](../requirements/01_baseline.md#r02)) |
-| wish-0003 — retain wish products in the project model | `workflow.'flow'` | delivered | Moved wish-0002's requirements into the model and added the two boundary requirements | Verified by reading (`cache/evidence/wish-0003/invariants.txt`); no checker enforces the boundary |
-| wish-0004 — make the traceability chain a tool capability | `workflow.'flow'` | active, registered | Nothing attempted yet; the wish is registered with its trace at intake | Asks first whether one requirement may have two satisfiers, because the export cannot attribute them — see [V04](#v04) |
+| wish-0001 — export the project model as a reviewable report | `xdesign.workflowFlow` | recorded delivered; evidence not presently verifiable | Verification failed at revision 3 and was recorded as passed at revision 4 after corrective work, in one visit | Every recorded evidence URI and the named artifacts (`src/report.rs`, `cache/build/report.xml`) are absent. The activity now describes four candidate checks, while the unchanged passed-assessment rationale claims four requirements without retained derivation links. The historical assessment is read as written, not accepted as current proof. |
+| wish-0002 — split checkpoints into syntactic and semantic | `xdesign.workflowFlow` | delivered | Three assessments over three revisions; the export's truncation of multi-valued values was found and worked around | Its five requirements now live in `mbse/model/`; the file keeps the derivation ([R02](../requirements/01_baseline.md#r02)) |
+| wish-0003 — retain wish products in the project model | `xdesign.workflowFlow` | delivered | Moved wish-0002's requirements into the model and added the two boundary requirements | Verified by reading (`cache/evidence/wish-0003/invariants.txt`); no checker enforces the boundary |
+| wish-0004 — make the traceability chain a tool capability | `xdesign.workflowFlow` | active, registered | Nothing attempted yet; the wish is registered with its trace at intake | Asks first whether one requirement may have two satisfiers, because the export cannot attribute them — see [V04](#v04) |
 | wish-0005 — documentation from the model | `wishVerifyFlow` | delivered | Produced this documentation set and the `DocSection` references; the outcome was judged against `outcomeAccepted` | Ran without requirements or implementation stages by the requester's direction; see [V03](#v03) |
 | wish-0006 — detailed design of the simple flow | `designFlow` | delivered, historical assessment | Visit 0 accepted revision 1: eight requirements, detailed design, three structure graphs, and documentation. Visit 1 accepted the semantic contents of nine diagram types at revision 2. | Those passes did not establish usable presentation at normal article size. Their records remain history; wish-0007 addresses presentation separately. See [V05](#v05). |
-| wish-0007 — make the nine diagrams readable | `workflow.'flow'` (`SimpleFlow`) | delivered, revision 1 | Replaced fixed-grid rendering with model-owned captions, diagram-specific projection, Graphviz layout, and a compact sequence. All nine primary figures passed source-fidelity, typography, and final-image review. | Reviewed at 900-pixel article width and in the built desktop article; final SVG, PNG, and screenshot hashes bind the evidence to the assets. See [V06](#v06). |
+| wish-0007 — make the nine diagrams readable | `xdesign.workflowFlow` (`SimpleFlow`) | delivered, revision 1 | Replaced fixed-grid rendering with model-owned captions, diagram-specific projection, Graphviz layout, and a compact sequence. All nine primary figures passed source-fidelity, typography, and final-image review. | Reviewed at 900-pixel article width and in the built desktop article; final SVG, PNG, and screenshot hashes bind the evidence to the assets. See [V06](#v06). |
 | wish-0008 — reorganize the documentation structure and the SysML v2 specification | `designFlow` | delivered, revision 4 | Revision 1 established the locator and viewpoint contract; revision 2 added stage topics and placed the nine primary views; revision 3 added directory overviews and contiguous topic numbering; revision 4 places figures in each document directory's own `assets/`. | Separate script and agent assessments are recorded for each revision; the revision-4 evidence and remaining stage-gate gaps are in [V07](#v07). |
-| wish-0009 — Rust UML design for SimpleFlow | `wishVerifyFlow` | delivered, revision 3 (closed) | Revision 1 delivered the module-level design; revision 2 corrected granularity to an API reference (inventory plus one page per API); revision 3 adopted the API-reference structure into the UML guide ([U47](../uml/01_c4_and_uml_guide.md#u47)) and repository conventions | At that wish's closure the result was design only; the later Rust implementation is recorded in [P08](../prj_manage/03_simple_flow_execution_record.md#p08). See [V16](#v16). |
+| wish-0009 — Rust UML design for SimpleFlow | `wishVerifyFlow` | delivered, revision 3 (closed) | Revision 1 delivered the module-level design; revision 2 corrected granularity to an API reference (inventory plus one page per API); revision 3 adopted the API-reference structure into the project's conventions ([U47](../api/00_overview.md#u47)) | At that wish's closure the result was design only; the later Rust implementation is recorded in [P08](../prj_manage/03_simple_flow_execution_record.md#p08). See [V16](#v16). |
 
 <a id="v03"></a>
 
@@ -219,7 +219,7 @@ and no clipping or ambiguous overlaps. Whole-model exports and long historical j
 remain reference figures with their own scope.
 
 **Revision 1 is delivered.** The new wish ran through the workflow composition's own
-`workflow.'flow'` four-stage path:
+`xdesign.workflowFlow` four-stage path:
 requirements, design, implementation, and verification stages. Its semantic assessment
 judged the two presentation requirements using the final figures and their source
 relationships. It did not inherit authorization from wish-0006's earlier assessments.
@@ -363,12 +363,14 @@ artifact, so the two-stage flow applies ([F03](../details/01_flows_and_checkpoin
 The wish stage derived three requirements in
 [R01](../requirements/01_baseline.md#r01) — `rustUmlDesignMapsEveryDesignElement`,
 `umlViewsAreSelectedWithReasons` and `softwareDesignClaimsNoImplementation` — and
-produced `mbse/model/uml.sysml` (package `SimpleFlowRustUml`): the `simpflow` crate's
+produced `mbse/model/uml.sysml` (package `SimpleFlowRustUml`, since renamed
+`XDesignRustUml`): the then-named `simpflow` crate's
 module layout, its structs, enums and traits with a recorded realization dependency
 per element, the gate-evaluation interaction, and the run's state handling, plus four
 declared views with viewpoint usages. The documentation adds the
-[UML overview and guide](../uml/00_overview.md#u01) adapted from
-`cache/templates/docs/uml/`, the module's
+UML overview and guide (since reorganized into the
+[API reference](../api/00_overview.md#u01)) adapted from the template package's
+C4/UML guide under `cache/templates/`, the module's
 [Rust UML design](../details/simple_flow/06_rust_uml_design.md#d44) with four rendered
 figures and a fourteen-view applicability table, a planned
 `RustUmlDesignReview` verification case, and convention updates to `docs/AGENTS.md`,
@@ -389,7 +391,7 @@ responsibilities but gave no class-level attribute and operation tables, no func
 signatures, and no per-function contracts or logic — the granularity of
 `cache/kimi_template`'s class-and-function template — and named the PyTorch API
 reference as the target organization. The revision-1 assessments remain historical.
-**Revision 2** adds the [simpflow API reference](../uml/simpflow/00_overview.md#u13):
+**Revision 2** added the [SimpleFlow API reference](../api/00_overview.md#u13):
 an inventory page listing every public API of the designed crate exactly once, plus
 31 pages at that revision — one per API — each with a full Rust signature, parameter, return and
 error contracts, stepwise logic and examples. The model gains the `RsPlanError` and
@@ -405,15 +407,15 @@ trace. Inventory-versus-model coverage is an agent reading, not a mechanical che
 signatures are not compiled.
 The reference later grew to 48 API pages during implementation and review
 reconciliation; that growth does not represent a new wish-0009 assessment
-([U13](../uml/simpflow/00_overview.md#u13)).
+([U13](../api/00_overview.md#u13)).
 
 **Revision 3 closes the wish.** With the requester's acceptance, the API-reference
-structure was adopted into the project's conventions: [U47](../uml/01_c4_and_uml_guide.md#u47)
+structure was adopted into the project's conventions: [U47](../api/00_overview.md#u47)
 defines the two required granularities — module level and class-and-function level —
 the inventory-page plus one-page-per-API organization, the entry contents, and the
-trivial-getter, naming, traceability and status conventions, with the simpflow
-reference as its first instance. The [U12](../uml/01_c4_and_uml_guide.md#u12) review
-checklist now audits it, and `docs/AGENTS.md` records the `docs/uml/<module>/`
+trivial-getter, naming, traceability and status conventions, with the then-named simpflow
+reference as its first instance. The [U12](02_checklist.md#u12) review
+checklist now audits it, and `docs/AGENTS.md` records the per-module API-reference
 layout rule. At revision 3 the compiler reports, documentation audit, regenerated
 figures and strict site build pass again; evidence is under
 `cache/evidence/wish-0009/revision-3/`. Adoption of the convention by future

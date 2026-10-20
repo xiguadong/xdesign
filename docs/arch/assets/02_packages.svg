@@ -1,253 +1,197 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="777pt" height="890pt" viewBox="0.00 0.00 777.00 890.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<svg xmlns="http://www.w3.org/2000/svg" width="1029pt" height="890pt" viewBox="0.00 0.00 1029.00 890.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
 <title id="diagram-title">Project packages including Rust UML</title><desc id="diagram-desc">How does the Rust software design depend on the other project model concerns?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 872.37)">
 <title>Model</title>
-<polygon fill="white" stroke="none" points="-18,18 -18,-872.37 758.5,-872.37 758.5,18 -18,18" />
-<text xml:space="preserve" text-anchor="start" x="174.88" y="-824.47" font-family="Arial" font-weight="bold" font-size="22.00">Project packages including Rust UML</text>
-<text xml:space="preserve" text-anchor="start" x="126.12" y="-796.12" font-family="Arial" font-size="14.00" fill="#52657a">How does the Rust software design depend on the other project model concerns?</text>
-
-<g class="edge" data-native-id="9125b251-9b5d-5397-881d-ebc59b528305" data-source-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
-<title>imports
-
-9125b251-9b5d-5397-881d-ebc59b528305</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M591.05,-563.48C580.15,-478.36 555,-282.04 555,-282.04 555,-282.04 548.81,-254.84 542.85,-228.67" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="541.11,-221.05 546.4,-228.05 541.8,-223.37 543.04,-228.82 542.89,-228.85 542.74,-228.88 541.5,-223.44 539.38,-229.65 541.11,-221.05" />
-<text xml:space="preserve" text-anchor="middle" x="591.64" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
-</g>
-
-<g class="edge" data-native-id="01d4f9c0-966f-5e1e-bbdf-27370b5a4e4f" data-source-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
-<title>imports
-
-01d4f9c0-966f-5e1e-bbdf-27370b5a4e4f</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M623.87,-563.73C653.76,-522.59 697,-463.07 697,-463.07 697,-463.07 697,-463.07 697,-179.03 697,-179.03 541.81,-108.06 453.19,-67.54" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="446.01,-64.25 454.78,-64.3 448.27,-65.12 453.35,-67.44 453.29,-67.58 453.22,-67.72 448.14,-65.39 451.79,-70.85 446.01,-64.25" />
-<text xml:space="preserve" text-anchor="middle" x="718.75" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
-</g>
-
-<g class="edge" data-native-id="2026f7e8-3494-51af-b8e7-697c906ca6ec" data-source-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
-<title>imports
-
-2026f7e8-3494-51af-b8e7-697c906ca6ec</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M550.48,-563.73C529.22,-545.83 503.84,-524.44 481.95,-506" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="475.88,-500.88 484.32,-503.29 477.82,-502.33 482.09,-505.92 482,-506.04 481.9,-506.15 477.63,-502.56 479.68,-508.79 475.88,-500.88" />
-<text xml:space="preserve" text-anchor="middle" x="540.2" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
-</g>
+<polygon fill="white" stroke="none" points="-18,18 -18,-872.37 1011.26,-872.37 1011.26,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="301.26" y="-824.47" font-family="Arial" font-weight="bold" font-size="22.00">Project packages including Rust UML</text>
+<text xml:space="preserve" text-anchor="start" x="252.51" y="-796.12" font-family="Arial" font-size="14.00" fill="#52657a">How does the Rust software design depend on the other project model concerns?</text>
 
 <g class="edge" data-native-id="033b1cbf-6279-5ead-9d37-1441a9fa3395" data-source-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
 033b1cbf-6279-5ead-9d37-1441a9fa3395</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M493.65,-140.67C476.33,-123.35 455.76,-102.78 437.74,-84.75" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="432.35,-79.36 440.55,-82.47 434.16,-80.96 438.11,-84.91 438,-85.02 437.9,-85.12 433.95,-81.18 435.46,-87.56 432.35,-79.36" />
-<text xml:space="preserve" text-anchor="middle" x="488.42" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M595.98,-140.67C607.61,-123.66 621.38,-103.5 633.54,-85.7" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="637.75,-79.55 636.2,-88.18 636.51,-81.63 633.36,-86.24 633.23,-86.15 633.11,-86.07 636.26,-81.46 630.26,-84.12 637.75,-79.55" />
+<text xml:space="preserve" text-anchor="middle" x="641.86" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="2b54664b-7dcb-577a-98d3-53295575289d" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<title>imports
+
+2b54664b-7dcb-577a-98d3-53295575289d</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M741.76,-563.61C747.7,-535.07 754.76,-501.08 754.76,-501.08 754.76,-501.08 754.76,-423.06 754.76,-423.06 754.76,-423.06 742.76,-282.04 742.76,-282.04 742.76,-282.04 676.76,-243.04 676.76,-243.04 676.76,-243.04 661.23,-234.03 641.99,-222.89" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="635.23,-218.97 643.96,-219.87 637.4,-220.05 642.23,-222.85 642.15,-222.98 642.08,-223.11 637.25,-220.31 640.35,-226.1 635.23,-218.97" />
+<text xml:space="preserve" text-anchor="middle" x="774.37" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="5f21dc27-5157-5e00-a9f9-8c1c93339f38" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
+<title>imports
+
+5f21dc27-5157-5e00-a9f9-8c1c93339f38</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M767.7,-563.73C804.11,-522.59 856.76,-463.07 856.76,-463.07 856.76,-463.07 856.76,-463.07 856.76,-179.03 856.76,-179.03 780.35,-123.7 723.94,-82.86" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="717.75,-78.38 726.34,-80.15 719.8,-79.67 724.32,-82.95 724.23,-83.07 724.14,-83.19 719.62,-79.92 722.12,-85.98 717.75,-78.38" />
+<text xml:space="preserve" text-anchor="middle" x="878.51" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="ba5f3f16-cff0-5bd6-88a1-5110c37ab4cb" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
+<title>imports
+
+ba5f3f16-cff0-5bd6-88a1-5110c37ab4cb</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M634.8,-568.61C553.24,-541.03 440.74,-502.98 375.48,-480.9" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="368.09,-478.4 376.83,-477.56 370.43,-479.03 375.72,-480.82 375.67,-480.97 375.62,-481.11 370.34,-479.32 374.52,-484.38 368.09,-478.4" />
+<text xml:space="preserve" text-anchor="middle" x="562.34" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="1d7b6d9e-c53c-5791-9e96-03ad621fe22a" data-source-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-target-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-edge-kind="dependency">
+<title>imports
+
+1d7b6d9e-c53c-5791-9e96-03ad621fe22a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M723.67,-563.61C716.18,-535.07 707.26,-501.08 707.26,-501.08 707.26,-501.08 692.61,-422.75 682.68,-369.71" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="681.24,-362.01 686.25,-369.21 681.83,-364.36 682.86,-369.85 682.71,-369.88 682.57,-369.9 681.54,-364.42 679.18,-370.54 681.24,-362.01" />
+<text xml:space="preserve" text-anchor="middle" x="729.01" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="1f7935dd-c854-52d0-a18e-62897cddd1be" data-source-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
 1f7935dd-c854-52d0-a18e-62897cddd1be</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M455.88,-422.5C464.01,-409.89 471,-399.06 471,-399.06 471,-399.06 500.73,-292.81 518.68,-228.65" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="520.81,-221.03 522.12,-229.71 520.3,-223.4 518.8,-228.78 518.65,-228.74 518.51,-228.7 520.01,-223.32 515.19,-227.77 520.81,-221.03" />
-<text xml:space="preserve" text-anchor="middle" x="525.28" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M334.03,-422.66C349.45,-370.06 375.26,-282.04 375.26,-282.04 375.26,-282.04 418.76,-243.04 418.76,-243.04 418.76,-243.04 458.36,-226.78 496.99,-210.91" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="504.26,-207.93 498.23,-214.3 502.08,-208.99 496.92,-211.11 496.86,-210.97 496.8,-210.83 501.97,-208.71 495.49,-207.64 504.26,-207.93" />
+<text xml:space="preserve" text-anchor="middle" x="397.01" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="7614d28e-d148-54a8-853d-2d6122cf6528" data-source-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
 7614d28e-d148-54a8-853d-2d6122cf6528</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M395.19,-422.59C368.63,-394.05 337,-360.06 337,-360.06 337,-360.06 337,-282.04 337,-282.04 337,-282.04 365.63,-158.32 381.94,-87.79" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="383.71,-80.17 385.41,-88.78 383.31,-82.56 382.05,-88 381.9,-87.97 381.76,-87.93 383.02,-82.49 378.4,-87.15 383.71,-80.17" />
-<text xml:space="preserve" text-anchor="middle" x="367.74" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M327.48,-422.66C333.95,-370.06 344.76,-282.04 344.76,-282.04 344.76,-282.04 350.26,-243.04 350.26,-243.04 350.26,-243.04 489.76,-141.02 489.76,-141.02 489.76,-141.02 554.48,-103.67 605.2,-74.39" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="611.83,-70.56 606.7,-77.68 609.82,-71.9 604.98,-74.69 604.91,-74.56 604.83,-74.43 609.67,-71.64 603.11,-71.44 611.83,-70.56" />
+<text xml:space="preserve" text-anchor="middle" x="372.01" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="64121e0a-8dbf-504c-9b8a-ea2493c75e27" data-source-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-target-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-edge-kind="dependency">
 <title>imports
 
 64121e0a-8dbf-504c-9b8a-ea2493c75e27</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M424.1,-422.71C421.15,-406.3 417.67,-386.97 414.56,-369.66" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="413.16,-361.84 418.11,-369.08 413.73,-364.19 414.72,-369.69 414.57,-369.71 414.42,-369.74 413.44,-364.24 411.03,-370.35 413.16,-361.84" />
-<text xml:space="preserve" text-anchor="middle" x="441" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M366.51,-443.74C428.28,-419.28 541.37,-374.49 611.77,-346.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="619.09,-343.7 612.98,-350 616.9,-344.73 611.71,-346.79 611.65,-346.65 611.6,-346.51 616.79,-344.45 610.33,-343.3 619.09,-343.7" />
+<text xml:space="preserve" text-anchor="middle" x="530.54" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="9fcc0f05-3556-5b57-8e87-64c96c91b329" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-edge-kind="dependency">
+<g class="edge" data-native-id="48b7c79d-348f-55a6-83b2-9063e3194517" data-source-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
-9fcc0f05-3556-5b57-8e87-64c96c91b329</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M299.14,-719.37C355.71,-697.4 440.56,-664.45 505.07,-639.4" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="512.16,-636.65 506.01,-642.9 509.96,-637.66 504.76,-639.68 504.7,-639.54 504.65,-639.4 509.85,-637.38 503.4,-636.19 512.16,-636.65" />
-<text xml:space="preserve" text-anchor="middle" x="449.48" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+48b7c79d-348f-55a6-83b2-9063e3194517</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M257,-563.52C283.23,-550.91 305.76,-540.08 305.76,-540.08 305.76,-540.08 381.76,-501.08 381.76,-501.08 381.76,-501.08 436.26,-384.06 436.26,-384.06 436.26,-384.06 500.12,-286.95 539.51,-227.05" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="543.78,-220.54 542.4,-229.2 542.58,-222.64 539.51,-227.31 539.39,-227.23 539.26,-227.14 542.33,-222.48 536.38,-225.25 543.78,-220.54" />
+<text xml:space="preserve" text-anchor="middle" x="458.01" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="68e05dca-989e-57da-9564-9c8121f8713b" data-source-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
+<title>imports
+
+68e05dca-989e-57da-9564-9c8121f8713b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M176.76,-563.73C176.76,-522.59 176.76,-463.07 176.76,-463.07 176.76,-463.07 176.76,-463.07 176.76,-179.03 176.76,-179.03 473.02,-94.63 603.87,-57.36" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="611.48,-55.19 604.77,-60.84 609.2,-56 603.83,-57.53 603.79,-57.38 603.74,-57.24 609.11,-55.71 602.8,-53.92 611.48,-55.19" />
+<text xml:space="preserve" text-anchor="middle" x="198.51" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="2d5b164b-5e68-5c7d-aaba-6c0f42af3309" data-source-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
+<title>imports
+
+2d5b164b-5e68-5c7d-aaba-6c0f42af3309</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M215.51,-563.58C234.89,-544.33 254.26,-525.08 254.26,-525.08 254.26,-525.08 262.47,-517.65 273.2,-507.94" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="278.99,-502.7 275.47,-510.74 277.3,-504.43 273.16,-508.18 273.06,-508.07 272.96,-507.96 277.1,-504.21 270.64,-505.4 278.99,-502.7" />
+<text xml:space="preserve" text-anchor="middle" x="276.01" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="9dedad38-9014-5087-a918-231a94d33ebd" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
 9dedad38-9014-5087-a918-231a94d33ebd</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M238,-704.75C238,-663.61 238,-604.09 238,-604.09 238,-604.09 238,-604.09 238,-390.56 238,-390.56 337,-282.04 337,-282.04 337,-282.04 403.99,-247.34 459.44,-218.62" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="466.47,-214.97 461.03,-221.85 464.4,-216.22 459.44,-218.79 459.37,-218.65 459.3,-218.52 464.26,-215.95 457.71,-215.46 466.47,-214.97" />
-<text xml:space="preserve" text-anchor="middle" x="259.75" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M541.69,-704.54C546.57,-691.93 550.76,-681.1 550.76,-681.1 550.76,-681.1 553.76,-642.1 553.76,-642.1 553.76,-642.1 564,-347.18 568.1,-229.08" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="568.37,-221.13 571.69,-229.25 568.44,-223.55 568.25,-229.13 568.1,-229.13 567.95,-229.12 568.14,-223.54 564.5,-229 568.37,-221.13" />
+<text xml:space="preserve" text-anchor="middle" x="583.09" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="1b5c4724-b8b7-538a-ad40-47fd767ccdef" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
 1b5c4724-b8b7-538a-ad40-47fd767ccdef</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M176.49,-712.8C116.11,-683.05 33,-642.1 33,-642.1 33,-642.1 0,-604.09 0,-604.09 0,-604.09 0,-604.09 0,-179.03 0,-179.03 221.85,-100.55 332.18,-61.52" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="339.72,-58.86 333.38,-64.92 337.5,-59.8 332.23,-61.67 332.18,-61.52 332.13,-61.38 337.4,-59.52 330.98,-58.13 339.72,-58.86" />
-<text xml:space="preserve" text-anchor="middle" x="21.75" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M588.28,-723.75C681.48,-694.42 847.76,-642.1 847.76,-642.1 847.76,-642.1 949.76,-604.09 949.76,-604.09 949.76,-604.09 949.76,-604.09 949.76,-179.03 949.76,-179.03 881.76,-141.02 881.76,-141.02 881.76,-141.02 789.15,-97.91 724.93,-68.02" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="717.9,-64.74 726.67,-64.86 720.16,-65.63 725.22,-67.98 725.15,-68.12 725.09,-68.26 720.03,-65.9 723.64,-71.38 717.9,-64.74" />
+<text xml:space="preserve" text-anchor="middle" x="971.51" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="288bac87-3b32-5a34-b4f3-f66d8aedaf6b" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-edge-kind="dependency">
+<title>imports
+
+288bac87-3b32-5a34-b4f3-f66d8aedaf6b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M584.15,-704.57C610.29,-687.02 641.35,-666.15 668.39,-648" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="674.95,-643.59 670.32,-651.04 673.03,-645.06 668.39,-648.17 668.31,-648.05 668.23,-647.92 672.86,-644.81 666.3,-645.06 674.95,-643.59" />
+<text xml:space="preserve" text-anchor="middle" x="658.22" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="efe0445b-0f75-590f-9099-bb0510fac6cb" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
 <title>imports
 
 efe0445b-0f75-590f-9099-bb0510fac6cb</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M264.63,-704.47C299.82,-653.41 361.72,-563.6 399.28,-509.09" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="403.74,-502.62 402.17,-511.25 402.49,-504.7 399.32,-509.29 399.2,-509.21 399.08,-509.12 402.25,-504.53 396.24,-507.17 403.74,-502.62" />
-<text xml:space="preserve" text-anchor="middle" x="381.71" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M465.3,-710.18C410.3,-680.7 338.26,-642.1 338.26,-642.1 338.26,-642.1 331.48,-563.77 326.89,-510.73" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="326.23,-503.05 330.5,-510.71 326.58,-505.45 327.07,-511.01 326.92,-511.02 326.77,-511.04 326.29,-505.47 323.33,-511.34 326.23,-503.05" />
+<text xml:space="preserve" text-anchor="middle" x="360.01" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="288bac87-3b32-5a34-b4f3-f66d8aedaf6b" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="5a18489b-6186-5c00-b446-8a50301a313e" data-edge-kind="dependency">
+<g class="edge" data-native-id="9fcc0f05-3556-5b57-8e87-64c96c91b329" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="5a18489b-6186-5c00-b446-8a50301a313e" data-edge-kind="dependency">
 <title>imports
 
-288bac87-3b32-5a34-b4f3-f66d8aedaf6b</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M195.4,-704.54C181.47,-691.93 169.5,-681.1 169.5,-681.1 169.5,-681.1 160.01,-666.62 149.25,-650.22" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="145.12,-643.92 152.52,-648.64 146.57,-645.86 149.63,-650.53 149.51,-650.61 149.38,-650.69 146.32,-646.02 146.5,-652.58 145.12,-643.92" />
-<text xml:space="preserve" text-anchor="middle" x="191.25" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+9fcc0f05-3556-5b57-8e87-64c96c91b329</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M510.49,-704.75C503.39,-688.04 495.01,-668.3 487.56,-650.74" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="484.61,-643.78 491.05,-649.74 485.69,-645.94 487.87,-651.08 487.73,-651.14 487.6,-651.2 485.41,-646.06 484.42,-652.55 484.61,-643.78" />
+<text xml:space="preserve" text-anchor="middle" x="520.78" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="927aaa8d-d5f8-59aa-bcea-a096de44fbcc" data-source-id="640470ec-0731-5073-b510-e03b3f6c7741" data-target-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-edge-kind="dependency">
+<g class="edge" data-native-id="de2cd640-a362-5659-9985-d9eee18b27b0" data-source-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-target-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-edge-kind="dependency">
 <title>imports
 
-927aaa8d-d5f8-59aa-bcea-a096de44fbcc</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M519.97,-704.75C532.82,-687.74 548.05,-667.58 561.49,-649.78" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="566.17,-643.58 564.22,-652.14 564.83,-645.6 561.47,-650.06 561.35,-649.97 561.23,-649.88 564.59,-645.42 558.48,-647.8 566.17,-643.58" />
-<text xml:space="preserve" text-anchor="middle" x="568.4" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+de2cd640-a362-5659-9985-d9eee18b27b0</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M465.27,-729.12C384.9,-710.83 254.26,-681.1 254.26,-681.1 254.26,-681.1 239.16,-666.1 222.3,-649.33" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="216.64,-643.71 224.85,-646.8 218.46,-645.31 222.42,-649.24 222.31,-649.35 222.21,-649.46 218.25,-645.52 219.78,-651.9 216.64,-643.71" />
+<text xml:space="preserve" text-anchor="middle" x="276.01" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf" data-source-id="640470ec-0731-5073-b510-e03b3f6c7741" data-target-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-edge-kind="dependency">
 <title>imports
 
 e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M477.1,-704.63C466.78,-676.09 454.5,-642.1 454.5,-642.1 454.5,-642.1 444.22,-563.77 437.26,-510.73" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="436.25,-503.05 440.86,-510.51 436.71,-505.42 437.44,-510.96 437.29,-510.98 437.14,-511 436.41,-505.46 433.72,-511.45 436.25,-503.05" />
-<text xml:space="preserve" text-anchor="middle" x="476.25" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M50.43,-704.63C43.51,-676.09 35.27,-642.1 35.27,-642.1 35.27,-642.1 35.27,-564.08 35.27,-564.08 35.27,-564.08 187.08,-510.74 270.07,-481.58" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="277.61,-478.94 271.25,-484.98 275.38,-479.88 270.11,-481.73 270.06,-481.59 270.01,-481.45 275.28,-479.6 268.86,-478.19 277.61,-478.94" />
+<text xml:space="preserve" text-anchor="middle" x="57.02" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="927aaa8d-d5f8-59aa-bcea-a096de44fbcc" data-source-id="640470ec-0731-5073-b510-e03b3f6c7741" data-target-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-edge-kind="dependency">
+<title>imports
+
+927aaa8d-d5f8-59aa-bcea-a096de44fbcc</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M92.05,-704.75C106.5,-687.58 123.64,-667.22 138.71,-649.31" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="143.57,-643.53 141.17,-651.97 142.13,-645.48 138.53,-649.75 138.42,-649.65 138.3,-649.56 141.9,-645.28 135.66,-647.34 143.57,-643.53" />
+<text xml:space="preserve" text-anchor="middle" x="143.52" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="014cfdc7-c704-542d-b70f-91200155409c" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
 014cfdc7-c704-542d-b70f-91200155409c</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M430.25,-281.54C442.38,-262.29 454.5,-243.04 454.5,-243.04 454.5,-243.04 464.14,-235.33 476.62,-225.34" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="482.56,-220.59 478.57,-228.4 480.77,-222.21 476.41,-225.7 476.32,-225.58 476.22,-225.47 480.58,-221.98 474.07,-222.77 482.56,-220.59" />
-<text xml:space="preserve" text-anchor="middle" x="476.25" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M645.07,-281.69C632.34,-264.68 617.26,-244.52 603.95,-226.72" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="599.31,-220.53 606.99,-224.78 600.88,-222.37 604.23,-226.84 604.11,-226.93 603.99,-227.02 600.64,-222.55 601.22,-229.09 599.31,-220.53" />
+<text xml:space="preserve" text-anchor="middle" x="646.63" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g class="edge" data-native-id="2df90471-8c05-5db4-9cdc-383892a77bbc" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
 2df90471-8c05-5db4-9cdc-383892a77bbc</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M404.21,-281.41C401.86,-230.87 397.75,-142.38 395.21,-87.72" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="394.85,-79.84 398.82,-87.66 395.11,-82.25 395.37,-87.82 395.22,-87.83 395.07,-87.84 394.81,-82.26 391.62,-88 394.85,-79.84" />
-<text xml:space="preserve" text-anchor="middle" x="422.97" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
-</g>
-
-<g id="n0dcb313a67fadaa00e48" class="node diagram-node shape-package" data-native-id="0625023d-d9ca-57d0-8d04-bde917032e84" data-shape="package">
-<title>SimpleFlowRustUml
-0625023d-d9ca-57d0-8d04-bde917032e84
-enum RsFlowStatus
-enum RsStageStatus
-enum RsCheckKind
-enum RsCheckpointOutcome
-enum RsJudgeAuthority
-enum RsAdvanceOutcome
-enum RsPlanError
-enum RsGateError
-part RsActivityEntry
-part RsAssessmentEntry
-part RsStageVisit
-part RsArtifactDigest
-part RsCheckerRuleSpec
-enum RsConformanceKind
-part RsCheckerSpec
-part RsCheckpointSpec
-part RsStageSpec
-part RsFlowPlan
-part RsRuleReport
-part RsGateReport
-part RsCheckCommand
-part RsJudge
-part RsSimpleFlowRun
-action RsValidatePlan
-action RsRecordActivity
-action RsAppendAssessment
-action RsCompletionAuthorized
-action RsRunRecordActivity
-action RsReopenStage
-action RsCreateRun
-action RsEvaluateGates
-action RsEvaluateCheckpoint
-action RsAdvance
-part SimpflowCrate
-ref part simpflowCrate : SimpflowCrate
-occurrence RsGateEvaluationInteraction
-state RsRunLifecycle
-view rustModuleLayout
-view rustClassStructure
-view rustGateSequence
-view rustRunStates
-view projectPackageIntegration
-viewpoint rustModuleLayoutConcern : DocumentationViewpoint
-viewpoint rustClassStructureConcern : DocumentationViewpoint
-viewpoint rustGateSequenceConcern : DocumentationViewpoint
-viewpoint rustRunStatesConcern : DocumentationViewpoint
-self
-run.status == RsFlowStatus::active
-run.status == RsFlowStatus::blocked
-run.status == RsFlowStatus::active
-run.status == RsFlowStatus::active
-run.status == RsFlowStatus::completed
-run.status == RsFlowStatus::completed
-run.status == RsFlowStatus::blocked
-run.status == RsFlowStatus::completed
-run.status == RsFlowStatus::active
-SimpleFlowRustUml::crate
-SimpleFlowRustUml::crate::*
-SimpleFlowRustUml::RsSimpleFlowRun
-SimpleFlowRustUml::RsStageVisit
-SimpleFlowRustUml::RsActivityEntry
-SimpleFlowRustUml::RsAssessmentEntry
-SimpleFlowRustUml::RsArtifactDigest
-SimpleFlowRustUml::RsFlowPlan
-SimpleFlowRustUml::RsStageSpec
-SimpleFlowRustUml::RsCheckpointSpec
-SimpleFlowRustUml::RsCheckerSpec
-SimpleFlowRustUml::RsCheckerRuleSpec
-SimpleFlowRustUml::RsGateReport
-SimpleFlowRustUml::RsRuleReport
-SimpleFlowRustUml::RsCheckCommand
-SimpleFlowRustUml::RsJudge
-SimpleFlowRustUml::RsFlowStatus
-SimpleFlowRustUml::RsStageStatus
-SimpleFlowRustUml::RsCheckKind
-SimpleFlowRustUml::RsConformanceKind
-SimpleFlowRustUml::RsCheckpointOutcome
-SimpleFlowRustUml::RsJudgeAuthority
-SimpleFlowRustUml::RsAdvanceOutcome
-SimpleFlowRustUml::RsPlanError
-SimpleFlowRustUml::RsGateError
-SimpleFlowRustUml::RsGateEvaluationInteraction
-SimpleFlowRustUml::RsRunLifecycle
-SimpleFlowRustUml::RsRunLifecycle::*
-XDesignCommon
-XDesignRequirements
-XDesignArchitecture
-XDesignWorkflow
-XDesignDetailedDesign
-SimpleFlowRustUml
-XDesignVerification
-XDesignTraceability
-0625023d-d9ca-57d0-8d04-bde917032e84</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="677.89,-642.1 674.89,-646.1 653.89,-646.1 650.89,-642.1 514.11,-642.1 514.11,-564.08 677.89,-564.08 677.89,-642.1" />
-<rect fill="white" stroke="none" x="522.75" y="-636.34" width="146.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="530.75" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="530.75" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rust UML design</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M675.63,-281.48C676.24,-268.87 676.76,-258.04 676.76,-258.04 676.76,-258.04 676.76,-243.04 676.76,-243.04 676.76,-243.04 671.76,-102.02 671.76,-102.02 671.76,-102.02 671.11,-96.18 670.19,-88.08" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="669.3,-80.15 673.77,-87.7 669.72,-82.53 670.34,-88.08 670.19,-88.1 670.04,-88.12 669.42,-82.57 666.62,-88.5 669.3,-80.15" />
+<text xml:space="preserve" text-anchor="middle" x="697.64" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
 <g id="n8a6587bb82900770864f" class="node diagram-node shape-package" data-native-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-shape="package">
@@ -270,11 +214,7 @@ item Wish
 part Trace
 part Controller
 part XDesign
-ref part xdesign : XDesign
-ref part simpleFlow : SimpleFlow
-ref part wishVerifyFlow : WishVerifyFlow
-ref part designFlow : DesignFlow
-ref part nestedFlowExample : SimpleFlow
+part NestedFlowExample
 view recordStructure
 kind != CheckKind::syntactic or
             (size(checkers) &gt; 0 and not agentMayJudge and not humanMayJudge)
@@ -418,6 +358,7 @@ WishStatus::received
 status != WishStatus::delivered or
             execution.status == FlowStatus::completed
 defaultFlow
+availableFlows-&gt;includes(selectedFlow)
 trace.execution
 currentRecord == execution.currentRecord and
                     execution.assignedFlow.stages-&gt;includes(currentRecord.stage)
@@ -436,7 +377,8 @@ completedRecord.completionAuthorized and
 selectCurrentExecution.execution
 selectCurrentExecution.currentRecord
 trace
-'flow'
+availableFlows
+selectedFlow
 wishes
 traces
 wishes-&gt;forAll { in wish : Wish;
@@ -454,9 +396,9 @@ StageRecord
 ActivityRecord
 CheckpointAssessment
 7def8b87-d29a-5822-b4d9-666bd91325c8</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="595.51,-219.04 592.51,-223.04 571.51,-223.04 568.51,-219.04 468.49,-219.04 468.49,-141.02 595.51,-141.02 595.51,-219.04" />
-<rect fill="white" stroke="none" x="477.12" y="-213.28" width="109.75999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="485.12" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="485.12" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Architecture</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="633.28,-219.04 630.28,-223.04 609.28,-223.04 606.28,-219.04 506.25,-219.04 506.25,-141.02 633.28,-141.02 633.28,-219.04" />
+<rect fill="white" stroke="none" x="514.89" y="-213.28" width="109.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="522.89" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="522.89" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Architecture</text>
 </g>
 
 <g id="na302283aad170020b62e" class="node diagram-node shape-package" data-native-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-shape="package">
@@ -473,15 +415,26 @@ metadata DocSection
 metadata DocFigure
 metadata DiagramPresentation
 fc9e6046-b3d8-5f4a-b4b7-7125975a4afe</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="444.14,-78.02 441.14,-82.02 420.14,-82.02 417.14,-78.02 341.86,-78.02 341.86,0 444.14,0 444.14,-78.02" />
-<rect fill="white" stroke="none" x="350.5" y="-72.26" width="85.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="358.5" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="358.5" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Common</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="715.9,-78.02 712.9,-82.02 691.9,-82.02 688.9,-78.02 613.62,-78.02 613.62,0 715.9,0 715.9,-78.02" />
+<rect fill="white" stroke="none" x="622.26" y="-72.26" width="85.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="630.26" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="630.26" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Common</text>
+</g>
+
+<g id="ncb69d91dabdf04ec0cdf" class="node diagram-node shape-package" data-native-id="3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327" data-shape="package">
+<title>XDesignComposition
+3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327
+ref part xdesign : XDesign
+vModel
+3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="832.15,-642.1 829.15,-646.1 808.15,-646.1 805.15,-642.1 635.38,-642.1 635.38,-564.08 832.15,-564.08 832.15,-642.1" />
+<rect fill="white" stroke="none" x="644.01" y="-636.34" width="179.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="652.01" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="652.01" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">XDesign composition</text>
 </g>
 
 <g id="na1feb391c32f5b036614" class="node diagram-node shape-package" data-native-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-shape="package">
 <title>XDesignDetailedDesign
 c51d2447-c5bd-5f59-8c8c-d63d6cd44461
-ref part designedSimpleFlow : SimpleFlow
+part DesignedSimpleFlow
 part SimpleFlowCheckpoint
 part SimpleFlowSyntacticCheckpoint
 part SimpleFlowSemanticCheckpoint
@@ -560,13 +513,12 @@ simpleRecordAccepted
 CheckKind::syntactic
 CheckKind::semantic
 size(checkers) == 0 and (agentMayJudge or humanMayJudge)
-designedSimpleFlow
-designedSimpleFlow.checkpoints
+assignedFlow.checkpoints
 self
 stageRecords-&gt;forAll { in record : StageRecord;
-                designedSimpleFlow.stages-&gt;includes(record.stage)
+                assignedFlow.stages-&gt;includes(record.stage)
             } and
-            designedSimpleFlow.stages-&gt;forAll { in stage : Stage;
+            assignedFlow.stages-&gt;forAll { in stage : Stage;
                 stageRecords-&gt;exists { in record : StageRecord;
                     record.stage == stage
                 }
@@ -596,12 +548,12 @@ newVisit.stage == completedVisit.stage and
 run.currentRecord == newVisit and
                 run.status == FlowStatus::active
 runner.checkpoints
-workflow.controller
-designedSimpleFlow.requirements
-designedSimpleFlow.design
-designedSimpleFlow.implement
-designedSimpleFlow.'verify'
-XDesignDetailedDesign::designedSimpleFlow
+run.assignedFlow
+'flow'.requirements
+'flow'.design
+'flow'.implement
+'flow'.'verify'
+XDesignDetailedDesign::DesignedSimpleFlow
 XDesignDetailedDesign::SimpleFlowRun
 XDesignDetailedDesign::SimpleFlowRunFactory
 XDesignDetailedDesign::EvaluateSimpleFlowGate
@@ -669,7 +621,7 @@ XDesignRequirements::flowRunIsRealizedByDesign
 XDesignRequirements::designedFlowGatesEveryStage
 XDesignRequirements::structureGraphsAreDocumented
 XDesignDetailedDesign::SimpleFlowRun
-XDesignDetailedDesign::designedSimpleFlow
+XDesignDetailedDesign::DesignedSimpleFlow
 XDesignCommon::DocFigure
 XDesignVerification::SimpleFlowViewReview
 XDesignDetailedDesign::SimpleFlowAuthorization
@@ -695,9 +647,9 @@ XDesignDetailedDesign
 XDesignVerification
 XDesignTraceability
 c51d2447-c5bd-5f59-8c8c-d63d6cd44461</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="474.26,-501.08 471.26,-505.08 450.26,-505.08 447.26,-501.08 387.74,-501.08 387.74,-423.06 474.26,-423.06 474.26,-501.08" />
-<rect fill="white" stroke="none" x="396.38" y="-495.32" width="69.24000000000001" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="404.38" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="404.38" y="-441.37" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Design</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="366.03,-501.08 363.03,-505.08 342.03,-505.08 339.03,-501.08 279.5,-501.08 279.5,-423.06 366.03,-423.06 366.03,-501.08" />
+<rect fill="white" stroke="none" x="288.14" y="-495.32" width="69.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="296.14" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="296.14" y="-441.37" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Design</text>
 </g>
 
 <g id="n2145f11c351e6ada7025" class="node diagram-node shape-package" data-native-id="5a18489b-6186-5c00-b446-8a50301a313e" data-shape="package">
@@ -731,18 +683,130 @@ requirement rustUmlDesignMapsEveryDesignElement : XDesignRequirement
 requirement umlViewsAreSelectedWithReasons : XDesignRequirement
 requirement softwareDesignClaimsNoImplementation : XDesignRequirement
 5a18489b-6186-5c00-b446-8a50301a313e</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="188.89,-642.1 185.89,-646.1 164.89,-646.1 161.89,-642.1 49.11,-642.1 49.11,-564.08 188.89,-564.08 188.89,-642.1" />
-<rect fill="white" stroke="none" x="57.75" y="-636.34" width="122.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="65.75" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="65.75" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Requirements</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="537.65,-642.1 534.65,-646.1 513.65,-646.1 510.65,-642.1 397.88,-642.1 397.88,-564.08 537.65,-564.08 537.65,-642.1" />
+<rect fill="white" stroke="none" x="406.51" y="-636.34" width="122.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="414.51" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="414.51" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Requirements</text>
+</g>
+
+<g id="nfe1bc2ac1143d5f4812e" class="node diagram-node shape-package" data-native-id="9205a8df-2aad-58f0-9bcf-1635d9b40a60" data-shape="package">
+<title>XDesignRustUml
+9205a8df-2aad-58f0-9bcf-1635d9b40a60
+enum RsFlowStatus
+enum RsStageStatus
+enum RsCheckKind
+enum RsCheckpointOutcome
+enum RsJudgeAuthority
+enum RsAdvanceOutcome
+enum RsConformanceKind
+enum RsPlanError
+enum RsGateError
+part RsFlowPlan
+action RsValidatePlan
+part RsStageSpec
+part RsCheckpointSpec
+part RsCheckerSpec
+part RsCheckerRuleSpec
+part RsStageVisit
+action RsRecordActivity
+action RsAppendAssessment
+action RsCompletionAuthorized
+part RsActivityEntry
+part RsAssessmentEntry
+part RsArtifactDigest
+part RsCheckCommand
+part RsJudge
+part RsGateReport
+part RsRuleReport
+action RsEvaluateCheckpoint
+part RsFlowRun
+action RsEvaluateGates
+action RsAdvance
+action RsRunRecordActivity
+action RsReopenStage
+action RsCreateRun
+action RsDesignedSimpleFlowPlan
+action RsValidateDesignedPlan
+action RsCreateDesignedRun
+part XDesignCrate
+ref part xdesignCrate : XDesignCrate
+occurrence RsGateEvaluationInteraction
+state RsRunLifecycle
+view rustModuleLayout
+view rustCrateLayers
+view rustClassStructure
+view rustGateSequence
+view rustRunStates
+view projectPackageIntegration
+viewpoint rustModuleLayoutConcern : DocumentationViewpoint
+viewpoint rustClassStructureConcern : DocumentationViewpoint
+viewpoint rustGateSequenceConcern : DocumentationViewpoint
+viewpoint rustRunStatesConcern : DocumentationViewpoint
+self
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::blocked
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::active
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::blocked
+run.status == RsFlowStatus::completed
+run.status == RsFlowStatus::active
+XDesignRustUml::crate
+XDesignRustUml::crate::*
+XDesignRustUml::crate::core::*
+XDesignRustUml::crate::simpleFlow::*
+XDesignRustUml::crate
+XDesignRustUml::crate::core
+XDesignRustUml::crate::simpleFlow
+XDesignRustUml::crate::simpleFlowUsesCore
+XDesignRustUml::RsFlowRun
+XDesignRustUml::RsStageVisit
+XDesignRustUml::RsActivityEntry
+XDesignRustUml::RsAssessmentEntry
+XDesignRustUml::RsArtifactDigest
+XDesignRustUml::RsFlowPlan
+XDesignRustUml::RsStageSpec
+XDesignRustUml::RsCheckpointSpec
+XDesignRustUml::RsCheckerSpec
+XDesignRustUml::RsCheckerRuleSpec
+XDesignRustUml::RsGateReport
+XDesignRustUml::RsRuleReport
+XDesignRustUml::RsCheckCommand
+XDesignRustUml::RsJudge
+XDesignRustUml::RsFlowStatus
+XDesignRustUml::RsStageStatus
+XDesignRustUml::RsCheckKind
+XDesignRustUml::RsConformanceKind
+XDesignRustUml::RsCheckpointOutcome
+XDesignRustUml::RsJudgeAuthority
+XDesignRustUml::RsAdvanceOutcome
+XDesignRustUml::RsPlanError
+XDesignRustUml::RsGateError
+XDesignRustUml::RsGateEvaluationInteraction
+XDesignRustUml::RsRunLifecycle
+XDesignRustUml::RsRunLifecycle::*
+XDesignCommon
+XDesignRequirements
+XDesignArchitecture
+XDesignWorkflow
+XDesignDetailedDesign
+XDesignComposition
+XDesignRustUml
+XDesignVerification
+XDesignTraceability
+9205a8df-2aad-58f0-9bcf-1635d9b40a60</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="258.65,-642.1 255.65,-646.1 234.65,-646.1 231.65,-642.1 94.87,-642.1 94.87,-564.08 258.65,-564.08 258.65,-642.1" />
+<rect fill="white" stroke="none" x="103.51" y="-636.34" width="146.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="111.51" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="111.51" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rust UML design</text>
 </g>
 
 <g id="n5c44780252a91957c887" class="node diagram-node shape-package" data-native-id="e7bdc20d-fa91-5636-a07d-c3a4e3641e7a" data-shape="package">
 <title>XDesignTraceability
 e7bdc20d-fa91-5636-a07d-c3a4e3641e7a
 e7bdc20d-fa91-5636-a07d-c3a4e3641e7a</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="298.89,-783.12 295.89,-787.12 274.89,-787.12 271.89,-783.12 177.11,-783.12 177.11,-705.1 298.89,-705.1 298.89,-783.12" />
-<rect fill="white" stroke="none" x="185.75" y="-777.36" width="104.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="193.75" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="193.75" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Traceability</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="587.65,-783.12 584.65,-787.12 563.65,-787.12 560.65,-783.12 465.88,-783.12 465.88,-705.1 587.65,-705.1 587.65,-783.12" />
+<rect fill="white" stroke="none" x="474.51" y="-777.36" width="104.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="482.51" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="482.51" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Traceability</text>
 </g>
 
 <g id="n9981f09fb4b8bf838297" class="node diagram-node shape-package" data-native-id="640470ec-0731-5073-b510-e03b3f6c7741" data-shape="package">
@@ -756,9 +820,9 @@ verificationcase SimpleFlowGateBehaviorVerification
 verificationcase SimpleFlowRecoveryVerification
 verificationcase SimpleFlowFilePlanVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="550.76,-783.12 547.76,-787.12 526.76,-787.12 523.76,-783.12 431.24,-783.12 431.24,-705.1 550.76,-705.1 550.76,-783.12" />
-<rect fill="white" stroke="none" x="439.88" y="-777.36" width="102.24000000000001" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="447.88" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="447.88" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Verification</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="119.53,-783.12 116.53,-787.12 95.53,-787.12 92.53,-783.12 0,-783.12 0,-705.1 119.53,-705.1 119.53,-783.12" />
+<rect fill="white" stroke="none" x="8.64" y="-777.36" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="16.64" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Verification</text>
 </g>
 
 <g id="n7b70a0eec474c78a7e7f" class="node diagram-node shape-package" data-native-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-shape="package">
@@ -773,7 +837,6 @@ part WorkflowFlow
 part WorkflowController
 action StageWork
 part Workflow
-ref part workflow : Workflow
 view wishLifecycle
 view workflowInterfaces
 self
@@ -785,6 +848,7 @@ stage
 wishTrace
 produceArtifacts.activity
 wishTrace
+'flow'
 intake.registeredWish
 intake.registeredTrace
 'flow'
@@ -814,9 +878,9 @@ Workflow::traces
 Workflow::wishExchange
 Workflow::flowExchange
 7fa367e3-b361-5dad-b43c-a161cc036e1d</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="458.64,-360.06 455.64,-364.06 434.64,-364.06 431.64,-360.06 353.36,-360.06 353.36,-282.04 458.64,-282.04 458.64,-360.06" />
-<rect fill="white" stroke="none" x="362.0" y="-354.3" width="88.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="370" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="370" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Workflow</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="726.4,-360.06 723.4,-364.06 702.4,-364.06 699.4,-360.06 621.12,-360.06 621.12,-282.04 726.4,-282.04 726.4,-360.06" />
+<rect fill="white" stroke="none" x="629.76" y="-354.3" width="88.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="637.76" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="637.76" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Workflow</text>
 </g>
 </g>
 </svg>

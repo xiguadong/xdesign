@@ -1,8 +1,14 @@
-use simpflow::{
-    create_run, designed_simple_flow_plan, hash_artifact, RsActivityEntry, RsAdvanceOutcome,
-    RsCheckpointOutcome, RsFlowStatus, RsJudgeAuthority, RsProcessCheck, RsSuppliedJudge,
+use std::{
+    collections::BTreeSet,
+    env, fs,
+    path::{Path, PathBuf},
+    process::Command,
 };
-use std::{collections::BTreeSet, env, fs, path::Path, process::Command};
+use xdesign::core::{
+    hash_artifact, RsActivityEntry, RsAdvanceOutcome, RsCheckpointOutcome, RsFlowStatus,
+    RsJudgeAuthority, RsSuppliedJudge,
+};
+use xdesign::simple_flow::{create_designed_run, designed_simple_flow_plan, RsProcessCheck};
 
 fn option(args: &[String], name: &str) -> Result<String, String> {
     let index = args
@@ -55,10 +61,15 @@ fn stage_artifact_paths(
         "design" => paths.extend(list_checker_inputs("tools/checks/simple_design.py")?),
         "implement" => {
             paths.insert("Cargo.toml".into());
-            for entry in fs::read_dir("src").map_err(|e| e.to_string())? {
-                let path = entry.map_err(|e| e.to_string())?.path();
-                if path.extension().is_some_and(|x| x == "rs") {
-                    paths.insert(path.to_string_lossy().to_string());
+            let mut directories = vec![PathBuf::from("src")];
+            while let Some(directory) = directories.pop() {
+                for entry in fs::read_dir(directory).map_err(|e| e.to_string())? {
+                    let path = entry.map_err(|e| e.to_string())?.path();
+                    if path.is_dir() {
+                        directories.push(path);
+                    } else if path.extension().is_some_and(|x| x == "rs") {
+                        paths.insert(path.to_string_lossy().to_string());
+                    }
                 }
             }
         }
@@ -116,7 +127,7 @@ fn run_demo(args: &[String]) -> Result<(), String> {
         outcome: judge_outcome,
         rationale: judge_rationale,
     });
-    let mut run = create_run(plan, wish.clone(), record_uri.clone(), check, judge)
+    let mut run = create_designed_run(plan, wish.clone(), record_uri.clone(), check, judge)
         .map_err(|e| format!("create run: {e:?}"))?;
     run.write_record()?;
     for stage in ["requirements", "design", "implement", "verify"] {
@@ -133,7 +144,7 @@ fn run_demo(args: &[String]) -> Result<(), String> {
             .collect::<Result<Vec<_>, _>>()?;
         let activity = RsActivityEntry {
             description: format!("Record {stage} stage input artifacts"),
-            performed_by: "simpflow demo caller".into(),
+            performed_by: "xdesign simple-flow demo caller".into(),
             occurred_at: timestamp(),
             artifact_uris: paths.into_iter().collect(),
             artifacts_changed: true,
@@ -167,11 +178,13 @@ mod main_wish_tests;
 fn main() {
     let args: Vec<_> = env::args().collect();
     let result = match args.get(1).map(String::as_str) {
-        Some("demo") => run_demo(&args[2..]),
-        _ => Err("usage: simpflow demo --wish-model PATH --plan cache/PLAN.json --record cache/RECORD.json --verify-evidence PATH --judge-authority agent|human --judge-identity NAME --judge-outcome passed|failed|unevaluated --judge-rationale TEXT".into()),
+        Some("simple-flow") if args.get(2).map(String::as_str) == Some("demo") => {
+            run_demo(&args[3..])
+        }
+        _ => Err("usage: xdesign simple-flow demo --wish-model PATH --plan cache/PLAN.json --record cache/RECORD.json --verify-evidence PATH --judge-authority agent|human --judge-identity NAME --judge-outcome passed|failed|unevaluated --judge-rationale TEXT".into()),
     };
     if let Err(error) = result {
-        eprintln!("simpflow: {error}");
+        eprintln!("xdesign: {error}");
         std::process::exit(1);
     }
 }

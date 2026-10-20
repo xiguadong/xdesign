@@ -1,10 +1,11 @@
 # SimpleFlow gates and rules
 
 The designed simple flow's gates, checker declarations, and rules live in
-`mbse/model/detailedDesign.sysml`; `mbse/model/architecture.sysml` defines their
+`mbse/model/detailedDesign.sysml`; its selectable usage lives in
+`mbse/model/composition.sysml`, and `mbse/model/architecture.sysml` defines the
 reusable types. D06 records the exact pass conditions and diagnostics. The four
 command paths are fixed in the model and their Python implementation belongs under
-`tools/checks/` ([D53](07_file_plan_and_verification.md#d53)). A gate is a `Checkpoint`
+`tools/checks/` ([D53](../../prj_manage/06_file_plan_and_verification.md#d53)). A gate is a `Checkpoint`
 ([F01](../01_flows_and_checkpoints.md#f01)); each fixed rule is a `CheckerRule` item
 ([F02](../01_flows_and_checkpoints.md#f02)).
 
@@ -91,7 +92,7 @@ after preflight can produce evaluated `Failed` rules with diagnostics below.
 
 | Rule id | Pass condition | Reads |
 | --- | --- | --- |
-| `design-declarations-present` | The run, factory, gate, advance, designed flow, checkpoint class, both adaptations, and checkpoint evaluation action are declared. | `mbse/model/detailedDesign.sysml` |
+| `design-declarations-present` | The run, factory, gate, advance, designed flow definition and `xdesign`-owned usage, checkpoint class, both adaptations, and checkpoint evaluation action are declared. | `mbse/model/detailedDesign.sysml`, `mbse/model/composition.sysml` |
 | `every-stage-gated` | Every stage names nonempty exit gates declared by this flow and typed by `SimpleFlowCheckpoint`; each syntactic exit binds its designated one of the four fixed SimpleFlow checkers. | `mbse/model/detailedDesign.sysml` |
 | `design-elements-carry-doc-sections` | Every top-level detailed design element has a `DocSection` that resolves to a document and section. | `mbse/model/detailedDesign.sysml`, `docs/` |
 | `checker-commands-exist` | Every declared SimpleFlow checker command URI names an existing repository file. | `mbse/model/detailedDesign.sysml`, `tools/checks/` |
@@ -122,7 +123,7 @@ through the planned `SimpleFlowViewReview` case ([D15](../../requirements/01_bas
 | `assessments-name-exit-gates` | Every passed assessment names an exit gate of its visit's stage. | runtime run record JSON |
 | `passed-assessments-carry-evidence` | Every passed assessment names at least one evidence URI. | runtime run record JSON |
 | `evidence-exists` | Every evidence URI of every passed assessment on current or completed visits resolves to retained evidence. | runtime run record JSON, recorded evidence URIs |
-| `designed-runs-are-typed-by-the-design-class` | A run on designed SimpleFlow records its execution as `SimpleFlowRun`. | runtime run record JSON |
+| `designed-runs-are-typed-by-the-design-class` | A run on the designed SimpleFlow records its execution as a `FlowRun` of plan `designedSimpleFlow`. | runtime run record JSON |
 
 The rule table above is the decision source. This output table makes each rule
 implementation-followable: `observed` must include the named facts, and `failures`
@@ -148,7 +149,7 @@ offenders, `failures` is empty. Every row is a model-declared condition implemen
 | `assessments-name-exit-gates` | Passed assessment `<id>` names a gate outside visit `<id>`'s stage exits. | Passed assessment-to-gate links and the stage's exit gate IDs. | implemented |
 | `passed-assessments-carry-evidence` | Passed assessment `<id>` has no evidence URI. | Passed assessment IDs and their evidence URI lists. | implemented |
 | `evidence-exists` | Passed assessment `<id>` on current or completed visit `<id>` cites missing evidence `<URI>`. | Those visits' passed assessments, evidence URIs, and retrieval results. | implemented |
-| `designed-runs-are-typed-by-the-design-class` | Run on `designedSimpleFlow` lacks `SimpleFlowRun` typing. | Assigned flow and resolved execution type; mark other SimpleFlow usages not applicable. | implemented |
+| `designed-runs-are-typed-by-the-design-class` | Run on `designedSimpleFlow` lacks `FlowRun` typing. | Assigned flow and resolved execution type; mark other SimpleFlow usages not applicable. | implemented |
 
 <a id="d07"></a>
 
@@ -195,7 +196,7 @@ and harness version binding remains a separate delivery obligation.
 | Planned checker | Designed command contract |
 | --- | --- |
 | `simpleRequirementsCheck` | `tools/checks/simple_requirements.py`; reads `mbse/model/requirements.sysml` and `mbse/model/traceability.sysml`; reports two rules. |
-| `simpleDesignCheck` | `tools/checks/simple_design.py`; reads `mbse/model/detailedDesign.sysml`, command files, documentation sections and figures; reports seven rules. |
+| `simpleDesignCheck` | `tools/checks/simple_design.py`; reads `mbse/model/detailedDesign.sysml`, `mbse/model/composition.sysml`, command files, documentation sections and figures; reports seven rules. |
 | `simpleImplementationCheck` | `tools/checks/simple_implementation.py`; reads the JSON run record's current implementation visit and its artifact URIs; reports two rules. |
 | `simpleRecordCheck` | `tools/checks/simple_record.py`; reads the JSON run record, its frozen plan identity and retained evidence URIs; reports seven rules. |
 
@@ -211,8 +212,9 @@ remains a separate mechanical check with the limits in [T04](../03_toolchain.md#
 - **`VModel`'s three checkers do not exist and declare no rules.** The paths in
   `architecture.sysml` (`requirement_trace.py`, `implementation_artifacts.py`,
   `delivery_record.py`) are intended locations, not project code.
-- **The designed flow is not the default.** `xdesign.'flow'` remains the `VModel`; a
-  wish selects `designedSimpleFlow` at registration
+- **The designed flow is not the default.** `xdesign.'flow'` is the abstract common
+  origin, `xdesign.selectedFlow` points to `xdesign.vModel`, and a wish can select
+  `xdesign.designedSimpleFlow` at registration
   ([F03](../01_flows_and_checkpoints.md#f03)).
 - **The documentation audit and design gate have different scope.** The stand-alone
   audit checks `DocSection` and `DocFigure` paths, anchors, assets, and embeds

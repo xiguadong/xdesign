@@ -58,10 +58,12 @@ def render_file_plan(raw: list, guards: dict[str, str], target: str) -> tuple[st
     if set(by_name) != expected:
         raise ValueError(f"File-plan groups differ from {sorted(expected)}")
 
-    width, height = 1420, 800
+    width = 1420
+    height = max(138 + 66 + 55 * len(by_name["application"]),
+                 515 + 66 + 55 * len(by_name["testCases"])) + 20
     body = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
             f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">',
-            '<title id="title">SimpleFlow implementation file plan</title>',
+            '<title id="title">xdesign SimpleFlow implementation file plan</title>',
             '<desc id="desc">Compiler-derived repository source, checker, and verification file groups.</desc>',
             '<style>text{font-family:Arial,Helvetica,sans-serif;fill:#193044}'
             '.title{font-size:29px;font-weight:700;fill:#fff}'
@@ -72,7 +74,7 @@ def render_file_plan(raw: list, guards: dict[str, str], target: str) -> tuple[st
             '.count{font-size:13px;font-weight:700;fill:#246d73}</style>',
             f'<rect x="0" y="0" width="{width}" height="{height}" fill="#f5f8fa"/>',
             '<rect x="0" y="0" width="1420" height="112" fill="#153b50"/>',
-            '<text x="40" y="51" class="title">SimpleFlow implementation file plan</text>',
+            '<text x="40" y="51" class="title">xdesign SimpleFlow implementation file plan</text>',
             f'<text x="40" y="82" class="subtitle">{len(paths)} planned files · SysML view XDesignDetailedDesign::simpleFlowFilePlanView</text>']
 
     def card(x: int, y: int, w: int, title: str, files: list[tuple[str, str]], accent: str) -> None:
@@ -89,7 +91,7 @@ def render_file_plan(raw: list, guards: dict[str, str], target: str) -> tuple[st
             body.extend([f'<text x="{x + 20}" y="{top + 20}" class="path">{escape(path)}</text>',
                          f'<text x="{x + 20}" y="{top + 40}" class="detail">{escape(purpose)}</text>'])
 
-    card(34, 138, 735, "Rust application and run modules", by_name["application"], "#20a496")
+    card(34, 138, 735, "xdesign crate and SimpleFlow modules", by_name["application"], "#20a496")
     card(793, 138, 593, "Fixed checker commands", by_name["checkCommands"], "#507fbc")
     card(793, 515, 593, "Executable verification", by_name["testCases"], "#b97948")
     body.append('</svg>')

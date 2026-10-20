@@ -11,9 +11,13 @@ Read the [review synthesis](01_review_synthesis.md#p02), then the
 [SimpleFlow implementation plan](02_simple_flow_implementation_plan.md#p03),
 [initial execution record](03_simple_flow_execution_record.md#p08), and
 [review fix record](04_simple_flow_review_fix_record.md#p11), followed by the
-[cross-layer review reconciliation](05_kimi_review_reconciliation.md#p14).
-The [SimpleFlow file plan and verification cases](../details/simple_flow/07_file_plan_and_verification.md#d53)
-are the design-level counterpart. The project SysML model and per-wish models remain
+[cross-layer review reconciliation](05_kimi_review_reconciliation.md#p14) and
+[xdesign integration reconciliation](07_xdesign_integration_reconciliation.md#p17).
+The [API layering restructure plan](08_api_layering_restructure_plan.md#p20)
+records the core/simple_flow split of the model, the `docs/api/` reference, and
+the crate source.
+The [SimpleFlow file plan and verification cases](06_file_plan_and_verification.md#d53)
+record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,
 acceptance checks, and limits of this implementation slice.
 

@@ -23,6 +23,7 @@ RULES = (
     "structure-graphs-are-carried",
 )
 DESIGN = "mbse/model/detailedDesign.sysml"
+COMPOSITION = "mbse/model/composition.sysml"
 STAGES = ("requirements", "design", "implement", "verify")
 EXPECTED_GATE_CHECKERS = {
     "simpleRequirementsAccepted": ("requirements", "simpleRequirementsCheck"),
@@ -37,7 +38,7 @@ EXPECTED_EXITS = {
     "verify": {"simpleRecordAccepted", "verificationAccepted"},
 }
 REQUIRED_DECLARATIONS = {
-    "designedSimpleFlow": r"\bpart\s+designedSimpleFlow\s*:\s*SimpleFlow\s*\{",
+    "DesignedSimpleFlow": r"\bpart\s+def\s+DesignedSimpleFlow\s*:>\s*SimpleFlow\s*\{",
     "SimpleFlowRun": r"\bpart\s+def\s+SimpleFlowRun\s*:>\s*FlowExecution\s*\{",
     "SimpleFlowRunFactory": r"\bpart\s+def\s+SimpleFlowRunFactory\s*\{",
     "EvaluateSimpleFlowGate": r"\baction\s+def\s+EvaluateSimpleFlowGate\s*\{",
@@ -227,7 +228,7 @@ def _existing_file(root: Path, uri: str) -> bool:
 def list_inputs(root: Path = ROOT) -> list[str]:
     """Enumerate rule-read files for the CLI to snapshot before design evaluation."""
     source = (root / DESIGN).read_text(encoding="utf-8")
-    paths = {DESIGN}
+    paths = {DESIGN, COMPOSITION}
     paths.update(document for document, _ in annotations(source, DOC_SECTION))
     for document, figure in annotations(source, DOC_FIGURE):
         paths.add(document)
@@ -238,16 +239,20 @@ def list_inputs(root: Path = ROOT) -> list[str]:
 
 def evaluate(context: Context) -> list[dict]:
     source = context.read_rule_text(DESIGN)
-    require_sysml_parse(context.root, [DESIGN])
+    composition = context.read_rule_text(COMPOSITION)
+    require_sysml_parse(context.root, [DESIGN, COMPOSITION])
     code = code_mask(source)
-    flow_blocks = find_blocks(source, REQUIRED_DECLARATIONS["designedSimpleFlow"])
+    flow_blocks = find_blocks(source, REQUIRED_DECLARATIONS["DesignedSimpleFlow"])
     flow = flow_blocks[0][1] if len(flow_blocks) == 1 else ""
     checker_map = checkers(flow)
     top = top_level(source)
     results = []
 
     present = {name: bool(re.search(pattern, code)) for name, pattern in REQUIRED_DECLARATIONS.items()}
-    results.append(result(RULES[0], [DESIGN], {"declarations": present}, [
+    present["xdesign.designedSimpleFlow"] = bool(re.search(
+        r"\bpart\s+designedSimpleFlow\s*:\s*DesignedSimpleFlow\s*:>\s*'flow'\s+subsets\s+availableFlows\s*\{",
+        code_mask(composition)))
+    results.append(result(RULES[0], [DESIGN, COMPOSITION], {"declarations": present}, [
         f"Required design declaration {name} is missing." for name, exists in present.items() if not exists
     ]))
 
@@ -295,7 +300,7 @@ def evaluate(context: Context) -> list[dict]:
         for gate in exits:
             if gate_types.get(gate) not in {"SimpleFlowCheckpoint", "SimpleFlowSyntacticCheckpoint", "SimpleFlowSemanticCheckpoint"}:
                 gate_failures.append(f"Checkpoint {gate} of stage {stage} is not a declared SimpleFlowCheckpoint instance in this flow.")
-    results.append(result(RULES[1], [DESIGN], {"stage_exit_gates": gate_map,
+    results.append(result(RULES[1], [DESIGN, COMPOSITION], {"stage_exit_gates": gate_map,
                                                "gate_bindings": gate_bindings,
                                                "declared_checker_ids": checker_names}, gate_failures))
 

@@ -56,8 +56,8 @@ exists, while durable storage layout remains open.
 
 | Core type | Modeled shape and responsibility | Range or invariant | Implementation status |
 | --- | --- | --- | --- |
-| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by `RsSimpleFlowRun` for the four-stage local slice; durable persistence open |
-| `SimpleFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D03](01_run_design.md#d03) | Realized by the local Rust `create_run` function |
+| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by the generic `RsFlowRun` bound to the designed blueprint for the four-stage local slice; durable persistence open |
+| `SimpleFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D03](01_run_design.md#d03) | Realized by the local Rust `create_designed_run` function |
 | `SimpleFlowCheckpoint` | Common gate evaluation operation with syntactic and semantic specializations | Assessment kind follows its declared checkpoint kind | Realized by the local Rust gate/checker and judge ports; generic controller integration open |
 | `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable storage open |
 | `CheckpointAssessment` | Checkpoint, evaluated revision, outcome, judge, rationale, and evidence references | Current pass must match the visit's artifact revision | Realized by `RsAssessmentEntry` in the JSON run; historical SysML records remain separate |

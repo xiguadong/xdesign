@@ -86,6 +86,7 @@ its path below `docs/`, within the carrying document directory's `assets/` child
 | --- | --- | --- |
 | `arch/assets/00_model_definitions.svg` | definitions and specializations | `mbse/model` |
 | `arch/assets/00_lifecycle.svg` | declared view `XDesignWorkflow::wishLifecycle` | `Workflow::executeWish` and its actions |
+| `arch/assets/03_wish_to_delivery.svg` | native stage/checkpoint projection of `XDesignArchitecture::VModel` | compiler-exported stage successors, exit gates, kinds, criteria, and verification correspondences in [B30](../arch/03_wish_to_delivery.md#b30) |
 | `arch/assets/01_composition.svg` | internal structure | `XDesignArchitecture::XDesign` |
 | `arch/assets/01_interfaces.svg` | declared view `XDesignWorkflow::workflowInterfaces` | `Workflow` parts and interfaces |
 | `details/assets/01_wish_verify_flow.svg` | internal structure | `XDesignArchitecture::WishVerifyFlow` |
@@ -104,14 +105,15 @@ its path below `docs/`, within the carrying document directory's `assets/` child
 | `details/simple_flow/assets/03_logical.svg` | definitions of one file, the rest as library | `mbse/model/detailedDesign.sysml` |
 | `details/simple_flow/assets/03_interfaces.svg` | declared view `XDesignDetailedDesign::interfaceStructure` | the automation's parts, ports and interfaces |
 | `requirements/assets/01_requirements.svg`, `requirements/assets/01_use_cases.svg` | requirement-trace and actor-goal projections | the two SRS views in [D15](../requirements/01_baseline.md#d15) and [D17](../requirements/01_baseline.md#d17) |
-| `arch/assets/02_packages.svg` | `SimpleFlowRustUml::projectPackageIntegration` package projection | all eight project packages, including the Rust UML design, in [D21](../arch/02_design.md#d21) |
+| `arch/assets/02_packages.svg` | `XDesignRustUml::projectPackageIntegration` package projection | all nine project packages, including composition and the Rust UML design, in [D21](../arch/02_design.md#d21) |
 | `arch/assets/02_simple_flow_packages.svg` | `XDesignDetailedDesign::packageDiagram` package projection | the seven-package SimpleFlow concern retained in [D21](../arch/02_design.md#d21) |
 | `details/simple_flow/assets/05_*.svg` (six figures) | module type, interface, authorization, activity, sequence, and state projections | the six module views mapped in [D12](simple_flow/04_sysml_diagrams.md#d12), with presentation rules in [D23](04_diagram_presentation.md#d23) |
-| `details/simple_flow/assets/06_crate_modules.svg` | declared view `SimpleFlowRustUml::rustModuleLayout` | the crate's module dependencies, explained in [D45](simple_flow/06_rust_uml_design.md#d45) |
-| `details/simple_flow/assets/06_class_structure.svg` | declared view `SimpleFlowRustUml::rustClassStructure` | Rust types and their relationships, explained in [D46](simple_flow/06_rust_uml_design.md#d46) |
-| `details/simple_flow/assets/06_gate_sequence.svg` | declared view `SimpleFlowRustUml::rustGateSequence` | planned gate interaction, explained in [D47](simple_flow/06_rust_uml_design.md#d47) |
-| `details/simple_flow/assets/06_run_states.svg` | declared view `SimpleFlowRustUml::rustRunStates` | run states and transitions, explained in [D48](simple_flow/06_rust_uml_design.md#d48) |
-| `details/simple_flow/assets/07_file_plan.svg` | focused projection of declared view `XDesignDetailedDesign::simpleFlowFilePlanView` | model-owned repository paths and responsibilities for Rust, checker, and verification files in [D53](simple_flow/07_file_plan_and_verification.md#d53) |
+| `api/assets/01_crate_layers.svg` | declared view `XDesignRustUml::rustCrateLayers` | the crate's two layers and their one-way dependency, explained in [U68](../api/01_struct.md#u68) |
+| `details/simple_flow/assets/06_crate_modules.svg` | declared view `XDesignRustUml::rustModuleLayout` | the crate's module dependencies, explained in [D45](simple_flow/06_rust_uml_design.md#d45) |
+| `details/simple_flow/assets/06_class_structure.svg` | declared view `XDesignRustUml::rustClassStructure` | Rust types and their relationships, explained in [D46](simple_flow/06_rust_uml_design.md#d46) |
+| `details/simple_flow/assets/06_gate_sequence.svg` | declared view `XDesignRustUml::rustGateSequence` | planned gate interaction, explained in [D47](simple_flow/06_rust_uml_design.md#d47) |
+| `details/simple_flow/assets/06_run_states.svg` | declared view `XDesignRustUml::rustRunStates` | run states and transitions, explained in [D48](simple_flow/06_rust_uml_design.md#d48) |
+| `prj_manage/assets/06_file_plan.svg` | focused projection of declared view `XDesignDetailedDesign::simpleFlowFilePlanView` | model-owned repository paths and responsibilities for Rust, checker, and verification files in [D53](../prj_manage/06_file_plan_and_verification.md#d53) |
 
 The declared views are model content, not renderer settings: `wishLifecycle`,
 `workflowInterfaces`, `recordStructure`, the SimpleFlow run and file-plan views, and

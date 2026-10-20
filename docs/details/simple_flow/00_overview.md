@@ -24,15 +24,17 @@ records their modeled exchanges.
 | [Structure graphs](03_structure_graphs.md#d08) | Timeline, logical tree, and interface overview figures | Model projections; no runtime endpoint proof |
 | [Nine-view coverage](04_sysml_diagrams.md#d12) | Applicability reasons and links to views embedded by stage | Navigation and coverage record, not a figure gallery |
 | [Module design](05_module_design.md#d32) | Types, behavior, authorization, interfaces, errors, performance, tests, and CDR gaps | Working design; no frozen module baseline |
-| [Rust UML design](06_rust_uml_design.md#d44) | Crate modules, Rust types, gate interaction, run states, and UML view applicability for `simpflow` | Core code exists; the API reference records its implemented boundary |
-| [File plan and verification](07_file_plan_and_verification.md#d53) | Source, checker and test files, with executable gate, recovery and file-conformance cases | Case definitions stay separate from executed results in [P08](../../prj_manage/03_simple_flow_execution_record.md#p08) |
+| [Rust UML design](06_rust_uml_design.md#d44) | `xdesign::core` + `xdesign::simple_flow` modules, Rust types, gate interaction, run states, and view applicability | Core code exists; the API reference records its implemented boundary |
 
 The two requirements views are embedded in the
 [requirements specification](../../requirements/01_baseline.md#d15), the package view
 in the [architecture design](../../arch/02_design.md#d21), and six module views beside
 their detailed explanations in [D13–D20](05_module_design.md#d13). The Rust UML views
-are SysML projections of `SimpleFlowRustUml` embedded in
+are SysML projections of `XDesignRustUml` embedded in
 [D45–D48](06_rust_uml_design.md#d45), selected per the
-[UML guide](../../uml/01_c4_and_uml_guide.md#u06). The
+[documentation contract's applicability rule](../05_documentation_contract.md#u09). The
 [stage checklist](../../review/02_checklist.md#v11) states what would still be needed
 for a CDR decision.
+
+The [implementation file plan and acceptance cases](../../prj_manage/06_file_plan_and_verification.md#d53)
+are managed with the execution records in `docs/prj_manage/`.

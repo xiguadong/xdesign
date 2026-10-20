@@ -12,8 +12,9 @@ model/
 ├── requirements.sysml    → All requirements; nested packages may organize them.
 ├── architecture.sysml    → All architecture: logical, physical, and decisions.
 ├── detailedDesign.sysml  → All detailed design.
-├── uml.sysml             → Software (UML) designs of designed flows, e.g. the
-│                           SimpleFlow Rust crate design, realizing detailed design.
+├── uml.sysml             → Software (UML) designs of designed flows, including
+│                           the xdesign crate and its SimpleFlow module.
+├── composition.sysml     → The xdesign instance and its selectable flow portfolio.
 ├── verification.sysml    → All verification cases.
 └── traceability.sysml    → All traceability relationships in the project model.
 
@@ -29,6 +30,7 @@ wishes/
 - Organize requirements into nested packages inside `requirements.sysml` as needed.
 - Define model elements in their respective files and reference them from `traceability.sysml` when expressing traceability relationships.
 - Keep software designs in `uml.sysml`: Rust or other language-targeted types, traits, functions and module layouts that realize detailed-design elements, each recording the element it realizes as a `dependency`. A software design claims no implementation that does not exist in the repository.
+- Keep reusable flow definitions in their architecture and detailed-design files; instantiate selectable flows under the `xdesign` portfolio in `composition.sysml`. The abstract `xdesign.'flow'` is their common origin, while `xdesign.selectedFlow` names the default portfolio member.
 - Classify every checkpoint with `kind`. A syntactic checkpoint names the `Checker`s that fix its check and sets no judge flag, because a script judges it. A semantic checkpoint names no checker and sets `agentMayJudge` or `humanMayJudge`, because its criteria need judgment. Record the judging authority of every assessment in `judgedBy`; a syntactic checkpoint is judged by a script and a semantic one by an agent or a human.
 - Write requirements into `requirements.sysml`, each carrying its `rationale`, outwards from what the tool must do and why. The wish that asked for a requirement belongs to that wish's own record; a requirement never names one.
 - Retain the products of a wish — the requirements it produces and the model modifications it causes — in `mbse/model/`. A wish's record may describe them, but it must never hold the only copy.
@@ -37,7 +39,7 @@ wishes/
 - Record each wish in `mbse/wishes/wish-<id>.sysml` as its own package. Declare usages and values there, referencing the product and workflow definitions in `mbse/model/` instead of restating them. A local `occurrence def` may bind lifelines for a wish journey view; it must not define a project product.
 - A wish model records the run: one `StageRecord` per visited stage with its `visitIndex` and `artifactRevision`, the `ActivityRecord`s of that visit, and the `CheckpointAssessment`s with their evidence URIs. An assessment's `evaluatedRevision` must equal the recorded `artifactRevision` it judged, and a stage already marked completed must stay authorized, so record new evidence as a further assessment rather than editing a passed one.
 - A historical illustrative trace with missing evidence, such as wish-0001, cannot establish acceptance even if its retained status says `delivered`. Identify its missing evidence in the trace and review record. New passed assessments must name retained, re-openable evidence.
-- Present a wish as a journey by binding `ref part` lifelines to the real participants (`workflow.controller`, `workflow.'flow'.<stage>`) and anchoring `message` usages on their `entering`/`entered`, `assessing`/`assessed` and `delivered` event occurrences.
+- Present a wish as a journey by binding `ref part` lifelines to the real participants (`xdesign.controller`, `xdesign.<selectedFlow>.<stage>`) and anchoring `message` usages on their `entering`/`entered`, `assessing`/`assessed` and `delivered` event occurrences.
 - Use English for all model names, descriptions, and comments.
 
 ## Compiler Checks

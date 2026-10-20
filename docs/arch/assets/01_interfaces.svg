@@ -5,7 +5,7 @@
 <text xml:space="preserve" text-anchor="start" x="14" y="-304.85" font-family="Arial" font-weight="bold" font-size="22.00">XDesignWorkflow::workflowInterfaces · Views::asInterconnectionDiagram</text>
 <text xml:space="preserve" text-anchor="start" x="209.75" y="-276.5" font-family="Arial" font-size="14.00" fill="#52657a">5 nodes · 2 resolved relationships · native element IDs retained</text>
 
-<g class="edge" data-native-id="99a6bca5-335a-5bba-b409-06bc39dc195b" data-source-id="ce469670-7a9d-5cc0-b87a-2f00abab6a99" data-target-id="5581534d-5147-5271-a2fe-a16d4db5f398" data-edge-kind="connection">
+<g class="edge" data-native-id="99a6bca5-335a-5bba-b409-06bc39dc195b" data-source-id="ce469670-7a9d-5cc0-b87a-2f00abab6a99" data-target-id="44e6c3af-af48-5cb4-b7a7-2ce952706a57" data-edge-kind="connection">
 <title>flowExchange
 flow.flowPort → controller.flowPort
 99a6bca5-335a-5bba-b409-06bc39dc195b</title>
@@ -13,7 +13,7 @@ flow.flowPort → controller.flowPort
 <text xml:space="preserve" text-anchor="middle" x="269.88" y="-126.9" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">flowExchange</text>
 </g>
 
-<g class="edge" data-native-id="ec2fa2f6-42de-5a7c-a354-d55cb2d8ded2" data-source-id="c78d3b15-2d8b-5f6e-bbc9-aee476195107" data-target-id="5581534d-5147-5271-a2fe-a16d4db5f398" data-edge-kind="connection">
+<g class="edge" data-native-id="ec2fa2f6-42de-5a7c-a354-d55cb2d8ded2" data-source-id="c78d3b15-2d8b-5f6e-bbc9-aee476195107" data-target-id="44e6c3af-af48-5cb4-b7a7-2ce952706a57" data-edge-kind="connection">
 <title>wishExchange
 requester.wishPort → controller.wishPort
 ec2fa2f6-42de-5a7c-a354-d55cb2d8ded2</title>
@@ -31,10 +31,10 @@ ce469670-7a9d-5cc0-b87a-2f00abab6a99</title>
 <text xml:space="preserve" text-anchor="start" x="135.38" y="-175.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: WorkflowFlow</text>
 </g>
 
-<g id="ncc362e43465d2609203f" class="node diagram-node shape-box" data-native-id="5581534d-5147-5271-a2fe-a16d4db5f398" data-shape="box">
+<g id="ndb3164c0a72b46a1c59b" class="node diagram-node shape-box" data-native-id="44e6c3af-af48-5cb4-b7a7-2ce952706a57" data-shape="box">
 <title>XDesignWorkflow::Workflow::controller
 type: WorkflowController
-5581534d-5147-5271-a2fe-a16d4db5f398</title>
+44e6c3af-af48-5cb4-b7a7-2ce952706a57</title>
 <rect fill="white" stroke="none" x="197.38" y="-100.25" width="165.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="197.38,-32.75 197.38,-32.75 362.38,-32.75 362.38,-32.75 197.38,-32.75" />
 <rect fill="none" stroke="#647a91" x="197.38" y="-100.25" width="165.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="206.38" y="-78.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
 <text xml:space="preserve" text-anchor="start" x="206.38" y="-45.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">controller</text>
@@ -51,20 +51,20 @@ c78d3b15-2d8b-5f6e-bbc9-aee476195107</title>
 <text xml:space="preserve" text-anchor="start" x="302.88" y="-175.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: WishRequester</text>
 </g>
 
-<g id="n5c655a26cee4e554dc2e" class="node diagram-node shape-box" data-native-id="4785ce97-878b-5e8a-919a-b5d18affd64b" data-shape="box">
+<g id="n3980ef251e8b491cd565" class="node diagram-node shape-box" data-native-id="52b170a2-6fa4-5ff1-910a-58272ebb65d1" data-shape="box">
 <title>XDesignWorkflow::Workflow::traces
 type: Trace
-4785ce97-878b-5e8a-919a-b5d18affd64b</title>
+52b170a2-6fa4-5ff1-910a-58272ebb65d1</title>
 <rect fill="white" stroke="none" x="470.12" y="-263.5" width="85.5" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="470.12,-196 470.12,-196 555.62,-196 555.62,-196 470.12,-196" />
 <rect fill="none" stroke="#647a91" x="470.12" y="-263.5" width="85.5" height="100.25" /><text xml:space="preserve" text-anchor="start" x="479.12" y="-241.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">PartUsage</text>
 <text xml:space="preserve" text-anchor="start" x="479.12" y="-208.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">traces</text>
 <text xml:space="preserve" text-anchor="start" x="479.12" y="-175.25" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">type: Trace</text>
 </g>
 
-<g id="ndb3164c0a72b46a1c59b" class="node diagram-node shape-box" data-native-id="44e6c3af-af48-5cb4-b7a7-2ce952706a57" data-shape="box">
+<g id="n5c655a26cee4e554dc2e" class="node diagram-node shape-box" data-native-id="4785ce97-878b-5e8a-919a-b5d18affd64b" data-shape="box">
 <title>XDesignWorkflow::Workflow::wishes
 type: Wish
-44e6c3af-af48-5cb4-b7a7-2ce952706a57</title>
+4785ce97-878b-5e8a-919a-b5d18affd64b</title>
 <rect fill="white" stroke="none" x="587.88" y="-263.5" width="84.0" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="587.88,-196 587.88,-196 671.88,-196 671.88,-196 587.88,-196" />
 <rect fill="none" stroke="#647a91" x="587.88" y="-263.5" width="84.0" height="100.25" /><text xml:space="preserve" text-anchor="start" x="596.88" y="-241.75" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">ItemUsage</text>
 <text xml:space="preserve" text-anchor="start" x="596.88" y="-208.55" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">wishes</text>

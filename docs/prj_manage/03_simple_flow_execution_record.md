@@ -36,7 +36,7 @@ report to the supplied judge.
 
 ## P09 Case disposition
 
-The case IDs and expected behavior are defined in [D54](../details/simple_flow/07_file_plan_and_verification.md#d54).
+The case IDs and expected behavior are defined in [D54](06_file_plan_and_verification.md#d54).
 
 | Cases | Executed evidence | Result |
 | --- | --- | --- |

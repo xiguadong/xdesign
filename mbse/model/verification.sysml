@@ -2,7 +2,7 @@ package XDesignVerification {
     @XDesignCommon::DiagramPresentation { label = "Verification"; }
     @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D15"; }
     private import XDesignDetailedDesign::*;
-    private import SimpleFlowRustUml::*;
+    private import XDesignRustUml::*;
 
     doc /* Verification designs, separate from executed results. Declaring a case
        and its verify relationships specifies coverage; run evidence belongs to the
@@ -78,7 +78,7 @@ package XDesignVerification {
            and reason, open each adopted view's figure and read its block and
            status; then read the design document for any claim of code, tests or
            builds the repository does not contain. */
-        subject crate : SimpflowCrate;
+        subject crate : XDesignCrate;
         objective umlDesign {
             verify requirement mapping :> XDesignRequirements::rustUmlDesignMapsEveryDesignElement;
             verify requirement applicability :> XDesignRequirements::umlViewsAreSelectedWithReasons;
@@ -87,7 +87,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowGateBehaviorVerification {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
         doc /* Planned executable cases for the designed SimpleFlow. Load a valid
            four-stage plan with one syntactic gate on each of the first three
            stages and both a syntactic and a semantic gate on verify. Reject a
@@ -105,7 +105,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowRecoveryVerification {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
         doc /* Planned executable lifecycle cases. Creation starts all visits at
            artifact revision 0 and visit index 0. Recording a content change,
            including an in-place edit at the same URI, increments the current
@@ -125,7 +125,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowFilePlanVerification {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
         doc /* Planned file-level conformance case. Compare every path in
            simpleFlowFilePlan with the repository and every in-scope source and
            test file back to the plan, then compare the Rust module exports,

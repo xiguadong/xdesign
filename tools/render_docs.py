@@ -17,6 +17,8 @@ Figure kinds, matching the views SysML v2 and this model declare:
   sequence     the interaction one occurrence definition declares
   declared     a view the model itself declares, projected from the export
   file_plan    repository files and responsibilities selected by a declared view
+  vmodel_overview  stage sequence, exit gates, and verification pairs of VModel
+  flow_relationships  Flow definition family and xdesign's selectable usages
 
 The nine stage-owned figures use documentation projections of exposed native IDs:
 requirements, packages, block_definition, internal_block, parametric,
@@ -46,7 +48,9 @@ from tools.sysml_web.cst import unsupported_view_syntax  # noqa: E402
 from tools.sysml_web.declared_views import DeclaredViews  # noqa: E402
 from tools.sysml_web.documentation_views import TITLES, render_documentation_view  # noqa: E402
 from tools.sysml_web.file_plan_view import render_file_plan  # noqa: E402
+from tools.sysml_web.flow_relationships import render_flow_relationships  # noqa: E402
 from tools.sysml_web.renderer import _name  # noqa: E402
+from tools.sysml_web.vmodel_overview import render_vmodel_overview  # noqa: E402
 
 COMPILER = REPO / "tools" / "sysml_web" / "bin" / "sysml"
 MODEL_DIR = REPO / "mbse" / "model"
@@ -59,9 +63,11 @@ TMP = REPO / "cache" / "sysml" / "tmp"
 FIGURES = [
     ("arch/assets/00_model_definitions", "definitions", ""),
     ("arch/assets/00_lifecycle", "declared", "XDesignWorkflow::wishLifecycle"),
+    ("arch/assets/03_wish_to_delivery", "vmodel_overview", "XDesignArchitecture::VModel"),
     ("arch/assets/01_composition", "internal", "XDesign"),
     ("arch/assets/01_interfaces", "declared", "XDesignWorkflow::workflowInterfaces"),
     ("details/assets/01_wish_verify_flow", "internal", "WishVerifyFlow"),
+    ("details/assets/01_flow_relationships", "flow_relationships", "XDesignComposition::xdesign"),
     ("details/assets/01_controller", "internal", "Controller"),
     ("details/assets/02_records", "declared", "XDesignArchitecture::recordStructure"),
     ("details/assets/02_journey_rework", "sequence", "Wish0002Journey"),
@@ -76,7 +82,7 @@ FIGURES = [
     ("details/simple_flow/assets/03_logical", "definitions", "mbse/model/detailedDesign.sysml"),
     ("details/simple_flow/assets/03_interfaces", "declared", "XDesignDetailedDesign::interfaceStructure"),
     ("requirements/assets/01_requirements", "requirements", "XDesignDetailedDesign::requirementsDiagram"),
-    ("arch/assets/02_packages", "packages", "SimpleFlowRustUml::projectPackageIntegration"),
+    ("arch/assets/02_packages", "packages", "XDesignRustUml::projectPackageIntegration"),
     ("arch/assets/02_simple_flow_packages", "packages", "XDesignDetailedDesign::packageDiagram"),
     ("details/simple_flow/assets/05_block_definition", "block_definition", "XDesignDetailedDesign::blockDefinitionDiagram"),
     ("details/simple_flow/assets/05_internal_block", "internal_block", "XDesignDetailedDesign::internalBlockDiagram"),
@@ -85,11 +91,12 @@ FIGURES = [
     ("details/simple_flow/assets/05_activity", "activity", "XDesignDetailedDesign::activityDiagram"),
     ("details/simple_flow/assets/05_sequence", "declared_sequence", "XDesignDetailedDesign::sequenceDiagram"),
     ("details/simple_flow/assets/05_state_machine", "state_machine", "XDesignDetailedDesign::stateMachineDiagram"),
-    ("details/simple_flow/assets/06_crate_modules", "packages", "SimpleFlowRustUml::rustModuleLayout"),
-    ("details/simple_flow/assets/06_class_structure", "block_definition", "SimpleFlowRustUml::rustClassStructure"),
-    ("details/simple_flow/assets/06_gate_sequence", "declared_sequence", "SimpleFlowRustUml::rustGateSequence"),
-    ("details/simple_flow/assets/06_run_states", "state_machine", "SimpleFlowRustUml::rustRunStates"),
-    ("details/simple_flow/assets/07_file_plan", "file_plan", "XDesignDetailedDesign::simpleFlowFilePlanView"),
+    ("details/simple_flow/assets/06_crate_modules", "packages", "XDesignRustUml::rustModuleLayout"),
+    ("details/simple_flow/assets/06_class_structure", "block_definition", "XDesignRustUml::rustClassStructure"),
+    ("details/simple_flow/assets/06_gate_sequence", "declared_sequence", "XDesignRustUml::rustGateSequence"),
+    ("details/simple_flow/assets/06_run_states", "state_machine", "XDesignRustUml::rustRunStates"),
+    ("api/assets/01_crate_layers", "packages", "XDesignRustUml::rustCrateLayers"),
+    ("prj_manage/assets/06_file_plan", "file_plan", "XDesignDetailedDesign::simpleFlowFilePlanView"),
     ("review/assets/01_journey_wish0009", "sequence", "Wish0009Journey"),
 ]
 
@@ -159,12 +166,15 @@ def render_declared(name: str, target: str, kind="declared") -> tuple[bool, str]
     if kind == "declared_sequence":
         kind = "sequence"
     svg, declared = (render_file_plan(exported, guards, target) if kind == "file_plan"
+                     else render_flow_relationships(exported) if kind == "flow_relationships"
+                     else render_vmodel_overview(exported) if kind == "vmodel_overview"
                      else render_documentation_view(exported, guards, target, kind) if kind in TITLES
                      else DeclaredViews(exported, guards).render(target))
     figure = DOCS / f"{name}.svg"
     figure.parent.mkdir(parents=True, exist_ok=True)
     figure.write_text(svg, encoding="utf-8")
-    return True, f"declared view {declared['name']} ({declared['rendering']})"
+    label = "model projection" if kind in {"vmodel_overview", "flow_relationships"} else "declared view"
+    return True, f"{label} {declared['name']} ({declared['rendering']})"
 
 
 def main() -> int:
@@ -177,7 +187,7 @@ def main() -> int:
         if requested and name not in requested:
             continue
         try:
-            ok, note = (render_declared(name, target, kind) if kind != "sequence" and kind in {"declared", "declared_sequence", "file_plan", *TITLES}
+            ok, note = (render_declared(name, target, kind) if kind != "sequence" and kind in {"declared", "declared_sequence", "file_plan", "vmodel_overview", "flow_relationships", *TITLES}
                         else render_native(name, kind, target))
         except (OSError, ValueError) as error:
             ok, note = False, str(error)

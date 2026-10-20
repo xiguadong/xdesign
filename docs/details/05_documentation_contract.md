@@ -159,6 +159,46 @@ security, decision, or risk views are chosen by the concern. The [D12 coverage i
 links the nine SimpleFlow views to their requirements, architecture, and module-design
 sections; their figures are embedded in those sections.
 
+<a id="u09"></a>
+
+## U09 View applicability for a software design
+
+A module's software design states for each view whether the view is required,
+recommended, or not applicable, with a reason. An omitted view without a reason is a
+defect; a reasoned omission is a design decision. The decision is recorded in the
+module design's own applicability table — the SimpleFlow Rust design's is
+[D52](simple_flow/06_rust_uml_design.md#d52) — and reviewed with the design
+([U12](../review/02_checklist.md#u12)).
+
+The vocabulary is the SysML projection vocabulary this repository actually renders:
+package projections for module layout and allowed dependency direction,
+block-definition projections for type structure, internal-block projections for
+connected parts, sequence projections for interactions, and state-machine projections
+for lifecycle handling, alongside the activity, use-case, requirements, and parametric
+questions of the [D29](#d29) coverage checklist. Each adopted view is declared in the
+model, located by `DocSection`/`DocFigure`, and embedded in the design section that
+answers its question — never collected into a separate view gallery. The figure's
+status vocabulary and block are [D28](#d28)'s; the two rules D28 does not state follow.
+
+<a id="u10"></a>
+
+### U10 Figure numbering
+
+A figure is numbered by its document section — `Figure <section-id>-<ordinal>`, for
+example `Figure D47-1` — and ordinals stay local to the section. A figure added to one
+section never renumbers another section's figures, so a figure number stays stable for
+as long as its section exists.
+
+<a id="u11"></a>
+
+### U11 Figure reading note and design rationale
+
+Every figure needs a reading note and a design rationale; a bare figure is not
+acceptable. The reading note — the figure block's `Reading` field — names the visible
+elements, relationships, and the point of the figure in two to four sentences. The
+rationale, recorded in the embedding section's prose, says why the boundary, types, or
+interaction are divided this way.
+
 <a id="d30"></a>
 
 ## D30 Document roles, baselines, and per-flow extension

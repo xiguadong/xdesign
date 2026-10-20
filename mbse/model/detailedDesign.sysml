@@ -11,23 +11,18 @@ package XDesignDetailedDesign {
     private import StandardViewDefinitions::*;
     private import Views::*;
 
-    doc /* The detailed design of the simple flow: what one run of
-       XDesignArchitecture::SimpleFlow is made into — the class of a run, the factory
-       that creates it, the functions that evaluate its gates and advance it, the
-       rules that determine each check, and the designed flow that gates every stage
-       with checkpoints of exact content.
-       This file details that flow; it changes neither the flow definition nor the
-       runs already recorded against it. */
+    doc /* The detailed design of the simple flow: the gated flow specialization,
+       run class, factory, gate and advance functions, and exact checker rules.
+       XDesignComposition owns the concrete selectable usage; this file defines
+       its design without changing historical four-stage runs. */
 
-    part designedSimpleFlow : SimpleFlow {
+    part def DesignedSimpleFlow :> SimpleFlow {
         @XDesignCommon::DiagramPresentation { label = "Gated simple flow"; summary = "Four stages with explicit exit gates"; }
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
-        doc /* The simple flow as designed: the same four stages in the same order, with
-           every stage's exit gated. The requirements, design and implementation stages
-           are gated by fixed checks; the verification stage is gated by a record check
-           and by the flow's inherited semantic judgment. A wish selects this usage at
-           registration when it wants the designed gates; SimpleFlow itself is unchanged,
-           so the runs already recorded against workflow.'flow' stay valid. */
+        doc /* The simple flow specialization: the same four stages in the same
+           order, with every stage's exit gated. The first three stages use fixed
+           checks; verification uses a record check and inherited semantic judgment.
+           xdesign.designedSimpleFlow is the selectable usage of this definition. */
 
         part redefines checkpoints : SimpleFlowCheckpoint [5];
 
@@ -55,8 +50,8 @@ package XDesignDetailedDesign {
             attribute redefines establishes = (ConformanceKind::artifactPresence, ConformanceKind::definitionCoverage);
             item designDeclarationsPresent : CheckerRule subsets rules {
                 attribute redefines ruleId = "design-declarations-present";
-                attribute redefines condition = "The run, factory, gate, advance, designed flow, checkpoint class, both adaptations, and checkpoint evaluation action are declared.";
-                attribute redefines reads = "mbse/model/detailedDesign.sysml";
+                attribute redefines condition = "The run, factory, gate, advance, designed flow definition and xdesign-owned usage, checkpoint class, both adaptations, and checkpoint evaluation action are declared.";
+                attribute redefines reads = ("mbse/model/detailedDesign.sysml", "mbse/model/composition.sysml");
             }
             item everyStageGated : CheckerRule subsets rules {
                 attribute redefines ruleId = "every-stage-gated";
@@ -144,7 +139,7 @@ package XDesignDetailedDesign {
             }
             item designedRunsAreTypedByDesignClass : CheckerRule subsets rules {
                 attribute redefines ruleId = "designed-runs-are-typed-by-the-design-class";
-                attribute redefines condition = "A run on the designed SimpleFlow records its execution as SimpleFlowRun.";
+                attribute redefines condition = "A run on the designed SimpleFlow records its execution as a FlowRun of plan designedSimpleFlow.";
                 attribute redefines reads = "runtime run record JSON";
             }
         }
@@ -350,8 +345,8 @@ package XDesignDetailedDesign {
            presents to. The factory creates it; the controller keeps it in the wish's
            trace. */
 
-        ref part redefines assignedFlow = designedSimpleFlow;
-        ref part checkpoints : SimpleFlowCheckpoint [0..*] = designedSimpleFlow.checkpoints;
+        ref part redefines assignedFlow : DesignedSimpleFlow;
+        ref part checkpoints : SimpleFlowCheckpoint [0..*] = assignedFlow.checkpoints;
         part redefines stageRecords : StageRecord [4..*];
 
         port check : ~CheckCommandExchange {
@@ -373,9 +368,9 @@ package XDesignDetailedDesign {
 
         assert constraint visitsRealizeThePlannedStages {
             stageRecords->forAll { in record : StageRecord;
-                designedSimpleFlow.stages->includes(record.stage)
+                assignedFlow.stages->includes(record.stage)
             } and
-            designedSimpleFlow.stages->forAll { in stage : Stage;
+            assignedFlow.stages->forAll { in stage : Stage;
                 stageRecords->exists { in record : StageRecord;
                     record.stage == stage
                 }
@@ -706,12 +701,13 @@ package XDesignDetailedDesign {
            moments the flow defines; a particular wish's journey is the same shape
            with its own records. */
 
-        ref part controller : Controller = workflow.controller;
+        ref part controller : Controller;
         ref part run : SimpleFlowRun;
-        ref part requirements : Stage = designedSimpleFlow.requirements;
-        ref part design : Stage = designedSimpleFlow.design;
-        ref part implement : Stage = designedSimpleFlow.implement;
-        ref part 'verify' : Stage = designedSimpleFlow.'verify';
+        ref part 'flow' : DesignedSimpleFlow = run.assignedFlow;
+        ref part requirements : Stage = 'flow'.requirements;
+        ref part design : Stage = 'flow'.design;
+        ref part implement : Stage = 'flow'.implement;
+        ref part 'verify' : Stage = 'flow'.'verify';
 
         message createRun from controller.entering to run.created;
         message enterRequirements from controller.entering to requirements.entered;
@@ -732,7 +728,7 @@ package XDesignDetailedDesign {
            redefines onto them, and the checkers the syntactic gates name with the
            rules each checker declares. */
 
-        expose XDesignDetailedDesign::designedSimpleFlow;
+        expose XDesignDetailedDesign::DesignedSimpleFlow;
     }
 
     view designTree : StandardViewDefinitions::BrowserView {
@@ -790,7 +786,7 @@ package XDesignDetailedDesign {
     }
 
     item def SimpleFlowFileEntry {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D53"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
         doc /* One repository file in the SimpleFlow implementation plan. Its path
            names source, tests, or a checked input, never generated cache output. */
         attribute repositoryPath : String;
@@ -799,25 +795,30 @@ package XDesignDetailedDesign {
 
     item simpleFlowFilePlan {
         @XDesignCommon::DiagramPresentation { label = "SimpleFlow file plan"; summary = "Source, checker and test files"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D53"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
         doc /* Planned repository layout for the first executable SimpleFlow slice.
-           Rust modules follow the SimpleFlowRustUml module design; four Python
+           Rust modules follow the XDesignRustUml module design; four Python
            commands implement the D06 syntactic checker rule sets. The test files
            exercise the same contracts independently. Generated reports and tool
            caches belong under cache/ and are not source entries here. */
 
         item application {
             item manifest : SimpleFlowFileEntry { attribute redefines repositoryPath = "Cargo.toml"; attribute redefines responsibility = "Rust crate manifest"; }
-            item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "Public crate modules and API"; }
+            item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "xdesign application module boundary"; }
             item commandLine : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/main.rs"; attribute redefines responsibility = "Local run and check entry point"; }
             item commandLineTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/main_wish_tests.rs"; attribute redefines responsibility = "Command-line wish validation cases"; }
-            item status : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/status.rs"; attribute redefines responsibility = "Flow and gate status vocabulary"; }
-            item record : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/record.rs"; attribute redefines responsibility = "Visits, activities and assessments"; }
-            item plan : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/plan.rs"; attribute redefines responsibility = "Stage, checkpoint and checker plan validation"; }
-            item ports : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/ports.rs"; attribute redefines responsibility = "Checker and judge boundaries"; }
-            item gate : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/gate.rs"; attribute redefines responsibility = "Per-checkpoint evaluation and report validation"; }
-            item run : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/run.rs"; attribute redefines responsibility = "Run state, authorization, advance and reopen"; }
-            item factory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/factory.rs"; attribute redefines responsibility = "Create a validated run"; }
+            item coreModule : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/mod.rs"; attribute redefines responsibility = "Core public API within xdesign"; }
+            item status : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/status.rs"; attribute redefines responsibility = "Flow and gate status vocabulary"; }
+            item plan : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/plan.rs"; attribute redefines responsibility = "Stage, checkpoint and checker plan structural validation"; }
+            item record : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/record.rs"; attribute redefines responsibility = "Visits, activities and assessments"; }
+            item ports : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/ports.rs"; attribute redefines responsibility = "Checker and judge boundaries"; }
+            item gate : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/gate.rs"; attribute redefines responsibility = "Per-checkpoint evaluation and report validation"; }
+            item run : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/run.rs"; attribute redefines responsibility = "Run state, authorization, advance and reopen"; }
+            item coreFactory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/factory.rs"; attribute redefines responsibility = "Create a run from any structurally valid plan"; }
+            item simpleFlowModule : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/mod.rs"; attribute redefines responsibility = "SimpleFlow public API within xdesign"; }
+            item blueprint : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/blueprint.rs"; attribute redefines responsibility = "The designed four-stage plan as data and its blueprint conformance"; }
+            item simpleFlowFactory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/factory.rs"; attribute redefines responsibility = "Create a conforming designed run"; }
+            item processCheck : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/check.rs"; attribute redefines responsibility = "Fixed four-checker process adapter"; }
         }
         item checkCommands {
             item sharedContract : SimpleFlowFileEntry { attribute redefines repositoryPath = "tools/checks/common.py"; attribute redefines responsibility = "Shared report schema and input validation"; }
@@ -836,8 +837,8 @@ package XDesignDetailedDesign {
     }
 
     view simpleFlowFilePlanView : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; section = "D53"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/07_file_plan_and_verification.md"; figure = "docs/details/simple_flow/assets/07_file_plan.svg"; }
+        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
+        @XDesignCommon::DocFigure { document = "docs/prj_manage/06_file_plan_and_verification.md"; figure = "docs/prj_manage/assets/06_file_plan.svg"; }
         doc /* Which repository files realize the Rust run, fixed checker commands,
            and executable verification, with generated evidence kept in cache/. */
         expose XDesignDetailedDesign::simpleFlowFilePlan;
@@ -1102,7 +1103,7 @@ package XDesignDetailedDesign {
         expose XDesignRequirements::designedFlowGatesEveryStage;
         expose XDesignRequirements::structureGraphsAreDocumented;
         expose XDesignDetailedDesign::SimpleFlowRun;
-        expose XDesignDetailedDesign::designedSimpleFlow;
+        expose XDesignDetailedDesign::DesignedSimpleFlow;
         expose XDesignCommon::DocFigure;
         expose XDesignVerification::SimpleFlowViewReview;
     }

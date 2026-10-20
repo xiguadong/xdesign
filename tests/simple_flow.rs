@@ -1,10 +1,11 @@
-use simpflow::*;
 use std::{
     collections::VecDeque,
     fs,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
+use xdesign::core::*;
+use xdesign::simple_flow::*;
 
 fn test_dir() -> String {
     let dir = format!("cache/implementation/rust-tests/{}", Uuid::new_v4());
@@ -117,7 +118,7 @@ fn run_with(
     dir: &str,
     verdicts: &[MockVerdict],
     judge: RsSuppliedJudge,
-) -> (RsSimpleFlowRun, Arc<Mutex<Vec<String>>>) {
+) -> (RsFlowRun, Arc<Mutex<Vec<String>>>) {
     let wish = fixture(dir, "wish.sysml", "package Wish {}\n");
     let stages = Arc::new(Mutex::new(vec![]));
     let check = Box::new(MockCheck {
@@ -125,7 +126,7 @@ fn run_with(
         verdicts: Arc::new(Mutex::new(verdicts.iter().copied().collect())),
         stages: stages.clone(),
     });
-    let run = create_run(
+    let run = create_designed_run(
         plan(dir),
         wish,
         format!("{dir}/run.json"),
@@ -145,7 +146,7 @@ fn judge(outcome: RsCheckpointOutcome) -> RsSuppliedJudge {
     }
 }
 
-fn add_artifact(run: &mut RsSimpleFlowRun, dir: &str, name: &str, content: &str) -> String {
+fn add_artifact(run: &mut RsFlowRun, dir: &str, name: &str, content: &str) -> String {
     let uri = fixture(dir, name, content);
     let digest = hash_artifact(&uri).unwrap();
     run.record_activity(RsActivityEntry {
@@ -161,7 +162,7 @@ fn add_artifact(run: &mut RsSimpleFlowRun, dir: &str, name: &str, content: &str)
     uri
 }
 
-fn reach_verify(run: &mut RsSimpleFlowRun, dir: &str) {
+fn reach_verify(run: &mut RsFlowRun, dir: &str) {
     for stage in ["requirements", "design", "implement"] {
         add_artifact(run, dir, &format!("{stage}.txt"), stage);
         assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
@@ -176,7 +177,10 @@ fn malformed_plans_are_rejected_before_run() {
     let valid = plan(&dir);
     let mut p = valid.clone();
     p.stages[0].exit_checkpoint_ids.clear();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
     let mut p = valid.clone();
     p.stages[1].stage_id = "requirements".into();
     assert_eq!(p.validate(), Err(RsPlanError::DuplicateStageId));
@@ -185,10 +189,16 @@ fn malformed_plans_are_rejected_before_run() {
     assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
     let mut p = valid.clone();
     p.checkpoints[0].stage_id = "verify".into();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
     let mut p = valid.clone();
     p.stages[0].next_stage_ids.clear();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
     let mut p = valid.clone();
     p.stages.pop();
     assert_eq!(p.validate(), Err(RsPlanError::UnknownStageReference));
@@ -200,13 +210,19 @@ fn malformed_plans_are_rejected_before_run() {
     assert_eq!(p.validate(), Err(RsPlanError::InvalidChecker));
     let mut p = valid.clone();
     p.checkpoints[1].checker.as_mut().unwrap().rules[0].rule_id = "wrong".into();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidChecker));
+    assert_eq!(validate_designed_plan(&p), Err(RsPlanError::InvalidChecker));
     let mut p = valid.clone();
     p.checkpoints[0].criteria[0] = "weaker criterion".into();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
     let mut p = valid.clone();
     p.checkpoints[0].checker.as_mut().unwrap().rules[0].condition = "always true".into();
-    assert_eq!(p.validate(), Err(RsPlanError::InvalidDesignedFlow));
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
     fs::write(&valid.plan_uri, "tampered").unwrap();
     assert_eq!(valid.validate(), Err(RsPlanError::InvalidPlanFile));
 }
@@ -261,7 +277,7 @@ fn initial_visits_stage_scope_and_mixed_verify_gates() {
     );
     let record: serde_json::Value =
         serde_json::from_slice(&fs::read(run.run_record_uri()).unwrap()).unwrap();
-    assert_eq!(record["execution_type"], "SimpleFlowRun");
+    assert_eq!(record["execution_type"], "FlowRun");
     assert_eq!(record["plan_sha256"], run.plan().plan_sha256);
     assert_eq!(record["visits"].as_array().unwrap().len(), 4);
 }
@@ -615,7 +631,7 @@ fn failed_record_write_cannot_authorize_advancement() {
         stages: Arc::new(Mutex::new(vec![])),
     });
     // A directory is a normalized URI but cannot be replaced by the JSON file.
-    let mut run = create_run(
+    let mut run = create_designed_run(
         plan(&dir),
         wish,
         dir.clone(),

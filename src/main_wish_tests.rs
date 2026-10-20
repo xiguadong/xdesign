@@ -1,8 +1,8 @@
 use super::*;
-use simpflow::{
+use uuid::Uuid;
+use xdesign::core::{
     RsCheckCommand, RsCheckerSpec, RsGateError, RsGateReport, RsRuleReport, RsStageStatus,
 };
-use uuid::Uuid;
 
 struct PassingCheck {
     report_uri: String,
@@ -49,7 +49,7 @@ fn edited_wish_does_not_stale_completed_requirements_artifact_snapshot() {
     let mut plan = designed_simple_flow_plan();
     plan.freeze(format!("{dir}/plan.json")).unwrap();
     let report_uri = format!("{dir}/requirements-report.json");
-    let mut run = create_run(
+    let mut run = create_designed_run(
         plan,
         wish.clone(),
         format!("{dir}/run.json"),

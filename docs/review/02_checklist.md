@@ -70,6 +70,26 @@ Every figure needs the question, source view, companions, status, reading note, 
 in its own subsection ([D28](../details/05_documentation_contract.md#d28)). Model
 projections cannot replace an ICD field contract or an engineering judgment.
 
+<a id="u12"></a>
+
+### U12 Design-view and API-reference checklist
+
+- [ ] each view answers a stated question and is embedded in the subsection that
+  explains it;
+- [ ] required views are present, and every omitted view carries a reason
+  ([U09](../details/05_documentation_contract.md#u09));
+- [ ] every figure has the contract figure block with a valid status and stays within
+  its section's numbering ([D28](../details/05_documentation_contract.md#d28),
+  [U10](../details/05_documentation_contract.md#u10));
+- [ ] model projections agree with the model elements; no hand-drawn engineering
+  diagram substitutes for a projection;
+- [ ] names, numbering, and notation are consistent across figures;
+- [ ] interface, traceability, and test references are linked;
+- [ ] each figure's stated limits do not overclaim implementation;
+- [ ] a module's software design has an API reference per
+  [U47](../api/00_overview.md#u47): complete inventory, one page per API, contracts
+  and logic on every behavioral entry.
+
 <a id="v13"></a>
 
 ## V13 Syntactic and semantic evidence to collect

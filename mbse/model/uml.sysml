@@ -1,4 +1,4 @@
-package SimpleFlowRustUml {
+package XDesignRustUml {
     @XDesignCommon::DiagramPresentation { label = "Rust UML design"; }
     @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D44"; }
     private import ScalarValues::*;
@@ -8,71 +8,130 @@ package SimpleFlowRustUml {
     private import StandardViewDefinitions::*;
     private import Views::*;
 
-    doc /* The Rust software design of the designed simple flow, expressed as UML
-       views over this SysML model: a crate and module layout, the structs, enums
-       and traits implemented in the simpflow crate, the gate-evaluation interaction,
-       and the run's state handling. The crate exists in src/, and model realization
-       dependencies connect its designed elements to the detailed design. */
+    doc /* The Rust software design of the whole xdesign crate, expressed as UML
+       views over this SysML model: a generic core of flow-agnostic plan, record,
+       ports and run-engine infrastructure, plus one designed flow module,
+       simpleFlow. The views present the crate's layer and module layout, the
+       structs, enums and traits the crate implements, the gate-evaluation
+       interaction, and the run's state handling. The xdesign crate exists in
+       src/, and model realization dependencies connect its designed elements to
+       the architecture and detailed design. */
 
     package crate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        doc /* Module layout of the implemented simpflow crate. One module owns one
-           concern; dependencies point toward the data definitions, so the run
-           behavior never reaches back into its callers. */
+        doc /* Module layout of the implemented xdesign crate, in two layers:
+           core owns the flow-agnostic infrastructure; simpleFlow owns the
+           designed four-stage flow built on it. One module owns one concern;
+           dependencies point toward the data definitions, so the run behavior
+           never reaches back into its callers, and simpleFlow may depend on
+           core, never the reverse. */
 
-        package status {
-            doc /* The run's vocabulary: flow, stage, checkpoint, outcome and
-               judge enums. Depends on nothing. */
-        }
-        package record {
-            doc /* Visit, activity and assessment entries a run is made of.
-               Depends on status and plan. */
-        }
-        package plan {
-            doc /* Stage, checkpoint, checker and rule specifications read from
-               the flow definition. Depends on status. */
-        }
-        package ports {
-            doc /* The check-command and judge trait boundaries the run is
-               automated through. Depends on status, plan and record. */
-        }
-        package gate {
-            doc /* Gate evaluation and visit authorization. Depends on record,
-               plan, ports and status. */
-        }
-        package run {
-            doc /* The run type, its state handling and advancement.
-               Depends on record, plan, gate, ports and status. */
-        }
-        package factory {
-            doc /* Run construction: open the run, add the planned visits,
-               enter the initial stage. Depends on run, plan, ports, record and status. */
+        package core {
+            doc /* Flow-agnostic infrastructure of the xdesign crate: status and
+               error vocabulary, plan data and structural validation, run records,
+               the check-command and judge trait boundaries, gate evaluation, the
+               generic run engine, and generic run construction. Nothing here
+               knows the designed four-stage flow. */
+
+            package status {
+                doc /* The run's vocabulary: flow, stage, checkpoint, outcome,
+                   judge, advance and conformance enums and the error vocabulary.
+                   Depends on nothing. */
+            }
+            package plan {
+                doc /* Flow plan data — stage, checkpoint, checker and rule
+                   specifications read from a flow definition — and its structural
+                   validation. Depends on status. */
+            }
+            package record {
+                doc /* Visit, activity and assessment entries a run is made of, and
+                   artifact digests. Depends on status and plan. */
+            }
+            package ports {
+                doc /* The check-command and judge trait boundaries the run is
+                   automated through, their reports, and the supplied judge.
+                   Depends on status, plan and record. */
+            }
+            package gate {
+                doc /* Single-checkpoint evaluation. Depends on status, plan,
+                   record and ports. */
+            }
+            package run {
+                doc /* The generic run engine RsFlowRun: run state, gate
+                   evaluation, advancement and reopen. Depends on status, plan,
+                   record, ports and gate. */
+            }
+            package factory {
+                doc /* Generic run construction create_run: open the run, add the
+                   planned visits, enter the initial stage. Depends on status,
+                   plan, record, ports and run. */
+            }
+
+            dependency planUsesStatus from crate::core::plan to crate::core::status;
+            dependency recordUsesStatus from crate::core::record to crate::core::status;
+            dependency recordUsesPlan from crate::core::record to crate::core::plan;
+            dependency portsUseStatus from crate::core::ports to crate::core::status;
+            dependency portsUsePlan from crate::core::ports to crate::core::plan;
+            dependency portsUseRecord from crate::core::ports to crate::core::record;
+            dependency gateUsesStatus from crate::core::gate to crate::core::status;
+            dependency gateUsesPlan from crate::core::gate to crate::core::plan;
+            dependency gateUsesRecord from crate::core::gate to crate::core::record;
+            dependency gateUsesPorts from crate::core::gate to crate::core::ports;
+            dependency runUsesStatus from crate::core::run to crate::core::status;
+            dependency runUsesPlan from crate::core::run to crate::core::plan;
+            dependency runUsesRecord from crate::core::run to crate::core::record;
+            dependency runUsesPorts from crate::core::run to crate::core::ports;
+            dependency runUsesGate from crate::core::run to crate::core::gate;
+            dependency factoryUsesStatus from crate::core::factory to crate::core::status;
+            dependency factoryUsesPlan from crate::core::factory to crate::core::plan;
+            dependency factoryUsesRecord from crate::core::factory to crate::core::record;
+            dependency factoryUsesPorts from crate::core::factory to crate::core::ports;
+            dependency factoryUsesRun from crate::core::factory to crate::core::run;
         }
 
-        dependency recordUsesStatus from crate::record to crate::status;
-        dependency recordUsesPlan from crate::record to crate::plan;
-        dependency planUsesStatus from crate::plan to crate::status;
-        dependency portsUseStatus from crate::ports to crate::status;
-        dependency portsUsePlan from crate::ports to crate::plan;
-        dependency portsUseRecord from crate::ports to crate::record;
-        dependency gateUsesPorts from crate::gate to crate::ports;
-        dependency gateUsesRecord from crate::gate to crate::record;
-        dependency gateUsesPlan from crate::gate to crate::plan;
-        dependency gateUsesStatus from crate::gate to crate::status;
-        dependency runUsesGate from crate::run to crate::gate;
-        dependency runUsesRecord from crate::run to crate::record;
-        dependency runUsesPlan from crate::run to crate::plan;
-        dependency runUsesPorts from crate::run to crate::ports;
-        dependency runUsesStatus from crate::run to crate::status;
-        dependency factoryUsesRun from crate::factory to crate::run;
-        dependency factoryUsesPlan from crate::factory to crate::plan;
-        dependency factoryUsesPorts from crate::factory to crate::ports;
-        dependency factoryUsesRecord from crate::factory to crate::record;
-        dependency factoryUsesStatus from crate::factory to crate::status;
+        package simpleFlow {
+            doc /* The designed four-stage flow module within xdesign: the
+               designedSimpleFlow plan as data with its blueprint conformance, the
+               designed-run factory, and the fixed four-checker command adapter.
+               It depends on core; core never depends on it. */
+
+            package blueprint {
+                doc /* The designed four-stage plan as data and its blueprint
+                   conformance: construct the modeled designedSimpleFlow and
+                   reject any plan that differs from it. Depends on core::plan
+                   and core::status. */
+            }
+            package factory {
+                doc /* Designed-run construction create_designed_run: validate
+                   blueprint conformance, then construct the run through the
+                   generic create_run. Depends on blueprint, core::run, core::plan,
+                   core::ports and core::status. */
+            }
+            package check {
+                doc /* RsProcessCheck, the adapter bound to the four fixed checker
+                   commands; its read-coverage policy encodes this flow's contract.
+                   Depends on core::ports, core::plan, core::record and
+                   core::status. */
+            }
+
+            dependency blueprintUsesCorePlan from crate::simpleFlow::blueprint to crate::core::plan;
+            dependency blueprintUsesCoreStatus from crate::simpleFlow::blueprint to crate::core::status;
+            dependency factoryUsesBlueprint from crate::simpleFlow::factory to crate::simpleFlow::blueprint;
+            dependency factoryUsesCoreRun from crate::simpleFlow::factory to crate::core::run;
+            dependency factoryUsesCorePlan from crate::simpleFlow::factory to crate::core::plan;
+            dependency factoryUsesCorePorts from crate::simpleFlow::factory to crate::core::ports;
+            dependency factoryUsesCoreStatus from crate::simpleFlow::factory to crate::core::status;
+            dependency checkUsesCorePorts from crate::simpleFlow::check to crate::core::ports;
+            dependency checkUsesCorePlan from crate::simpleFlow::check to crate::core::plan;
+            dependency checkUsesCoreRecord from crate::simpleFlow::check to crate::core::record;
+            dependency checkUsesCoreStatus from crate::simpleFlow::check to crate::core::status;
+        }
+
+        dependency simpleFlowUsesCore from crate::simpleFlow to crate::core;
     }
 
     enum def RsFlowStatus {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/24_flow_status.md"; section = "U39"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/01_flow_status.md"; section = "U39"; }
         doc /* Rust enum mirroring the flow lifecycle vocabulary. */
         enum pending;
         enum active;
@@ -82,7 +141,7 @@ package SimpleFlowRustUml {
     dependency rsFlowStatusMirrors from RsFlowStatus to XDesignCommon::FlowStatus;
 
     enum def RsStageStatus {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/25_stage_status.md"; section = "U40"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/02_stage_status.md"; section = "U40"; }
         doc /* Rust enum mirroring the stage visit lifecycle vocabulary. */
         enum pending;
         enum active;
@@ -92,7 +151,7 @@ package SimpleFlowRustUml {
     dependency rsStageStatusMirrors from RsStageStatus to XDesignCommon::StageStatus;
 
     enum def RsCheckKind {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/26_check_kind.md"; section = "U41"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/03_check_kind.md"; section = "U41"; }
         doc /* Rust enum mirroring how a checkpoint's criteria are established. */
         enum syntactic;
         enum semantic;
@@ -100,7 +159,7 @@ package SimpleFlowRustUml {
     dependency rsCheckKindMirrors from RsCheckKind to XDesignCommon::CheckKind;
 
     enum def RsCheckpointOutcome {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/27_checkpoint_outcome.md"; section = "U42"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/04_checkpoint_outcome.md"; section = "U42"; }
         doc /* Rust enum mirroring an assessment's outcome vocabulary. */
         enum unevaluated;
         enum failed;
@@ -109,7 +168,7 @@ package SimpleFlowRustUml {
     dependency rsCheckpointOutcomeMirrors from RsCheckpointOutcome to XDesignCommon::CheckpointOutcome;
 
     enum def RsJudgeAuthority {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/28_judge_authority.md"; section = "U43"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/05_judge_authority.md"; section = "U43"; }
         doc /* Rust enum mirroring who may judge a checkpoint. */
         enum script;
         enum agent;
@@ -118,7 +177,7 @@ package SimpleFlowRustUml {
     dependency rsJudgeAuthorityMirrors from RsJudgeAuthority to XDesignCommon::JudgeAuthority;
 
     enum def RsAdvanceOutcome {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/29_advance_outcome.md"; section = "U44"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/06_advance_outcome.md"; section = "U44"; }
         doc /* What advance() decided for one authorized or blocked visit:
            enter the next stage, complete the run, or remain blocked.
            A Rust enum with no SysML counterpart; the decision is implicit in
@@ -129,8 +188,18 @@ package SimpleFlowRustUml {
     }
     dependency rsAdvanceOutcomeMirrors from RsAdvanceOutcome to XDesignDetailedDesign::AdvanceSimpleFlowRun;
 
+    enum def RsConformanceKind {
+        @XDesignCommon::DocSection { document = "docs/api/core/07_conformance_kind.md"; section = "U50"; }
+        doc /* Rust enum mirroring the kinds of conformance a fixed checker establishes. */
+        enum artifactPresence;
+        enum identifierConformance;
+        enum definitionCoverage;
+        enum traceConformance;
+    }
+    dependency rsConformanceKindMirrors from RsConformanceKind to XDesignCommon::ConformanceKind;
+
     enum def RsPlanError {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/30_plan_error.md"; section = "U45"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/08_plan_error.md"; section = "U45"; }
         doc /* How create_run rejects an inconsistent plan before a run exists.
            A Rust enum with no SysML counterpart: the model assumes a
            well-formed flow definition; the Rust design makes plan validation
@@ -150,7 +219,7 @@ package SimpleFlowRustUml {
     }
 
     enum def RsGateError {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/31_gate_error.md"; section = "U46"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/09_gate_error.md"; section = "U46"; }
         doc /* How gate evaluation fails without fabricating an outcome: the
            checker a syntactic spec needs is absent, the command itself failed
            to produce a report, or the judge declined to judge. A failed rule
@@ -163,100 +232,47 @@ package SimpleFlowRustUml {
         enum missingEvidence;
     }
 
-    part def RsActivityEntry {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/16_activity_entry.md"; section = "U31"; }
-        doc /* Rust struct realizing ActivityRecord: one recorded piece of work
-           in a visit. Owned by its visit as a Vec entry. */
-        attribute description : String;
-        attribute performedBy : String;
-        attribute occurredAt : String;
-        attribute artifactUris : String [0..*];
-        attribute artifactsChanged : Boolean;
-        part artifactDigests : RsArtifactDigest [0..*];
-        attribute removedArtifactUris : String [0..*];
-    }
-    dependency rsActivityEntryRealizes from RsActivityEntry to XDesignArchitecture::ActivityRecord;
+    part def RsFlowPlan {
+        @XDesignCommon::DocSection { document = "docs/api/core/10_flow_plan.md"; section = "U25"; }
+        doc /* Rust struct realizing a Flow as data: stage and checkpoint
+           specifications the run consults. Its validation is structural only —
+           conformance to a designed flow's exact blueprint is the flow module's
+           concern (for the simple flow, RsValidateDesignedPlan). */
+        attribute planId : String;
+        attribute planUri : String;
+        attribute planSha256 : String;
+        attribute initialStageId : String;
+        part stages : RsStageSpec [0..*];
+        part checkpoints : RsCheckpointSpec [0..*];
 
-    part def RsAssessmentEntry {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/17_assessment_entry.md"; section = "U32"; }
-        doc /* Rust struct realizing CheckpointAssessment. The checkpoint is
-           named by identifier, so an entry stays serializable; the run resolves
-           it against the plan when authorization is counted. The assessment
-           cites both the visit revision and exact artifact snapshot digest. */
-        attribute checkpointId : String;
-        attribute evaluatedRevision : Integer;
-        attribute evaluatedSnapshotDigest : String;
-        attribute outcome : RsCheckpointOutcome;
-        attribute judgedBy : RsJudgeAuthority;
-        attribute assessor : String;
-        attribute rationale : String;
-        attribute evidenceUris : String [0..*];
+        perform action validate : RsValidatePlan;
     }
-    dependency rsAssessmentEntryRealizes from RsAssessmentEntry to XDesignArchitecture::CheckpointAssessment;
+    dependency rsFlowPlanRealizes from RsFlowPlan to XDesignArchitecture::Flow;
 
-    part def RsStageVisit {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/12_stage_visit.md"; section = "U27"; }
-        doc /* Rust struct realizing StageRecord: one visit of one stage, owning
-           its activities and assessments. Earlier visits are never rewritten;
-           a blocked visit is corrected in place; reopening a completed
-           terminal stage appends a new visit at the next index. */
+    action def RsValidatePlan {
+        @XDesignCommon::DocSection { document = "docs/api/core/11_flow_plan_validate.md"; section = "U26"; }
+        doc /* Structural validation of any plan before a run is created: stage
+           order, references, checkpoint kind, checker rules, criteria, permitted
+           judges, and the frozen plan's byte binding. Blueprint conformance —
+           equality with the designed four-stage blueprint — lives in
+           RsValidateDesignedPlan. */
+        in part plan : RsFlowPlan;
+    }
+
+    part def RsStageSpec {
+        @XDesignCommon::DocSection { document = "docs/api/core/13_stage_spec.md"; section = "U33"; }
+        doc /* Rust struct realizing one stage of the designed flow: its
+           successors, its exit checkpoint identifiers and whether its
+           completion finishes the flow. */
         attribute stageId : String;
-        attribute visitIndex : Integer;
-        attribute status : RsStageStatus;
-        attribute artifactRevision : Integer;
-        attribute artifactSnapshotDigest : String;
-        part artifactDigests : RsArtifactDigest [0..*];
-        part activities : RsActivityEntry [0..*];
-        part assessments : RsAssessmentEntry [0..*];
-
-        perform action recordActivity : RsRecordActivity;
-        perform action appendAssessment : RsAppendAssessment;
-        perform action completionAuthorized : RsCompletionAuthorized;
+        attribute nextStageIds : String [0..*];
+        attribute exitCheckpointIds : String [0..*];
+        attribute completesFlow : Boolean;
     }
-    dependency rsStageVisitRealizes from RsStageVisit to XDesignArchitecture::StageRecord;
-
-    part def RsArtifactDigest {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/35_artifact_digest.md"; section = "U51"; }
-        doc /* Content-addressed identity of one artifact: its repository-relative
-           URI and SHA-256 of the exact file bytes. */
-        attribute uri : String;
-        attribute sha256 : String;
-    }
-
-    part def RsCheckerRuleSpec {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/21_checker_rule_spec.md"; section = "U36"; }
-        doc /* Rust struct realizing CheckerRule: one fixed rule's identity and
-           its documented condition, read from the plan and reported verdict by
-           verdict. */
-        attribute ruleId : String;
-        attribute condition : String;
-        attribute reads : String [1..*];
-    }
-    dependency rsCheckerRuleSpecRealizes from RsCheckerRuleSpec to XDesignArchitecture::CheckerRule;
-
-    enum def RsConformanceKind {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/34_conformance_kind.md"; section = "U50"; }
-        doc /* Rust enum mirroring the kinds of conformance a fixed checker establishes. */
-        enum artifactPresence;
-        enum identifierConformance;
-        enum definitionCoverage;
-        enum traceConformance;
-    }
-    dependency rsConformanceKindMirrors from RsConformanceKind to XDesignCommon::ConformanceKind;
-
-    part def RsCheckerSpec {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/20_checker_spec.md"; section = "U35"; }
-        doc /* Rust struct realizing Checker: the command a syntactic gate runs
-           and the rules its report must answer. */
-        attribute checkerId : String;
-        attribute commandUri : String;
-        attribute establishes : RsConformanceKind [1..*];
-        part rules : RsCheckerRuleSpec [1..*];
-    }
-    dependency rsCheckerSpecRealizes from RsCheckerSpec to XDesignArchitecture::Checker;
+    dependency rsStageSpecRealizes from RsStageSpec to XDesignArchitecture::Stage;
 
     part def RsCheckpointSpec {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/19_checkpoint_spec.md"; section = "U34"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/14_checkpoint_spec.md"; section = "U34"; }
         doc /* Rust struct realizing SimpleFlowCheckpoint and its two
            adaptations: kind selects the scripted or the judged path, checker
            is present only for the syntactic kind, and the judge flags name
@@ -277,64 +293,123 @@ package SimpleFlowRustUml {
     dependency rsCheckpointSpecSyntactic from RsCheckpointSpec to XDesignDetailedDesign::SimpleFlowSyntacticCheckpoint;
     dependency rsCheckpointSpecSemantic from RsCheckpointSpec to XDesignDetailedDesign::SimpleFlowSemanticCheckpoint;
 
-    part def RsStageSpec {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/18_stage_spec.md"; section = "U33"; }
-        doc /* Rust struct realizing one stage of the designed flow: its
-           successors, its exit checkpoint identifiers and whether its
-           completion finishes the flow. */
-        attribute stageId : String;
-        attribute nextStageIds : String [0..*];
-        attribute exitCheckpointIds : String [0..*];
-        attribute completesFlow : Boolean;
+    part def RsCheckerSpec {
+        @XDesignCommon::DocSection { document = "docs/api/core/15_checker_spec.md"; section = "U35"; }
+        doc /* Rust struct realizing Checker: the command a syntactic gate runs
+           and the rules its report must answer. */
+        attribute checkerId : String;
+        attribute commandUri : String;
+        attribute establishes : RsConformanceKind [1..*];
+        part rules : RsCheckerRuleSpec [1..*];
     }
-    dependency rsStageSpecRealizes from RsStageSpec to XDesignArchitecture::Stage;
+    dependency rsCheckerSpecRealizes from RsCheckerSpec to XDesignArchitecture::Checker;
 
-    part def RsFlowPlan {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/10_flow_plan.md"; section = "U25"; }
-        doc /* Rust struct realizing designedSimpleFlow as data: stage and checkpoint
-           specifications the run consults. Its validation enforces this design's
-           exact four-stage, five-checkpoint blueprint. */
-        attribute planId : String;
-        attribute planUri : String;
-        attribute planSha256 : String;
-        attribute initialStageId : String;
-        part stages : RsStageSpec [4];
-        part checkpoints : RsCheckpointSpec [5];
-
-        perform action validate : RsValidatePlan;
-    }
-    dependency rsFlowPlanRealizes from RsFlowPlan to XDesignDetailedDesign::designedSimpleFlow;
-
-    part def RsRuleReport {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/23_rule_report.md"; section = "U38"; }
-        doc /* One rule's verdict in a checker report: whether it held and the
-           diagnostic when it did not. */
+    part def RsCheckerRuleSpec {
+        @XDesignCommon::DocSection { document = "docs/api/core/16_checker_rule_spec.md"; section = "U36"; }
+        doc /* Rust struct realizing CheckerRule: one fixed rule's identity and
+           its documented condition, read from the plan and reported verdict by
+           verdict. */
         attribute ruleId : String;
-        attribute holds : Boolean;
-        attribute diagnostic : String [0..1];
+        attribute condition : String;
+        attribute reads : String [1..*];
     }
-    dependency rsRuleReportRealizes from RsRuleReport to XDesignDetailedDesign::CheckCommandExchange;
+    dependency rsCheckerRuleSpecRealizes from RsCheckerRuleSpec to XDesignArchitecture::CheckerRule;
 
-    part def RsGateReport {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/22_gate_report.md"; section = "U37"; }
-        doc /* The check command's answer, realizing the output side of
-           CheckCommandExchange: the overall verdict and every rule's report,
-           retained as the assessment's evidence. */
-        attribute holds : Boolean;
+    part def RsStageVisit {
+        @XDesignCommon::DocSection { document = "docs/api/core/17_stage_visit.md"; section = "U27"; }
+        doc /* Rust struct realizing StageRecord: one visit of one stage, owning
+           its activities and assessments. Earlier visits are never rewritten;
+           a blocked visit is corrected in place; reopening a completed
+           terminal stage appends a new visit at the next index. */
+        attribute stageId : String;
+        attribute visitIndex : Integer;
+        attribute status : RsStageStatus;
         attribute artifactRevision : Integer;
         attribute artifactSnapshotDigest : String;
-        attribute reportUri : String;
-        part rules : RsRuleReport [0..*];
+        part artifactDigests : RsArtifactDigest [0..*];
+        part activities : RsActivityEntry [0..*];
+        part assessments : RsAssessmentEntry [0..*];
+
+        perform action recordActivity : RsRecordActivity;
+        perform action appendAssessment : RsAppendAssessment;
+        perform action completionAuthorized : RsCompletionAuthorized;
     }
-    dependency rsGateReportRealizes from RsGateReport to XDesignDetailedDesign::CheckCommandExchange;
+    dependency rsStageVisitRealizes from RsStageVisit to XDesignArchitecture::StageRecord;
+
+    action def RsRecordActivity {
+        @XDesignCommon::DocSection { document = "docs/api/core/18_record_activity.md"; section = "U28"; }
+        doc /* Append activity and increment the visited artifact revision when
+           the activity declares an artifact content change. */
+        in part visit : RsStageVisit;
+        in part activity : RsActivityEntry;
+        out attribute artifactsChanged : Boolean;
+    }
+    dependency rsRecordActivityRealizes from RsRecordActivity to XDesignWorkflow::StageWork;
+
+    action def RsAppendAssessment {
+        @XDesignCommon::DocSection { document = "docs/api/core/19_append_assessment.md"; section = "U29"; }
+        doc /* Append one revision-bound assessment while retaining history. */
+        in part visit : RsStageVisit;
+        in part assessment : RsAssessmentEntry;
+    }
+    dependency rsAppendAssessmentRealizes from RsAppendAssessment to XDesignDetailedDesign::EvaluateSimpleFlowGate;
+
+    action def RsCompletionAuthorized {
+        @XDesignCommon::DocSection { document = "docs/api/core/20_completion_authorized.md"; section = "U30"; }
+        doc /* Select the latest assessment per required checkpoint and authorize
+           only when each latest outcome passed at this visit's artifact revision. */
+        in part visit : RsStageVisit;
+        in part plan : RsFlowPlan;
+        out attribute authorized : Boolean;
+    }
+    dependency rsCompletionAuthorizedRealizes from RsCompletionAuthorized to XDesignDetailedDesign::SimpleFlowAuthorization;
+
+    part def RsActivityEntry {
+        @XDesignCommon::DocSection { document = "docs/api/core/21_activity_entry.md"; section = "U31"; }
+        doc /* Rust struct realizing ActivityRecord: one recorded piece of work
+           in a visit. Owned by its visit as a Vec entry. */
+        attribute description : String;
+        attribute performedBy : String;
+        attribute occurredAt : String;
+        attribute artifactUris : String [0..*];
+        attribute artifactsChanged : Boolean;
+        part artifactDigests : RsArtifactDigest [0..*];
+        attribute removedArtifactUris : String [0..*];
+    }
+    dependency rsActivityEntryRealizes from RsActivityEntry to XDesignArchitecture::ActivityRecord;
+
+    part def RsAssessmentEntry {
+        @XDesignCommon::DocSection { document = "docs/api/core/22_assessment_entry.md"; section = "U32"; }
+        doc /* Rust struct realizing CheckpointAssessment. The checkpoint is
+           named by identifier, so an entry stays serializable; the run resolves
+           it against the plan when authorization is counted. The assessment
+           cites both the visit revision and exact artifact snapshot digest. */
+        attribute checkpointId : String;
+        attribute evaluatedRevision : Integer;
+        attribute evaluatedSnapshotDigest : String;
+        attribute outcome : RsCheckpointOutcome;
+        attribute judgedBy : RsJudgeAuthority;
+        attribute assessor : String;
+        attribute rationale : String;
+        attribute evidenceUris : String [0..*];
+    }
+    dependency rsAssessmentEntryRealizes from RsAssessmentEntry to XDesignArchitecture::CheckpointAssessment;
+
+    part def RsArtifactDigest {
+        @XDesignCommon::DocSection { document = "docs/api/core/23_artifact_digest.md"; section = "U51"; }
+        doc /* Content-addressed identity of one artifact: its repository-relative
+           URI and SHA-256 of the exact file bytes. */
+        attribute uri : String;
+        attribute sha256 : String;
+    }
 
     part def RsCheckCommand {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/06_check_command.md"; section = "U21"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/29_check_command.md"; section = "U21"; }
         doc /* Rust trait realizing CheckerCommand: the boundary every fixed
            check is invoked through. One implementation dispatches the exact
            checker spec; the run knows only the trait. */
         perform action runCheck {
-            @XDesignCommon::DocSection { document = "docs/uml/simpflow/07_run_check.md"; section = "U22"; }
+            @XDesignCommon::DocSection { document = "docs/api/core/30_run_check.md"; section = "U22"; }
             doc /* Invoke the selected checker with the independent wish trace,
                runtime JSON record, stage and artifact revision; return a rule
                report bound to that revision. */
@@ -356,12 +431,12 @@ package SimpleFlowRustUml {
     dependency rsCheckCommandRealizes from RsCheckCommand to XDesignDetailedDesign::CheckerCommand;
 
     part def RsJudge {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/08_judge.md"; section = "U23"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
         doc /* Rust trait realizing Judge: the boundary a semantic gate is
            judged through. An agent or a human stands behind it; the run knows
            only the trait. */
         perform action review {
-            @XDesignCommon::DocSection { document = "docs/uml/simpflow/09_review.md"; section = "U24"; }
+            @XDesignCommon::DocSection { document = "docs/api/core/32_review.md"; section = "U24"; }
             doc /* Present the criteria and the visit's artifact and evidence
                URIs; answer with the outcome and its rationale. */
             in attribute criteria : String [1..*];
@@ -370,11 +445,11 @@ package SimpleFlowRustUml {
             out attribute rationale : String;
         }
         perform action authority {
-            @XDesignCommon::DocSection { document = "docs/uml/simpflow/08_judge.md"; section = "U23"; }
+            @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
             out attribute judgeAuthority : RsJudgeAuthority;
         }
         perform action identity {
-            @XDesignCommon::DocSection { document = "docs/uml/simpflow/08_judge.md"; section = "U23"; }
+            @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
             out attribute assessor : String;
         }
 
@@ -383,13 +458,56 @@ package SimpleFlowRustUml {
     }
     dependency rsJudgeRealizes from RsJudge to XDesignDetailedDesign::Judge;
 
-    part def RsSimpleFlowRun {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/02_simple_flow_run.md"; section = "U17"; }
-        doc /* Rust struct realizing SimpleFlowRun: the plan as data, visits in
-           order, the current visit by index, and the trait objects it is
-           automated through. The persistence fields latch a failed record
-           write so a later advancement cannot treat it as a saved result.
-           Its state handling is RsRunLifecycle. */
+    part def RsGateReport {
+        @XDesignCommon::DocSection { document = "docs/api/core/33_gate_report.md"; section = "U37"; }
+        doc /* The check command's answer, realizing the output side of
+           CheckCommandExchange: the overall verdict and every rule's report,
+           retained as the assessment's evidence. */
+        attribute holds : Boolean;
+        attribute artifactRevision : Integer;
+        attribute artifactSnapshotDigest : String;
+        attribute reportUri : String;
+        part rules : RsRuleReport [0..*];
+    }
+    dependency rsGateReportRealizes from RsGateReport to XDesignDetailedDesign::CheckCommandExchange;
+
+    part def RsRuleReport {
+        @XDesignCommon::DocSection { document = "docs/api/core/34_rule_report.md"; section = "U38"; }
+        doc /* One rule's verdict in a checker report: whether it held and the
+           diagnostic when it did not. */
+        attribute ruleId : String;
+        attribute holds : Boolean;
+        attribute diagnostic : String [0..1];
+    }
+    dependency rsRuleReportRealizes from RsRuleReport to XDesignDetailedDesign::CheckCommandExchange;
+
+    action def RsEvaluateCheckpoint {
+        @XDesignCommon::DocSection { document = "docs/api/core/39_evaluate_checkpoint.md"; section = "U20"; }
+        doc /* Rust fn realizing EvaluateSimpleFlowCheckpoint: a syntactic spec
+           runs its checker through the check trait and holds only when every
+           rule holds; a semantic spec presents its criteria through the judge
+           trait and records the verdict. */
+        in part checkpoint : RsCheckpointSpec;
+        in part visit : RsStageVisit;
+        in attribute planId : String;
+        in attribute planUri : String;
+        in attribute planSha256 : String;
+        in attribute wishModelUri : String;
+        in attribute runRecordUri : String;
+        in ref part check : RsCheckCommand;
+        in ref part judge : RsJudge;
+        out part assessment : RsAssessmentEntry [0..1];
+    }
+    dependency rsEvaluateCheckpointRealizes from RsEvaluateCheckpoint to XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint;
+
+    part def RsFlowRun {
+        @XDesignCommon::DocSection { document = "docs/api/core/40_flow_run.md"; section = "U17"; }
+        doc /* Rust struct realizing FlowExecution: the generic run engine — the
+           plan as data, visits in order, the current visit by index, and the
+           trait objects it is automated through. The persistence fields latch a
+           failed record write so a later advancement cannot treat it as a saved
+           result. Its state handling is RsRunLifecycle. A run whose plan is the
+           frozen designedSimpleFlow blueprint plays the SimpleFlowRun role. */
         attribute runId : String;
         attribute planId : String;
         attribute planUri : String;
@@ -416,76 +534,10 @@ package SimpleFlowRustUml {
         event occurrence evaluationRequested;
         event occurrence advanceRequested;
     }
-    dependency rsSimpleFlowRunRealizes from RsSimpleFlowRun to XDesignDetailedDesign::SimpleFlowRun;
-
-    action def RsValidatePlan {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/11_flow_plan_validate.md"; section = "U26"; }
-        doc /* Validate stage order, references, checkpoint kind, checker rules,
-           criteria and permitted judges before creating a run. */
-        in part plan : RsFlowPlan;
-    }
-
-    action def RsRecordActivity {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/13_record_activity.md"; section = "U28"; }
-        doc /* Append activity and increment the visited artifact revision when
-           the activity declares an artifact content change. */
-        in part visit : RsStageVisit;
-        in part activity : RsActivityEntry;
-        out attribute artifactsChanged : Boolean;
-    }
-    dependency rsRecordActivityRealizes from RsRecordActivity to XDesignWorkflow::StageWork;
-
-    action def RsAppendAssessment {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/14_append_assessment.md"; section = "U29"; }
-        doc /* Append one revision-bound assessment while retaining history. */
-        in part visit : RsStageVisit;
-        in part assessment : RsAssessmentEntry;
-    }
-    dependency rsAppendAssessmentRealizes from RsAppendAssessment to XDesignDetailedDesign::EvaluateSimpleFlowGate;
-
-    action def RsCompletionAuthorized {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/15_completion_authorized.md"; section = "U30"; }
-        doc /* Select the latest assessment per required checkpoint and authorize
-           only when each latest outcome passed at this visit's artifact revision. */
-        in part visit : RsStageVisit;
-        in part plan : RsFlowPlan;
-        out attribute authorized : Boolean;
-    }
-    dependency rsCompletionAuthorizedRealizes from RsCompletionAuthorized to XDesignDetailedDesign::SimpleFlowAuthorization;
-
-    action def RsRunRecordActivity {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/32_run_record_activity.md"; section = "U48"; }
-        doc /* Record corrective activity on the current blocked or active visit;
-           a blocked run resumes on the same visit before its gates are re-evaluated. */
-        in part activity : RsActivityEntry;
-    }
-    dependency rsRunRecordActivityRealizes from RsRunRecordActivity to XDesignArchitecture::Controller::recordActivity;
-
-    action def RsReopenStage {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/33_reopen_stage.md"; section = "U49"; }
-        doc /* Reopen a previously completed terminal stage by appending a new
-           revision-zero visit while retaining the completed visit. */
-        in attribute stageId : String;
-        out attribute reopened : Boolean;
-    }
-    dependency rsReopenStageRealizes from RsReopenStage to XDesignDetailedDesign::ReopenSimpleFlowStage;
-
-    action def RsCreateRun {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/01_create_run.md"; section = "U16"; }
-        doc /* Rust fn realizing SimpleFlowRunFactory::createRun: build the run
-           from the plan, push one pending visit per stage, mark the initial
-           stage's visit active and the run active. */
-        in part plan : RsFlowPlan;
-        in attribute wishModelUri : String;
-        in attribute runRecordUri : String;
-        in ref part check : RsCheckCommand;
-        in ref part judgment : RsJudge;
-        out part run : RsSimpleFlowRun;
-    }
-    dependency rsCreateRunRealizes from RsCreateRun to XDesignDetailedDesign::SimpleFlowRunFactory;
+    dependency rsFlowRunRealizes from RsFlowRun to XDesignArchitecture::FlowExecution;
 
     action def RsEvaluateGates {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/03_evaluate_gates.md"; section = "U18"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/41_evaluate_gates.md"; section = "U18"; }
         doc /* Rust method realizing EvaluateSimpleFlowGate: for each exit
            checkpoint of the current visit's stage, evaluate it by kind and
            append the assessment, leaving earlier assessments in place. */
@@ -493,27 +545,8 @@ package SimpleFlowRustUml {
     }
     dependency rsEvaluateGatesRealizes from RsEvaluateGates to XDesignDetailedDesign::EvaluateSimpleFlowGate;
 
-    action def RsEvaluateCheckpoint {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/05_evaluate_checkpoint.md"; section = "U20"; }
-        doc /* Rust fn realizing EvaluateSimpleFlowCheckpoint: a syntactic spec
-           runs its checker through the check trait and holds only when every
-           rule holds; a semantic spec presents its criteria through the judge
-           trait and records the verdict. */
-        in part checkpoint : RsCheckpointSpec;
-        in part visit : RsStageVisit;
-        in attribute planId : String;
-        in attribute planUri : String;
-        in attribute planSha256 : String;
-        in attribute wishModelUri : String;
-        in attribute runRecordUri : String;
-        in ref part check : RsCheckCommand;
-        in ref part judge : RsJudge;
-        out part assessment : RsAssessmentEntry [0..1];
-    }
-    dependency rsEvaluateCheckpointRealizes from RsEvaluateCheckpoint to XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint;
-
     action def RsAdvance {
-        @XDesignCommon::DocSection { document = "docs/uml/simpflow/04_advance.md"; section = "U19"; }
+        @XDesignCommon::DocSection { document = "docs/api/core/42_advance.md"; section = "U19"; }
         doc /* Rust method realizing AdvanceSimpleFlowRun: count distinct
            required gates with a passed assessment at the visited revision,
            then enter the next stage's pending visit, complete the run at the
@@ -522,9 +555,77 @@ package SimpleFlowRustUml {
     }
     dependency rsAdvanceRealizes from RsAdvance to XDesignDetailedDesign::AdvanceSimpleFlowRun;
 
-    part def SimpflowCrate {
+    action def RsRunRecordActivity {
+        @XDesignCommon::DocSection { document = "docs/api/core/43_run_record_activity.md"; section = "U48"; }
+        doc /* Record corrective activity on the current blocked or active visit;
+           a blocked run resumes on the same visit before its gates are re-evaluated. */
+        in part activity : RsActivityEntry;
+    }
+    dependency rsRunRecordActivityRealizes from RsRunRecordActivity to XDesignArchitecture::Controller::recordActivity;
+
+    action def RsReopenStage {
+        @XDesignCommon::DocSection { document = "docs/api/core/44_reopen_stage.md"; section = "U49"; }
+        doc /* Reopen a completed visit of a stage whose completesFlow flag is
+           set — no stage name is hardcoded — by appending a new revision-zero
+           visit while retaining the completed visit. */
+        in attribute stageId : String;
+        out attribute reopened : Boolean;
+    }
+    dependency rsReopenStageRealizes from RsReopenStage to XDesignDetailedDesign::ReopenSimpleFlowStage;
+
+    action def RsCreateRun {
+        @XDesignCommon::DocSection { document = "docs/api/core/46_create_run.md"; section = "U16"; }
+        doc /* Rust fn create_run: the generic construction of a run from any
+           structurally valid plan — build the run from the plan, push one
+           pending visit per stage, mark the initial stage's visit active and
+           the run active. It is the language-side construction of a
+           FlowExecution; a flow's own factory decides which plan it hands in. */
+        in part plan : RsFlowPlan;
+        in attribute wishModelUri : String;
+        in attribute runRecordUri : String;
+        in ref part check : RsCheckCommand;
+        in ref part judgment : RsJudge;
+        out part run : RsFlowRun;
+    }
+    dependency rsCreateRunRealizes from RsCreateRun to XDesignArchitecture::FlowExecution;
+
+    action def RsDesignedSimpleFlowPlan {
+        @XDesignCommon::DocSection { document = "docs/api/simple_flow/01_designed_simple_flow_plan.md"; section = "U52"; }
+        doc /* Rust fn designed_simple_flow_plan: construct the modeled
+           designedSimpleFlow as plan data — the four stages in order with
+           their five exit checkpoints, fixed checker identities, rule sets and
+           judge flags — before freezing binds the plan's bytes. */
+        out part plan : RsFlowPlan;
+    }
+    dependency rsDesignedSimpleFlowPlanProjects from RsDesignedSimpleFlowPlan to XDesignDetailedDesign::DesignedSimpleFlow;
+
+    action def RsValidateDesignedPlan {
+        @XDesignCommon::DocSection { document = "docs/api/simple_flow/02_validate_designed_plan.md"; section = "U69"; }
+        doc /* Rust fn validate_designed_plan: blueprint conformance — reject any
+           plan whose stages, checkpoints, checker identities, rule sets or plan
+           identity differ from the designed four-stage blueprint. Structural
+           validity is RsValidatePlan's separate concern. */
+        in part plan : RsFlowPlan;
+    }
+    dependency rsValidateDesignedPlanConformance from RsValidateDesignedPlan to XDesignDetailedDesign::DesignedSimpleFlow;
+
+    action def RsCreateDesignedRun {
+        @XDesignCommon::DocSection { document = "docs/api/simple_flow/03_create_designed_run.md"; section = "U70"; }
+        doc /* Rust fn create_designed_run realizing SimpleFlowRunFactory:
+           validate the plan's blueprint conformance, then construct the run
+           through the generic create_run. */
+        in part plan : RsFlowPlan;
+        in attribute wishModelUri : String;
+        in attribute runRecordUri : String;
+        in ref part check : RsCheckCommand;
+        in ref part judgment : RsJudge;
+        out part run : RsFlowRun;
+    }
+    dependency rsCreateDesignedRunRealizes from RsCreateDesignedRun to XDesignDetailedDesign::SimpleFlowRunFactory;
+
+    part def XDesignCrate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        doc /* The implemented simpflow crate as one component: it owns the modules
+        doc /* The implemented xdesign crate as one component: it owns the modules
            under crate and exposes the two trait boundaries the controller
            automates a run through. The ports are the design's existing
            exchanges, so the crate honors the modeled interfaces rather than
@@ -533,7 +634,7 @@ package SimpleFlowRustUml {
         port judgment : ~XDesignDetailedDesign::JudgmentExchange;
     }
 
-    part simpflowCrate : SimpflowCrate {
+    part xdesignCrate : XDesignCrate {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
         doc /* The designed crate instance the verification case reviews;
            Cargo.toml and src/ implement its first executable slice. */
@@ -549,7 +650,7 @@ package SimpleFlowRustUml {
            to the current visit. The kind branch is exclusive; both messages
            are drawn for one specification of the path. */
 
-        ref part run : RsSimpleFlowRun;
+        ref part run : RsFlowRun;
         ref part checkpoint : RsCheckpointSpec;
         ref part command : RsCheckCommand;
         ref part judge : RsJudge;
@@ -572,7 +673,7 @@ package SimpleFlowRustUml {
            completes. Rechecking a completed run can block it when retained evidence
            disappears and complete it again after restoration; explicit rework
            appends a new visit. */
-        ref part run : RsSimpleFlowRun;
+        ref part run : RsFlowRun;
         state pending {
             @XDesignCommon::DiagramPresentation { label = "Pending"; }
         }
@@ -608,12 +709,26 @@ package SimpleFlowRustUml {
     dependency rsRunLifecycleMirrors from RsRunLifecycle to XDesignDetailedDesign::SimpleFlowRunLifecycle;
 
     view rustModuleLayout : StandardViewDefinitions::GeneralView {
-        @XDesignCommon::DiagramPresentation { label = "Crate modules"; question = "How is the simpflow crate organized, and which module dependencies are allowed?"; }
+        @XDesignCommon::DiagramPresentation { label = "Crate modules"; question = "How is the xdesign crate organized, and which module dependencies are allowed?"; }
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
         @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_crate_modules.svg"; }
         doc /* The crate's modules and their allowed dependency directions. */
-        expose SimpleFlowRustUml::crate;
-        expose SimpleFlowRustUml::crate::*;
+        expose XDesignRustUml::crate;
+        expose XDesignRustUml::crate::*;
+        expose XDesignRustUml::crate::core::*;
+        expose XDesignRustUml::crate::simpleFlow::*;
+    }
+
+    view rustCrateLayers : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation { label = "Crate layers"; question = "How is the xdesign crate divided into layers, and which direction may dependencies point?"; }
+        @XDesignCommon::DocSection { document = "docs/api/01_struct.md"; section = "U68"; }
+        @XDesignCommon::DocFigure { document = "docs/api/01_struct.md"; figure = "docs/api/assets/01_crate_layers.svg"; }
+        doc /* The crate's two layers — core infrastructure and the simpleFlow
+           designed flow — and the one-way dependency between them. */
+        expose XDesignRustUml::crate;
+        expose XDesignRustUml::crate::core;
+        expose XDesignRustUml::crate::simpleFlow;
+        expose XDesignRustUml::crate::simpleFlowUsesCore;
     }
 
     view rustClassStructure : StandardViewDefinitions::GeneralView {
@@ -622,29 +737,29 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_class_structure.svg"; }
         doc /* The crate's types and their realization mapping to the SysML
            detailed design. */
-        expose SimpleFlowRustUml::RsSimpleFlowRun;
-        expose SimpleFlowRustUml::RsStageVisit;
-        expose SimpleFlowRustUml::RsActivityEntry;
-        expose SimpleFlowRustUml::RsAssessmentEntry;
-        expose SimpleFlowRustUml::RsArtifactDigest;
-        expose SimpleFlowRustUml::RsFlowPlan;
-        expose SimpleFlowRustUml::RsStageSpec;
-        expose SimpleFlowRustUml::RsCheckpointSpec;
-        expose SimpleFlowRustUml::RsCheckerSpec;
-        expose SimpleFlowRustUml::RsCheckerRuleSpec;
-        expose SimpleFlowRustUml::RsGateReport;
-        expose SimpleFlowRustUml::RsRuleReport;
-        expose SimpleFlowRustUml::RsCheckCommand;
-        expose SimpleFlowRustUml::RsJudge;
-        expose SimpleFlowRustUml::RsFlowStatus;
-        expose SimpleFlowRustUml::RsStageStatus;
-        expose SimpleFlowRustUml::RsCheckKind;
-        expose SimpleFlowRustUml::RsConformanceKind;
-        expose SimpleFlowRustUml::RsCheckpointOutcome;
-        expose SimpleFlowRustUml::RsJudgeAuthority;
-        expose SimpleFlowRustUml::RsAdvanceOutcome;
-        expose SimpleFlowRustUml::RsPlanError;
-        expose SimpleFlowRustUml::RsGateError;
+        expose XDesignRustUml::RsFlowRun;
+        expose XDesignRustUml::RsStageVisit;
+        expose XDesignRustUml::RsActivityEntry;
+        expose XDesignRustUml::RsAssessmentEntry;
+        expose XDesignRustUml::RsArtifactDigest;
+        expose XDesignRustUml::RsFlowPlan;
+        expose XDesignRustUml::RsStageSpec;
+        expose XDesignRustUml::RsCheckpointSpec;
+        expose XDesignRustUml::RsCheckerSpec;
+        expose XDesignRustUml::RsCheckerRuleSpec;
+        expose XDesignRustUml::RsGateReport;
+        expose XDesignRustUml::RsRuleReport;
+        expose XDesignRustUml::RsCheckCommand;
+        expose XDesignRustUml::RsJudge;
+        expose XDesignRustUml::RsFlowStatus;
+        expose XDesignRustUml::RsStageStatus;
+        expose XDesignRustUml::RsCheckKind;
+        expose XDesignRustUml::RsConformanceKind;
+        expose XDesignRustUml::RsCheckpointOutcome;
+        expose XDesignRustUml::RsJudgeAuthority;
+        expose XDesignRustUml::RsAdvanceOutcome;
+        expose XDesignRustUml::RsPlanError;
+        expose XDesignRustUml::RsGateError;
     }
 
     view rustGateSequence : StandardViewDefinitions::SequenceView {
@@ -653,7 +768,7 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_gate_sequence.svg"; }
         doc /* The run, checkpoint spec, check command and judge during one
            gate evaluation. */
-        expose SimpleFlowRustUml::RsGateEvaluationInteraction;
+        expose XDesignRustUml::RsGateEvaluationInteraction;
     }
 
     view rustRunStates : StandardViewDefinitions::StateTransitionView {
@@ -661,8 +776,8 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D48"; }
         @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_run_states.svg"; }
         doc /* The run's states and the conditions its methods decide them by. */
-        expose SimpleFlowRustUml::RsRunLifecycle;
-        expose SimpleFlowRustUml::RsRunLifecycle::*;
+        expose XDesignRustUml::RsRunLifecycle;
+        expose XDesignRustUml::RsRunLifecycle::*;
         render Views::asInterconnectionDiagram;
     }
 
@@ -671,14 +786,16 @@ package SimpleFlowRustUml {
         @XDesignCommon::DocSection { document = "docs/arch/02_design.md"; section = "D21"; }
         @XDesignCommon::DocFigure { document = "docs/arch/02_design.md"; figure = "docs/arch/assets/02_packages.svg"; }
         doc /* The whole project model's package organization, including the
-           SimpleFlow Rust design and its dependencies on architecture and
-           detailed design. Wish trace packages remain outside this boundary. */
+           xdesign flow composition, the xdesign crate's Rust design, and their
+           dependencies on architecture and detailed design. Wish trace packages
+           remain outside this boundary. */
         expose XDesignCommon;
         expose XDesignRequirements;
         expose XDesignArchitecture;
         expose XDesignWorkflow;
         expose XDesignDetailedDesign;
-        expose SimpleFlowRustUml;
+        expose XDesignComposition;
+        expose XDesignRustUml;
         expose XDesignVerification;
         expose XDesignTraceability;
     }
@@ -686,7 +803,7 @@ package SimpleFlowRustUml {
     viewpoint rustModuleLayoutConcern : DocumentationViewpoint {
         @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
         subject rustModuleLayout;
-        attribute redefines concernText = "How is the simpflow crate organized, and which module dependencies are allowed?";
+        attribute redefines concernText = "How is the xdesign crate organized, and which module dependencies are allowed?";
         attribute redefines stakeholderRole = "crate maintainer";
     }
 

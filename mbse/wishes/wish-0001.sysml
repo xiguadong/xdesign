@@ -4,6 +4,7 @@ package Wish0001 {
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
+    private import XDesignComposition::*;
     private import StandardViewDefinitions::*;
     private import Views::*;
 
@@ -30,13 +31,13 @@ package Wish0001 {
         attribute redefines traceabilityModelUri = "mbse/wishes/wish-0001.sysml";
 
         part redefines execution : FlowExecution {
-            ref part redefines assignedFlow = workflow.'flow';
+            ref part redefines assignedFlow = xdesign.workflowFlow;
             attribute redefines status = FlowStatus::completed;
             part redefines stageRecords : StageRecord [4];
             ref part redefines currentRecord = verifyRecord;
 
             part requirementsRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.requirements;
+                ref part redefines stage = xdesign.workflowFlow.requirements;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -50,7 +51,7 @@ package Wish0001 {
             }
 
             part designRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.design;
+                ref part redefines stage = xdesign.workflowFlow.design;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -64,7 +65,7 @@ package Wish0001 {
             }
 
             part implementRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.implement;
+                ref part redefines stage = xdesign.workflowFlow.implement;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 3;
@@ -78,7 +79,7 @@ package Wish0001 {
             }
 
             part verifyRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = workflow.'flow'.'verify';
+                ref part redefines stage = xdesign.workflowFlow.'verify';
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 4;
@@ -106,7 +107,7 @@ package Wish0001 {
                 ref item redefines currentAssessments = passedAssessment;
 
                 item failedAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = workflow.'flow'.verificationAccepted;
+                    ref part redefines checkpoint = xdesign.workflowFlow.verificationAccepted;
                     attribute redefines evaluatedRevision = 3;
                     attribute redefines outcome = CheckpointOutcome::failed;
                     attribute redefines judgedBy = JudgeAuthority::human;
@@ -117,7 +118,7 @@ package Wish0001 {
                 }
 
                 item passedAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = workflow.'flow'.verificationAccepted;
+                    ref part redefines checkpoint = xdesign.workflowFlow.verificationAccepted;
                     attribute redefines evaluatedRevision = 4;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::human;
@@ -132,16 +133,16 @@ package Wish0001 {
 
     occurrence def Wish0001Journey {
         doc /* This wish's journey as a sequence view. The lifelines are bound to the
-           workflow's own controller, stages and this trace, so the messages are the
+           xdesign controller, workflowFlow stages and this trace, so the messages are the
            steps this run actually took. Verification is assessed twice: the failed
            assessment of revision 3, then the passing assessment of revision 4 after
            corrective work, which is why assessVerification repeats. */
 
-        ref part controller : Controller = workflow.controller;
-        ref part requirements : Stage = workflow.'flow'.requirements;
-        ref part design : Stage = workflow.'flow'.design;
-        ref part implement : Stage = workflow.'flow'.implement;
-        ref part 'verify' : Stage = workflow.'flow'.'verify';
+        ref part controller : Controller = xdesign.controller;
+        ref part requirements : Stage = xdesign.workflowFlow.requirements;
+        ref part design : Stage = xdesign.workflowFlow.design;
+        ref part implement : Stage = xdesign.workflowFlow.implement;
+        ref part 'verify' : Stage = xdesign.workflowFlow.'verify';
         ref part trace : Trace = trace0001;
 
         message enterRequirements from controller.entering to requirements.entered;

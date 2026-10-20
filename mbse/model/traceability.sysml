@@ -4,8 +4,9 @@ package XDesignTraceability {
     private import XDesignArchitecture::*;
     private import XDesignCommon::*;
     private import XDesignDetailedDesign::*;
+    private import XDesignComposition::*;
     private import XDesignRequirements::*;
-    private import SimpleFlowRustUml::*;
+    private import XDesignRustUml::*;
 
     doc /* The traceability relationships of the project model: which model element
        answers which requirement. They hold for the project rather than for one wish,
@@ -37,8 +38,8 @@ package XDesignTraceability {
     satisfy checkerStatesItsConformance by Checker.establishes;
 
     satisfy flowRunIsRealizedByDesign by SimpleFlowRun;
-    satisfy designedFlowGatesEveryStage by designedSimpleFlow;
-    satisfy gateSyntaxIsRunnable by designFlow;
+    satisfy designedFlowGatesEveryStage by xdesign.designedSimpleFlow;
+    satisfy gateSyntaxIsRunnable by xdesign.designFlow;
     satisfy designCarriesItsDocSections by DocSection;
     satisfy checkerRulesAreDeclared by CheckerRule;
     satisfy structureGraphsAreDocumented by DocFigure;
@@ -49,7 +50,7 @@ package XDesignTraceability {
     satisfy modelDocumentationLinksResolve by DocSection;
     satisfy viewAndViewpointRolesAreSpecified by DocumentationViewpoint;
     satisfy checkerRulesAreImplementationReady by CheckerRule;
-    satisfy rustUmlDesignMapsEveryDesignElement by SimpflowCrate;
+    satisfy rustUmlDesignMapsEveryDesignElement by XDesignCrate;
 
     /* umlViewsAreSelectedWithReasons and softwareDesignClaimsNoImplementation have
        no model satisfier: their product is the documentation set — the stated

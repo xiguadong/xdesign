@@ -14,6 +14,7 @@ nav:
       - Overview: arch/00_overview.md
       - System composition: arch/01_system_composition.md
       - Architecture design: arch/02_design.md
+      - Wish to delivery: arch/03_wish_to_delivery.md
   - Requirements:
       - Overview: requirements/00_overview.md
       - Requirements baseline: requirements/01_baseline.md
@@ -32,60 +33,63 @@ nav:
           - View coverage: details/simple_flow/04_sysml_diagrams.md
           - Module design: details/simple_flow/05_module_design.md
           - Rust UML design: details/simple_flow/06_rust_uml_design.md
-          - File plan and verification: details/simple_flow/07_file_plan_and_verification.md
-  - UML:
-      - Overview: uml/00_overview.md
-      - C4 and UML guide: uml/01_c4_and_uml_guide.md
-      - simpflow API reference:
-          - Inventory: uml/simpflow/00_overview.md
-          - create_run: uml/simpflow/01_create_run.md
-          - RsSimpleFlowRun: uml/simpflow/02_simple_flow_run.md
-          - evaluate_gates: uml/simpflow/03_evaluate_gates.md
-          - advance: uml/simpflow/04_advance.md
-          - evaluate_checkpoint: uml/simpflow/05_evaluate_checkpoint.md
-          - RsCheckCommand: uml/simpflow/06_check_command.md
-          - run_check: uml/simpflow/07_run_check.md
-          - RsJudge: uml/simpflow/08_judge.md
-          - review: uml/simpflow/09_review.md
-          - RsFlowPlan: uml/simpflow/10_flow_plan.md
-          - validate: uml/simpflow/11_flow_plan_validate.md
-          - RsStageVisit: uml/simpflow/12_stage_visit.md
-          - record_activity: uml/simpflow/13_record_activity.md
-          - append_assessment: uml/simpflow/14_append_assessment.md
-          - completion_authorized: uml/simpflow/15_completion_authorized.md
-          - RsActivityEntry: uml/simpflow/16_activity_entry.md
-          - RsAssessmentEntry: uml/simpflow/17_assessment_entry.md
-          - RsStageSpec: uml/simpflow/18_stage_spec.md
-          - RsCheckpointSpec: uml/simpflow/19_checkpoint_spec.md
-          - RsCheckerSpec: uml/simpflow/20_checker_spec.md
-          - RsCheckerRuleSpec: uml/simpflow/21_checker_rule_spec.md
-          - RsGateReport: uml/simpflow/22_gate_report.md
-          - RsRuleReport: uml/simpflow/23_rule_report.md
-          - RsFlowStatus: uml/simpflow/24_flow_status.md
-          - RsStageStatus: uml/simpflow/25_stage_status.md
-          - RsCheckKind: uml/simpflow/26_check_kind.md
-          - RsCheckpointOutcome: uml/simpflow/27_checkpoint_outcome.md
-          - RsJudgeAuthority: uml/simpflow/28_judge_authority.md
-          - RsAdvanceOutcome: uml/simpflow/29_advance_outcome.md
-          - RsPlanError: uml/simpflow/30_plan_error.md
-          - RsGateError: uml/simpflow/31_gate_error.md
-          - record_activity on run: uml/simpflow/32_run_record_activity.md
-          - reopen_stage: uml/simpflow/33_reopen_stage.md
-          - RsConformanceKind: uml/simpflow/34_conformance_kind.md
-          - RsArtifactDigest: uml/simpflow/35_artifact_digest.md
-          - designed_simple_flow_plan: uml/simpflow/36_designed_simple_flow_plan.md
-          - RsFlowPlan::freeze: uml/simpflow/37_freeze_plan.md
-          - RsSimpleFlowRun::write_record: uml/simpflow/38_write_record.md
-          - RsStageVisit::verify_artifacts: uml/simpflow/39_verify_artifacts.md
-          - hash_artifact: uml/simpflow/40_hash_artifact.md
-          - snapshot_digest: uml/simpflow/41_snapshot_digest.md
-          - RsProcessCheck: uml/simpflow/42_process_check.md
-          - RsSuppliedJudge: uml/simpflow/43_supplied_judge.md
-          - sha256_bytes: uml/simpflow/44_sha256_bytes.md
-          - valid_digest: uml/simpflow/45_valid_digest.md
-          - valid_relative_path: uml/simpflow/46_valid_relative_path.md
-          - RsStageVisit::evidence_uris: uml/simpflow/47_evidence_uris.md
-          - RsStageVisit::verify_passed_evidence: uml/simpflow/48_verify_passed_evidence.md
+  - API reference:
+      - Overview: api/00_overview.md
+      - Crate structure: api/01_struct.md
+      - Core:
+          - Overview: api/core/00_overview.md
+          - RsFlowStatus: api/core/01_flow_status.md
+          - RsStageStatus: api/core/02_stage_status.md
+          - RsCheckKind: api/core/03_check_kind.md
+          - RsCheckpointOutcome: api/core/04_checkpoint_outcome.md
+          - RsJudgeAuthority: api/core/05_judge_authority.md
+          - RsAdvanceOutcome: api/core/06_advance_outcome.md
+          - RsConformanceKind: api/core/07_conformance_kind.md
+          - RsPlanError: api/core/08_plan_error.md
+          - RsGateError: api/core/09_gate_error.md
+          - RsFlowPlan: api/core/10_flow_plan.md
+          - RsFlowPlan::validate: api/core/11_flow_plan_validate.md
+          - RsFlowPlan::freeze: api/core/12_freeze_plan.md
+          - RsStageSpec: api/core/13_stage_spec.md
+          - RsCheckpointSpec: api/core/14_checkpoint_spec.md
+          - RsCheckerSpec: api/core/15_checker_spec.md
+          - RsCheckerRuleSpec: api/core/16_checker_rule_spec.md
+          - RsStageVisit: api/core/17_stage_visit.md
+          - RsStageVisit::record_activity: api/core/18_record_activity.md
+          - RsStageVisit::append_assessment: api/core/19_append_assessment.md
+          - RsStageVisit::completion_authorized: api/core/20_completion_authorized.md
+          - RsActivityEntry: api/core/21_activity_entry.md
+          - RsAssessmentEntry: api/core/22_assessment_entry.md
+          - RsArtifactDigest: api/core/23_artifact_digest.md
+          - RsStageVisit::verify_artifacts: api/core/24_verify_artifacts.md
+          - hash_artifact: api/core/25_hash_artifact.md
+          - snapshot_digest: api/core/26_snapshot_digest.md
+          - RsStageVisit::evidence_uris: api/core/27_evidence_uris.md
+          - RsStageVisit::verify_passed_evidence: api/core/28_verify_passed_evidence.md
+          - RsCheckCommand: api/core/29_check_command.md
+          - RsCheckCommand::run_check: api/core/30_run_check.md
+          - RsJudge: api/core/31_judge.md
+          - RsJudge::review: api/core/32_review.md
+          - RsGateReport: api/core/33_gate_report.md
+          - RsRuleReport: api/core/34_rule_report.md
+          - RsSuppliedJudge: api/core/35_supplied_judge.md
+          - sha256_bytes: api/core/36_sha256_bytes.md
+          - valid_digest: api/core/37_valid_digest.md
+          - valid_relative_path: api/core/38_valid_relative_path.md
+          - evaluate_checkpoint: api/core/39_evaluate_checkpoint.md
+          - RsFlowRun: api/core/40_flow_run.md
+          - RsFlowRun::evaluate_gates: api/core/41_evaluate_gates.md
+          - RsFlowRun::advance: api/core/42_advance.md
+          - RsFlowRun::record_activity: api/core/43_run_record_activity.md
+          - RsFlowRun::reopen_stage: api/core/44_reopen_stage.md
+          - RsFlowRun::write_record: api/core/45_write_record.md
+          - create_run: api/core/46_create_run.md
+      - SimpleFlow:
+          - Overview: api/simple_flow/00_overview.md
+          - designed_simple_flow_plan: api/simple_flow/01_designed_simple_flow_plan.md
+          - validate_designed_plan: api/simple_flow/02_validate_designed_plan.md
+          - create_designed_run: api/simple_flow/03_create_designed_run.md
+          - RsProcessCheck: api/simple_flow/04_process_check.md
   - Project management:
       - Overview: prj_manage/00_overview.md
       - Review synthesis: prj_manage/01_review_synthesis.md
@@ -93,6 +97,9 @@ nav:
       - SimpleFlow execution record: prj_manage/03_simple_flow_execution_record.md
       - SimpleFlow review fixes: prj_manage/04_simple_flow_review_fix_record.md
       - Cross-layer review reconciliation: prj_manage/05_kimi_review_reconciliation.md
+      - SimpleFlow file plan and verification: prj_manage/06_file_plan_and_verification.md
+      - xdesign flow integration reconciliation: prj_manage/07_xdesign_integration_reconciliation.md
+      - API layering restructure plan: prj_manage/08_api_layering_restructure_plan.md
   - Interface control:
       - Overview: icd/00_overview.md
       - Interface contracts: icd/01_interfaces.md

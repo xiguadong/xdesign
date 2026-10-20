@@ -5,6 +5,8 @@
 > [P11–P13](04_simple_flow_review_fix_record.md#p11).
 > The subsequent cross-layer audit is reconciled in
 > [P14–P16](05_kimi_review_reconciliation.md#p14).
+> Flow ownership, the xdesign crate boundary, and documentation placement are
+> reconciled in [P17–P19](07_xdesign_integration_reconciliation.md#p17).
 > Scope: one executable run of the gated four-stage
 > `designedSimpleFlow`, with fixed syntactic checks, a semantic judge boundary,
 > revision-bound records, and tests. The complete V-model application is later work.
@@ -33,10 +35,10 @@ its result is recorded.
 ## P04 Basis and decisions before code
 
 The [joint review](01_review_synthesis.md#p02) determines the risk order. The source
-file plan and verification matrix are in [D53](../details/simple_flow/07_file_plan_and_verification.md#d53).
+file plan and verification matrix are in [D53](06_file_plan_and_verification.md#d53).
 The root `AGENTS.md`, `docs/AGENTS.md`, and `mbse/AGENTS.md` control layout,
 language, source/model separation, and cache placement. The Rust API reference in
-`docs/uml/simpflow/` is the function contract; its model links and behavior must be
+`docs/api/` is the implemented crate's function contract; its model links and behavior must be
 reconciled with the generic record model before implementation. The exact checker
 conditions are [D06](../details/simple_flow/02_gates_and_rules.md#d06).
 
@@ -58,9 +60,14 @@ Use these decisions consistently:
    tests and examples may use fixtures under `tests/`. A user-facing product and
    default V-model automation are outside this slice.
 6. Build and review the first checker implementation through the existing DesignFlow
-   and project checks. Select `designedSimpleFlow` for a new run only after its four
+   and project checks. Select `xdesign.designedSimpleFlow` for a new run only after its four
    commands and rule declarations exist; do not let its requirements or design gates
    self-authorize the work that creates those commands.
+7. Select every concrete flow from `XDesignComposition::xdesign`'s portfolio. Keep
+   `xdesign.'flow'` as the abstract origin and `xdesign.vModel` as the default;
+   the reusable `DesignedSimpleFlow` definition is instantiated as
+   `xdesign.designedSimpleFlow`. The Rust package is `xdesign`, with the first
+   executable implementation under `xdesign::simple_flow`.
 
 <a id="p05"></a>
 
@@ -68,9 +75,9 @@ Use these decisions consistently:
 
 | Step | Work product | Completion check |
 | --- | --- | --- |
-| 1. Reconcile design | Correct SysML gate selection/control and blocked/rework semantics; connect Rust definitions to API pages; repair documented contracts and semantic links. | Model-only and full parse/check; documentation audit; independent reading of latest-per-gate and revision rules. |
+| 1. Reconcile design | Correct SysML gate selection/control and blocked/rework semantics; connect Rust definitions to API pages; repair documented contracts and semantic links. Compose all selectable usages under `xdesign.'flow'` in `mbse/model/composition.sysml`. | Model-only and full parse/check; documentation audit; independent reading of latest-per-gate and revision rules. |
 | 2. Freeze the source plane | Add the model file-plan view, source path table, and verification cases. | Figure regenerates from the declared view; every planned source file has a responsibility and case. |
-| 3. Implement run core | `Cargo.toml`, `src/lib.rs`, `src/main.rs`, and `src/{status,record,plan,ports,gate,run,factory}.rs`. Make construction, plan validation, activity revision, evaluation, and advancement observable. | Rust unit/integration cases cover all transitions and malformed data without a false pass. |
+| 3. Implement run core | The `xdesign` package: `Cargo.toml`, `src/lib.rs`, `src/main.rs`, `src/simple_flow/mod.rs`, and `src/simple_flow/{status,record,plan,ports,gate,run,factory}.rs`. Make construction, plan validation, activity revision, evaluation, and advancement observable. | Rust unit/integration cases cover all transitions and malformed data without a false pass. |
 | 4. Implement fixed checks | `tools/checks/simple_{requirements,design,implementation,record}.py` with shared report schema and command dispatch. | Each checker emits the documented rule IDs, diagnostics, and a failed outcome on bad input; rule-set equality is tested. |
 | 5. Connect and demonstrate | Wire a command adapter and a permitted semantic judge to the engine; retain a JSON run report and plan identity. | One four-stage example and failure recovery exercise the real checker interface and retain re-readable evidence. |
 | 6. Reconcile delivery docs | Update source/API status, figures, review limits, and this plan's results. | Strict site build, diagram verification, compiler diagnostics, Rust/Python test logs all retained under `cache/`. |
@@ -82,11 +89,12 @@ judgment supplied by a permitted actor; a passing script does not manufacture it
 
 ## P06 Verification and record of completion
 
-The [case matrix](../details/simple_flow/07_file_plan_and_verification.md#d54)
+The [case matrix](06_file_plan_and_verification.md#d54)
 defines inputs, expected outcomes, and the model behavior each case exercises.
 The [initial execution record](03_simple_flow_execution_record.md#p08),
 [review fix record](04_simple_flow_review_fix_record.md#p11), and
-[cross-layer reconciliation](05_kimi_review_reconciliation.md#p14) distinguish
+[cross-layer reconciliation](05_kimi_review_reconciliation.md#p14), and
+[xdesign integration reconciliation](07_xdesign_integration_reconciliation.md#p17) distinguish
 observed results from these planned expectations.
 Run the pinned compiler on `mbse/model/` alone and with `mbse/wishes/`; keep the
 parse/check JSON, stderr, and counts of unevaluated constraints. Run

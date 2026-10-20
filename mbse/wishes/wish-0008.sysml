@@ -4,6 +4,7 @@ package Wish0008 {
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
+    private import XDesignComposition::*;
     private import StandardViewDefinitions::*;
     private import Views::*;
 
@@ -49,13 +50,13 @@ package Wish0008 {
         attribute redefines traceabilityModelUri = "mbse/wishes/wish-0008.sysml";
 
         part redefines execution : FlowExecution {
-            ref part redefines assignedFlow = designFlow;
+            ref part redefines assignedFlow = xdesign.designFlow;
             attribute redefines status = FlowStatus::completed;
             part redefines stageRecords : StageRecord [8];
             ref part redefines currentRecord = verifyAssetLayoutRecord;
 
             part wishRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.wish;
+                ref part redefines stage = xdesign.designFlow.wish;
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -76,7 +77,7 @@ package Wish0008 {
             }
 
             part verifyRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.'verify';
+                ref part redefines stage = xdesign.designFlow.'verify';
                 attribute redefines visitIndex = 0;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 1;
@@ -92,7 +93,7 @@ package Wish0008 {
                 ref item redefines currentAssessments = (sysmlAssessment, meaningAssessment);
 
                 item sysmlAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.sysmlDeliverableAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.sysmlDeliverableAccepted;
                     attribute redefines evaluatedRevision = 1;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::script;
@@ -103,7 +104,7 @@ package Wish0008 {
                 }
 
                 item meaningAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 1;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -115,7 +116,7 @@ package Wish0008 {
             }
 
             part wishCorrectionRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.wish;
+                ref part redefines stage = xdesign.designFlow.wish;
                 attribute redefines visitIndex = 1;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 2;
@@ -136,7 +137,7 @@ package Wish0008 {
             }
 
             part verifyCorrectionRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.'verify';
+                ref part redefines stage = xdesign.designFlow.'verify';
                 attribute redefines visitIndex = 1;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 2;
@@ -152,7 +153,7 @@ package Wish0008 {
                 ref item redefines currentAssessments = (correctionSysmlAssessment, correctionMeaningAssessment);
 
                 item correctionSysmlAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.sysmlDeliverableAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.sysmlDeliverableAccepted;
                     attribute redefines evaluatedRevision = 2;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::script;
@@ -163,7 +164,7 @@ package Wish0008 {
                 }
 
                 item correctionMeaningAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 2;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -175,7 +176,7 @@ package Wish0008 {
             }
 
             part wishDirectoryLayoutRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.wish;
+                ref part redefines stage = xdesign.designFlow.wish;
                 attribute redefines visitIndex = 2;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 3;
@@ -196,7 +197,7 @@ package Wish0008 {
             }
 
             part verifyDirectoryLayoutRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.'verify';
+                ref part redefines stage = xdesign.designFlow.'verify';
                 attribute redefines visitIndex = 2;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 3;
@@ -212,7 +213,7 @@ package Wish0008 {
                 ref item redefines currentAssessments = (directoryLayoutSysmlAssessment, directoryLayoutMeaningAssessment);
 
                 item directoryLayoutSysmlAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.sysmlDeliverableAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.sysmlDeliverableAccepted;
                     attribute redefines evaluatedRevision = 3;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::script;
@@ -223,7 +224,7 @@ package Wish0008 {
                 }
 
                 item directoryLayoutMeaningAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 3;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -235,7 +236,7 @@ package Wish0008 {
             }
 
             part wishAssetLayoutRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.wish;
+                ref part redefines stage = xdesign.designFlow.wish;
                 attribute redefines visitIndex = 3;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 4;
@@ -256,7 +257,7 @@ package Wish0008 {
             }
 
             part verifyAssetLayoutRecord : StageRecord subsets stageRecords {
-                ref part redefines stage = designFlow.'verify';
+                ref part redefines stage = xdesign.designFlow.'verify';
                 attribute redefines visitIndex = 3;
                 attribute redefines status = StageStatus::completed;
                 attribute redefines artifactRevision = 4;
@@ -272,7 +273,7 @@ package Wish0008 {
                 ref item redefines currentAssessments = (assetLayoutSysmlAssessment, assetLayoutMeaningAssessment);
 
                 item assetLayoutSysmlAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.sysmlDeliverableAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.sysmlDeliverableAccepted;
                     attribute redefines evaluatedRevision = 4;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::script;
@@ -283,7 +284,7 @@ package Wish0008 {
                 }
 
                 item assetLayoutMeaningAssessment : CheckpointAssessment subsets assessments {
-                    ref part redefines checkpoint = designFlow.outcomeAccepted;
+                    ref part redefines checkpoint = xdesign.designFlow.outcomeAccepted;
                     attribute redefines evaluatedRevision = 4;
                     attribute redefines outcome = CheckpointOutcome::passed;
                     attribute redefines judgedBy = JudgeAuthority::agent;
@@ -302,9 +303,9 @@ package Wish0008 {
            historical. Revision 3 corrected the directory overview convention
            and received separate compiler and semantic assessments. Revision 4
            moves figure assets beside the stage and flow documents that own them. */
-        ref part controller : Controller = workflow.controller;
-        ref part wish : Stage = designFlow.wish;
-        ref part 'verify' : Stage = designFlow.'verify';
+        ref part controller : Controller = xdesign.controller;
+        ref part wish : Stage = xdesign.designFlow.wish;
+        ref part 'verify' : Stage = xdesign.designFlow.'verify';
         ref part trace : Trace = trace0008;
 
         message enterWish from controller.entering to wish.entered;

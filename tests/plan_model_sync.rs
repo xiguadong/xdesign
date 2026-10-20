@@ -1,5 +1,5 @@
-use simpflow::designed_simple_flow_plan;
 use std::{collections::BTreeSet, fs, path::Path};
+use xdesign::simple_flow::designed_simple_flow_plan;
 
 #[test]
 fn frozen_plan_rule_conditions_and_reads_match_the_sysml_design() {
@@ -76,20 +76,18 @@ fn simple_flow_file_plan_covers_the_source_and_test_inventory() {
         .collect();
     let mut actual = BTreeSet::from(["Cargo.toml".to_owned()]);
     for directory in ["src", "tests", "tools/checks"] {
-        for entry in fs::read_dir(directory).unwrap() {
-            let path = entry.unwrap().path();
-            if path.is_file()
-                && matches!(
+        let mut directories = vec![Path::new(directory).to_path_buf()];
+        while let Some(current) = directories.pop() {
+            for entry in fs::read_dir(current).unwrap() {
+                let path = entry.unwrap().path();
+                if path.is_dir() {
+                    directories.push(path);
+                } else if matches!(
                     path.extension().and_then(|extension| extension.to_str()),
                     Some("rs" | "py")
-                )
-            {
-                actual.insert(
-                    Path::new(directory)
-                        .join(path.file_name().unwrap())
-                        .to_string_lossy()
-                        .into_owned(),
-                );
+                ) {
+                    actual.insert(path.to_string_lossy().into_owned());
+                }
             }
         }
     }

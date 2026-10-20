@@ -1,6 +1,7 @@
-use simpflow::*;
 use std::{fs, process::Command};
 use uuid::Uuid;
+use xdesign::core::*;
+use xdesign::simple_flow::*;
 
 fn fixture_dir() -> String {
     let dir = format!(
@@ -11,12 +12,12 @@ fn fixture_dir() -> String {
     dir
 }
 
-fn prepared_requirements_run(dir: &str) -> (RsSimpleFlowRun, String) {
+fn prepared_requirements_run(dir: &str) -> (RsFlowRun, String) {
     let wish = format!("{dir}/wish.sysml");
     fs::write(&wish, "package Wish {}\n").unwrap();
     let mut plan = designed_simple_flow_plan();
     plan.freeze(format!("{dir}/plan.json")).unwrap();
-    let mut run = create_run(
+    let mut run = create_designed_run(
         plan,
         wish.clone(),
         format!("{dir}/run.json"),
@@ -52,7 +53,7 @@ fn prepared_requirements_run(dir: &str) -> (RsSimpleFlowRun, String) {
 }
 
 fn invoke_requirements(
-    run: &RsSimpleFlowRun,
+    run: &RsFlowRun,
     wish: &str,
     dir: &str,
     checker: &RsCheckerSpec,
@@ -73,7 +74,7 @@ fn invoke_requirements(
     )
 }
 
-fn prepared_design_run(dir: &str) -> (RsSimpleFlowRun, String) {
+fn prepared_design_run(dir: &str) -> (RsFlowRun, String) {
     let (mut run, wish) = prepared_requirements_run(dir);
     assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
     assert_eq!(run.advance(), RsAdvanceOutcome::EnterNextStage);

@@ -1,260 +1,413 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="835pt" height="1031pt" viewBox="0.00 0.00 835.00 1031.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
-<title id="diagram-title">Crate modules</title><desc id="diagram-desc">How is the simpflow crate organized, and which module dependencies are allowed?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1013.39)">
+<svg xmlns="http://www.w3.org/2000/svg" width="1642pt" height="1031pt" viewBox="0.00 0.00 1642.00 1031.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Crate modules</title><desc id="diagram-desc">How is the xdesign crate organized, and which module dependencies are allowed?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 1013.39)">
 <title>Model</title>
-<polygon fill="white" stroke="none" points="-18,18 -18,-1013.39 816.5,-1013.39 816.5,18 -18,18" />
-<text xml:space="preserve" text-anchor="start" x="323.5" y="-965.49" font-family="Arial" font-weight="bold" font-size="22.00">Crate modules</text>
-<text xml:space="preserve" text-anchor="start" x="148.38" y="-937.14" font-family="Arial" font-size="14.00" fill="#52657a">How is the simpflow crate organized, and which module dependencies are allowed?</text>
+<polygon fill="white" stroke="none" points="-18,18 -18,-1013.39 1623.64,-1013.39 1623.64,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="727.07" y="-965.49" font-family="Arial" font-weight="bold" font-size="22.00">Crate modules</text>
+<text xml:space="preserve" text-anchor="start" x="555.32" y="-937.14" font-family="Arial" font-size="14.00" fill="#52657a">How is the xdesign crate organized, and which module dependencies are allowed?</text>
 
-<g class="edge" data-native-id="cff85ff2-0ff1-5085-ac15-ac80ba115f20" data-source-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-target-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-edge-kind="dependency">
+<g class="edge" data-native-id="4a5e2516-62ca-5469-9462-dff4a29a7722" data-source-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
 <title>imports
 
-cff85ff2-0ff1-5085-ac15-ac80ba115f20</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M151.65,-845.77C127.68,-804.63 93,-745.11 93,-745.11 93,-745.11 93,-745.11 93,-390.56 93,-390.56 282.51,-271.32 375.6,-212.74" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="382.15,-208.62 377.29,-215.93 380.18,-210.04 375.46,-213.01 375.38,-212.88 375.3,-212.76 380.02,-209.78 373.46,-209.84 382.15,-208.62" />
-<text xml:space="preserve" text-anchor="middle" x="114.75" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+4a5e2516-62ca-5469-9462-dff4a29a7722</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M470.58,-845.77C427.07,-804.63 364.14,-745.11 364.14,-745.11 364.14,-745.11 364.14,-745.11 364.14,-531.58 364.14,-531.58 523.14,-282.04 523.14,-282.04 523.14,-282.04 722.14,-243.04 722.14,-243.04 722.14,-243.04 906.14,-219.04 906.14,-219.04 906.14,-219.04 919.53,-212.68 935.36,-205.16" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="942.37,-201.83 936.69,-208.51 940.25,-203 935.21,-205.4 935.14,-205.26 935.08,-205.13 940.12,-202.73 933.6,-202.01 942.37,-201.83" />
+<text xml:space="preserve" text-anchor="middle" x="385.89" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="1922ffa6-9040-57e5-bced-0c890e497183" data-source-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-target-id="b5b31be9-26b8-535d-896b-824197659802" data-edge-kind="dependency">
+<g class="edge" data-native-id="f5093b86-ce49-5fb3-a062-488471a15be9" data-source-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-target-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-edge-kind="dependency">
 <title>imports
 
-1922ffa6-9040-57e5-bced-0c890e497183</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M220.15,-865.49C292.38,-836.3 424,-783.12 424,-783.12 424,-783.12 689,-642.1 689,-642.1 689,-642.1 689,-564.08 689,-564.08 689,-564.08 682.27,-536.88 675.79,-510.71" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="673.9,-503.08 679.32,-509.98 674.63,-505.39 675.97,-510.81 675.83,-510.85 675.68,-510.88 674.34,-505.46 672.33,-511.71 673.9,-503.08" />
-<text xml:space="preserve" text-anchor="middle" x="663.47" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+f5093b86-ce49-5fb3-a062-488471a15be9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M557.11,-867C634.43,-838.18 782.14,-783.12 782.14,-783.12 782.14,-783.12 982.14,-642.1 982.14,-642.1 982.14,-642.1 990.89,-563.77 996.82,-510.73" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="997.67,-503.05 1000.36,-511.4 997.55,-505.47 996.93,-511.02 996.79,-511 996.64,-510.98 997.26,-505.44 993.21,-510.6 997.67,-503.05" />
+<text xml:space="preserve" text-anchor="middle" x="968.2" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="bb98a04a-d82b-522a-83a8-4bfdc2905a1c" data-source-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-target-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-edge-kind="dependency">
+<g class="edge" data-native-id="2b5b1549-6f07-5e90-86ec-61abc2db726e" data-source-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-target-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-edge-kind="dependency">
 <title>imports
 
-bb98a04a-d82b-522a-83a8-4bfdc2905a1c</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M190.04,-845.61C236.18,-734.8 366,-423.06 366,-423.06 366,-423.06 396.86,-393.93 425.43,-366.96" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="431.09,-361.61 427.74,-369.72 429.44,-363.38 425.38,-367.21 425.27,-367.1 425.17,-367 429.23,-363.16 422.8,-364.49 431.09,-361.61" />
-<text xml:space="preserve" text-anchor="middle" x="328.19" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+2b5b1549-6f07-5e90-86ec-61abc2db726e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M523.62,-845.52C551.15,-760.4 614.64,-564.08 614.64,-564.08 614.64,-564.08 665.14,-423.06 665.14,-423.06 665.14,-423.06 677.47,-395.39 689.22,-369.01" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="692.35,-361.97 692.39,-370.75 691.51,-364.24 689.24,-369.34 689.1,-369.28 688.96,-369.22 691.23,-364.12 685.81,-367.82 692.35,-361.97" />
+<text xml:space="preserve" text-anchor="middle" x="636.39" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="5820ee42-a50c-5ed2-a98b-6d2105d8b020" data-source-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-target-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-edge-kind="dependency">
+<g class="edge" data-native-id="afd09e5b-c028-5d0d-bd12-b20b7223d7a0" data-source-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-target-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-edge-kind="dependency">
 <title>imports
 
-5820ee42-a50c-5ed2-a98b-6d2105d8b020</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M219.99,-850.83C248.81,-829.96 285.97,-803.05 315.59,-781.61" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="322.06,-776.93 317.69,-784.53 320.19,-778.46 315.67,-781.74 315.58,-781.62 315.49,-781.5 320.02,-778.22 313.47,-778.7 322.06,-776.93" />
-<text xml:space="preserve" text-anchor="middle" x="297.51" y="-809.77" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+afd09e5b-c028-5d0d-bd12-b20b7223d7a0</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M557.1,-854.14C591.43,-831.73 638.34,-801.11 673.71,-778.02" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="680.2,-773.79 675.47,-781.18 678.26,-775.23 673.58,-778.29 673.5,-778.16 673.42,-778.03 678.1,-774.98 671.53,-775.15 680.2,-773.79" />
+<text xml:space="preserve" text-anchor="middle" x="645.78" y="-809.77" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="a66bd173-132d-535d-962f-44c4ce0154dc" data-source-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="ed3f593d-45a3-5312-b38b-3768ebdadb5a" data-source-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-a66bd173-132d-535d-962f-44c4ce0154dc</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M128.28,-847.6C76.73,-806.41 0,-745.11 0,-745.11 0,-745.11 0,-745.11 0,-179.03 0,-179.03 134,-141.02 134,-141.02 134,-141.02 389.43,-79.44 501.42,-52.44" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="508.98,-50.62 502.04,-56 506.66,-51.33 501.24,-52.64 501.2,-52.5 501.17,-52.35 506.59,-51.04 500.36,-49 508.98,-50.62" />
-<text xml:space="preserve" text-anchor="middle" x="21.75" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+ed3f593d-45a3-5312-b38b-3768ebdadb5a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M465.15,-857.49C395.46,-817.12 271.14,-745.11 271.14,-745.11 271.14,-745.11 271.14,-745.11 271.14,-179.03 271.14,-179.03 638.14,-102.02 638.14,-102.02 638.14,-102.02 837.07,-66.57 934.12,-49.28" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="941.91,-47.89 934.66,-52.84 939.56,-48.46 934.06,-49.44 934.03,-49.3 934.01,-49.15 939.5,-48.17 933.4,-45.75 941.91,-47.89" />
+<text xml:space="preserve" text-anchor="middle" x="292.89" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="4b755f91-3cfe-5f06-b239-75940652a3cd" data-source-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-target-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-edge-kind="dependency">
+<g class="edge" data-native-id="f8c1a7e8-bc65-50be-9b81-a2f79dbace63" data-source-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
 <title>imports
 
-4b755f91-3cfe-5f06-b239-75940652a3cd</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M524.78,-563.47C487.23,-495.14 413,-360.06 413,-360.06 413,-360.06 413,-282.04 413,-282.04 413,-282.04 416.5,-254.84 419.87,-228.67" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="420.85,-221.08 423.4,-229.47 420.69,-223.49 419.97,-229.03 419.82,-229.01 419.68,-228.99 420.39,-223.45 416.25,-228.55 420.85,-221.08" />
-<text xml:space="preserve" text-anchor="middle" x="456.11" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+f8c1a7e8-bc65-50be-9b81-a2f79dbace63</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M741.66,-563.61C754.66,-535.07 770.14,-501.08 770.14,-501.08 770.14,-501.08 796.64,-384.06 796.64,-384.06 796.64,-384.06 921.14,-243.04 921.14,-243.04 921.14,-243.04 928.78,-235.75 938.82,-226.17" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="944.57,-220.69 941.26,-228.82 942.92,-222.47 938.88,-226.32 938.78,-226.21 938.68,-226.1 942.72,-222.25 936.29,-223.61 944.57,-220.69" />
+<text xml:space="preserve" text-anchor="middle" x="818.39" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="ca15f258-4f00-53b7-a24b-78d2eac73cd8" data-source-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-target-id="b5b31be9-26b8-535d-896b-824197659802" data-edge-kind="dependency">
+<g class="edge" data-native-id="49af9766-f60f-575f-be50-67e5855f44d9" data-source-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-target-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-edge-kind="dependency">
 <title>imports
 
-ca15f258-4f00-53b7-a24b-78d2eac73cd8</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M571.75,-563.58C584.62,-544.33 597.5,-525.08 597.5,-525.08 597.5,-525.08 605.47,-517.65 615.89,-507.94" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="621.48,-502.72 618.09,-510.81 619.82,-504.47 615.73,-508.28 615.63,-508.17 615.53,-508.06 619.61,-504.25 613.18,-505.54 621.48,-502.72" />
-<text xml:space="preserve" text-anchor="middle" x="619.25" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+49af9766-f60f-575f-be50-67e5855f44d9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M766.79,-581.77C828.69,-552.27 936.14,-501.08 936.14,-501.08 936.14,-501.08 942.53,-497.4 951.34,-492.33" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="958.22,-488.36 953.09,-495.47 956.2,-489.7 951.36,-492.49 951.29,-492.36 951.21,-492.23 956.05,-489.44 949.49,-489.24 958.22,-488.36" />
+<text xml:space="preserve" text-anchor="middle" x="906.66" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="5c3541da-0968-5ee8-b52f-0b21221d1fe1" data-source-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-target-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-edge-kind="dependency">
+<g class="edge" data-native-id="84b919ed-4749-5fa8-8179-1c82fb648ba4" data-source-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-target-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-edge-kind="dependency">
 <title>imports
 
-5c3541da-0968-5ee8-b52f-0b21221d1fe1</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M535.93,-563.45C522.73,-512.81 499.59,-424.05 485.35,-369.42" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="483.37,-361.83 488.87,-368.66 484.12,-364.13 485.53,-369.53 485.39,-369.57 485.24,-369.61 483.83,-364.21 481.9,-370.48 483.37,-361.83" />
-<text xml:space="preserve" text-anchor="middle" x="540.88" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+84b919ed-4749-5fa8-8179-1c82fb648ba4</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M722.21,-563.45C719.68,-512.91 715.26,-424.42 712.53,-369.76" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="712.13,-361.88 716.13,-369.69 712.4,-364.29 712.68,-369.86 712.53,-369.87 712.38,-369.88 712.1,-364.3 708.94,-370.05 712.13,-361.88" />
+<text xml:space="preserve" text-anchor="middle" x="740.74" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="6589189d-b331-5c90-b4b1-b1764de460da" data-source-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="1dd04290-ad4a-5633-b82f-138e4bf02b29" data-source-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-6589189d-b331-5c90-b4b1-b1764de460da</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M588.62,-569.69C593.07,-566.31 596,-564.08 596,-564.08 596,-564.08 645,-540.08 645,-540.08 645,-540.08 722,-501.08 722,-501.08 722,-501.08 755,-392.56 755,-392.56 755,-392.56 755,-392.56 755,-179.03 755,-179.03 663.02,-115.73 603.2,-74.56" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="596.65,-70.05 605.28,-71.62 598.73,-71.3 603.33,-74.46 603.24,-74.59 603.16,-74.71 598.56,-71.54 601.2,-77.55 596.65,-70.05" />
-<text xml:space="preserve" text-anchor="middle" x="776.75" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+1dd04290-ad4a-5633-b82f-138e4bf02b29</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M694.61,-563.66C648.13,-503.17 563.14,-392.56 563.14,-392.56 563.14,-392.56 563.14,-392.56 563.14,-179.03 563.14,-179.03 822.16,-93.9 934.82,-56.88" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="942.14,-54.47 935.66,-60.39 939.89,-55.37 934.59,-57.11 934.54,-56.97 934.49,-56.83 939.8,-55.08 933.42,-53.55 942.14,-54.47" />
+<text xml:space="preserve" text-anchor="middle" x="584.89" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="43050efd-11f1-583e-8f0d-be21f62a0156" data-source-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="522a1964-85ca-557e-989d-361af83e154c" data-source-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-43050efd-11f1-583e-8f0d-be21f62a0156</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M461.04,-140.67C476.73,-123.5 495.33,-103.14 511.69,-85.23" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="517.01,-79.41 514.27,-87.74 515.49,-81.3 511.72,-85.42 511.61,-85.32 511.5,-85.22 515.27,-81.09 508.95,-82.89 517.01,-79.41" />
-<text xml:space="preserve" text-anchor="middle" x="515.06" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+522a1964-85ca-557e-989d-361af83e154c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M986.14,-140.67C986.14,-124.26 986.14,-104.93 986.14,-87.62" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="986.14,-79.82 989.74,-87.82 986.29,-82.24 986.29,-87.82 986.14,-87.82 985.99,-87.82 985.99,-82.24 982.54,-87.82 986.14,-79.82" />
+<text xml:space="preserve" text-anchor="middle" x="1007.89" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="02078327-baba-50c1-87f4-c9e1f9536231" data-source-id="b5b31be9-26b8-535d-896b-824197659802" data-target-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-edge-kind="dependency">
+<g class="edge" data-native-id="b2206aa6-4cde-51e5-9966-558217c0ba1a" data-source-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
 <title>imports
 
-02078327-baba-50c1-87f4-c9e1f9536231</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M635.9,-422.66C597.41,-370.06 533,-282.04 533,-282.04 533,-282.04 502,-243.04 502,-243.04 502,-243.04 490.07,-233.31 475.67,-221.56" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="469.67,-216.66 478.15,-218.93 471.64,-218.07 475.96,-221.6 475.87,-221.72 475.78,-221.84 471.45,-218.31 473.59,-224.51 469.67,-216.66" />
-<text xml:space="preserve" text-anchor="middle" x="611.54" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+b2206aa6-4cde-51e5-9966-558217c0ba1a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1004.63,-422.5C1005.44,-409.89 1006.14,-399.06 1006.14,-399.06 1006.14,-399.06 1006.14,-384.06 1006.14,-384.06 1006.14,-384.06 996.73,-288.53 990.82,-228.52" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="990.06,-220.79 994.42,-228.4 990.44,-223.18 990.99,-228.74 990.84,-228.76 990.69,-228.77 990.14,-223.21 987.26,-229.11 990.06,-220.79" />
+<text xml:space="preserve" text-anchor="middle" x="1025.37" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="9cab46c5-2891-518d-8f4d-9f4b50cde7b6" data-source-id="b5b31be9-26b8-535d-896b-824197659802" data-target-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-edge-kind="dependency">
+<g class="edge" data-native-id="ba2f3e82-c85c-58f6-b78e-bdb59c57c233" data-source-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-target-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-edge-kind="dependency">
 <title>imports
 
-9cab46c5-2891-518d-8f4d-9f4b50cde7b6</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M621.57,-437C608.27,-429.45 597,-423.06 597,-423.06 597,-423.06 551.5,-399.06 551.5,-399.06 551.5,-399.06 535.93,-383.79 518.66,-366.85" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="513.38,-361.66 521.61,-364.7 515.21,-363.25 519.2,-367.16 519.09,-367.27 518.99,-367.37 515,-363.46 516.57,-369.84 513.38,-361.66" />
-<text xml:space="preserve" text-anchor="middle" x="573.25" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+ba2f3e82-c85c-58f6-b78e-bdb59c57c233</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M959.59,-436.57C946.82,-429.21 936.14,-423.06 936.14,-423.06 936.14,-423.06 880.64,-399.06 880.64,-399.06 880.64,-399.06 813.06,-368.53 762.99,-345.92" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="755.94,-342.73 764.71,-342.75 758.2,-343.59 763.29,-345.89 763.23,-346.03 763.16,-346.16 758.08,-343.87 761.74,-349.31 755.94,-342.73" />
+<text xml:space="preserve" text-anchor="middle" x="902.39" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="da943cc6-8b1a-54d0-8192-a3485499cb7e" data-source-id="b5b31be9-26b8-535d-896b-824197659802" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="ea2f40f7-785f-590b-9823-d82abbcadf92" data-source-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-da943cc6-8b1a-54d0-8192-a3485499cb7e</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M659.07,-422.66C652.31,-370.06 641,-282.04 641,-282.04 641,-282.04 595.83,-157.81 570.22,-87.36" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="567.58,-80.12 573.7,-86.4 568.55,-82.34 570.46,-87.58 570.32,-87.64 570.18,-87.69 568.27,-82.44 566.93,-88.87 567.58,-80.12" />
-<text xml:space="preserve" text-anchor="middle" x="653.6" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+ea2f40f7-785f-590b-9823-d82abbcadf92</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1022.33,-422.59C1037.31,-394.05 1055.14,-360.06 1055.14,-360.06 1055.14,-360.06 1055.14,-282.04 1055.14,-282.04 1055.14,-282.04 1044.14,-141.02 1044.14,-141.02 1044.14,-141.02 1038.14,-102.02 1038.14,-102.02 1038.14,-102.02 1032.26,-95.01 1024.45,-85.69" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1019.5,-79.79 1027.4,-83.61 1021.17,-81.55 1024.75,-85.82 1024.64,-85.92 1024.52,-86.02 1020.94,-81.74 1021.88,-88.23 1019.5,-79.79" />
+<text xml:space="preserve" text-anchor="middle" x="1074.93" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="c4181dbc-723c-5363-a720-2eb55007b1b4" data-source-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-target-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-edge-kind="dependency">
+<g class="edge" data-native-id="2a01343c-bdfb-5984-832c-aa8a845ad1d9" data-source-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
 <title>imports
 
-c4181dbc-723c-5363-a720-2eb55007b1b4</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M460.03,-281.69C454.43,-265.13 447.83,-245.59 441.93,-228.16" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="439.43,-220.76 445.4,-227.19 440.35,-223 442.14,-228.29 441.99,-228.34 441.85,-228.39 440.06,-223.1 438.58,-229.49 439.43,-220.76" />
-<text xml:space="preserve" text-anchor="middle" x="472.66" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+2a01343c-bdfb-5984-832c-aa8a845ad1d9</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M722.39,-281.54C728.51,-262.29 734.64,-243.04 734.64,-243.04 734.64,-243.04 860.71,-211.96 934.33,-193.8" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="941.94,-191.93 935.03,-197.34 939.63,-192.65 934.21,-193.99 934.17,-193.84 934.14,-193.7 939.56,-192.36 933.31,-190.35 941.94,-191.93" />
+<text xml:space="preserve" text-anchor="middle" x="756.39" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="9018a94a-0582-5806-9e04-d62613d3456a" data-source-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="dd0be952-15d4-53f3-995a-c88a868c7a31" data-source-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-9018a94a-0582-5806-9e04-d62613d3456a</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M491.04,-281.48C496.93,-268.87 502,-258.04 502,-258.04 502,-258.04 545,-117.02 545,-117.02 545,-117.02 546.4,-103.57 548.02,-87.91" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="548.84,-80.09 551.59,-88.42 548.74,-82.51 548.16,-88.06 548.01,-88.05 547.86,-88.03 548.44,-82.48 544.43,-87.68 548.84,-80.09" />
-<text xml:space="preserve" text-anchor="middle" x="559.21" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+dd0be952-15d4-53f3-995a-c88a868c7a31</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M716.14,-281.54C719.14,-262.29 722.14,-243.04 722.14,-243.04 722.14,-243.04 859.7,-137.25 936.22,-78.4" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="942.17,-73.82 938.03,-81.55 940.35,-75.41 935.92,-78.82 935.83,-78.7 935.74,-78.58 940.17,-75.18 933.64,-75.84 942.17,-73.82" />
+<text xml:space="preserve" text-anchor="middle" x="875.89" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="766d9a4c-8127-554d-8a7a-be29007346bd" data-source-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-target-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-edge-kind="dependency">
+<g class="edge" data-native-id="4daf208c-2bda-5cd8-9117-313d51b3eb00" data-source-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-target-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-edge-kind="dependency">
 <title>imports
 
-766d9a4c-8127-554d-8a7a-be29007346bd</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M408.66,-710.16C434.79,-689.98 468.37,-664.05 495.78,-642.88" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="502.08,-638.01 497.95,-645.75 500.26,-639.6 495.84,-643.02 495.75,-642.9 495.66,-642.78 500.08,-639.37 493.55,-640.05 502.08,-638.01" />
-<text xml:space="preserve" text-anchor="middle" x="483.15" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+4daf208c-2bda-5cd8-9117-313d51b3eb00</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M724.14,-704.75C724.14,-688.34 724.14,-669.01 724.14,-651.7" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="724.14,-643.9 727.74,-651.9 724.29,-646.32 724.29,-651.9 724.14,-651.9 723.99,-651.9 723.99,-646.32 720.54,-651.9 724.14,-643.9" />
+<text xml:space="preserve" text-anchor="middle" x="745.89" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="f80c68f0-558c-576f-99ad-79fd10649b83" data-source-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-target-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-edge-kind="dependency">
+<g class="edge" data-native-id="4d1ec281-3d8d-5dfc-9bab-8838dec40c23" data-source-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
 <title>imports
 
-f80c68f0-558c-576f-99ad-79fd10649b83</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M367.27,-704.5C370.06,-619.38 376.5,-423.06 376.5,-423.06 376.5,-423.06 408,-243.04 408,-243.04 408,-243.04 409.77,-236.95 412.2,-228.58" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="414.36,-221.12 415.59,-229.8 413.83,-223.48 412.28,-228.84 412.13,-228.8 411.99,-228.76 413.55,-223.4 408.68,-227.8 414.36,-221.12" />
-<text xml:space="preserve" text-anchor="middle" x="398.25" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+4d1ec281-3d8d-5dfc-9bab-8838dec40c23</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M756.48,-704.54C767.06,-691.93 776.14,-681.1 776.14,-681.1 776.14,-681.1 900.64,-423.06 900.64,-423.06 900.64,-423.06 932.14,-399.06 932.14,-399.06 932.14,-399.06 958.46,-292.81 974.35,-228.65" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="976.23,-221.05 977.8,-229.68 975.79,-223.43 974.45,-228.85 974.31,-228.81 974.16,-228.77 975.5,-223.35 970.81,-227.94 976.23,-221.05" />
+<text xml:space="preserve" text-anchor="middle" x="922.39" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="cde53e59-210b-5722-be6d-53012d91236d" data-source-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-target-id="b5b31be9-26b8-535d-896b-824197659802" data-edge-kind="dependency">
+<g class="edge" data-native-id="44296af2-221e-57f6-9418-8f1e87fb21bb" data-source-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-target-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-edge-kind="dependency">
 <title>imports
 
-cde53e59-210b-5722-be6d-53012d91236d</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M408.52,-725.17C451.93,-706.86 513,-681.1 513,-681.1 513,-681.1 604,-642.1 604,-642.1 604,-642.1 649,-540.08 649,-540.08 649,-540.08 651.62,-526.63 654.67,-510.97" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="656.2,-503.13 658.2,-511.67 655.88,-505.53 654.81,-511.01 654.67,-510.98 654.52,-510.95 655.59,-505.47 651.13,-510.29 656.2,-503.13" />
-<text xml:space="preserve" text-anchor="middle" x="659.74" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+44296af2-221e-57f6-9418-8f1e87fb21bb</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M766.71,-722.81C804.62,-704.72 854.14,-681.1 854.14,-681.1 854.14,-681.1 927.45,-573.1 970.88,-509.12" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="975.13,-502.86 973.62,-511.5 973.9,-504.94 970.76,-509.56 970.64,-509.48 970.51,-509.39 973.65,-504.77 967.66,-507.46 975.13,-502.86" />
+<text xml:space="preserve" text-anchor="middle" x="954.82" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="32ae52a9-2693-585b-b582-10773a51047d" data-source-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-target-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-edge-kind="dependency">
+<g class="edge" data-native-id="14ee3a14-f851-586a-84a6-0c684cf9d263" data-source-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-target-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-edge-kind="dependency">
 <title>imports
 
-32ae52a9-2693-585b-b582-10773a51047d</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M375.78,-704.63C395.4,-627.43 439.5,-453.89 460.9,-369.68" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="462.81,-362.13 464.33,-370.77 462.37,-364.51 460.99,-369.92 460.84,-369.88 460.7,-369.85 462.07,-364.43 457.36,-369 462.81,-362.13" />
-<text xml:space="preserve" text-anchor="middle" x="442.48" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+14ee3a14-f851-586a-84a6-0c684cf9d263</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M702.05,-704.63C685.66,-676.09 666.14,-642.1 666.14,-642.1 666.14,-642.1 666.14,-564.08 666.14,-564.08 666.14,-564.08 668.64,-525.08 668.64,-525.08 668.64,-525.08 688.17,-429.55 700.43,-369.54" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="702.02,-361.79 703.94,-370.35 701.68,-364.19 700.56,-369.66 700.41,-369.63 700.27,-369.6 701.39,-364.13 696.89,-368.91 702.02,-361.79" />
+<text xml:space="preserve" text-anchor="middle" x="690.39" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="e6643096-f5bd-5a41-98ac-a25a24f47b71" data-source-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-target-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-edge-kind="dependency">
+<g class="edge" data-native-id="9688af6f-1f84-5066-8f66-665b460f4948" data-source-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
 <title>imports
 
-e6643096-f5bd-5a41-98ac-a25a24f47b71</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M343.26,-704.59C289.48,-613.53 159,-392.56 159,-392.56 159,-392.56 159,-392.56 159,-179.03 159,-179.03 394.64,-95.88 501.46,-58.2" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="508.97,-55.55 502.62,-61.6 506.74,-56.49 501.47,-58.35 501.42,-58.21 501.37,-58.07 506.64,-56.21 500.23,-54.81 508.97,-55.55" />
-<text xml:space="preserve" text-anchor="middle" x="183.88" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+9688af6f-1f84-5066-8f66-665b460f4948</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M681.54,-712.8C639.71,-683.05 582.14,-642.1 582.14,-642.1 582.14,-642.1 511.64,-399.06 511.64,-399.06 511.64,-399.06 511.64,-384.06 511.64,-384.06 511.64,-384.06 538.14,-141.02 538.14,-141.02 538.14,-141.02 816.48,-78.26 934.37,-51.68" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="942.04,-49.95 935.03,-55.22 939.72,-50.63 934.27,-51.86 934.24,-51.71 934.21,-51.57 939.65,-50.34 933.45,-48.2 942.04,-49.95" />
+<text xml:space="preserve" text-anchor="middle" x="533.39" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="n84e935e3ab2756671a1d" class="node diagram-node shape-package" data-native-id="b9164df5-3fb9-50be-a9f4-42e46db0f379" data-shape="package">
-<title>SimpleFlowRustUml::crate
-b9164df5-3fb9-50be-a9f4-42e46db0f379
-b9164df5-3fb9-50be-a9f4-42e46db0f379</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="96.14,-924.14 93.14,-928.14 72.14,-928.14 69.14,-924.14 11.86,-924.14 11.86,-846.12 96.14,-846.12 96.14,-924.14" />
-<rect fill="white" stroke="none" x="20.5" y="-918.38" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="28.5" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="28.5" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Crate</text>
+<g class="edge" data-native-id="81132f19-e080-5750-84bc-ea466e9b927a" data-source-id="9d0cb894-ff95-5086-b7c9-a80dad121276" data-target-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-edge-kind="dependency">
+<title>imports
+
+81132f19-e080-5750-84bc-ea466e9b927a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M180.14,-845.77C180.14,-829.36 180.14,-810.03 180.14,-792.72" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="180.14,-784.92 183.74,-792.92 180.29,-787.34 180.29,-792.92 180.14,-792.92 179.99,-792.92 179.99,-787.34 176.54,-792.92 180.14,-784.92" />
+<text xml:space="preserve" text-anchor="middle" x="201.89" y="-809.77" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="n15901ab3b1e591fab62d" class="node diagram-node shape-package" data-native-id="64714b93-183d-57f2-95fe-6d0ef3be633b" data-shape="package">
-<title>SimpleFlowRustUml::crate::factory
-64714b93-183d-57f2-95fe-6d0ef3be633b
-64714b93-183d-57f2-95fe-6d0ef3be633b</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="219.51,-924.14 216.51,-928.14 195.51,-928.14 192.51,-924.14 128.49,-924.14 128.49,-846.12 219.51,-846.12 219.51,-924.14" />
-<rect fill="white" stroke="none" x="137.12" y="-918.38" width="73.75999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="145.12" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="145.12" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Factory</text>
+<g class="edge" data-native-id="fee5b7d1-92f5-5e07-954c-9ccb82765cef" data-source-id="e578a4d2-39cc-521e-b259-6d13526b7f9c" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
+<title>imports
+
+fee5b7d1-92f5-5e07-954c-9ccb82765cef</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1409.19,-294.07C1395.83,-287.39 1385.14,-282.04 1385.14,-282.04 1385.14,-282.04 1270.14,-243.04 1270.14,-243.04 1270.14,-243.04 1119.7,-210.19 1037.81,-192.31" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1030.21,-190.65 1038.79,-188.84 1032.6,-191.02 1038.05,-192.21 1038.02,-192.36 1037.99,-192.5 1032.53,-191.31 1037.25,-195.88 1030.21,-190.65" />
+<text xml:space="preserve" text-anchor="middle" x="1335.71" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="n5f56cfa79e1d04b452e8" class="node diagram-node shape-package" data-native-id="0b13278e-5877-5911-bdfa-00b0e209c02c" data-shape="package">
-<title>SimpleFlowRustUml::crate::gate
-0b13278e-5877-5911-bdfa-00b0e209c02c
-0b13278e-5877-5911-bdfa-00b0e209c02c</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="588.14,-642.1 585.14,-646.1 564.14,-646.1 561.14,-642.1 503.86,-642.1 503.86,-564.08 588.14,-564.08 588.14,-642.1" />
-<rect fill="white" stroke="none" x="512.5" y="-636.34" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="520.5" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="520.5" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Gate</text>
+<g class="edge" data-native-id="6b72bb84-bb40-5a8e-995f-7925d7d6779e" data-source-id="e578a4d2-39cc-521e-b259-6d13526b7f9c" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
+<title>imports
+
+6b72bb84-bb40-5a8e-995f-7925d7d6779e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1449.85,-281.57C1431.47,-218.98 1397.14,-102.02 1397.14,-102.02 1397.14,-102.02 1148.3,-64.48 1037.87,-47.81" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1030.14,-46.65 1038.59,-44.28 1032.55,-46.86 1038.08,-47.69 1038.05,-47.84 1038.03,-47.99 1032.51,-47.16 1037.52,-51.4 1030.14,-46.65" />
+<text xml:space="preserve" text-anchor="middle" x="1453.02" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="ndb65e771d31eb190a657" class="node diagram-node shape-package" data-native-id="d864613c-d846-505c-83ad-51c2e6d29ca9" data-shape="package">
-<title>SimpleFlowRustUml::crate::plan
-d864613c-d846-505c-83ad-51c2e6d29ca9
-d864613c-d846-505c-83ad-51c2e6d29ca9</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="468.14,-219.04 465.14,-223.04 444.14,-223.04 441.14,-219.04 383.86,-219.04 383.86,-141.02 468.14,-141.02 468.14,-219.04" />
-<rect fill="white" stroke="none" x="392.5" y="-213.28" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="400.5" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="400.5" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Plan</text>
+<g class="edge" data-native-id="21d766bc-5115-5795-b441-4eccf064ce5e" data-source-id="72554491-38f9-5a6e-a994-67695651117f" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
+<title>imports
+
+21d766bc-5115-5795-b441-4eccf064ce5e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1187.28,-563.68C1181.99,-511.08 1173.14,-423.06 1173.14,-423.06 1173.14,-423.06 1075.98,-297.31 1021.73,-227.09" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1016.95,-220.9 1024.69,-225.03 1018.54,-222.72 1021.96,-227.14 1021.84,-227.23 1021.72,-227.32 1018.3,-222.91 1018.99,-229.43 1016.95,-220.9" />
+<text xml:space="preserve" text-anchor="middle" x="1175.44" y="-386.71" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="nc4e43b0da607d229f90f" class="node diagram-node shape-package" data-native-id="b5b31be9-26b8-535d-896b-824197659802" data-shape="package">
-<title>SimpleFlowRustUml::crate::ports
-b5b31be9-26b8-535d-896b-824197659802
-b5b31be9-26b8-535d-896b-824197659802</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="706.14,-501.08 703.14,-505.08 682.14,-505.08 679.14,-501.08 621.86,-501.08 621.86,-423.06 706.14,-423.06 706.14,-501.08" />
-<rect fill="white" stroke="none" x="630.5" y="-495.32" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="638.5" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="638.5" y="-441.37" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Ports</text>
+<g class="edge" data-native-id="45fdf3ea-303b-56d0-8eb7-68d3caa5ef60" data-source-id="72554491-38f9-5a6e-a994-67695651117f" data-target-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-edge-kind="dependency">
+<title>imports
+
+45fdf3ea-303b-56d0-8eb7-68d3caa5ef60</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1148.38,-574.89C1122.18,-558.23 1093.64,-540.08 1093.64,-540.08 1093.64,-540.08 1073.4,-523.05 1051.96,-505" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1045.89,-499.89 1054.33,-502.29 1047.83,-501.33 1052.1,-504.93 1052.01,-505.04 1051.91,-505.16 1047.64,-501.56 1049.69,-507.8 1045.89,-499.89" />
+<text xml:space="preserve" text-anchor="middle" x="1115.39" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="nc4846c73d8fe5972e3b5" class="node diagram-node shape-package" data-native-id="b74c8bbe-d4c8-5c59-ac58-4c0b018cf896" data-shape="package">
-<title>SimpleFlowRustUml::crate::record
-b74c8bbe-d4c8-5c59-ac58-4c0b018cf896
-b74c8bbe-d4c8-5c59-ac58-4c0b018cf896</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="517.01,-360.06 514.01,-364.06 493.01,-364.06 490.01,-360.06 428.99,-360.06 428.99,-282.04 517.01,-282.04 517.01,-360.06" />
-<rect fill="white" stroke="none" x="437.62" y="-354.3" width="70.75999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="445.62" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="445.62" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Record</text>
+<g class="edge" data-native-id="36aec991-6f9b-564b-9add-9e5c5c4b875f" data-source-id="72554491-38f9-5a6e-a994-67695651117f" data-target-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-edge-kind="dependency">
+<title>imports
+
+36aec991-6f9b-564b-9add-9e5c5c4b875f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1166.14,-563.58C1153.64,-544.33 1141.14,-525.08 1141.14,-525.08 1141.14,-525.08 1060.14,-423.06 1060.14,-423.06 1060.14,-423.06 928.14,-384.06 928.14,-384.06 928.14,-384.06 828.18,-355.63 763.64,-337.27" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="756.31,-335.18 764.98,-333.91 758.67,-335.7 764.04,-337.23 764,-337.37 763.96,-337.51 758.59,-335.99 763.01,-340.83 756.31,-335.18" />
+<text xml:space="preserve" text-anchor="middle" x="1143.08" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="n24f7e67b4e732086133b" class="node diagram-node shape-package" data-native-id="b56f9ff1-5033-50ab-a3b9-604f77c6d839" data-shape="package">
-<title>SimpleFlowRustUml::crate::run
-b56f9ff1-5033-50ab-a3b9-604f77c6d839
-b56f9ff1-5033-50ab-a3b9-604f77c6d839</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="408.14,-783.12 405.14,-787.12 384.14,-787.12 381.14,-783.12 323.86,-783.12 323.86,-705.1 408.14,-705.1 408.14,-783.12" />
-<rect fill="white" stroke="none" x="332.5" y="-777.36" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="340.5" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="340.5" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run</text>
+<g class="edge" data-native-id="f2d4e567-048a-5aa0-ace5-facff4504b3c" data-source-id="72554491-38f9-5a6e-a994-67695651117f" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
+<title>imports
+
+f2d4e567-048a-5aa0-ace5-facff4504b3c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1209.03,-563.62C1250.78,-473.85 1351.14,-258.04 1351.14,-258.04 1351.14,-258.04 1351.14,-243.04 1351.14,-243.04 1351.14,-243.04 1137.21,-124.04 1036.91,-68.25" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1030.11,-64.47 1038.85,-65.21 1032.29,-65.51 1037.17,-68.23 1037.1,-68.36 1037.03,-68.49 1032.15,-65.77 1035.35,-71.5 1030.11,-64.47" />
+<text xml:space="preserve" text-anchor="middle" x="1361.3" y="-316.2" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g id="nae861c951c1550bcd803" class="node diagram-node shape-package" data-native-id="813e753d-3b0c-5671-beaf-6e1331283c71" data-shape="package">
-<title>SimpleFlowRustUml::crate::status
-813e753d-3b0c-5671-beaf-6e1331283c71
-813e753d-3b0c-5671-beaf-6e1331283c71</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="595.14,-78.02 592.14,-82.02 571.14,-82.02 568.14,-78.02 510.86,-78.02 510.86,0 595.14,0 595.14,-78.02" />
-<rect fill="white" stroke="none" x="519.5" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="527.5" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
-<text xml:space="preserve" text-anchor="start" x="527.5" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Status</text>
+<g class="edge" data-native-id="bf21e48c-2955-5981-96a8-2f07fb5b6def" data-source-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-target-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-edge-kind="dependency">
+<title>imports
+
+bf21e48c-2955-5981-96a8-2f07fb5b6def</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1360.14,-845.77C1360.14,-804.63 1360.14,-745.11 1360.14,-745.11 1360.14,-745.11 1360.14,-745.11 1360.14,-390.56 1360.14,-390.56 1339.14,-282.04 1339.14,-282.04 1339.14,-282.04 1135.93,-223.89 1037.87,-195.83" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1030.24,-193.65 1038.92,-192.39 1032.61,-194.17 1037.98,-195.71 1037.93,-195.85 1037.89,-196 1032.52,-194.46 1036.94,-199.31 1030.24,-193.65" />
+<text xml:space="preserve" text-anchor="middle" x="1381.89" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="7ea63cf3-9ea8-5bda-9ef3-6cc0a948cc5f" data-source-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-target-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-edge-kind="dependency">
+<title>imports
+
+7ea63cf3-9ea8-5bda-9ef3-6cc0a948cc5f</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1323.92,-845.51C1259.83,-777.18 1133.14,-642.1 1133.14,-642.1 1133.14,-642.1 1074.63,-562.14 1035.82,-509.09" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1031.18,-502.75 1038.81,-507.09 1032.73,-504.62 1036.02,-509.12 1035.9,-509.21 1035.78,-509.3 1032.48,-504.79 1033,-511.34 1031.18,-502.75" />
+<text xml:space="preserve" text-anchor="middle" x="1191.35" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="54ddf49a-e853-5737-b66a-70d34dbb162e" data-source-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-target-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-edge-kind="dependency">
+<title>imports
+
+54ddf49a-e853-5737-b66a-70d34dbb162e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1314.28,-875.31C1225.24,-858.19 1037.64,-822.12 1037.64,-822.12 1037.64,-822.12 864.91,-779.69 775.87,-757.82" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="768.28,-755.95 776.91,-754.37 770.67,-756.38 776.09,-757.72 776.05,-757.86 776.02,-758.01 770.6,-756.68 775.19,-761.36 768.28,-755.95" />
+<text xml:space="preserve" text-anchor="middle" x="1059.39" y="-809.77" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="443141e4-4afc-56f9-a29f-5d93ada3b316" data-source-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-target-id="096161af-a172-5941-92a7-6c42e1e8901a" data-edge-kind="dependency">
+<title>imports
+
+443141e4-4afc-56f9-a29f-5d93ada3b316</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1406.23,-852.41C1465.85,-811.38 1562.14,-745.11 1562.14,-745.11 1562.14,-745.11 1562.14,-745.11 1562.14,-179.03 1562.14,-179.03 1424.14,-102.02 1424.14,-102.02 1424.14,-102.02 1153.87,-63.76 1037.94,-47.34" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1030.1,-46.23 1038.53,-43.79 1032.52,-46.42 1038.05,-47.21 1038.02,-47.36 1038,-47.5 1032.47,-46.72 1037.52,-50.92 1030.1,-46.23" />
+<text xml:space="preserve" text-anchor="middle" x="1583.89" y="-457.22" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g class="edge" data-native-id="0f00b1d9-32c8-5333-a6d7-4f006b9f8491" data-source-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-target-id="e578a4d2-39cc-521e-b259-6d13526b7f9c" data-edge-kind="dependency">
+<title>imports
+
+0f00b1d9-32c8-5333-a6d7-4f006b9f8491</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M1385.25,-845.77C1412.18,-804.63 1451.14,-745.11 1451.14,-745.11 1451.14,-745.11 1451.14,-745.11 1451.14,-461.07 1451.14,-461.07 1454.81,-410.06 1457.7,-369.84" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="1458.27,-361.99 1461.28,-370.22 1458.24,-364.41 1457.84,-369.98 1457.69,-369.97 1457.54,-369.95 1457.94,-364.38 1454.1,-369.71 1458.27,-361.99" />
+<text xml:space="preserve" text-anchor="middle" x="1472.89" y="-598.24" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g id="nd7a672ef04ce87f6876a" class="node diagram-node shape-package" data-native-id="a699c535-8fa6-56f0-af1d-500500d4a5c4" data-shape="package">
+<title>XDesignRustUml::crate
+a699c535-8fa6-56f0-af1d-500500d4a5c4
+a699c535-8fa6-56f0-af1d-500500d4a5c4</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="84.28,-924.14 81.28,-928.14 60.28,-928.14 57.28,-924.14 0,-924.14 0,-846.12 84.28,-846.12 84.28,-924.14" />
+<rect fill="white" stroke="none" x="8.64" y="-918.38" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="16.64" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Crate</text>
+</g>
+
+<g id="nafe7f785c44045286d0c" class="node diagram-node shape-package" data-native-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-shape="package">
+<title>XDesignRustUml::crate::core
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="222.28,-783.12 219.28,-787.12 198.28,-787.12 195.28,-783.12 138,-783.12 138,-705.1 222.28,-705.1 222.28,-783.12" />
+<rect fill="white" stroke="none" x="146.64" y="-777.36" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="154.64" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="154.64" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Core</text>
+</g>
+
+<g id="n522aac570be9ee10834b" class="node diagram-node shape-package" data-native-id="e7c425e6-ff65-5202-b5cf-78833380461a" data-shape="package">
+<title>XDesignRustUml::crate::core::factory
+e7c425e6-ff65-5202-b5cf-78833380461a
+e7c425e6-ff65-5202-b5cf-78833380461a</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="556.65,-924.14 553.65,-928.14 532.65,-928.14 529.65,-924.14 465.62,-924.14 465.62,-846.12 556.65,-846.12 556.65,-924.14" />
+<rect fill="white" stroke="none" x="474.26" y="-918.38" width="73.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="482.26" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="482.26" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Factory</text>
+</g>
+
+<g id="n582b2ecb77d89b5c1fc5" class="node diagram-node shape-package" data-native-id="22b5550c-6acd-583d-ba33-f3af06c3d66c" data-shape="package">
+<title>XDesignRustUml::crate::core::gate
+22b5550c-6acd-583d-ba33-f3af06c3d66c
+22b5550c-6acd-583d-ba33-f3af06c3d66c</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="766.28,-642.1 763.28,-646.1 742.28,-646.1 739.28,-642.1 682,-642.1 682,-564.08 766.28,-564.08 766.28,-642.1" />
+<rect fill="white" stroke="none" x="690.64" y="-636.34" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="698.64" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="698.64" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Gate</text>
+</g>
+
+<g id="n54bbd2be9b83e6643555" class="node diagram-node shape-package" data-native-id="a1c4ccef-cd1c-5942-8c81-efba0054988e" data-shape="package">
+<title>XDesignRustUml::crate::core::plan
+a1c4ccef-cd1c-5942-8c81-efba0054988e
+a1c4ccef-cd1c-5942-8c81-efba0054988e</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1028.28,-219.04 1025.28,-223.04 1004.28,-223.04 1001.28,-219.04 944,-219.04 944,-141.02 1028.28,-141.02 1028.28,-219.04" />
+<rect fill="white" stroke="none" x="952.64" y="-213.28" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="960.64" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="960.64" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Plan</text>
+</g>
+
+<g id="nc2d1c2a425d05e2ddbdb" class="node diagram-node shape-package" data-native-id="c5e2186d-b38d-5d3b-8401-eb36a95ffa32" data-shape="package">
+<title>XDesignRustUml::crate::core::ports
+c5e2186d-b38d-5d3b-8401-eb36a95ffa32
+c5e2186d-b38d-5d3b-8401-eb36a95ffa32</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1044.28,-501.08 1041.28,-505.08 1020.28,-505.08 1017.28,-501.08 960,-501.08 960,-423.06 1044.28,-423.06 1044.28,-501.08" />
+<rect fill="white" stroke="none" x="968.64" y="-495.32" width="67.00000000000011" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="976.64" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="976.64" y="-441.37" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Ports</text>
+</g>
+
+<g id="n49dfbb3f565276c7f45e" class="node diagram-node shape-package" data-native-id="fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af" data-shape="package">
+<title>XDesignRustUml::crate::core::record
+fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af
+fb8ff2c7-38f1-5b8a-ad3f-b0ed534a20af</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="754.15,-360.06 751.15,-364.06 730.15,-364.06 727.15,-360.06 666.12,-360.06 666.12,-282.04 754.15,-282.04 754.15,-360.06" />
+<rect fill="white" stroke="none" x="674.76" y="-354.3" width="70.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="682.76" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="682.76" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Record</text>
+</g>
+
+<g id="n41b3ea1078b460182543" class="node diagram-node shape-package" data-native-id="0e1624de-fb81-5a6c-bcd2-fee6333869ae" data-shape="package">
+<title>XDesignRustUml::crate::core::run
+0e1624de-fb81-5a6c-bcd2-fee6333869ae
+0e1624de-fb81-5a6c-bcd2-fee6333869ae</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="766.28,-783.12 763.28,-787.12 742.28,-787.12 739.28,-783.12 682,-783.12 682,-705.1 766.28,-705.1 766.28,-783.12" />
+<rect fill="white" stroke="none" x="690.64" y="-777.36" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="698.64" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="698.64" y="-723.41" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Run</text>
+</g>
+
+<g id="ne13254b52d1f3fbf19e4" class="node diagram-node shape-package" data-native-id="096161af-a172-5941-92a7-6c42e1e8901a" data-shape="package">
+<title>XDesignRustUml::crate::core::status
+096161af-a172-5941-92a7-6c42e1e8901a
+096161af-a172-5941-92a7-6c42e1e8901a</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1028.28,-78.02 1025.28,-82.02 1004.28,-82.02 1001.28,-78.02 944,-78.02 944,0 1028.28,0 1028.28,-78.02" />
+<rect fill="white" stroke="none" x="952.64" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="960.64" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="960.64" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Status</text>
+</g>
+
+<g id="n273358b4ecf7f4c055ab" class="node diagram-node shape-package" data-native-id="9d0cb894-ff95-5086-b7c9-a80dad121276" data-shape="package">
+<title>XDesignRustUml::crate::simpleFlow
+9d0cb894-ff95-5086-b7c9-a80dad121276
+9d0cb894-ff95-5086-b7c9-a80dad121276</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="243.65,-924.14 240.65,-928.14 219.65,-928.14 216.65,-924.14 116.62,-924.14 116.62,-846.12 243.65,-846.12 243.65,-924.14" />
+<rect fill="white" stroke="none" x="125.26" y="-918.38" width="109.74999999999999" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="133.26" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="133.26" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Simple Flow</text>
+</g>
+
+<g id="n11425a7b08909355b46c" class="node diagram-node shape-package" data-native-id="e578a4d2-39cc-521e-b259-6d13526b7f9c" data-shape="package">
+<title>XDesignRustUml::crate::simpleFlow::blueprint
+e578a4d2-39cc-521e-b259-6d13526b7f9c
+e578a4d2-39cc-521e-b259-6d13526b7f9c</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1512.65,-360.06 1509.65,-364.06 1488.65,-364.06 1485.65,-360.06 1409.62,-360.06 1409.62,-282.04 1512.65,-282.04 1512.65,-360.06" />
+<rect fill="white" stroke="none" x="1418.26" y="-354.3" width="85.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="1426.26" y="-333.55" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="1426.26" y="-300.35" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Blueprint</text>
+</g>
+
+<g id="n6f08b0a609b922dfd464" class="node diagram-node shape-package" data-native-id="72554491-38f9-5a6e-a994-67695651117f" data-shape="package">
+<title>XDesignRustUml::crate::simpleFlow::check
+72554491-38f9-5a6e-a994-67695651117f
+72554491-38f9-5a6e-a994-67695651117f</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1233.28,-642.1 1230.28,-646.1 1209.28,-646.1 1206.28,-642.1 1149,-642.1 1149,-564.08 1233.28,-564.08 1233.28,-642.1" />
+<rect fill="white" stroke="none" x="1157.64" y="-636.34" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="1165.64" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="1165.64" y="-582.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Check</text>
+</g>
+
+<g id="n038649e83a83e8029d74" class="node diagram-node shape-package" data-native-id="ccff0c86-e45d-5cbc-9e9a-732c7f2a4044" data-shape="package">
+<title>XDesignRustUml::crate::simpleFlow::factory
+ccff0c86-e45d-5cbc-9e9a-732c7f2a4044
+ccff0c86-e45d-5cbc-9e9a-732c7f2a4044</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="1405.65,-924.14 1402.65,-928.14 1381.65,-928.14 1378.65,-924.14 1314.62,-924.14 1314.62,-846.12 1405.65,-846.12 1405.65,-924.14" />
+<rect fill="white" stroke="none" x="1323.26" y="-918.38" width="73.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="1331.26" y="-897.63" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="1331.26" y="-864.43" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Factory</text>
 </g>
 </g>
 </svg>

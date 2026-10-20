@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="604pt" height="326pt" viewBox="0.00 0.00 604.00 326.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Crate layers</title><desc id="diagram-desc">How is the xdesign crate divided into layers, and which direction may dependencies point?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 308.29)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-308.29 586,-308.29 586,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="222.12" y="-260.39" font-family="Arial" font-weight="bold" font-size="22.00">Crate layers</text>
+<text xml:space="preserve" text-anchor="start" x="14" y="-232.04" font-family="Arial" font-size="14.00" fill="#52657a">How is the xdesign crate divided into layers, and which direction may dependencies point?</text>
+
+<g class="edge" data-native-id="81132f19-e080-5750-84bc-ea466e9b927a" data-source-id="9d0cb894-ff95-5086-b7c9-a80dad121276" data-target-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-edge-kind="dependency">
+<title>imports
+
+81132f19-e080-5750-84bc-ea466e9b927a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M342.31,-140.67C342.31,-124.26 342.31,-104.93 342.31,-87.62" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="342.31,-79.82 345.91,-87.82 342.46,-82.24 342.46,-87.82 342.31,-87.82 342.16,-87.82 342.16,-82.24 338.71,-87.82 342.31,-79.82" />
+<text xml:space="preserve" text-anchor="middle" x="364.06" y="-104.67" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
+</g>
+
+<g id="nd7a672ef04ce87f6876a" class="node diagram-node shape-package" data-native-id="a699c535-8fa6-56f0-af1d-500500d4a5c4" data-shape="package">
+<title>XDesignRustUml::crate
+a699c535-8fa6-56f0-af1d-500500d4a5c4
+a699c535-8fa6-56f0-af1d-500500d4a5c4</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="246.45,-219.04 243.45,-223.04 222.45,-223.04 219.45,-219.04 162.17,-219.04 162.17,-141.02 246.45,-141.02 246.45,-219.04" />
+<rect fill="white" stroke="none" x="170.81" y="-213.28" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="178.81" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="178.81" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Crate</text>
+</g>
+
+<g id="nafe7f785c44045286d0c" class="node diagram-node shape-package" data-native-id="6b5e3e99-35c1-5d24-a5b6-8fc12374a532" data-shape="package">
+<title>XDesignRustUml::crate::core
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532
+6b5e3e99-35c1-5d24-a5b6-8fc12374a532</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="384.45,-78.02 381.45,-82.02 360.45,-82.02 357.45,-78.02 300.17,-78.02 300.17,0 384.45,0 384.45,-78.02" />
+<rect fill="white" stroke="none" x="308.81" y="-72.26" width="67.0" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="316.81" y="-51.51" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="316.81" y="-18.31" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Core</text>
+</g>
+
+<g id="n273358b4ecf7f4c055ab" class="node diagram-node shape-package" data-native-id="9d0cb894-ff95-5086-b7c9-a80dad121276" data-shape="package">
+<title>XDesignRustUml::crate::simpleFlow
+9d0cb894-ff95-5086-b7c9-a80dad121276
+9d0cb894-ff95-5086-b7c9-a80dad121276</title>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="405.83,-219.04 402.83,-223.04 381.83,-223.04 378.83,-219.04 278.8,-219.04 278.8,-141.02 405.83,-141.02 405.83,-219.04" />
+<rect fill="white" stroke="none" x="287.44" y="-213.28" width="109.75" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="295.44" y="-192.53" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
+<text xml:space="preserve" text-anchor="start" x="295.44" y="-159.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Simple Flow</text>
+</g>
+</g>
+</svg>

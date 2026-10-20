@@ -1,15 +1,6 @@
-pub mod factory;
-pub mod gate;
-pub mod plan;
-pub mod ports;
-pub mod record;
-pub mod run;
-pub mod status;
+//! xdesign application library in two layers: `core` holds the flow-agnostic
+//! infrastructure and `simple_flow` builds the designed four-stage flow on it.
+//! Dependencies point one way: `simple_flow` may use `core`, never the reverse.
 
-pub use factory::*;
-pub use gate::*;
-pub use plan::*;
-pub use ports::*;
-pub use record::*;
-pub use run::*;
-pub use status::*;
+pub mod core;
+pub mod simple_flow;
