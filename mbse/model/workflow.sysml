@@ -1,6 +1,6 @@
 package XDesignWorkflow {
     @XDesignCommon::DiagramPresentation { label = "Workflow"; }
-    @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+    @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
     private import ScalarValues::*;
     private import XDesignArchitecture::*;
     private import XDesignCommon::*;
@@ -10,7 +10,7 @@ package XDesignWorkflow {
        from the same directory. */
 
     port def WishExchange {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         doc /* A requested outcome enters the controller; registration returns
            the Wish and its independent execution Trace to the requester. */
 
@@ -20,7 +20,7 @@ package XDesignWorkflow {
     }
 
     interface def WishInterface {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         end port requester : ~WishExchange;
         end port receiver : WishExchange;
 
@@ -30,13 +30,13 @@ package XDesignWorkflow {
     }
 
     port def FlowExchange {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         doc /* Publishes the reusable flow definition used for execution. */
         out ref part selectedFlow : Flow;
     }
 
     interface def FlowInterface {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         end port provider : FlowExchange;
         end port consumer : ~FlowExchange;
 
@@ -45,20 +45,20 @@ package XDesignWorkflow {
 
     part def WishRequester {
         @XDesignCommon::DiagramPresentation { label = "Requester"; summary = "Expresses wishes and reviews outcomes"; }
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         doc /* The user's interaction boundary. Wishes and traces remain owned
            by Workflow; the requester receives references through this port. */
         port wishPort : ~WishExchange;
     }
 
     part def WorkflowFlow :> SimpleFlow {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         port flowPort : FlowExchange;
         bind flowPort.selectedFlow = self;
     }
 
     part def WorkflowController :> Controller {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         port wishPort : WishExchange;
         port flowPort : ~FlowExchange;
 
@@ -69,7 +69,7 @@ package XDesignWorkflow {
     }
 
     action def StageWork {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F04"; }
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F04"; }
         doc /* Produce stage artifacts, append their activity record to the
            active visit, and ask the existing controller to assess and advance.
            The controller retains authority over checkpoints and trace status. */
@@ -92,7 +92,7 @@ package XDesignWorkflow {
     }
 
     part def Workflow :> XDesign {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B02"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
         doc /* A four-stage workflow configuration and lifecycle scenario.
            Typed interfaces carry the request, registration and flow definition.
            The concrete selectable usage is owned by xdesign's flow portfolio. */
@@ -200,7 +200,7 @@ package XDesignWorkflow {
     }
 
     view wishLifecycle : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/03_toolchain.md"; section = "T03"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/constraints.md"; section = "T03"; }
         doc /* Intake -> requirements -> design -> implementation -> verification
            -> delivered, with guarded verification failure and retry paths.
            Nested StageWork actions record artifacts and invoke the controller. */
@@ -212,7 +212,7 @@ package XDesignWorkflow {
     }
 
     view workflowInterfaces : StandardViewDefinitions::InterconnectionView {
-        @XDesignCommon::DocSection { document = "docs/details/03_toolchain.md"; section = "T03"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/constraints.md"; section = "T03"; }
         doc /* Requester <-> controller through WishInterface, and reusable flow
            -> controller through FlowInterface. Port directions and interface
            flows specify the exchanged request, wish, trace and flow definition. */

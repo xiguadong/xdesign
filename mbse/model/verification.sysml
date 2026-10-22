@@ -1,6 +1,6 @@
 package XDesignVerification {
     @XDesignCommon::DiagramPresentation { label = "Verification"; }
-    @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D15"; }
+    @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "D15"; }
     private import XDesignDetailedDesign::*;
     private import XDesignRustUml::*;
 
@@ -10,7 +10,7 @@ package XDesignVerification {
 
     verification def SimpleFlowViewReview {
         @XDesignCommon::DiagramPresentation { label = "Design review"; summary = "Planned coverage review"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D15"; }
+        @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "D15"; }
         doc /* Inspect the run/factory/operation design, every stage's gates, and all
            nine coordinated views. Re-render each figure, inspect native endpoints,
            check its documentation link and exercise authorization truth cases with
@@ -24,7 +24,7 @@ package XDesignVerification {
     }
 
     verification def DiagramPresentationReview {
-        @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D25"; }
+        @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D25"; }
         @XDesignCommon::DiagramPresentation { label = "Diagram readability review"; summary = "Inspect the final nine figures and their source identity"; }
         doc /* This case specifies acceptance; it is not itself an executed test.
            Rebuild the nine primary SimpleFlow figures from their native views.
@@ -44,7 +44,7 @@ package XDesignVerification {
     }
 
     verification def DocumentationContractReview {
-        @XDesignCommon::DocSection { document = "docs/review/01_wish_status.md"; section = "V07"; }
+        @XDesignCommon::DocSection { document = "docs/records/wishes/wish-history.md"; section = "V07"; }
         doc /* This case specifies design-stage acceptance; its declaration is not an
            executed result. Inspect the documentation entry, current document set,
            reverse model map, and an independently located design section for each
@@ -70,7 +70,7 @@ package XDesignVerification {
     }
 
     verification def RustUmlDesignReview {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D52"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D52"; }
         doc /* This case specifies acceptance of the Rust UML design; its
            declaration is not an executed result. For every designed SimpleFlow
            element, find the Rust element that realizes it and read the recorded
@@ -87,7 +87,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowGateBehaviorVerification {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned executable cases for the designed SimpleFlow. Load a valid
            four-stage plan with one syntactic gate on each of the first three
            stages and both a syntactic and a semantic gate on verify. Reject a
@@ -105,7 +105,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowRecoveryVerification {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned executable lifecycle cases. Creation starts all visits at
            artifact revision 0 and visit index 0. Recording a content change,
            including an in-place edit at the same URI, increments the current
@@ -125,7 +125,7 @@ package XDesignVerification {
     }
 
     verification def SimpleFlowFilePlanVerification {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D54"; }
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned file-level conformance case. Compare every path in
            simpleFlowFilePlan with the repository and every in-scope source and
            test file back to the plan, then compare the Rust module exports,
@@ -142,7 +142,7 @@ package XDesignVerification {
     }
 
     verification def WishVerifyFlowBehaviorVerification {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P28"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/wish-verify.md"; section = "P28"; }
         doc /* Planned executable cases for the designed wish-verify flow. Load a
            valid two-stage plan whose wish and verify exits are both semantic
            gates. Reject a plan with an absent, duplicate or foreign exit gate
@@ -158,7 +158,7 @@ package XDesignVerification {
     }
 
     verification def WishVerifyFlowFilePlanVerification {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P28"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/wish-verify.md"; section = "P28"; }
         doc /* Planned file-level conformance case. Compare every path in
            wishVerifyFlowFilePlan with the repository and back, and compare the
            wishVerify Rust module's elements with the design elements they

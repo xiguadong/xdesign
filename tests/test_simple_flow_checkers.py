@@ -415,7 +415,7 @@ class CheckerCases(unittest.TestCase):
             destination = fixture / path
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / path, destination)
-        missing = "docs/details/simple_flow/assets/05_sequence.svg"
+        missing = simple_design.REQUIRED_VIEW_FIGURES["sequenceDiagram"][1]
         (fixture / missing).unlink()
         hashes = {path: hashlib.sha256((fixture / path).read_bytes()).hexdigest()
                   for path in paths if (fixture / path).is_file()}
@@ -434,8 +434,7 @@ class CheckerCases(unittest.TestCase):
             shutil.copyfile(ROOT / path, destination)
         design_file = fixture / simple_design.DESIGN
         source = design_file.read_text()
-        generic = ('docs/details/simple_flow/03_structure_graphs.md',
-                   'docs/details/simple_flow/assets/03_logical.svg')
+        generic = simple_design.REQUIRED_VIEW_FIGURES["blockDefinitionDiagram"]
         for document, figure in simple_design.REQUIRED_VIEW_FIGURES.values():
             original = f'@XDesignCommon::DocFigure {{ document = "{document}"; figure = "{figure}"; }}'
             replacement = f'@XDesignCommon::DocFigure {{ document = "{generic[0]}"; figure = "{generic[1]}"; }}'
@@ -494,7 +493,7 @@ class CheckerCases(unittest.TestCase):
              "item simpleImplementationCheck : AlternateChecker subsets checkers {", "every-stage-gated"),
             (design, "ref item redefines checkers = simpleImplementationCheck;",
              "ref item redefines checkers = simpleDesignCheck;", "every-stage-gated"),
-            (design, 'part def SimpleFlowRun :> FlowExecution {\n        @XDesignCommon::DiagramPresentation { label = "Flow run"; summary = "Visits, gate assessments and advancement"; }\n        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D02"; }',
+            (design, 'part def SimpleFlowRun :> FlowExecution {\n        @XDesignCommon::DiagramPresentation { label = "Flow run"; summary = "Visits, gate assessments and advancement"; }\n        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D02"; }',
              'part def SimpleFlowRun :> FlowExecution {\n        @XDesignCommon::DiagramPresentation { label = "Flow run"; summary = "Visits, gate assessments and advancement"; }',
              "design-elements-carry-doc-sections"),
             (design, 'attribute redefines commandUri = "tools/checks/simple_implementation.py";',

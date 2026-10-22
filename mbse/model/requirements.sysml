@@ -1,6 +1,6 @@
 package XDesignRequirements {
     @XDesignCommon::DiagramPresentation { label = "Requirements"; }
-    @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+    @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
     private import ScalarValues::*;
     private import Requirements::*;
 
@@ -10,14 +10,14 @@ package XDesignRequirements {
        package references a wish. */
 
     requirement def XDesignRequirement :> DesignConstraintCheck {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A requirement on this tool, carrying the reason it exists, so a reader can
            judge the requirement instead of taking it on authority. */
         attribute rationale : String;
     }
 
     requirement checkpointKindIsDeclared : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every checkpoint declares whether its criteria are established
            syntactically, by a fixed code or script check, or semantically, by
            judgment. */
@@ -25,28 +25,28 @@ package XDesignRequirements {
     }
 
     requirement syntacticCheckIsFixed : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A syntactic checkpoint names at least one checker whose command fixes the
            check, so the flow runs it unchanged rather than judging afresh. */
         attribute redefines rationale = "Repeating the same criteria by hand invites drift; a fixed command makes one check reproducible and its output comparable across revisions.";
     }
 
     requirement syntacticAssessmentIsScripted : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* An assessment of a syntactic checkpoint is judged by a script, and the
            script's output for the assessed revision is its evidence. */
         attribute redefines rationale = "A script cannot rationalize a result, and its output can be re-examined later, which is what makes the evidence worth keeping.";
     }
 
     requirement semanticCheckNamesItsJudges : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A semantic checkpoint names no checker and states whether an agent or a
            human may judge it. */
         attribute redefines rationale = "Criteria such as whether parts address requirements cannot be reduced to a command, so the checkpoint must say who is competent to judge them.";
     }
 
     requirement checkerStatesItsConformance : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A checker states which kinds of conformance it establishes over the
            stage's artifacts: artifact presence, identifier conformance, definition
            coverage or trace conformance. */
@@ -54,7 +54,7 @@ package XDesignRequirements {
     }
 
     requirement wishProductsAreRetained : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The requirements a wish produces, and the model modifications it causes,
            are retained in this model. A wish's own record may describe them, but it
            never holds the only copy. */
@@ -62,7 +62,7 @@ package XDesignRequirements {
     }
 
     requirement modelStandsWithoutWishes : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The project model resolves and checks on its own. No model element names a
            wish or a wish record, and no model element carries a wish's identity; a wish
            may reference model elements, never the reverse. */
@@ -71,7 +71,7 @@ package XDesignRequirements {
 
     requirement flowRunIsRealizedByDesign : XDesignRequirement {
         @XDesignCommon::DiagramPresentation { label = "Run has a concrete design"; summary = "Run class, factory and operations"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A flow's run is realized by design elements: a class for the run, a
            factory that creates it, and the functions that evaluate its gates and
            advance it. */
@@ -80,14 +80,14 @@ package XDesignRequirements {
 
     requirement designedFlowGatesEveryStage : XDesignRequirement {
         @XDesignCommon::DiagramPresentation { label = "Every stage has an exit gate"; summary = "Advancement requires explicit authorization"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every stage of a designed flow declares the exit checkpoint that must
            pass before the flow leaves it. */
         attribute redefines rationale = "A stage left without a gate completes on the mere passage of work; gating every stage makes a designed flow's advancement checkable everywhere, not only at its end.";
     }
 
     requirement gateSyntaxIsRunnable : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every syntactic gate's checker names a command that exists in the
            repository; the flow runs it unchanged, and its output for the assessed
            revision is the evidence. */
@@ -95,7 +95,7 @@ package XDesignRequirements {
     }
 
     requirement runRecordIsScriptChecked : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The conformance of a run's record — at least one visit per stage,
            assessments cited at the visited revision, evidence that exists — is
            established by a checker, not by reading. */
@@ -103,7 +103,7 @@ package XDesignRequirements {
     }
 
     requirement designCarriesItsDocSections : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every element of the detailed design carries the documentation section
            that covers it, and the design's own checker establishes that the sections
            are present and well formed. */
@@ -111,7 +111,7 @@ package XDesignRequirements {
     }
 
     requirement checkerRulesAreDeclared : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every checker of a designed flow declares the rules by which its
            outcome is determined — each rule's exact condition and what it reads —
            and its command reports each rule's verdict; the design's check
@@ -121,7 +121,7 @@ package XDesignRequirements {
 
     requirement structureGraphsAreDocumented : XDesignRequirement {
         @XDesignCommon::DiagramPresentation { label = "Nine views document the design"; summary = "Each view selects native elements and locates its figure"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A designed flow declares nine complementary views of the same model:
            block definition, internal block, requirements, parametric, use case,
            activity, sequence, state machine and package. Each view selects native
@@ -132,14 +132,14 @@ package XDesignRequirements {
     }
 
     requirement runRealizesItsDesign : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A run of a designed flow is recorded with the design's class, so the
            design is realized by the run rather than declared beside it. */
         attribute redefines rationale = "A class nothing is typed by is a picture of a run, not a run's design; the typing is what makes the design load-bearing, and a check can establish it.";
     }
 
     requirement diagramViewsAreReadable : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         @XDesignCommon::DiagramPresentation { label = "Nine views are readable"; summary = "Review final figures at article size"; }
         doc /* The nine primary SimpleFlow documentation views are legible at a
            900-pixel article width, with displayed diagram text at least 11 pixels,
@@ -154,7 +154,7 @@ package XDesignRequirements {
     }
 
     requirement diagramPresentationRetainsSourceIdentity : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         @XDesignCommon::DiagramPresentation { label = "Figures retain model identity"; summary = "Short labels preserve native source references"; }
         doc /* Documentation diagrams derive their selected elements and
            relationships from native SysML views and compiler exports. Optional
@@ -168,7 +168,7 @@ package XDesignRequirements {
     }
 
     requirement documentationEntryMapsDesign : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The documentation set has one entry document that gives each reader a
            route through the current documents and maps the model's modules and
            current design concerns to their detailed sections. */
@@ -176,7 +176,7 @@ package XDesignRequirements {
     }
 
     requirement documentationSupportsMultipleFlows : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The documentation structure has an independently addressable overview
            for each defined flow and a separate detailed location for each developed
            flow design. Another flow can be added without renumbering or recasting
@@ -185,7 +185,7 @@ package XDesignRequirements {
     }
 
     requirement figuresStayWithDesignExplanation : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Each documented design figure is embedded in the subsection whose
            design question it answers and accompanied there by its native view,
            companion views, status, reading guidance, and limits. */
@@ -193,7 +193,7 @@ package XDesignRequirements {
     }
 
     requirement modelDocumentationLinksResolve : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A documentation check resolves every DocSection document and stable
            section anchor, every DocFigure asset and carrying document, and each
            figure's embed in that document; the entry's module-level reverse index
@@ -202,7 +202,7 @@ package XDesignRequirements {
     }
 
     requirement viewAndViewpointRolesAreSpecified : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* The documentation specification distinguishes a viewpoint's question
            and selection convention from a native SysML view's selected elements,
            and identifies how the view, DocFigure, rendered asset, and carrying
@@ -212,7 +212,7 @@ package XDesignRequirements {
     }
 
     requirement checkerRulesAreImplementationReady : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Each documented design-stage checker rule states its input artifacts,
            exact decision condition, failure diagnostic, evidence output, and
            current implementation status so a later implementation can reproduce
@@ -221,7 +221,7 @@ package XDesignRequirements {
     }
 
     requirement rustUmlDesignMapsEveryDesignElement : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A Rust software design of a designed flow names one Rust element for
            each of the flow's design elements — the run, the factory, the checkpoint
            class and its adaptations, the gate and advance functions, the records,
@@ -231,7 +231,7 @@ package XDesignRequirements {
     }
 
     requirement umlViewsAreSelectedWithReasons : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* For a module's UML design, every UML view of the project's UML guide
            is marked required, recommended or not applicable with a reason, and each
            adopted view is embedded in the section whose question it answers, with
@@ -240,7 +240,7 @@ package XDesignRequirements {
     }
 
     requirement softwareDesignClaimsNoImplementation : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R01"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* A software design document distinguishes designed elements from
            implemented code and claims no implementation, test result or build that
            does not exist in the repository. */

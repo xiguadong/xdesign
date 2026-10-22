@@ -36,16 +36,16 @@ STATUSES = {
 }
 RULE_CODES = {
     "directory-layout": {
-        "missing-root-entry", "missing-overview", "invalid-document-name", "reserved-overview-index",
-        "duplicate-document-index", "document-index-gap", "markdown-in-assets",
+        "missing-root-entry", "invalid-document-directory", "invalid-directory-name",
+        "invalid-document-name", "markdown-in-assets",
     },
     "section-target": {
         "invalid-document-path", "missing-document", "missing-section-id",
-        "missing-section-anchor", "duplicate-anchor", "anchor-heading-mismatch",
+        "missing-section-anchor", "missing-section-heading", "duplicate-anchor",
     },
     "figure-target": {
         "invalid-figure-path", "missing-figure", "figure-directory-mismatch",
-        "figure-prefix-mismatch", "figure-embed-count", "figure-section-placement",
+        "figure-embed-count", "figure-section-placement",
     },
     "figure-block": {
         "missing-figure-block", "duplicate-figure-block", "figure-section-mismatch",
@@ -166,35 +166,23 @@ def inspect(root: Path = REPO) -> dict:
         except (OSError, UnicodeError) as error:
             report("unreadable-document", path, 1, str(error))
 
-    if root / "docs" / "00_index.md" not in markdown:
-        report("missing-root-entry", root / "docs", 1, "The documentation root needs 00_index.md")
-
-    by_directory: dict[Path, list[Path]] = {}
+    if root / "docs" / "index.md" not in markdown:
+        report("missing-root-entry", root / "docs", 1, "The documentation root needs index.md")
+    allowed_top = {"requirements", "architecture", "design", "interfaces", "verification", "records"}
+    semantic = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
     for document in markdown:
-        if document.parent != root / "docs":
-            by_directory.setdefault(document.parent, []).append(document)
-    counts["documentation_directories"] = len(by_directory)
-    for directory, members in sorted(by_directory.items()):
-        overview = directory / "00_overview.md"
-        if overview not in members:
-            report("missing-overview", directory, 1, "Every documentation subdirectory needs 00_overview.md")
-        indices: dict[int, list[Path]] = {}
-        for document in members:
-            match = re.fullmatch(r"(\d{2,})_[a-z0-9]+(?:_[a-z0-9]+)*\.md", document.name)
-            if match is None:
-                report("invalid-document-name", document, 1, document.name)
-                continue
-            index = int(match.group(1))
-            indices.setdefault(index, []).append(document)
-            if index == 0 and document.name != "00_overview.md":
-                report("reserved-overview-index", document, 1, document.name)
-        for index, collisions in indices.items():
-            if len(collisions) > 1:
-                for document in collisions:
-                    report("duplicate-document-index", document, 1, f"index {index:02d}")
-        missing = sorted(set(range(max(indices, default=-1) + 1)) - set(indices))
-        if missing:
-            report("document-index-gap", directory, 1, f"missing indices: {missing}")
+        rel = document.relative_to(root / "docs")
+        if len(rel.parts) == 1:
+            if document.name != "index.md":
+                report("invalid-document-directory", document, 1, document.name)
+        elif rel.parts[0] not in allowed_top:
+            report("invalid-document-directory", document, 1, rel.parts[0])
+        for part in rel.parts[:-1]:
+            if part != "assets" and not semantic.match(part):
+                report("invalid-directory-name", document, 1, part)
+        if document.name != "index.md" and not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", document.name):
+            report("invalid-document-name", document, 1, document.name)
+    counts["documentation_directories"] = len({document.parent for document in markdown})
     anchors: dict[str, list[tuple[Path, int]]] = {}
     images: dict[Path, list[tuple[Path, int]]] = {}
     section_points: dict[Path, list[tuple[int, str]]] = {}
@@ -212,10 +200,9 @@ def inspect(root: Path = REPO) -> dict:
             heading_line = line
             while heading_line < len(visible_lines) and not visible_lines[heading_line].strip():
                 heading_line += 1
-            heading = (SECTION_HEADING.match(visible_lines[heading_line])
-                       if heading_line < len(visible_lines) else None)
-            if heading is None or heading.group(1).lower() != anchor:
-                report("anchor-heading-mismatch", document, line, anchor)
+            if (heading_line >= len(visible_lines)
+                    or not re.match(r"^#{2,4}\s+\S", visible_lines[heading_line])):
+                report("missing-section-heading", document, line, anchor)
             else:
                 points.append((heading_line + 1, anchor))
         section_points[document] = points
@@ -346,9 +333,6 @@ def inspect(root: Path = REPO) -> dict:
                         continue
                     if not _readable(figure):
                         report("unreadable-figure", source, line, figure_name)
-                    prefix = re.match(r"([0-9]+)_", document.name)
-                    if prefix is None or not figure.name.startswith(prefix.group(1) + "_"):
-                        report("figure-prefix-mismatch", source, line, f"{figure_name} for {document_name}")
                     embed_lines = [image_line for target, image_line in images[document] if target == figure]
                     if len(embed_lines) != 1:
                         report("figure-embed-count", source, line, f"{figure_name} in {document_name}: {len(embed_lines)}")
@@ -371,7 +355,7 @@ def inspect(root: Path = REPO) -> dict:
         "rules": {name: {"passed": failures[name] == 0, "failures": failures[name]}
                   for name in (*RULE_CODES, "input")},
         "diagnostics": sorted(diagnostics, key=lambda item: (item["file"], item["line"], item["code"])),
-        "scope": "Directory overviews and numbering, model locator paths, unique headed anchors, figures in each carrying document directory's assets child, embeds, and adjacent numbered figure blocks. SysML name resolution and semantic view/document agreement require separate checks.",
+        "scope": "Document class paths and semantic names, model locator paths, unique explicit anchors with headings, figures in each carrying page's assets child, embeds, and adjacent six-field figure blocks. SysML name resolution and semantic view/document agreement require separate checks.",
     }
 
 

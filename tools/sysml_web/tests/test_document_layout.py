@@ -1,4 +1,4 @@
-"""Regression checks for the documentation directory convention."""
+"""Regression checks for the documentation class, naming, locator, and figure rules."""
 
 from pathlib import Path
 import tempfile
@@ -13,43 +13,20 @@ class DocumentLayoutTests(unittest.TestCase):
         temporary_root.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(dir=temporary_root)
         self.root = Path(self.temporary.name)
-        (self.root / "docs" / "example").mkdir(parents=True)
-        (self.root / "docs" / "00_index.md").write_text("# Entry\n")
+        (self.root / "docs" / "architecture").mkdir(parents=True)
+        (self.root / "docs" / "index.md").write_text("# Documentation\n")
         (self.root / "mbse").mkdir()
         (self.root / "mbse" / "model.sysml").write_text("package Example {}\n")
 
     def tearDown(self):
         self.temporary.cleanup()
 
-    def test_missing_overview_and_reserved_zero_fail(self):
-        (self.root / "docs" / "example" / "00_topic.md").write_text("# Topic\n")
-        result = inspect(self.root)
-        codes = {finding["code"] for finding in result["diagnostics"]}
-        self.assertIn("missing-overview", codes)
-        self.assertIn("reserved-overview-index", codes)
-        self.assertFalse(result["ok"])
-
-    def test_overview_and_contiguous_topic_pass(self):
-        (self.root / "docs" / "example" / "00_overview.md").write_text("# Overview\n")
-        (self.root / "docs" / "example" / "01_topic.md").write_text("# Topic\n")
-        result = inspect(self.root)
-        self.assertTrue(result["rules"]["directory-layout"]["passed"])
-        self.assertTrue(result["ok"])
-
-    def test_missing_root_entry_fails(self):
-        (self.root / "docs" / "00_index.md").unlink()
-        (self.root / "docs" / "example" / "00_overview.md").write_text("# Overview\n")
-        result = inspect(self.root)
-        self.assertIn("missing-root-entry", {finding["code"] for finding in result["diagnostics"]})
-        self.assertFalse(result["ok"])
-
-    def test_figure_in_carrying_document_assets_passes(self):
-        (self.root / "docs" / "example" / "00_overview.md").write_text("# Overview\n")
-        (self.root / "docs" / "example" / "assets").mkdir()
-        (self.root / "docs" / "example" / "assets" / "01_figure.svg").write_text("<svg/>\n")
-        (self.root / "docs" / "example" / "01_topic.md").write_text(
-            '<a id="d01"></a>\n\n## D01 Topic\n\n'
-            '![Model figure](assets/01_figure.svg)\n\n'
+    def good_page(self, name="topic.md"):
+        (self.root / "docs" / "architecture" / "assets").mkdir(parents=True, exist_ok=True)
+        (self.root / "docs" / "architecture" / "assets" / "figure.svg").write_text("<svg/>\n")
+        (self.root / "docs" / "architecture" / name).write_text(
+            '<a id="d01"></a>\n\n## Topic\n\n'
+            '![Model figure](assets/figure.svg)\n\n'
             '> **Figure D01-1 — Model figure.**\n'
             '> **Question:** What is shown?\n'
             '> **Model view:** Example::view.\n'
@@ -61,33 +38,55 @@ class DocumentLayoutTests(unittest.TestCase):
         (self.root / "mbse" / "model.sysml").write_text(
             'package Example {\n'
             '    @XDesignCommon::DocSection {\n'
-            '        document = "docs/example/01_topic.md";\n'
+            '        document = "docs/architecture/topic.md";\n'
             '        section = "D01";\n'
             '    }\n'
             '    @XDesignCommon::DocFigure {\n'
-            '        document = "docs/example/01_topic.md";\n'
-            '        figure = "docs/example/assets/01_figure.svg";\n'
+            '        document = "docs/architecture/topic.md";\n'
+            '        figure = "docs/architecture/assets/figure.svg";\n'
             '    }\n'
             '}\n'
         )
+
+    def test_valid_class_page_and_figure_pass(self):
+        self.good_page()
         result = inspect(self.root)
         self.assertTrue(result["ok"], result["diagnostics"])
-        self.assertEqual(result["counts"]["documentation_directories"], 1)
+        self.assertEqual(result["counts"]["DocSection"], 1)
+        self.assertEqual(result["counts"]["DocFigure"], 1)
+        self.assertEqual(result["counts"]["images"], 1)
 
-    def test_legacy_central_assets_location_fails(self):
-        (self.root / "docs" / "example" / "00_overview.md").write_text("# Overview\n")
-        (self.root / "docs" / "example" / "01_topic.md").write_text(
-            '<a id="d01"></a>\n\n## D01 Topic\n\n'
-            '![Model figure](../assets/example/01_figure.svg)\n'
+    def test_missing_root_entry_fails(self):
+        (self.root / "docs" / "index.md").unlink()
+        result = inspect(self.root)
+        self.assertIn("missing-root-entry", {finding["code"] for finding in result["diagnostics"]})
+        self.assertFalse(result["ok"])
+
+    def test_numeric_filename_is_not_allowed(self):
+        self.good_page("01_topic.md")
+        result = inspect(self.root)
+        self.assertIn("invalid-document-name", {finding["code"] for finding in result["diagnostics"]})
+        self.assertFalse(result["ok"])
+
+    def test_non_class_directory_is_not_allowed(self):
+        (self.root / "docs" / "notes").mkdir()
+        (self.root / "docs" / "notes" / "topic.md").write_text("# Topic\n")
+        result = inspect(self.root)
+        self.assertIn("invalid-document-directory", {finding["code"] for finding in result["diagnostics"]})
+
+    def test_central_assets_are_not_allowed(self):
+        (self.root / "docs" / "architecture" / "topic.md").write_text(
+            '<a id="d01"></a>\n\n## Topic\n\n'
+            '![Model figure](../assets/example/figure.svg)\n'
         )
         old_assets = self.root / "docs" / "assets" / "example"
         old_assets.mkdir(parents=True)
-        (old_assets / "01_figure.svg").write_text("<svg/>\n")
+        (old_assets / "figure.svg").write_text("<svg/>\n")
         (self.root / "mbse" / "model.sysml").write_text(
             'package Example {\n'
             '    @XDesignCommon::DocFigure {\n'
-            '        document = "docs/example/01_topic.md";\n'
-            '        figure = "docs/assets/example/01_figure.svg";\n'
+            '        document = "docs/architecture/topic.md";\n'
+            '        figure = "docs/assets/example/figure.svg";\n'
             '    }\n'
             '}\n'
         )
@@ -95,14 +94,17 @@ class DocumentLayoutTests(unittest.TestCase):
         self.assertIn("image-directory-mismatch", codes)
         self.assertIn("figure-directory-mismatch", codes)
 
-    def test_nested_asset_directory_does_not_require_overview(self):
-        (self.root / "docs" / "example" / "00_overview.md").write_text("# Overview\n")
-        nested_assets = self.root / "docs" / "example" / "assets" / "exports"
-        nested_assets.mkdir(parents=True)
-        (nested_assets / "notes.md").write_text("# Unexpected Markdown\n")
+    def test_markdown_in_assets_fails_without_requiring_overviews(self):
+        self.root.joinpath("docs", "architecture", "assets").mkdir(parents=True)
+        self.root.joinpath("docs", "architecture", "assets", "notes.md").write_text("# Unexpected\n")
         codes = {finding["code"] for finding in inspect(self.root)["diagnostics"]}
         self.assertIn("markdown-in-assets", codes)
         self.assertNotIn("missing-overview", codes)
+
+    def test_anchor_without_heading_fails(self):
+        (self.root / "docs" / "architecture" / "topic.md").write_text('<a id="d01"></a>\n\nText only.\n')
+        result = inspect(self.root)
+        self.assertIn("missing-section-heading", {finding["code"] for finding in result["diagnostics"]})
 
 
 if __name__ == "__main__":

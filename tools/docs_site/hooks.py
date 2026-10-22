@@ -1,21 +1,13 @@
-"""Open the numbered documentation entry from the site root."""
+"""Verify that the built site keeps the real documentation home page."""
 
 from pathlib import Path
 
 
 def on_post_build(config):
-    """Send the site root to the documentation index, preserving anchors."""
-    destination = "00_index/"
-    html = f"""<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>xdesign documentation</title>
-  <meta http-equiv="refresh" content="0; url={destination}">
-  <script>location.replace({destination!r} + location.search + location.hash);</script>
-</head>
-<body><p><a href="{destination}">Open the xdesign documentation</a></p></body>
-</html>
-"""
-    (Path(config.site_dir) / "index.html").write_text(html, encoding="utf-8")
+    """Fail the build if docs/index.md was not published as the site home."""
+    index = Path(config.site_dir) / "index.html"
+    if not index.is_file():
+        raise RuntimeError("The built site has no index.html from docs/index.md")
+    text = index.read_text(encoding="utf-8", errors="replace").lower()
+    if "00_index" in text or "http-equiv=\"refresh\"" in text:
+        raise RuntimeError("The site home still contains the retired 00_index redirect")

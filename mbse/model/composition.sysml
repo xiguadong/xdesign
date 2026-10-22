@@ -1,6 +1,6 @@
 package XDesignComposition {
     @XDesignCommon::DiagramPresentation { label = "XDesign composition"; }
-    @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B01"; }
+    @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B01"; }
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
     private import XDesignWorkflow::*;
@@ -13,36 +13,36 @@ package XDesignComposition {
        portfolio member on which it was historically run. */
 
     part xdesign : XDesign {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B01"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B01"; }
 
         part vModel : VModel :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* The default full V-model path. */
         }
         part workflowFlow : WorkflowFlow :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* Historical four-stage workflow path used by wishes 0001–0004
                and 0007. Its assessment records remain on this exact flow. */
         }
         part wishVerifyFlow : WishVerifyFlow :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* Two-stage path for judged artifacts. */
         }
         part designFlow : DesignFlow :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* Two-stage path for SysML design deliverables. */
         }
         part designedSimpleFlow : DesignedSimpleFlow :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D01"; }
             doc /* Executable gated four-stage path with a frozen plan identity. */
         }
         part designedWishVerifyFlow : DesignedWishVerifyFlow :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D57"; }
             doc /* Executable gated two-stage path for judged outcomes; both
                exits are judged by a permitted agent or human. */
         }
         part nestedFlowExample : NestedFlowExample :> 'flow' subsets availableFlows {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F05"; }
+            @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F05"; }
             doc /* Example of a flow with a design-stage subflow. */
         }
 

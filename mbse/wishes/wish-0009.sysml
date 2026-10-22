@@ -1,5 +1,5 @@
 package Wish0009 {
-    @XDesignCommon::DocSection { document = "docs/review/01_wish_status.md"; section = "V16"; }
+    @XDesignCommon::DocSection { document = "docs/records/wishes/wish-history.md"; section = "V16"; }
     private import ScalarValues::*;
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
@@ -233,7 +233,7 @@ package Wish0009 {
     }
 
     view wish0009Sequence : SequenceView {
-        @XDesignCommon::DocFigure { document = "docs/review/01_wish_status.md"; figure = "docs/review/assets/01_journey_wish0009.svg"; }
+        @XDesignCommon::DocFigure { document = "docs/records/wishes/wish-history.md"; figure = "docs/records/wishes/assets/journey-wish0009.svg"; }
         doc /* The event-anchored journey of the Rust UML design wish, including the
            revision-2 API-granularity correction and the revision-3 guide adoption. */
         expose Wish0009::Wish0009Journey;

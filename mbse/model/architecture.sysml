@@ -1,6 +1,6 @@
 package XDesignArchitecture {
     @XDesignCommon::DiagramPresentation { label = "Architecture"; }
-    @XDesignCommon::DocSection { document = "docs/arch/00_overview.md"; section = "A05"; }
+    @XDesignCommon::DocSection { document = "docs/architecture/index.md"; section = "A05"; }
     private import ScalarValues::*;
     private import ControlFunctions::forAll;
     private import ControlFunctions::exists;
@@ -15,7 +15,7 @@ package XDesignArchitecture {
        Controller decides and applies the next step. */
 
     part def Stage {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F01"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F01"; }
         doc /* Reusable workflow stage definition. Successors allow branching
            and rework. Exit checkpoints are optional; every configured checkpoint
            must pass before leaving a stage.
@@ -36,7 +36,7 @@ package XDesignArchitecture {
     }
 
     part def Checkpoint {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F02"; }
+        @XDesignCommon::DocSection { document = "docs/design/adapters.md"; section = "F02"; }
         doc /* Reusable gate definition, independent of a particular wish.
            Criteria require evidence-backed checks or engineering judgments;
            assessments of these criteria belong to the wish's stage record.
@@ -69,7 +69,7 @@ package XDesignArchitecture {
     }
 
     item def Checker {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F02"; }
+        @XDesignCommon::DocSection { document = "docs/design/adapters.md"; section = "F02"; }
         doc /* A deterministic check fixed as code or a script, so the flow runs it
            unchanged instead of judging afresh at each assessment. A checker
            declares which kinds of conformance it establishes over the artifacts
@@ -85,7 +85,7 @@ package XDesignArchitecture {
     }
 
     item def CheckerRule {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D06"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D06"; }
         doc /* One logical rule a checker applies: the exact condition it decides and
            what it reads to decide it. The checker's outcome is the conjunction of
            its rules' verdicts — it holds only when every rule holds — and its
@@ -100,7 +100,7 @@ package XDesignArchitecture {
     }
 
     part def Flow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F01"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F01"; }
         doc /* Owns the stages and checkpoints of an overall workflow.
            Specialize this definition to supply different workflows. */
 
@@ -125,7 +125,7 @@ package XDesignArchitecture {
     }
 
     part def VModel :> Flow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
         doc /* Default V-model: decompose needs into designs, implement, then
            verify components, integration and the system, validate against
            stakeholder needs, and deliver with accepted evidence. */
@@ -285,7 +285,7 @@ package XDesignArchitecture {
     }
 
     part def SimpleFlow :> Flow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
         doc /* Requirements, design, implementation and verification in sequence.
            Only verification has an exit checkpoint; passing it completes this flow. */
 
@@ -322,7 +322,7 @@ package XDesignArchitecture {
     }
 
     part def WishVerifyFlow :> Flow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
         doc /* A two-stage flow for work whose outcome is judged rather than checked:
            the wish stage records the request and produces the work that answers it,
            and verification judges that outcome semantically. Nothing is derived that
@@ -356,7 +356,7 @@ package XDesignArchitecture {
     }
 
     part def DesignFlow :> WishVerifyFlow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+        @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
         doc /* A two-stage flow for design work whose outcome is a SysML deliverable plus
            its documentation. The wish stage records the request and produces the
            deliverable; verification is two checks: a syntactic check that the delivered
@@ -373,7 +373,7 @@ package XDesignArchitecture {
         }
 
         item sysmlCompilerCheck : Checker subsets checkers {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* The pinned SysML compiler as the fixed syntactic check: it parses the
                delivered model and applies the specification's rules. The compiler's own
                rules are its report; no separate rule list is declared here. */
@@ -383,7 +383,7 @@ package XDesignArchitecture {
         }
 
         part sysmlDeliverableAccepted : Checkpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* The syntactic checkpoint of a design delivery: the delivered SysML
                parses and passes the pinned compiler's check. */
             ref part redefines sourceStage = 'verify';
@@ -394,7 +394,7 @@ package XDesignArchitecture {
     }
 
     item def ActivityRecord {
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E02"; }
+        @XDesignCommon::DocSection { document = "docs/design/evidence-and-revisions.md"; section = "E02"; }
         doc /* Records work, artifact changes, checks, judgments and controller
            decisions in execution order. Time is recorded in ISO 8601 format.
            Artifact references link to the independent model referenced by Trace. */
@@ -407,7 +407,7 @@ package XDesignArchitecture {
 
     item def CheckpointAssessment {
         @XDesignCommon::DiagramPresentation { label = "Assessment"; summary = "Verdict, evidence and judged revision"; }
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E04"; }
+        @XDesignCommon::DocSection { document = "docs/design/evidence-and-revisions.md"; section = "E04"; }
         doc /* Preserved evaluation of a checkpoint for one stage visit and
            artifact revision. A passed result requires supporting evidence;
            unevaluated criteria provide no authorization to advance. */
@@ -433,7 +433,7 @@ package XDesignArchitecture {
 
     part def StageRecord {
         @XDesignCommon::DiagramPresentation { label = "Stage visit"; summary = "Artifacts and assessments at one revision"; }
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E03"; }
+        @XDesignCommon::DocSection { document = "docs/design/evidence-and-revisions.md"; section = "E03"; }
         doc /* One planned or actual visit to a stage. Initial records cover
            every stage in the assigned flow, including pending stages. Rework
            appends a new visit; earlier visits and their evidence are retained.
@@ -491,7 +491,7 @@ package XDesignArchitecture {
 
     part def FlowExecution {
         @XDesignCommon::DiagramPresentation { label = "Run record"; summary = "Owns the history of stage visits"; }
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E02"; }
+        @XDesignCommon::DocSection { document = "docs/design/evidence-and-revisions.md"; section = "E02"; }
         doc /* Execution history of one flow, either the root workflow for a wish
            or a subflow within a stage visit. Definitions are shared; each execution
            owns its records. Completing a subflow resumes its parent stage. */
@@ -526,7 +526,7 @@ package XDesignArchitecture {
     }
 
     item def Wish {
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E01"; }
+        @XDesignCommon::DocSection { document = "docs/interfaces/record-format.md"; section = "E01"; }
         doc /* A user's requested outcome. Workflow state and evidence belong
            to the separate Trace that references this wish. */
 
@@ -535,7 +535,7 @@ package XDesignArchitecture {
     }
 
     part def Trace {
-        @XDesignCommon::DocSection { document = "docs/details/02_records_and_evidence.md"; section = "E01"; }
+        @XDesignCommon::DocSection { document = "docs/interfaces/record-format.md"; section = "E01"; }
         doc /* Tracks one wish through its root workflow and nested executions.
            References an independent SysML traceability model linking the wish to
            project requirements, designs, implementations and verification results.
@@ -556,7 +556,7 @@ package XDesignArchitecture {
 
     part def Controller {
         @XDesignCommon::DiagramPresentation { label = "Controller"; summary = "Records work and authorizes progression"; }
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F04"; }
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F04"; }
         doc /* Registers wishes and traces, follows root and nested workflows,
            evaluates checkpoints and decides the next step. Incomplete subflows
            or failed, missing or stale assessments prevent stage completion. */
@@ -680,7 +680,7 @@ package XDesignArchitecture {
     }
 
     part def XDesign {
-        @XDesignCommon::DocSection { document = "docs/arch/01_system_composition.md"; section = "B01"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B01"; }
         doc /* Owns the shared flow origin and a portfolio of concrete flow usages.
            The selected flow is the default; the controller may register a wish on
            any owned portfolio member. Each wish has one independent trace;
@@ -711,7 +711,7 @@ package XDesignArchitecture {
     }
 
     part def NestedFlowExample :> SimpleFlow {
-        @XDesignCommon::DocSection { document = "docs/details/01_flows_and_checkpoints.md"; section = "F05"; }
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F05"; }
         doc /* The design stage contains its own four-stage SimpleFlow. */
 
         part redefines design {
@@ -720,7 +720,7 @@ package XDesignArchitecture {
     }
 
     view recordStructure : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/03_toolchain.md"; section = "T03"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/constraints.md"; section = "T03"; }
         doc /* The record vocabulary: each definition a wish's execution is recorded
            with, its fields and the rules that constrain how it is used. A trace
            owns one flow execution, an execution owns one stage record per stage of

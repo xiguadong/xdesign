@@ -1,5 +1,5 @@
 package Wish0005 {
-    @XDesignCommon::DocSection { document = "docs/review/01_wish_status.md"; section = "V03"; }
+    @XDesignCommon::DocSection { document = "docs/records/wishes/wish-history.md"; section = "V03"; }
     private import ScalarValues::*;
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;

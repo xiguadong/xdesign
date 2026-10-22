@@ -1,6 +1,6 @@
 package XDesignRustUml {
     @XDesignCommon::DiagramPresentation { label = "Rust UML design"; }
-    @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D44"; }
+    @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D44"; }
     private import ScalarValues::*;
     private import XDesignCommon::*;
     private import XDesignArchitecture::*;
@@ -20,7 +20,7 @@ package XDesignRustUml {
        detailed design. */
 
     package crate {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
         doc /* Module layout of the implemented xdesign crate, in two layers:
            core owns the flow-agnostic infrastructure; one module per realized
            designed flow — simpleFlow and wishVerify — builds on it. One module
@@ -166,7 +166,7 @@ package XDesignRustUml {
     }
 
     enum def RsFlowStatus {
-        @XDesignCommon::DocSection { document = "docs/api/core/01_flow_status.md"; section = "U39"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-status.md"; section = "U39"; }
         doc /* Rust enum mirroring the flow lifecycle vocabulary. */
         enum pending;
         enum active;
@@ -176,7 +176,7 @@ package XDesignRustUml {
     dependency rsFlowStatusMirrors from RsFlowStatus to XDesignCommon::FlowStatus;
 
     enum def RsStageStatus {
-        @XDesignCommon::DocSection { document = "docs/api/core/02_stage_status.md"; section = "U40"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-status.md"; section = "U40"; }
         doc /* Rust enum mirroring the stage visit lifecycle vocabulary. */
         enum pending;
         enum active;
@@ -186,7 +186,7 @@ package XDesignRustUml {
     dependency rsStageStatusMirrors from RsStageStatus to XDesignCommon::StageStatus;
 
     enum def RsCheckKind {
-        @XDesignCommon::DocSection { document = "docs/api/core/03_check_kind.md"; section = "U41"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-check-kind.md"; section = "U41"; }
         doc /* Rust enum mirroring how a checkpoint's criteria are established. */
         enum syntactic;
         enum semantic;
@@ -194,7 +194,7 @@ package XDesignRustUml {
     dependency rsCheckKindMirrors from RsCheckKind to XDesignCommon::CheckKind;
 
     enum def RsCheckpointOutcome {
-        @XDesignCommon::DocSection { document = "docs/api/core/04_checkpoint_outcome.md"; section = "U42"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checkpoint-outcome.md"; section = "U42"; }
         doc /* Rust enum mirroring an assessment's outcome vocabulary. */
         enum unevaluated;
         enum failed;
@@ -203,7 +203,7 @@ package XDesignRustUml {
     dependency rsCheckpointOutcomeMirrors from RsCheckpointOutcome to XDesignCommon::CheckpointOutcome;
 
     enum def RsJudgeAuthority {
-        @XDesignCommon::DocSection { document = "docs/api/core/05_judge_authority.md"; section = "U43"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-judge-authority.md"; section = "U43"; }
         doc /* Rust enum mirroring who may judge a checkpoint. */
         enum script;
         enum agent;
@@ -212,7 +212,7 @@ package XDesignRustUml {
     dependency rsJudgeAuthorityMirrors from RsJudgeAuthority to XDesignCommon::JudgeAuthority;
 
     enum def RsAdvanceOutcome {
-        @XDesignCommon::DocSection { document = "docs/api/core/06_advance_outcome.md"; section = "U44"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-advance-outcome.md"; section = "U44"; }
         doc /* What advance() decided for one authorized or blocked visit:
            enter the next stage, complete the run, or remain blocked.
            A Rust enum with no SysML counterpart; the decision is implicit in
@@ -224,7 +224,7 @@ package XDesignRustUml {
     dependency rsAdvanceOutcomeMirrors from RsAdvanceOutcome to XDesignDetailedDesign::AdvanceSimpleFlowRun;
 
     enum def RsConformanceKind {
-        @XDesignCommon::DocSection { document = "docs/api/core/07_conformance_kind.md"; section = "U50"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-conformance-kind.md"; section = "U50"; }
         doc /* Rust enum mirroring the kinds of conformance a fixed checker establishes. */
         enum artifactPresence;
         enum identifierConformance;
@@ -234,7 +234,7 @@ package XDesignRustUml {
     dependency rsConformanceKindMirrors from RsConformanceKind to XDesignCommon::ConformanceKind;
 
     enum def RsPlanError {
-        @XDesignCommon::DocSection { document = "docs/api/core/08_plan_error.md"; section = "U45"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-plan-error.md"; section = "U45"; }
         doc /* How create_run rejects an inconsistent plan before a run exists.
            A Rust enum with no SysML counterpart: the model assumes a
            well-formed flow definition; the Rust design makes plan validation
@@ -254,7 +254,7 @@ package XDesignRustUml {
     }
 
     enum def RsGateError {
-        @XDesignCommon::DocSection { document = "docs/api/core/09_gate_error.md"; section = "U46"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-gate-error.md"; section = "U46"; }
         doc /* How gate evaluation fails without fabricating an outcome: the
            checker a syntactic spec needs is absent, the command itself failed
            to produce a report, or the judge declined to judge. A failed rule
@@ -268,7 +268,7 @@ package XDesignRustUml {
     }
 
     part def RsFlowPlan {
-        @XDesignCommon::DocSection { document = "docs/api/core/10_flow_plan.md"; section = "U25"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-plan.md"; section = "U25"; }
         doc /* Rust struct realizing a Flow as data: stage and checkpoint
            specifications the run consults. Its validation is structural only —
            conformance to a designed flow's exact blueprint is the flow module's
@@ -285,7 +285,7 @@ package XDesignRustUml {
     dependency rsFlowPlanRealizes from RsFlowPlan to XDesignArchitecture::Flow;
 
     action def RsValidatePlan {
-        @XDesignCommon::DocSection { document = "docs/api/core/11_flow_plan_validate.md"; section = "U26"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-plan-validate.md"; section = "U26"; }
         doc /* Structural validation of any plan before a run is created: stage
            order, references, checkpoint kind, checker rules, criteria, permitted
            judges, and the frozen plan's byte binding. Blueprint conformance —
@@ -295,7 +295,7 @@ package XDesignRustUml {
     }
 
     part def RsStageSpec {
-        @XDesignCommon::DocSection { document = "docs/api/core/13_stage_spec.md"; section = "U33"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-spec.md"; section = "U33"; }
         doc /* Rust struct realizing one stage of the designed flow: its
            successors, its exit checkpoint identifiers and whether its
            completion finishes the flow. */
@@ -307,7 +307,7 @@ package XDesignRustUml {
     dependency rsStageSpecRealizes from RsStageSpec to XDesignArchitecture::Stage;
 
     part def RsCheckpointSpec {
-        @XDesignCommon::DocSection { document = "docs/api/core/14_checkpoint_spec.md"; section = "U34"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checkpoint-spec.md"; section = "U34"; }
         doc /* Rust struct realizing the designed flows' checkpoint classes and
            their adaptations — SimpleFlowCheckpoint with its two adaptations,
            and WishVerifyCheckpoint with its semantic adaptation: kind selects
@@ -331,7 +331,7 @@ package XDesignRustUml {
     dependency rsCheckpointSpecSemantic from RsCheckpointSpec to XDesignDetailedDesign::SimpleFlowSemanticCheckpoint;
 
     part def RsCheckerSpec {
-        @XDesignCommon::DocSection { document = "docs/api/core/15_checker_spec.md"; section = "U35"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checker-spec.md"; section = "U35"; }
         doc /* Rust struct realizing Checker: the command a syntactic gate runs
            and the rules its report must answer. */
         attribute checkerId : String;
@@ -342,7 +342,7 @@ package XDesignRustUml {
     dependency rsCheckerSpecRealizes from RsCheckerSpec to XDesignArchitecture::Checker;
 
     part def RsCheckerRuleSpec {
-        @XDesignCommon::DocSection { document = "docs/api/core/16_checker_rule_spec.md"; section = "U36"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checker-rule-spec.md"; section = "U36"; }
         doc /* Rust struct realizing CheckerRule: one fixed rule's identity and
            its documented condition, read from the plan and reported verdict by
            verdict. */
@@ -353,7 +353,7 @@ package XDesignRustUml {
     dependency rsCheckerRuleSpecRealizes from RsCheckerRuleSpec to XDesignArchitecture::CheckerRule;
 
     part def RsStageVisit {
-        @XDesignCommon::DocSection { document = "docs/api/core/17_stage_visit.md"; section = "U27"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-visit.md"; section = "U27"; }
         doc /* Rust struct realizing StageRecord: one visit of one stage, owning
            its activities and assessments. Earlier visits are never rewritten;
            a blocked visit is corrected in place; reopening a completed
@@ -374,7 +374,7 @@ package XDesignRustUml {
     dependency rsStageVisitRealizes from RsStageVisit to XDesignArchitecture::StageRecord;
 
     action def RsRecordActivity {
-        @XDesignCommon::DocSection { document = "docs/api/core/18_record_activity.md"; section = "U28"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-visit-record-activity.md"; section = "U28"; }
         doc /* Append activity and increment the visited artifact revision when
            the activity declares an artifact content change. */
         in part visit : RsStageVisit;
@@ -384,7 +384,7 @@ package XDesignRustUml {
     dependency rsRecordActivityRealizes from RsRecordActivity to XDesignWorkflow::StageWork;
 
     action def RsAppendAssessment {
-        @XDesignCommon::DocSection { document = "docs/api/core/19_append_assessment.md"; section = "U29"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-visit-append-assessment.md"; section = "U29"; }
         doc /* Append one revision-bound assessment while retaining history. */
         in part visit : RsStageVisit;
         in part assessment : RsAssessmentEntry;
@@ -392,7 +392,7 @@ package XDesignRustUml {
     dependency rsAppendAssessmentRealizes from RsAppendAssessment to XDesignDetailedDesign::EvaluateSimpleFlowGate;
 
     action def RsCompletionAuthorized {
-        @XDesignCommon::DocSection { document = "docs/api/core/20_completion_authorized.md"; section = "U30"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-stage-visit-completion-authorized.md"; section = "U30"; }
         doc /* Select the latest assessment per required checkpoint and authorize
            only when each latest outcome passed at this visit's artifact revision. */
         in part visit : RsStageVisit;
@@ -402,7 +402,7 @@ package XDesignRustUml {
     dependency rsCompletionAuthorizedRealizes from RsCompletionAuthorized to XDesignDetailedDesign::SimpleFlowAuthorization;
 
     part def RsActivityEntry {
-        @XDesignCommon::DocSection { document = "docs/api/core/21_activity_entry.md"; section = "U31"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-activity-entry.md"; section = "U31"; }
         doc /* Rust struct realizing ActivityRecord: one recorded piece of work
            in a visit. Owned by its visit as a Vec entry. */
         attribute description : String;
@@ -416,7 +416,7 @@ package XDesignRustUml {
     dependency rsActivityEntryRealizes from RsActivityEntry to XDesignArchitecture::ActivityRecord;
 
     part def RsAssessmentEntry {
-        @XDesignCommon::DocSection { document = "docs/api/core/22_assessment_entry.md"; section = "U32"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-assessment-entry.md"; section = "U32"; }
         doc /* Rust struct realizing CheckpointAssessment. The checkpoint is
            named by identifier, so an entry stays serializable; the run resolves
            it against the plan when authorization is counted. The assessment
@@ -433,7 +433,7 @@ package XDesignRustUml {
     dependency rsAssessmentEntryRealizes from RsAssessmentEntry to XDesignArchitecture::CheckpointAssessment;
 
     part def RsArtifactDigest {
-        @XDesignCommon::DocSection { document = "docs/api/core/23_artifact_digest.md"; section = "U51"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-artifact-digest.md"; section = "U51"; }
         doc /* Content-addressed identity of one artifact: its repository-relative
            URI and SHA-256 of the exact file bytes. */
         attribute uri : String;
@@ -441,12 +441,12 @@ package XDesignRustUml {
     }
 
     part def RsCheckCommand {
-        @XDesignCommon::DocSection { document = "docs/api/core/29_check_command.md"; section = "U21"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-check-command.md"; section = "U21"; }
         doc /* Rust trait realizing CheckerCommand: the boundary every fixed
            check is invoked through. One implementation dispatches the exact
            checker spec; the run knows only the trait. */
         perform action runCheck {
-            @XDesignCommon::DocSection { document = "docs/api/core/30_run_check.md"; section = "U22"; }
+            @XDesignCommon::DocSection { document = "docs/design/api/core/rs-check-command-run-check.md"; section = "U22"; }
             doc /* Invoke the selected checker with the independent wish trace,
                runtime JSON record, stage and artifact revision; return a rule
                report bound to that revision. */
@@ -468,12 +468,12 @@ package XDesignRustUml {
     dependency rsCheckCommandRealizes from RsCheckCommand to XDesignDetailedDesign::CheckerCommand;
 
     part def RsJudge {
-        @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-judge.md"; section = "U23"; }
         doc /* Rust trait realizing Judge: the boundary a semantic gate is
            judged through. An agent or a human stands behind it; the run knows
            only the trait. */
         perform action review {
-            @XDesignCommon::DocSection { document = "docs/api/core/32_review.md"; section = "U24"; }
+            @XDesignCommon::DocSection { document = "docs/design/api/core/rs-judge-review.md"; section = "U24"; }
             doc /* Present the criteria and the visit's artifact and evidence
                URIs; answer with the outcome and its rationale. */
             in attribute criteria : String [1..*];
@@ -482,11 +482,11 @@ package XDesignRustUml {
             out attribute rationale : String;
         }
         perform action authority {
-            @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
+            @XDesignCommon::DocSection { document = "docs/design/api/core/rs-judge.md"; section = "U23"; }
             out attribute judgeAuthority : RsJudgeAuthority;
         }
         perform action identity {
-            @XDesignCommon::DocSection { document = "docs/api/core/31_judge.md"; section = "U23"; }
+            @XDesignCommon::DocSection { document = "docs/design/api/core/rs-judge.md"; section = "U23"; }
             out attribute assessor : String;
         }
 
@@ -496,7 +496,7 @@ package XDesignRustUml {
     dependency rsJudgeRealizes from RsJudge to XDesignDetailedDesign::Judge;
 
     part def RsGateReport {
-        @XDesignCommon::DocSection { document = "docs/api/core/33_gate_report.md"; section = "U37"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-gate-report.md"; section = "U37"; }
         doc /* The check command's answer, realizing the output side of
            CheckCommandExchange: the overall verdict and every rule's report,
            retained as the assessment's evidence. */
@@ -509,7 +509,7 @@ package XDesignRustUml {
     dependency rsGateReportRealizes from RsGateReport to XDesignDetailedDesign::CheckCommandExchange;
 
     part def RsRuleReport {
-        @XDesignCommon::DocSection { document = "docs/api/core/34_rule_report.md"; section = "U38"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-rule-report.md"; section = "U38"; }
         doc /* One rule's verdict in a checker report: whether it held and the
            diagnostic when it did not. */
         attribute ruleId : String;
@@ -519,7 +519,7 @@ package XDesignRustUml {
     dependency rsRuleReportRealizes from RsRuleReport to XDesignDetailedDesign::CheckCommandExchange;
 
     action def RsEvaluateCheckpoint {
-        @XDesignCommon::DocSection { document = "docs/api/core/39_evaluate_checkpoint.md"; section = "U20"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/evaluate-checkpoint.md"; section = "U20"; }
         doc /* Rust fn realizing EvaluateSimpleFlowCheckpoint: a syntactic spec
            runs its checker through the check trait and holds only when every
            rule holds; a semantic spec presents its criteria through the judge
@@ -538,7 +538,7 @@ package XDesignRustUml {
     dependency rsEvaluateCheckpointRealizes from RsEvaluateCheckpoint to XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint;
 
     part def RsFlowRun {
-        @XDesignCommon::DocSection { document = "docs/api/core/40_flow_run.md"; section = "U17"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-run.md"; section = "U17"; }
         doc /* Rust struct realizing FlowExecution: the generic run engine — the
            plan as data, visits in order, the current visit by index, and the
            trait objects it is automated through. The persistence fields latch a
@@ -576,7 +576,7 @@ package XDesignRustUml {
     dependency rsFlowRunRealizes from RsFlowRun to XDesignArchitecture::FlowExecution;
 
     action def RsEvaluateGates {
-        @XDesignCommon::DocSection { document = "docs/api/core/41_evaluate_gates.md"; section = "U18"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-run-evaluate-gates.md"; section = "U18"; }
         doc /* Rust method realizing EvaluateSimpleFlowGate: for each exit
            checkpoint of the current visit's stage, evaluate it by kind and
            append the assessment, leaving earlier assessments in place. */
@@ -585,7 +585,7 @@ package XDesignRustUml {
     dependency rsEvaluateGatesRealizes from RsEvaluateGates to XDesignDetailedDesign::EvaluateSimpleFlowGate;
 
     action def RsAdvance {
-        @XDesignCommon::DocSection { document = "docs/api/core/42_advance.md"; section = "U19"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-run-advance.md"; section = "U19"; }
         doc /* Rust method realizing AdvanceSimpleFlowRun: count distinct
            required gates with a passed assessment at the visited revision,
            then enter the next stage's pending visit, complete the run at the
@@ -595,7 +595,7 @@ package XDesignRustUml {
     dependency rsAdvanceRealizes from RsAdvance to XDesignDetailedDesign::AdvanceSimpleFlowRun;
 
     action def RsRunRecordActivity {
-        @XDesignCommon::DocSection { document = "docs/api/core/43_run_record_activity.md"; section = "U48"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-run-record-activity.md"; section = "U48"; }
         doc /* Record corrective activity on the current blocked or active visit;
            a blocked run resumes on the same visit before its gates are re-evaluated. */
         in part activity : RsActivityEntry;
@@ -603,7 +603,7 @@ package XDesignRustUml {
     dependency rsRunRecordActivityRealizes from RsRunRecordActivity to XDesignArchitecture::Controller::recordActivity;
 
     action def RsReopenStage {
-        @XDesignCommon::DocSection { document = "docs/api/core/44_reopen_stage.md"; section = "U49"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-flow-run-reopen-stage.md"; section = "U49"; }
         doc /* Reopen a completed visit of a stage whose completesFlow flag is
            set — no stage name is hardcoded — by appending a new revision-zero
            visit while retaining the completed visit. */
@@ -613,7 +613,7 @@ package XDesignRustUml {
     dependency rsReopenStageRealizes from RsReopenStage to XDesignDetailedDesign::ReopenSimpleFlowStage;
 
     action def RsCreateRun {
-        @XDesignCommon::DocSection { document = "docs/api/core/46_create_run.md"; section = "U16"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/core/create-run.md"; section = "U16"; }
         doc /* Rust fn create_run: the generic construction of a run from any
            structurally valid plan — build the run from the plan, push one
            pending visit per stage, mark the initial stage's visit active and
@@ -629,7 +629,7 @@ package XDesignRustUml {
     dependency rsCreateRunRealizes from RsCreateRun to XDesignArchitecture::FlowExecution;
 
     action def RsDesignedSimpleFlowPlan {
-        @XDesignCommon::DocSection { document = "docs/api/simple_flow/01_designed_simple_flow_plan.md"; section = "U52"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/simple-flow/designed-simple-flow-plan.md"; section = "U52"; }
         doc /* Rust fn designed_simple_flow_plan: construct the modeled
            designedSimpleFlow as plan data — the four stages in order with
            their five exit checkpoints, fixed checker identities, rule sets and
@@ -639,7 +639,7 @@ package XDesignRustUml {
     dependency rsDesignedSimpleFlowPlanProjects from RsDesignedSimpleFlowPlan to XDesignDetailedDesign::DesignedSimpleFlow;
 
     action def RsValidateDesignedPlan {
-        @XDesignCommon::DocSection { document = "docs/api/simple_flow/02_validate_designed_plan.md"; section = "U69"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/simple-flow/validate-designed-plan.md"; section = "U69"; }
         doc /* Rust fn validate_designed_plan: blueprint conformance — reject any
            plan whose stages, checkpoints, checker identities, rule sets or plan
            identity differ from the designed four-stage blueprint. Structural
@@ -649,7 +649,7 @@ package XDesignRustUml {
     dependency rsValidateDesignedPlanConformance from RsValidateDesignedPlan to XDesignDetailedDesign::DesignedSimpleFlow;
 
     action def RsCreateDesignedRun {
-        @XDesignCommon::DocSection { document = "docs/api/simple_flow/03_create_designed_run.md"; section = "U70"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/simple-flow/create-designed-run.md"; section = "U70"; }
         doc /* Rust fn create_designed_run realizing SimpleFlowRunFactory:
            validate the plan's blueprint conformance, then construct the run
            through the generic create_run. */
@@ -663,7 +663,7 @@ package XDesignRustUml {
     dependency rsCreateDesignedRunRealizes from RsCreateDesignedRun to XDesignDetailedDesign::SimpleFlowRunFactory;
 
     part def XDesignCrate {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
         doc /* The implemented xdesign crate as one component: it owns the modules
            under crate and exposes the two trait boundaries the controller
            automates a run through. The ports are the design's existing
@@ -674,14 +674,14 @@ package XDesignRustUml {
     }
 
     part xdesignCrate : XDesignCrate {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
         doc /* The designed crate instance the verification case reviews;
            Cargo.toml and src/ implement its first executable slice. */
     }
 
     occurrence def RsGateEvaluationInteraction {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D47"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_gate_sequence.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D47"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/gate-sequence.svg"; }
         doc /* One gate evaluation in the Rust design: the run asks the
            checkpoint spec to evaluate; a syntactic spec invokes its checker
            through the check trait and a semantic spec requests a judgment
@@ -703,8 +703,8 @@ package XDesignRustUml {
     }
 
     state def RsRunLifecycle {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D48"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_run_states.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D48"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/run-states.svg"; }
         doc /* The run's state handling in the Rust design, mirroring
            SimpleFlowRunLifecycle: create_run activates, a gate that is not
            authorized blocks, corrective work resumes the active visit, an
@@ -749,8 +749,8 @@ package XDesignRustUml {
 
     view rustModuleLayout : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Crate modules"; question = "How is the xdesign crate organized, and which module dependencies are allowed?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_crate_modules.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/crate-modules.svg"; }
         doc /* The crate's modules and their allowed dependency directions. */
         expose XDesignRustUml::crate;
         expose XDesignRustUml::crate::*;
@@ -761,8 +761,8 @@ package XDesignRustUml {
 
     view rustCrateLayers : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Crate layers"; question = "How is the xdesign crate divided into layers, and which direction may dependencies point?"; }
-        @XDesignCommon::DocSection { document = "docs/api/01_struct.md"; section = "U68"; }
-        @XDesignCommon::DocFigure { document = "docs/api/01_struct.md"; figure = "docs/api/assets/01_crate_layers.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/index.md"; section = "U68"; }
+        @XDesignCommon::DocFigure { document = "docs/design/api/index.md"; figure = "docs/design/api/assets/crate-layers.svg"; }
         doc /* The crate's layers — core infrastructure and one designed flow
            module per realized flow, simpleFlow and wishVerify — and the one-way
            dependencies between them. */
@@ -776,8 +776,8 @@ package XDesignRustUml {
 
     view rustClassStructure : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Rust types"; question = "Which structs, enums and traits would the crate declare, and what does each realize?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D46"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_class_structure.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D46"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/class-structure.svg"; }
         doc /* The crate's types and their realization mapping to the SysML
            detailed design. */
         expose XDesignRustUml::RsFlowRun;
@@ -807,8 +807,8 @@ package XDesignRustUml {
 
     view rustGateSequence : StandardViewDefinitions::SequenceView {
         @XDesignCommon::DiagramPresentation { label = "Gate evaluation"; question = "Which Rust objects exchange which calls when one gate is evaluated?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D47"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_gate_sequence.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D47"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/gate-sequence.svg"; }
         doc /* The run, checkpoint spec, check command and judge during one
            gate evaluation. */
         expose XDesignRustUml::RsGateEvaluationInteraction;
@@ -816,8 +816,8 @@ package XDesignRustUml {
 
     view rustRunStates : StandardViewDefinitions::StateTransitionView {
         @XDesignCommon::DiagramPresentation { label = "Run states"; question = "When does the Rust run activate, block, resume, complete or reopen?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D48"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/06_rust_uml_design.md"; figure = "docs/details/simple_flow/assets/06_run_states.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D48"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/run-states.svg"; }
         doc /* The run's states and the conditions its methods decide them by. */
         expose XDesignRustUml::RsRunLifecycle;
         expose XDesignRustUml::RsRunLifecycle::*;
@@ -826,8 +826,8 @@ package XDesignRustUml {
 
     view projectPackageIntegration : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Project packages including Rust UML"; question = "How does the Rust software design depend on the other project model concerns?"; }
-        @XDesignCommon::DocSection { document = "docs/arch/02_design.md"; section = "D21"; }
-        @XDesignCommon::DocFigure { document = "docs/arch/02_design.md"; figure = "docs/arch/assets/02_packages.svg"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "D21"; }
+        @XDesignCommon::DocFigure { document = "docs/architecture/system-composition.md"; figure = "docs/architecture/assets/packages.svg"; }
         doc /* The whole project model's package organization, including the
            xdesign flow composition, the xdesign crate's Rust design, and their
            dependencies on architecture and detailed design. Wish trace packages
@@ -844,35 +844,35 @@ package XDesignRustUml {
     }
 
     viewpoint rustModuleLayoutConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D45"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
         subject rustModuleLayout;
         attribute redefines concernText = "How is the xdesign crate organized, and which module dependencies are allowed?";
         attribute redefines stakeholderRole = "crate maintainer";
     }
 
     viewpoint rustClassStructureConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D46"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D46"; }
         subject rustClassStructure;
         attribute redefines concernText = "Which structs, enums and traits would the crate declare, and what does each realize?";
         attribute redefines stakeholderRole = "implementer";
     }
 
     viewpoint rustGateSequenceConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D47"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D47"; }
         subject rustGateSequence;
         attribute redefines concernText = "Which Rust objects exchange which calls when one gate is evaluated?";
         attribute redefines stakeholderRole = "integrator";
     }
 
     viewpoint rustRunStatesConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/06_rust_uml_design.md"; section = "D48"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D48"; }
         subject rustRunStates;
         attribute redefines concernText = "When does the Rust run activate, block, resume, complete or reopen?";
         attribute redefines stakeholderRole = "maintainer";
     }
 
     action def RsWishVerifyFlowPlan {
-        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/01_wish_verify_flow_plan.md"; section = "U74"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/wish-verify/wish-verify-flow-plan.md"; section = "U74"; }
         doc /* Rust fn wish_verify_flow_plan: construct the modeled
            designedWishVerifyFlow as plan data — the two stages in order with
            their two semantic exit checkpoints and their judge flags — before
@@ -882,7 +882,7 @@ package XDesignRustUml {
     dependency rsWishVerifyFlowPlanProjects from RsWishVerifyFlowPlan to XDesignDetailedDesign::DesignedWishVerifyFlow;
 
     action def RsValidateWishVerifyPlan {
-        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/02_validate_wish_verify_plan.md"; section = "U75"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/wish-verify/validate-wish-verify-plan.md"; section = "U75"; }
         doc /* Rust fn validate_wish_verify_plan: blueprint conformance — reject
            any plan whose stages, checkpoints, kinds or judge flags differ from
            the designed two-stage blueprint, including a syntactic gate the
@@ -893,7 +893,7 @@ package XDesignRustUml {
     dependency rsValidateWishVerifyPlanConformance from RsValidateWishVerifyPlan to XDesignDetailedDesign::DesignedWishVerifyFlow;
 
     action def RsCreateWishVerifyRun {
-        @XDesignCommon::DocSection { document = "docs/api/wish_verify_flow/03_create_wish_verify_run.md"; section = "U76"; }
+        @XDesignCommon::DocSection { document = "docs/design/api/wish-verify/create-wish-verify-run.md"; section = "U76"; }
         doc /* Rust fn create_wish_verify_run realizing WishVerifyFlowRunFactory:
            validate the plan's blueprint conformance, then construct the run
            through the generic create_run. The designed flow declares no
@@ -925,8 +925,8 @@ package XDesignRustUml {
 
     view wishVerifyRustModules : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify module"; question = "Where does the wish-verify module sit in the crate, and what may it depend on?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D76"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; figure = "docs/details/wish_verify_flow/assets/05_modules.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D76"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/modules.svg"; }
         doc /* The wishVerify package beside simpleFlow over the shared core, and
            its allowed dependency directions. */
         expose XDesignRustUml::crate::wishVerify;
@@ -936,8 +936,8 @@ package XDesignRustUml {
 
     view wishVerifyRustTypes : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify Rust additions"; question = "Which Rust elements does the wish-verify module add, and what does each realize?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D77"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; figure = "docs/details/wish_verify_flow/assets/05_class_structure.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D77"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/class-structure.svg"; }
         doc /* The module's three functions and the core types they build on,
            with the realization dependencies back to the wish-verify design. */
         expose XDesignRustUml::RsWishVerifyFlowPlan;
@@ -949,14 +949,14 @@ package XDesignRustUml {
     }
 
     viewpoint wishVerifyRustModulesConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D76"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D76"; }
         subject wishVerifyRustModules;
         attribute redefines concernText = "Where does the wish-verify module sit in the crate, and what may it depend on?";
         attribute redefines stakeholderRole = "crate maintainer";
     }
 
     viewpoint wishVerifyRustTypesConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/05_rust_uml_design.md"; section = "D77"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D77"; }
         subject wishVerifyRustTypes;
         attribute redefines concernText = "Which Rust elements does the wish-verify module add, and what does each realize?";
         attribute redefines stakeholderRole = "implementer";

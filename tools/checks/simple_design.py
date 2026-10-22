@@ -54,15 +54,15 @@ REQUIRED_VIEWS = (
     "stateMachineDiagram", "packageDiagram",
 )
 REQUIRED_VIEW_FIGURES = {
-    "blockDefinitionDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_block_definition.svg"),
-    "internalBlockDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_internal_block.svg"),
-    "requirementsDiagram": ("docs/requirements/01_baseline.md", "docs/requirements/assets/01_requirements.svg"),
-    "parametricDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_parametric.svg"),
-    "useCaseDiagram": ("docs/requirements/01_baseline.md", "docs/requirements/assets/01_use_cases.svg"),
-    "activityDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_activity.svg"),
-    "sequenceDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_sequence.svg"),
-    "stateMachineDiagram": ("docs/details/simple_flow/05_module_design.md", "docs/details/simple_flow/assets/05_state_machine.svg"),
-    "packageDiagram": ("docs/arch/02_design.md", "docs/arch/assets/02_simple_flow_packages.svg"),
+    "blockDefinitionDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/block-definition.svg"),
+    "internalBlockDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/internal-block.svg"),
+    "requirementsDiagram": ("docs/verification/requirements.md", "docs/verification/assets/requirements.svg"),
+    "parametricDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/parametric.svg"),
+    "useCaseDiagram": ("docs/requirements/requirements.md", "docs/requirements/assets/use-cases.svg"),
+    "activityDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/activity.svg"),
+    "sequenceDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/sequence.svg"),
+    "stateMachineDiagram": ("docs/design/flows/simple-flow/views.md", "docs/design/flows/simple-flow/assets/state-machine.svg"),
+    "packageDiagram": ("docs/architecture/system-composition.md", "docs/architecture/assets/simple-flow-packages.svg"),
 }
 DOC_SECTION = re.compile(r'@XDesignCommon::DocSection\s*\{\s*document\s*=\s*"([^"\n]+)"\s*;\s*section\s*=\s*"([^"\n]+)"\s*;\s*\}')
 DOC_FIGURE = re.compile(r'@XDesignCommon::DocFigure\s*\{\s*document\s*=\s*"([^"\n]+)"\s*;\s*figure\s*=\s*"([^"\n]+)"\s*;\s*\}')

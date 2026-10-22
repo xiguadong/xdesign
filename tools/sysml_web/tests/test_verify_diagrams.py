@@ -41,7 +41,7 @@ class FinalDiagramEvidenceTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory(prefix="run-", dir=TEST_CACHE)
         self.addCleanup(self.directory.cleanup)
         self.repo = Path(self.directory.name)
-        self.figure = self.repo / "docs/details/assets/figure.svg"
+        self.figure = self.repo / "docs/architecture/assets/figure.svg"
         self.figure.parent.mkdir(parents=True)
         self.figure.write_text(SIMPLE_SVG)
         self.model = self.repo / "mbse/model/system.sysml"

@@ -1,6 +1,6 @@
 package XDesignTraceability {
     @XDesignCommon::DiagramPresentation { label = "Traceability"; }
-    @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "R02"; }
+    @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R02"; }
     private import XDesignArchitecture::*;
     private import XDesignCommon::*;
     private import XDesignDetailedDesign::*;

@@ -1,0 +1,1958 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="23183" height="4755" viewBox="0 0 23183 4755" font-family="Arial, Helvetica, sans-serif" font-size="12">
+<style>
+.box { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.rule, .edge { stroke: #000000; stroke-width: 1; fill: none; }
+.arrow { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.diamond { fill: #000000; stroke: #000000; stroke-width: 1; }
+.hollow { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.tip { fill: none; stroke: #000000; stroke-width: 1; }
+.initial { fill: #000000; }
+.port { fill: #ffffff; stroke: #000000; stroke-width: 1; }
+.guide { stroke: #000000; stroke-width: 1; opacity: 0.4; }
+.dependency { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 6 4; }
+.succession { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 4 3; }
+.lifeline { stroke: #000000; stroke-width: 1; fill: none; stroke-dasharray: 3 4; }
+.lane { fill: none; stroke: #000000; stroke-width: 1; }
+.name { fill: #000000; font-weight: bold; }
+.abstract { font-style: italic; }
+.keyword, .feature { fill: #000000; }
+.aside { fill: #000000; paint-order: stroke; stroke: #ffffff; stroke-width: 3; stroke-linejoin: round; }
+.compartment { fill: #000000; font-style: italic; }
+@media (prefers-color-scheme: dark) {
+.box, .arrow, .hollow, .port { fill: #1e1e1e; stroke: #d4d4d4; }
+.rule, .edge, .tip, .guide, .dependency, .succession, .lifeline, .lane { stroke: #d4d4d4; }
+.diamond { fill: #d4d4d4; stroke: #d4d4d4; }
+.initial, .name, .keyword, .feature, .compartment { fill: #d4d4d4; }
+.aside { fill: #d4d4d4; stroke: #1e1e1e; }
+}
+</style>
+<defs><marker id="specialization" viewBox="0 0 12 10" refX="12" refY="5" markerWidth="12" markerHeight="10" orient="auto"><path class="arrow" d="M0,0 L12,5 L0,10 z"/></marker><marker id="composition" viewBox="0 0 16 10" refX="0" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="diamond" d="M0,5 L8,0 L16,5 L8,10 z"/></marker><marker id="subsetting" viewBox="0 0 12 10" refX="12" refY="5" markerWidth="12" markerHeight="10" orient="auto"><path class="hollow" d="M0,0 L12,5 L0,10 z"/></marker><marker id="redefinition" viewBox="0 0 16 10" refX="16" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="hollow" d="M4,0 L16,5 L4,10 z"/><path class="tip" d="M2,0 L2,10"/></marker><marker id="reference" viewBox="0 0 16 10" refX="0" refY="5" markerWidth="16" markerHeight="10" orient="auto"><path class="hollow" d="M0,5 L8,0 L16,5 L8,10 z"/></marker><marker id="transition" viewBox="0 0 10 8" refX="10" refY="4" markerWidth="10" markerHeight="8" orient="auto"><path class="tip" d="M0,0 L10,4 L0,8"/></marker><marker id="flow" viewBox="0 0 10 9" refX="10" refY="4.5" markerWidth="10" markerHeight="9" orient="auto"><path class="diamond" d="M0,0 L10,4.5 L0,9 z"/></marker><marker id="message" viewBox="0 0 10 9" refX="10" refY="4.5" markerWidth="10" markerHeight="9" orient="auto"><path class="tip" d="M0,0 L10,4.5 L0,9 L2.5,4.5 z"/></marker><marker id="portion" viewBox="0 0 10 10" refX="0" refY="5" markerWidth="10" markerHeight="10" orient="auto"><circle class="diamond" cx="5" cy="5" r="4"/></marker></defs>
+<path class="box" d="M 28.0 28.0 H 214.3 L 222.4 55.0 H 23155.4 V 4727.0 H 28.0 z"/>
+<line class="rule" x1="28.0" y1="55.0" x2="222.4" y2="55.0"/>
+<text class="name" x="38.0" y="45.8">XDesignDetailedDesign</text>
+<path class="edge" fill="none" d="M 3785.3 2826.0 L 3785.3 2856.0 L 5305.5 2856.0 L 5305.5 2866.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 3536.3 2826.0 L 3536.3 2836.0 L 2546.0 2836.0 L 2546.0 4436.0 L 4842.0 4436.0 L 4842.0 4446.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 3660.8 2826.0 L 3660.8 3211.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 5413.2 3181.0 L 5413.2 3201.0 L 3897.8 3201.0 L 3897.8 3546.0 L 4463.0 3546.0 L 4463.0 3556.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 5115.5 4446.0 L 5115.5 4426.0 L 5580.7 4426.0 L 5580.7 3181.0" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 4951.4 4446.0 L 4951.4 4416.0 L 4876.1 4416.0 L 4876.1 4298.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 3735.9 3211.0 L 3735.9 3191.0 L 5329.4 3191.0 L 5329.4 3181.0" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 3560.6 3526.0 L 3560.6 4088.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 4688.4 3550.9 L 4688.4 3536.0 L 5496.9 3536.0 L 5496.9 3181.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 4843.6 4088.0 L 4843.6 4068.0 L 4638.3 4068.0 L 4638.3 4058.0" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 5006.1 4298.0 L 5006.1 4446.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 3688.2 4088.0 L 3688.2 4078.0 L 4513.1 4078.0 L 4513.1 4058.0" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 3624.4 4088.0 L 3624.4 4068.0 L 3685.8 4068.0 L 3685.8 3526.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7612.5 1703.0 L 7612.5 1713.0 L 4786.6 1713.0 L 4786.6 2264.0 L 3810.2 2264.0 L 3810.2 2324.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7703.9 1703.0 L 7703.9 1733.0 L 6242.6 1733.0 L 6242.6 2846.0 L 5604.6 2846.0 L 5604.6 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7749.6 1708.1 L 7749.6 1743.0 L 6893.0 1743.0 L 6893.0 1823.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 8069.5 1708.1 L 8069.5 1713.0 L 18704.7 1713.0 L 18704.7 1823.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7978.1 1703.0 L 7978.1 1773.0 L 13815.3 1773.0 L 13815.3 2314.0 L 15631.0 2314.0 L 15631.0 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 7658.2 1703.0 L 7658.2 1723.0 L 6231.6 1723.0 L 6231.6 2264.0 L 6001.9 2264.0 L 6001.9 2366.5" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 7795.3 1703.0 L 7795.3 1753.0 L 7542.7 1753.0 L 7542.7 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 7886.7 1703.0 L 7886.7 2264.0 L 7824.1 2264.0 L 7824.1 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 5904.4 2698.5 L 5904.4 2836.0 L 5544.8 2836.0 L 5544.8 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7619.2 2318.9 L 7619.2 2264.0 L 7808.9 2264.0 L 7808.9 1713.0 L 7841.0 1713.0 L 7841.0 1703.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 7932.4 2318.9 L 7932.4 1703.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 10330.9 994.5 L 10330.9 1040.0 L 6830.9 1040.0 L 6830.9 1823.0"/>
+<path class="edge" fill="none" d="M 10456.1 994.5 L 10456.1 1763.0 L 11707.4 1763.0 L 11707.4 1823.0"/>
+<path class="edge" fill="none" d="M 21060.2 892.5 L 21060.2 1030.0 L 20448.6 1030.0 L 20448.6 1723.0 L 15250.0 1723.0 L 15250.0 1823.0"/>
+<path class="edge" fill="none" d="M 21171.0 892.5 L 21171.0 1803.0 L 18790.3 1803.0 L 18790.3 1823.0"/>
+<path class="edge" fill="none" d="M 12249.7 1433.6 L 12249.7 1763.0 L 11924.2 1763.0 L 11924.2 1823.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 14318.0 1350.7 L 14318.0 1753.0 L 15041.9 1753.0 L 15041.9 1823.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 11797.9 929.3 L 11797.9 1100.0 L 8005.5 1100.0 L 8005.5 1110.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 11629.5 929.3 L 11629.5 1060.0 L 4693.7 1060.0 L 4693.7 1110.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 11713.7 929.3 L 11713.7 1080.0 L 4797.6 1080.0 L 4797.6 2846.0 L 5365.3 2846.0 L 5365.3 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 11882.1 929.3 L 11882.1 1080.0 L 12155.8 1080.0 L 12155.8 1201.5" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 11966.3 929.3 L 11966.3 1070.0 L 14183.9 1070.0 L 14183.9 1169.6" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 9165.1 1020.0 L 9165.1 1050.0 L 7676.5 1050.0 L 7676.5 1110.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 9037.5 1020.0 L 9037.5 1030.0 L 3030.4 1030.0 L 3030.4 2274.0 L 3511.4 2274.0 L 3511.4 2324.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 2062.2 454.0 L 2062.2 464.0 L 3703.9 464.0 L 3703.9 494.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 15657.3 2324.0 L 15657.3 2304.0 L 13826.3 2304.0 L 13826.3 1753.0 L 8023.8 1753.0 L 8023.8 1703.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 11747.4 436.0 L 11747.4 607.3" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 13677.4 440.5 L 13677.4 464.0 L 11848.4 464.0 L 11848.4 607.3" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 13797.8 440.5 L 13797.8 1060.0 L 14237.5 1060.0 L 14237.5 1169.6" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 21810.7 2192.7 L 21810.7 2846.0 L 18770.6 2846.0 L 18770.6 2866.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 21945.5 2192.7 L 21945.5 3191.0 L 22117.4 3191.0 L 22117.4 3211.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 18516.3 3181.0 L 18516.3 3191.0 L 18138.0 3191.0 L 18138.0 3546.0 L 18470.8 3546.0 L 18470.8 3588.6" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 22042.3 3211.0 L 22042.3 3201.0 L 18725.7 3201.0 L 18725.7 3181.0" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 22092.4 3526.0 L 22092.4 4068.0 L 22153.8 4068.0 L 22153.8 4088.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 18621.0 3583.5 L 18621.0 3181.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 22090.0 4088.0 L 22090.0 4078.0 L 18583.4 4078.0 L 18583.4 3927.6" marker-end="url(#specialization)"/>
+<path class="edge" fill="none" d="M 22217.6 4088.0 L 22217.6 3526.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 20968.2 1698.1 L 20968.2 1813.0 L 21756.8 1813.0 L 21756.8 1853.7" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 20718.9 1698.1 L 20718.9 1773.0 L 18650.9 1773.0 L 18650.9 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 20768.8 1703.2 L 20768.8 1783.0 L 18747.5 1783.0 L 18747.5 1823.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 20519.5 1698.1 L 20519.5 1733.0 L 11614.2 1733.0 L 11614.2 2284.0 L 10567.5 2284.0 L 10567.5 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 20918.3 1698.1 L 20918.3 2264.0 L 20686.8 2264.0 L 20686.8 2366.5" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 20818.6 1698.1 L 20818.6 1793.0 L 18919.9 1793.0 L 18919.9 2274.0 L 19032.1 2274.0 L 19032.1 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 20619.2 1698.1 L 20619.2 1753.0 L 18138.1 1753.0 L 18138.1 2264.0 L 18040.8 2264.0 L 18040.8 2324.0" marker-end="url(#transition)"/>
+<path class="edge" fill="none" d="M 20591.1 2698.5 L 20591.1 2836.0 L 18710.7 2836.0 L 18710.7 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 19107.2 2318.9 L 19107.2 2264.0 L 18930.9 2264.0 L 18930.9 1813.0 L 20868.5 1813.0 L 20868.5 1698.1" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 18149.1 2318.9 L 18149.1 1763.0 L 20669.0 1763.0 L 20669.0 1698.1" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 17837.3 901.0 L 17837.3 1080.0 L 20579.3 1080.0 L 20579.3 1122.1" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 17534.2 901.0 L 17534.2 1040.0 L 13633.6 1040.0 L 13633.6 1110.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 17635.3 901.0 L 17635.3 1050.0 L 13737.5 1050.0 L 13737.5 2846.0 L 18531.3 2846.0 L 18531.3 2866.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 17736.3 901.0 L 17736.3 1060.0 L 14398.5 1060.0 L 14398.5 1169.6" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 22010.2 969.0 L 22010.2 1050.0 L 20908.3 1050.0 L 20908.3 1122.1" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 22147.4 969.0 L 22147.4 1713.0 L 21999.5 1713.0 L 21999.5 1853.7" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 6910.3 454.0 L 6910.3 464.0 L 3851.3 464.0 L 3851.3 494.0" marker-start="url(#composition)"/>
+<path class="edge" fill="none" d="M 10648.0 2324.0 L 10648.0 2314.0 L 13726.5 2314.0 L 13726.5 1743.0 L 20569.3 1743.0 L 20569.3 1698.1" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 18798.6 436.0 L 18798.6 484.0 L 17837.3 484.0 L 17837.3 613.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 17823.2 432.0 L 17823.2 464.0 L 17635.3 464.0 L 17635.3 613.0" marker-start="url(#reference)"/>
+<path class="edge" fill="none" d="M 17948.4 432.0 L 17948.4 1070.0 L 14452.1 1070.0 L 14452.1 1169.6" marker-start="url(#reference)"/>
+<path class="dependency" fill="none" d="M 3710.6 2254.0 L 3710.6 2324.0"/>
+<path class="dependency" fill="none" d="M 3267.4 2254.0 L 3267.4 2264.0 L 3611.0 2264.0 L 3611.0 2324.0"/>
+<path class="dependency" fill="none" d="M 5485.0 2826.0 L 5485.0 2866.0"/>
+<path class="dependency" fill="none" d="M 5034.6 2826.0 L 5034.6 2836.0 L 5425.1 2836.0 L 5425.1 2866.0"/>
+<path class="dependency" fill="none" d="M 5225.1 4406.0 L 5225.1 4416.0 L 5060.8 4416.0 L 5060.8 4446.0"/>
+<path class="dependency" fill="none" d="M 4563.3 4406.0 L 4563.3 4426.0 L 4896.7 4426.0 L 4896.7 4446.0"/>
+<path class="dependency" fill="none" d="M 3424.8 3181.0 L 3424.8 3191.0 L 3585.7 3191.0 L 3585.7 3211.0"/>
+<path class="dependency" fill="none" d="M 2952.8 3181.0 L 2952.8 3201.0 L 3510.6 3201.0 L 3510.6 3211.0"/>
+<path class="dependency" fill="none" d="M 4613.2 3526.0 L 4613.2 3556.0"/>
+<path class="dependency" fill="none" d="M 4144.8 3526.0 L 4144.8 3536.0 L 4538.1 3536.0 L 4538.1 3556.0"/>
+<path class="dependency" fill="none" d="M 4941.1 4058.0 L 4941.1 4088.0"/>
+<path class="dependency" fill="none" d="M 5344.7 4058.0 L 5344.7 4068.0 L 5038.6 4068.0 L 5038.6 4088.0"/>
+<path class="dependency" fill="none" d="M 2779.4 4058.0 L 2779.4 4078.0 L 3433.0 4078.0 L 3433.0 4088.0"/>
+<path class="dependency" fill="none" d="M 3247.8 4058.0 L 3247.8 4068.0 L 3496.8 4068.0 L 3496.8 4088.0"/>
+<path class="dependency" fill="none" d="M 11313.7 1020.0 L 11313.7 1090.0 L 7895.8 1090.0 L 7895.8 1110.0"/>
+<path class="dependency" fill="none" d="M 10841.7 1020.0 L 10841.7 1070.0 L 7786.2 1070.0 L 7786.2 1110.0"/>
+<path class="dependency" fill="none" d="M 4142.2 1020.0 L 4142.2 1040.0 L 4505.9 1040.0 L 4505.9 1110.0"/>
+<path class="dependency" fill="none" d="M 4599.8 1020.0 L 4599.8 1110.0"/>
+<path class="dependency" fill="none" d="M 5436.0 2254.0 L 5436.0 2264.0 L 5806.9 2264.0 L 5806.9 2366.5"/>
+<path class="dependency" fill="none" d="M 5904.4 2254.0 L 5904.4 2366.5"/>
+<path class="dependency" fill="none" d="M 6501.2 2254.0 L 6501.2 2274.0 L 7389.6 2274.0 L 7389.6 2324.0"/>
+<path class="dependency" fill="none" d="M 7215.5 2254.0 L 7215.5 2264.0 L 7466.1 2264.0 L 7466.1 2324.0"/>
+<path class="dependency" fill="none" d="M 8183.8 2254.0 L 8183.8 2264.0 L 8040.7 2264.0 L 8040.7 2324.0"/>
+<path class="dependency" fill="none" d="M 11851.9 1703.0 L 11851.9 1823.0"/>
+<path class="dependency" fill="none" d="M 11433.9 1703.0 L 11433.9 1723.0 L 11779.7 1723.0 L 11779.7 1823.0"/>
+<path class="dependency" fill="none" d="M 10048.9 454.0 L 10048.9 464.0 L 10330.9 464.0 L 10330.9 519.5"/>
+<path class="dependency" fill="none" d="M 10456.1 454.0 L 10456.1 519.5"/>
+<path class="dependency" fill="none" d="M 15180.6 1703.0 L 15180.6 1823.0"/>
+<path class="dependency" fill="none" d="M 14733.8 1703.0 L 14733.8 1723.0 L 15111.2 1723.0 L 15111.2 1823.0"/>
+<path class="dependency" fill="none" d="M 20745.8 454.0 L 20745.8 464.0 L 21060.2 464.0 L 21060.2 621.5"/>
+<path class="dependency" fill="none" d="M 21171.0 454.0 L 21171.0 621.5"/>
+<path class="dependency" fill="none" d="M 12249.7 1020.0 L 12249.7 1201.5"/>
+<path class="dependency" fill="none" d="M 12656.9 1020.0 L 12656.9 1080.0 L 12343.6 1080.0 L 12343.6 1201.5"/>
+<path class="dependency" fill="none" d="M 13962.8 1020.0 L 13962.8 1030.0 L 14291.2 1030.0 L 14291.2 1169.6"/>
+<path class="dependency" fill="none" d="M 14344.8 1020.0 L 14344.8 1169.6"/>
+<path class="dependency" fill="none" d="M 14175.0 454.0 L 14175.0 474.0 L 11949.5 474.0 L 11949.5 607.3"/>
+<path class="dependency" fill="none" d="M 11331.6 454.0 L 11331.6 464.0 L 11646.4 464.0 L 11646.4 607.3"/>
+<path class="dependency" fill="none" d="M 9101.3 454.0 L 9101.3 494.0"/>
+<path class="dependency" fill="none" d="M 8625.7 454.0 L 8625.7 464.0 L 9005.6 464.0 L 9005.6 494.0"/>
+<path class="dependency" fill="none" d="M 9609.3 454.0 L 9609.3 464.0 L 9197.0 464.0 L 9197.0 494.0"/>
+<path class="dependency" fill="none" d="M 20340.8 153.0 L 20340.8 173.0"/>
+<path class="dependency" fill="none" d="M 296.4 454.0 L 296.4 474.0 L 3630.2 474.0 L 3630.2 494.0"/>
+<path class="dependency" fill="none" d="M 3777.6 454.0 L 3777.6 494.0"/>
+<path class="dependency" fill="none" d="M 2558.0 153.0 L 2558.0 173.0"/>
+<path class="dependency" fill="none" d="M 1566.4 153.0 L 1566.4 173.0"/>
+<path class="dependency" fill="none" d="M 14074.1 2254.0 L 14074.1 2294.0 L 15683.7 2294.0 L 15683.7 2324.0"/>
+<path class="dependency" fill="none" d="M 17551.3 2254.0 L 17551.3 2304.0 L 15920.5 2304.0 L 15920.5 2324.0"/>
+<path class="dependency" fill="none" d="M 15788.9 2254.0 L 15788.9 2324.0"/>
+<path class="dependency" fill="none" d="M 17915.3 2254.0 L 17915.3 2314.0 L 15946.8 2314.0 L 15946.8 2324.0"/>
+<path class="dependency" fill="none" d="M 14477.7 2254.0 L 14477.7 2284.0 L 15710.0 2284.0 L 15710.0 2324.0"/>
+<path class="dependency" fill="none" d="M 16762.1 2254.0 L 16762.1 2284.0 L 15867.9 2284.0 L 15867.9 2324.0"/>
+<path class="dependency" fill="none" d="M 15496.9 2254.0 L 15496.9 2264.0 L 15762.6 2264.0 L 15762.6 2324.0"/>
+<path class="dependency" fill="none" d="M 17136.9 2254.0 L 17136.9 2294.0 L 15894.2 2294.0 L 15894.2 2324.0"/>
+<path class="dependency" fill="none" d="M 16419.7 2254.0 L 16419.7 2274.0 L 15841.5 2274.0 L 15841.5 2324.0"/>
+<path class="dependency" fill="none" d="M 16084.5 2254.0 L 16084.5 2264.0 L 15815.2 2264.0 L 15815.2 2324.0"/>
+<path class="dependency" fill="none" d="M 14798.5 2254.0 L 14798.5 2274.0 L 15736.3 2274.0 L 15736.3 2324.0"/>
+<path class="dependency" fill="none" d="M 11810.0 153.0 L 11810.0 182.0"/>
+<path class="dependency" fill="none" d="M 11413.6 153.0 L 11413.6 163.0 L 11684.8 163.0 L 11684.8 182.0"/>
+<path class="dependency" fill="none" d="M 13797.8 153.0 L 13797.8 186.5"/>
+<path class="dependency" fill="none" d="M 13397.8 153.0 L 13397.8 163.0 L 13677.4 163.0 L 13677.4 186.5"/>
+<path class="dependency" fill="none" d="M 19876.0 153.0 L 19876.0 173.0"/>
+<path class="dependency" fill="none" d="M 19364.4 153.0 L 19364.4 163.0 L 19748.4 163.0 L 19748.4 173.0"/>
+<path class="dependency" fill="none" d="M 22595.6 153.0 L 22595.6 173.0"/>
+<path class="dependency" fill="none" d="M 21918.6 1703.0 L 21918.6 1853.7"/>
+<path class="dependency" fill="none" d="M 21453.8 1703.0 L 21453.8 1713.0 L 21837.7 1713.0 L 21837.7 1853.7"/>
+<path class="dependency" fill="none" d="M 13483.5 2826.0 L 13483.5 2856.0 L 18471.4 2856.0 L 18471.4 2866.0"/>
+<path class="dependency" fill="none" d="M 17686.5 2826.0 L 17686.5 2836.0 L 18591.1 2836.0 L 18591.1 2866.0"/>
+<path class="dependency" fill="none" d="M 22664.5 3181.0 L 22664.5 3191.0 L 22267.7 3191.0 L 22267.7 3211.0"/>
+<path class="dependency" fill="none" d="M 22192.5 3181.0 L 22192.5 3211.0"/>
+<path class="dependency" fill="none" d="M 18832.8 3526.0 L 18832.8 3536.0 L 18696.1 3536.0 L 18696.1 3588.6"/>
+<path class="dependency" fill="none" d="M 18385.0 3526.0 L 18385.0 3536.0 L 18545.9 3536.0 L 18545.9 3588.6"/>
+<path class="dependency" fill="none" d="M 22923.0 4058.0 L 22923.0 4078.0 L 22345.2 4078.0 L 22345.2 4088.0"/>
+<path class="dependency" fill="none" d="M 22454.6 4058.0 L 22454.6 4068.0 L 22281.4 4068.0 L 22281.4 4088.0"/>
+<path class="dependency" fill="none" d="M 21524.2 1020.0 L 21524.2 1040.0 L 20798.7 1040.0 L 20798.7 1122.1"/>
+<path class="dependency" fill="none" d="M 20689.0 1020.0 L 20689.0 1122.1"/>
+<path class="dependency" fill="none" d="M 13082.1 1020.0 L 13082.1 1080.0 L 13445.8 1080.0 L 13445.8 1110.0"/>
+<path class="dependency" fill="none" d="M 13539.7 1020.0 L 13539.7 1110.0"/>
+<path class="dependency" fill="none" d="M 20144.3 2254.0 L 20144.3 2264.0 L 20495.4 2264.0 L 20495.4 2366.5"/>
+<path class="dependency" fill="none" d="M 20591.1 2254.0 L 20591.1 2366.5"/>
+<path class="dependency" fill="none" d="M 19690.3 2254.0 L 19690.3 2264.0 L 19257.4 2264.0 L 19257.4 2324.0"/>
+<path class="dependency" fill="none" d="M 19182.3 2254.0 L 19182.3 2324.0"/>
+<path class="dependency" fill="none" d="M 18400.5 2254.0 L 18400.5 2264.0 L 18257.4 2264.0 L 18257.4 2324.0"/>
+<path class="dependency" fill="none" d="M 18319.6 454.0 L 18319.6 474.0 L 17736.3 474.0 L 17736.3 613.0"/>
+<path class="dependency" fill="none" d="M 17437.6 454.0 L 17437.6 464.0 L 17534.2 464.0 L 17534.2 613.0"/>
+<path class="dependency" fill="none" d="M 21643.0 454.0 L 21643.0 464.0 L 22010.2 464.0 L 22010.2 545.0"/>
+<path class="dependency" fill="none" d="M 22147.4 454.0 L 22147.4 545.0"/>
+<path class="dependency" fill="none" d="M 6414.5 153.0 L 6414.5 173.0"/>
+<path class="dependency" fill="none" d="M 7406.1 153.0 L 7406.1 173.0"/>
+<path class="dependency" fill="none" d="M 10897.8 2254.0 L 10897.8 2264.0 L 10513.8 2264.0 L 10513.8 2324.0"/>
+<path class="dependency" fill="none" d="M 12584.8 2254.0 L 12584.8 2304.0 L 10621.1 2304.0 L 10621.1 2324.0"/>
+<path class="dependency" fill="none" d="M 8850.6 2254.0 L 8850.6 2304.0 L 10352.9 2304.0 L 10352.9 2324.0"/>
+<path class="dependency" fill="none" d="M 8580.2 2254.0 L 8580.2 2314.0 L 10326.0 2314.0 L 10326.0 2324.0"/>
+<path class="dependency" fill="none" d="M 9467.0 2254.0 L 9467.0 2284.0 L 10406.5 2284.0 L 10406.5 2324.0"/>
+<path class="dependency" fill="none" d="M 10144.6 2254.0 L 10144.6 2264.0 L 10460.2 2264.0 L 10460.2 2324.0"/>
+<path class="dependency" fill="none" d="M 9142.6 2254.0 L 9142.6 2294.0 L 10379.7 2294.0 L 10379.7 2324.0"/>
+<path class="dependency" fill="none" d="M 11341.0 2254.0 L 11341.0 2274.0 L 10540.7 2274.0 L 10540.7 2324.0"/>
+<path class="dependency" fill="none" d="M 12170.4 2254.0 L 12170.4 2294.0 L 10594.3 2294.0 L 10594.3 2324.0"/>
+<path class="dependency" fill="none" d="M 9795.0 2254.0 L 9795.0 2274.0 L 10433.3 2274.0 L 10433.3 2324.0"/>
+<path class="dependency" fill="none" d="M 10487.0 2254.0 L 10487.0 2324.0"/>
+<path class="dependency" fill="none" d="M 18860.0 153.0 L 18860.0 182.0"/>
+<path class="dependency" fill="none" d="M 18420.4 153.0 L 18420.4 163.0 L 18737.2 163.0 L 18737.2 182.0"/>
+<path class="dependency" fill="none" d="M 17948.4 153.0 L 17948.4 195.0"/>
+<path class="dependency" fill="none" d="M 17476.4 153.0 L 17476.4 163.0 L 17823.2 163.0 L 17823.2 195.0"/>
+<text class="aside" x="3909.7" y="3373.5" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="4913.7" y="4404.1" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="3572.5" y="3863.2" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="13827.2" y="1881.2" text-anchor="middle" dominant-baseline="middle">«exhibit»</text>
+<text class="aside" x="6243.5" y="1831.2" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="7669.0" y="1764.9" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="7861.7" y="2275.9" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="9280.9" y="1051.9" text-anchor="middle" dominant-baseline="middle">caller</text>
+<text class="aside" x="10831.5" y="1774.9" text-anchor="middle" dominant-baseline="middle">command</text>
+<text class="aside" x="20436.7" y="1445.8" text-anchor="middle" dominant-baseline="middle">judge</text>
+<text class="aside" x="20932.9" y="1814.9" text-anchor="middle" dominant-baseline="middle">requester</text>
+<text class="aside" x="18149.9" y="3368.5" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="22129.2" y="4056.1" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="11602.3" y="2063.6" text-anchor="middle" dominant-baseline="middle">«exhibit»</text>
+<text class="aside" x="20802.6" y="2275.9" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="18931.8" y="1841.1" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<text class="aside" x="18150.0" y="1855.2" text-anchor="middle" dominant-baseline="middle">«perform»</text>
+<g>
+<rect class="box" x="3411.8" y="2324.0" width="498.0" height="502.0" rx="0"/>
+<text class="keyword" x="3660.8" y="2346.8" text-anchor="middle">«part def»</text>
+<text class="name" x="3660.8" y="2363.8" text-anchor="middle">DesignedSimpleFlow</text>
+<line class="rule" x1="3411.8" y1="2373.0" x2="3909.8" y2="2373.0"/>
+<text class="compartment" x="3421.8" y="2390.8">doc</text>
+<text class="feature" x="3431.8" y="2407.8">The simple flow specialization: the same four stages in the same</text>
+<text class="feature" x="3431.8" y="2424.8">order, with every stage&apos;s exit gated. The first three stages use</text>
+<text class="feature" x="3431.8" y="2441.8">fixed checks; verification uses a record check and inherited</text>
+<text class="feature" x="3431.8" y="2458.8">semantic judgment. xdesign.designedSimpleFlow is the selectable</text>
+<text class="feature" x="3431.8" y="2475.8">usage of this definition.</text>
+<line class="rule" x1="3411.8" y1="2485.0" x2="3909.8" y2="2485.0"/>
+<text class="compartment" x="3421.8" y="2502.8">parts</text>
+<text class="feature" x="3431.8" y="2519.8">part checkpoints : SimpleFlowCheckpoint[5]</text>
+<text class="feature" x="3431.8" y="2536.8">part simpleRequirementsAccepted : SimpleFlowSyntacticCheckpoint</text>
+<text class="feature" x="3431.8" y="2553.8">part simpleDesignAccepted : SimpleFlowSyntacticCheckpoint</text>
+<text class="feature" x="3431.8" y="2570.8">part simpleImplementationAccepted : SimpleFlowSyntacticCheckpoint</text>
+<text class="feature" x="3431.8" y="2587.8">part simpleRecordAccepted : SimpleFlowSyntacticCheckpoint</text>
+<text class="feature" x="3431.8" y="2604.8">part requirements : Stage</text>
+<text class="feature" x="3431.8" y="2621.8">part design : Stage</text>
+<text class="feature" x="3431.8" y="2638.8">part implement : Stage</text>
+<text class="feature" x="3431.8" y="2655.8">part verify : Stage</text>
+<text class="feature" x="3431.8" y="2672.8">part verificationAccepted : SimpleFlowSemanticCheckpoint</text>
+<line class="rule" x1="3411.8" y1="2682.0" x2="3909.8" y2="2682.0"/>
+<text class="compartment" x="3421.8" y="2699.8">items</text>
+<text class="feature" x="3431.8" y="2716.8">item simpleRequirementsCheck : Checker</text>
+<text class="feature" x="3431.8" y="2733.8">item simpleDesignCheck : Checker</text>
+<text class="feature" x="3431.8" y="2750.8">item simpleImplementationCheck : Checker</text>
+<text class="feature" x="3431.8" y="2767.8">item simpleRecordCheck : Checker</text>
+<line class="rule" x1="3411.8" y1="2777.0" x2="3909.8" y2="2777.0"/>
+<text class="compartment" x="3421.8" y="2794.8">relationships</text>
+<text class="feature" x="3431.8" y="2811.8">specializes SimpleFlow</text>
+</g>
+<g>
+<rect class="box" x="5245.6" y="2866.0" width="418.8" height="315.0" rx="0"/>
+<text class="keyword" x="5455.0" y="2888.8" text-anchor="middle">«part def»</text>
+<text class="name" x="5455.0" y="2905.8" text-anchor="middle">SimpleFlowCheckpoint</text>
+<line class="rule" x1="5245.6" y1="2915.0" x2="5664.4" y2="2915.0"/>
+<text class="compartment" x="5255.6" y="2932.8">doc</text>
+<text class="feature" x="5265.6" y="2949.8">One checkpoint of the designed simple flow, abstracted</text>
+<text class="feature" x="5265.6" y="2966.8">as one class for both kinds of rule. The class adapts</text>
+<text class="feature" x="5265.6" y="2983.8">the flow&apos;s syntax rules and its semantic rules: a</text>
+<text class="feature" x="5265.6" y="3000.8">syntactic checkpoint binds the checker whose command</text>
+<text class="feature" x="5265.6" y="3017.8">fixes the check and the rules that decide it, declared</text>
+<text class="feature" x="5265.6" y="3034.8">here and documented in D06; a semantic checkpoint…</text>
+<line class="rule" x1="5245.6" y1="3044.0" x2="5664.4" y2="3044.0"/>
+<text class="compartment" x="5255.6" y="3061.8">items</text>
+<text class="feature" x="5265.6" y="3078.8">item assessments : CheckpointAssessment[0..*]</text>
+<line class="rule" x1="5245.6" y1="3088.0" x2="5664.4" y2="3088.0"/>
+<text class="compartment" x="5255.6" y="3105.8">perform actions</text>
+<text class="feature" x="5265.6" y="3122.8">perform action evaluate : EvaluateSimpleFlowCheckpoint</text>
+<line class="rule" x1="5245.6" y1="3132.0" x2="5664.4" y2="3132.0"/>
+<text class="compartment" x="5255.6" y="3149.8">relationships</text>
+<text class="feature" x="5265.6" y="3166.8">specializes Checkpoint</text>
+</g>
+<g>
+<rect class="box" x="4787.3" y="4446.0" width="382.8" height="271.0" rx="0"/>
+<text class="keyword" x="4978.7" y="4468.8" text-anchor="middle">«part def»</text>
+<text class="name" x="4978.7" y="4485.8" text-anchor="middle">SimpleFlowSyntacticCheckpoint</text>
+<line class="rule" x1="4787.3" y1="4495.0" x2="5170.1" y2="4495.0"/>
+<text class="compartment" x="4797.3" y="4512.8">doc</text>
+<text class="feature" x="4807.3" y="4529.8">The syntactic adaptation of the checkpoint class:</text>
+<text class="feature" x="4807.3" y="4546.8">a fixed command applies its declared checker</text>
+<text class="feature" x="4807.3" y="4563.8">rules. The declared command must exist and return</text>
+<text class="feature" x="4807.3" y="4580.8">a revision-bound report with the exact rule set</text>
+<text class="feature" x="4807.3" y="4597.8">before this gate can pass. Its evaluate operation</text>
+<text class="feature" x="4807.3" y="4614.8">retains the per-rule report as evidence.</text>
+<line class="rule" x1="4787.3" y1="4624.0" x2="5170.1" y2="4624.0"/>
+<text class="compartment" x="4797.3" y="4641.8">attributes</text>
+<text class="feature" x="4807.3" y="4658.8">attribute kind : CheckKind = CheckKind::syntactic</text>
+<line class="rule" x1="4787.3" y1="4668.0" x2="5170.1" y2="4668.0"/>
+<text class="compartment" x="4797.3" y="4685.8">perform actions</text>
+<text class="feature" x="4807.3" y="4702.8">perform action evaluate : RunSyntacticCheck</text>
+</g>
+<g>
+<rect class="box" x="3435.4" y="3211.0" width="375.6" height="315.0" rx="0"/>
+<text class="keyword" x="3623.2" y="3233.8" text-anchor="middle">«part def»</text>
+<text class="name" x="3623.2" y="3250.8" text-anchor="middle">SimpleFlowSemanticCheckpoint</text>
+<line class="rule" x1="3435.4" y1="3260.0" x2="3811.0" y2="3260.0"/>
+<text class="compartment" x="3445.4" y="3277.8">doc</text>
+<text class="feature" x="3455.4" y="3294.8">The semantic adaptation of the checkpoint class:</text>
+<text class="feature" x="3455.4" y="3311.8">criteria a permitted judge reads, with no</text>
+<text class="feature" x="3455.4" y="3328.8">checker. Its evaluate operation presents the</text>
+<text class="feature" x="3455.4" y="3345.8">criteria and the visit&apos;s artifacts and evidence</text>
+<text class="feature" x="3455.4" y="3362.8">to the judge and records the rationale. The</text>
+<text class="feature" x="3455.4" y="3379.8">logic a criterion states stays prose for the…</text>
+<line class="rule" x1="3435.4" y1="3389.0" x2="3811.0" y2="3389.0"/>
+<text class="compartment" x="3445.4" y="3406.8">attributes</text>
+<text class="feature" x="3455.4" y="3423.8">attribute kind : CheckKind = CheckKind::semantic</text>
+<line class="rule" x1="3435.4" y1="3433.0" x2="3811.0" y2="3433.0"/>
+<text class="compartment" x="3445.4" y="3450.8">perform actions</text>
+<text class="feature" x="3455.4" y="3467.8">perform action evaluate : TakeSemanticJudgment</text>
+<line class="rule" x1="3435.4" y1="3477.0" x2="3811.0" y2="3477.0"/>
+<text class="compartment" x="3445.4" y="3494.8">assert constraints</text>
+<text class="feature" x="3455.4" y="3511.8">assert constraint criteriaAreJudged</text>
+</g>
+<g>
+<rect class="box" x="4387.9" y="3556.0" width="375.6" height="502.0" rx="0"/>
+<text class="keyword" x="4575.7" y="3578.8" text-anchor="middle">«action def»</text>
+<text class="name" x="4575.7" y="3595.8" text-anchor="middle">EvaluateSimpleFlowCheckpoint</text>
+<line class="rule" x1="4387.9" y1="3605.0" x2="4763.5" y2="3605.0"/>
+<text class="compartment" x="4397.9" y="3622.8">doc</text>
+<text class="feature" x="4407.9" y="3639.8">The evaluate operation of a checkpoint class,</text>
+<text class="feature" x="4407.9" y="3656.8">for one gate and one visit: read the class&apos;s</text>
+<text class="feature" x="4407.9" y="3673.8">rules, take the path its adaptation fixes, and</text>
+<text class="feature" x="4407.9" y="3690.8">produce one assessment. A syntactic checkpoint&apos;s</text>
+<text class="feature" x="4407.9" y="3707.8">rules are its checker&apos;s CheckerRules, applied by</text>
+<text class="feature" x="4407.9" y="3724.8">the command and reported rule by rule; a…</text>
+<line class="rule" x1="4387.9" y1="3734.0" x2="4763.5" y2="3734.0"/>
+<text class="compartment" x="4397.9" y="3751.8">parameters</text>
+<text class="feature" x="4407.9" y="3768.8">in part checkpoint : SimpleFlowCheckpoint</text>
+<text class="feature" x="4407.9" y="3785.8">in part visit : StageRecord</text>
+<text class="feature" x="4407.9" y="3802.8">out item assessment : CheckpointAssessment[0..1]</text>
+<line class="rule" x1="4387.9" y1="3812.0" x2="4763.5" y2="3812.0"/>
+<text class="compartment" x="4397.9" y="3829.8">actions</text>
+<text class="feature" x="4407.9" y="3846.8">action readRules</text>
+<text class="feature" x="4407.9" y="3863.8">decide rulePath</text>
+<text class="feature" x="4407.9" y="3880.8">action applySyntacticRules</text>
+<text class="feature" x="4407.9" y="3897.8">action takeSemanticJudgment</text>
+<text class="feature" x="4407.9" y="3914.8">action appendAssessment</text>
+<text class="feature" x="4407.9" y="3931.8">merge assessmentReady</text>
+<line class="rule" x1="4387.9" y1="3941.0" x2="4763.5" y2="3941.0"/>
+<text class="compartment" x="4397.9" y="3958.8">successions</text>
+<text class="feature" x="4407.9" y="3975.8">succession syntacticRulesApplied</text>
+<text class="feature" x="4407.9" y="3992.8">succession semanticJudgmentTaken</text>
+<text class="feature" x="4407.9" y="4009.8">succession syntacticAssessed</text>
+<text class="feature" x="4407.9" y="4026.8">succession semanticAssessed</text>
+<text class="feature" x="4407.9" y="4043.8">succession assessmentRecorded</text>
+</g>
+<g>
+<rect class="box" x="4746.1" y="4088.0" width="390.0" height="210.0" rx="0"/>
+<text class="keyword" x="4941.1" y="4110.8" text-anchor="middle">«action def»</text>
+<text class="name" x="4941.1" y="4127.8" text-anchor="middle">RunSyntacticCheck</text>
+<line class="rule" x1="4746.1" y1="4137.0" x2="5136.1" y2="4137.0"/>
+<text class="compartment" x="4756.1" y="4154.8">doc</text>
+<text class="feature" x="4766.1" y="4171.8">The syntactic implementation of the checkpoint</text>
+<text class="feature" x="4766.1" y="4188.8">class&apos;s evaluate operation: the checker command</text>
+<text class="feature" x="4766.1" y="4205.8">runs unchanged, its declared rules are applied one</text>
+<text class="feature" x="4766.1" y="4222.8">by one, and the assessment holds only when every</text>
+<text class="feature" x="4766.1" y="4239.8">rule holds.</text>
+<line class="rule" x1="4746.1" y1="4249.0" x2="5136.1" y2="4249.0"/>
+<text class="compartment" x="4756.1" y="4266.8">parameters</text>
+<text class="feature" x="4766.1" y="4283.8">in part checkpoint : SimpleFlowSyntacticCheckpoint</text>
+</g>
+<g>
+<rect class="box" x="3369.2" y="4088.0" width="382.8" height="210.0" rx="0"/>
+<text class="keyword" x="3560.6" y="4110.8" text-anchor="middle">«action def»</text>
+<text class="name" x="3560.6" y="4127.8" text-anchor="middle">TakeSemanticJudgment</text>
+<line class="rule" x1="3369.2" y1="4137.0" x2="3752.0" y2="4137.0"/>
+<text class="compartment" x="3379.2" y="4154.8">doc</text>
+<text class="feature" x="3389.2" y="4171.8">The semantic implementation of the checkpoint</text>
+<text class="feature" x="3389.2" y="4188.8">class&apos;s evaluate operation: a permitted judge</text>
+<text class="feature" x="3389.2" y="4205.8">reads the criteria with the visit&apos;s artifacts and</text>
+<text class="feature" x="3389.2" y="4222.8">evidence, and the outcome and rationale are</text>
+<text class="feature" x="3389.2" y="4239.8">recorded.</text>
+<line class="rule" x1="3369.2" y1="4249.0" x2="3752.0" y2="4249.0"/>
+<text class="compartment" x="3379.2" y="4266.8">parameters</text>
+<text class="feature" x="3389.2" y="4283.8">in part checkpoint : SimpleFlowSemanticCheckpoint</text>
+</g>
+<g>
+<rect class="box" x="7566.8" y="1110.0" width="548.4" height="593.0" rx="0"/>
+<text class="keyword" x="7841.0" y="1132.8" text-anchor="middle">«part def»</text>
+<text class="name" x="7841.0" y="1149.8" text-anchor="middle">SimpleFlowRun</text>
+<line class="rule" x1="7566.8" y1="1159.0" x2="8115.2" y2="1159.0"/>
+<text class="compartment" x="7576.8" y="1176.8">doc</text>
+<text class="feature" x="7586.8" y="1193.8">One run of the designed simple flow: the class a wish&apos;s execution has.</text>
+<text class="feature" x="7586.8" y="1210.8">It refines the generic FlowExecution with the designed flow&apos;s plan — a</text>
+<text class="feature" x="7586.8" y="1227.8">visit to each of its four stages, more visits when a stage is reworked —</text>
+<text class="feature" x="7586.8" y="1244.8">and carries operations to evaluate the current visit&apos;s gates, advance</text>
+<text class="feature" x="7586.8" y="1261.8">when authorized, and explicitly reopen a completed terminal visit. Its</text>
+<text class="feature" x="7586.8" y="1278.8">ports are the interfaces a run is automated through: a check command it…</text>
+<line class="rule" x1="7566.8" y1="1288.0" x2="8115.2" y2="1288.0"/>
+<text class="compartment" x="7576.8" y="1305.8">parts</text>
+<text class="feature" x="7586.8" y="1322.8">part assignedFlow : DesignedSimpleFlow</text>
+<text class="feature" x="7586.8" y="1339.8">part checkpoints : SimpleFlowCheckpoint[0..*] = assignedFlow.checkpoints</text>
+<text class="feature" x="7586.8" y="1356.8">part stageRecords : StageRecord[4..*]</text>
+<line class="rule" x1="7566.8" y1="1366.0" x2="8115.2" y2="1366.0"/>
+<text class="compartment" x="7576.8" y="1383.8">ports</text>
+<text class="feature" x="7586.8" y="1400.8">port check : ~CheckCommandExchange</text>
+<text class="feature" x="7586.8" y="1417.8">port judgment : ~JudgmentExchange</text>
+<line class="rule" x1="7566.8" y1="1427.0" x2="8115.2" y2="1427.0"/>
+<text class="compartment" x="7576.8" y="1444.8">occurrences</text>
+<text class="feature" x="7586.8" y="1461.8">event occurrence created</text>
+<text class="feature" x="7586.8" y="1478.8">event occurrence completed</text>
+<line class="rule" x1="7566.8" y1="1488.0" x2="8115.2" y2="1488.0"/>
+<text class="compartment" x="7576.8" y="1505.8">exhibit states</text>
+<text class="feature" x="7586.8" y="1522.8">exhibit state lifecycle : SimpleFlowRunLifecycle</text>
+<line class="rule" x1="7566.8" y1="1532.0" x2="8115.2" y2="1532.0"/>
+<text class="compartment" x="7576.8" y="1549.8">perform actions</text>
+<text class="feature" x="7586.8" y="1566.8">perform action evaluateGate : EvaluateSimpleFlowGate</text>
+<text class="feature" x="7586.8" y="1583.8">perform action advance : AdvanceSimpleFlowRun</text>
+<text class="feature" x="7586.8" y="1600.8">perform action reopenStage : ReopenSimpleFlowStage</text>
+<line class="rule" x1="7566.8" y1="1610.0" x2="8115.2" y2="1610.0"/>
+<text class="compartment" x="7576.8" y="1627.8">assert constraints</text>
+<text class="feature" x="7586.8" y="1644.8">assert constraint visitsRealizeThePlannedStages</text>
+<line class="rule" x1="7566.8" y1="1654.0" x2="8115.2" y2="1654.0"/>
+<text class="compartment" x="7576.8" y="1671.8">relationships</text>
+<text class="feature" x="7586.8" y="1688.8">specializes FlowExecution</text>
+</g>
+<g>
+<rect class="box" x="4412.0" y="1110.0" width="375.6" height="227.0" rx="0"/>
+<text class="keyword" x="4599.8" y="1132.8" text-anchor="middle">«part def»</text>
+<text class="name" x="4599.8" y="1149.8" text-anchor="middle">SimpleFlowRunFactory</text>
+<line class="rule" x1="4412.0" y1="1159.0" x2="4787.6" y2="1159.0"/>
+<text class="compartment" x="4422.0" y="1176.8">doc</text>
+<text class="feature" x="4432.0" y="1193.8">The factory of a run: given a wish and the</text>
+<text class="feature" x="4432.0" y="1210.8">designed flow&apos;s plan, it creates the run the</text>
+<text class="feature" x="4432.0" y="1227.8">controller will hold. It realizes registration</text>
+<text class="feature" x="4432.0" y="1244.8">for this flow — the part of</text>
+<text class="feature" x="4432.0" y="1261.8">Controller::receiveWish that assigns the flow,</text>
+<text class="feature" x="4432.0" y="1278.8">opens the run and enters its initial stage — so…</text>
+<line class="rule" x1="4412.0" y1="1288.0" x2="4787.6" y2="1288.0"/>
+<text class="compartment" x="4422.0" y="1305.8">perform actions</text>
+<text class="feature" x="4432.0" y="1322.8">perform action createRun</text>
+</g>
+<g>
+<rect class="box" x="5709.4" y="2366.5" width="390.0" height="332.0" rx="0"/>
+<text class="keyword" x="5904.4" y="2389.2" text-anchor="middle">«action def»</text>
+<text class="name" x="5904.4" y="2406.2" text-anchor="middle">EvaluateSimpleFlowGate</text>
+<line class="rule" x1="5709.4" y1="2415.5" x2="6099.4" y2="2415.5"/>
+<text class="compartment" x="5719.4" y="2433.2">doc</text>
+<text class="feature" x="5729.4" y="2450.2">Evaluate exactly the exit checkpoints of this</text>
+<text class="feature" x="5729.4" y="2467.2">visit&apos;s stage, once per checkpoint, in plan</text>
+<text class="feature" x="5729.4" y="2484.2">order. Each checkpoint&apos;s evaluate operation takes</text>
+<text class="feature" x="5729.4" y="2501.2">the path its adaptation fixes. A syntactic</text>
+<text class="feature" x="5729.4" y="2518.2">checkpoint performs RunSyntacticCheck — the</text>
+<text class="feature" x="5729.4" y="2535.2">declared command executes through the run&apos;s check…</text>
+<line class="rule" x1="5709.4" y1="2544.5" x2="6099.4" y2="2544.5"/>
+<text class="compartment" x="5719.4" y="2562.2">parameters</text>
+<text class="feature" x="5729.4" y="2579.2">in part visit : StageRecord</text>
+<text class="feature" x="5729.4" y="2596.2">out item assessments : CheckpointAssessment[0..*]</text>
+<line class="rule" x1="5709.4" y1="2605.5" x2="6099.4" y2="2605.5"/>
+<text class="compartment" x="5719.4" y="2623.2">parts</text>
+<text class="feature" x="5729.4" y="2640.2">part checkpoints : SimpleFlowCheckpoint[0..*]</text>
+<line class="rule" x1="5709.4" y1="2649.5" x2="6099.4" y2="2649.5"/>
+<text class="compartment" x="5719.4" y="2667.2">actions</text>
+<text class="feature" x="5729.4" y="2684.2">action readGates</text>
+</g>
+<g>
+<rect class="box" x="7313.0" y="2324.0" width="382.8" height="434.0" rx="0"/>
+<text class="keyword" x="7504.4" y="2346.8" text-anchor="middle">«action def»</text>
+<text class="name" x="7504.4" y="2363.8" text-anchor="middle">AdvanceSimpleFlowRun</text>
+<line class="rule" x1="7313.0" y1="2373.0" x2="7695.8" y2="2373.0"/>
+<text class="compartment" x="7323.0" y="2390.8">doc</text>
+<text class="feature" x="7333.0" y="2407.8">The successor rule of the designed flow, for one</text>
+<text class="feature" x="7333.0" y="2424.8">run: when the current visit is authorized —</text>
+<text class="feature" x="7333.0" y="2441.8">every exit gate passed and cited at the visited</text>
+<text class="feature" x="7333.0" y="2458.8">revision — decide where the run goes. A stage</text>
+<text class="feature" x="7333.0" y="2475.8">with a successor hands the run to that stage&apos;s</text>
+<text class="feature" x="7333.0" y="2492.8">pending visit, which becomes current. The verify…</text>
+<line class="rule" x1="7313.0" y1="2502.0" x2="7695.8" y2="2502.0"/>
+<text class="compartment" x="7323.0" y="2519.8">parameters</text>
+<text class="feature" x="7333.0" y="2536.8">in part run : SimpleFlowRun</text>
+<text class="feature" x="7333.0" y="2553.8">out part nextVisit : StageRecord[0..1]</text>
+<line class="rule" x1="7313.0" y1="2563.0" x2="7695.8" y2="2563.0"/>
+<text class="compartment" x="7323.0" y="2580.8">actions</text>
+<text class="feature" x="7333.0" y="2597.8">action checkAuthorization</text>
+<text class="feature" x="7333.0" y="2614.8">decide advancePath</text>
+<text class="feature" x="7333.0" y="2631.8">action enterNextStage</text>
+<text class="feature" x="7333.0" y="2648.8">action retainBlockedVisit</text>
+<text class="feature" x="7333.0" y="2665.8">action completeRun</text>
+<line class="rule" x1="7313.0" y1="2675.0" x2="7695.8" y2="2675.0"/>
+<text class="compartment" x="7323.0" y="2692.8">successions</text>
+<text class="feature" x="7333.0" y="2709.8">succession nextStageChosen</text>
+<text class="feature" x="7333.0" y="2726.8">succession runCompleted</text>
+<text class="feature" x="7333.0" y="2743.8">succession gateBlocked</text>
+</g>
+<g>
+<rect class="box" x="7715.8" y="2324.0" width="433.2" height="339.0" rx="0"/>
+<text class="keyword" x="7932.4" y="2346.8" text-anchor="middle">«action def»</text>
+<text class="name" x="7932.4" y="2363.8" text-anchor="middle">ReopenSimpleFlowStage</text>
+<line class="rule" x1="7715.8" y1="2373.0" x2="8149.0" y2="2373.0"/>
+<text class="compartment" x="7725.8" y="2390.8">doc</text>
+<text class="feature" x="7735.8" y="2407.8">Explicit rework of a completed terminal visit. A</text>
+<text class="feature" x="7735.8" y="2424.8">completed run can reopen its terminal verification stage</text>
+<text class="feature" x="7735.8" y="2441.8">only on a recorded rework request. Keep the completed</text>
+<text class="feature" x="7735.8" y="2458.8">visit and its assessments immutable, append a new active</text>
+<text class="feature" x="7735.8" y="2475.8">visit for that stage at the next visit index with</text>
+<text class="feature" x="7735.8" y="2492.8">artifact revision 0, and return the run to active.…</text>
+<line class="rule" x1="7715.8" y1="2502.0" x2="8149.0" y2="2502.0"/>
+<text class="compartment" x="7725.8" y="2519.8">parameters</text>
+<text class="feature" x="7735.8" y="2536.8">in part run : SimpleFlowRun</text>
+<text class="feature" x="7735.8" y="2553.8">in part completedVisit : StageRecord = run.currentRecord</text>
+<text class="feature" x="7735.8" y="2570.8">out part newVisit : StageRecord</text>
+<line class="rule" x1="7715.8" y1="2580.0" x2="8149.0" y2="2580.0"/>
+<text class="compartment" x="7725.8" y="2597.8">actions</text>
+<text class="feature" x="7735.8" y="2614.8">action requireCompletedTerminal</text>
+<text class="feature" x="7735.8" y="2631.8">action appendNewVisit</text>
+<text class="feature" x="7735.8" y="2648.8">action reactivateRun</text>
+</g>
+<g>
+<rect class="box" x="11635.2" y="1823.0" width="361.2" height="431.0" rx="0"/>
+<text class="keyword" x="11815.8" y="1845.8" text-anchor="middle">«port def»</text>
+<text class="name" x="11815.8" y="1862.8" text-anchor="middle">CheckCommandExchange</text>
+<line class="rule" x1="11635.2" y1="1872.0" x2="11996.4" y2="1872.0"/>
+<text class="compartment" x="11645.2" y="1889.8">doc</text>
+<text class="feature" x="11655.2" y="1906.8">The check command&apos;s interface: the independent</text>
+<text class="feature" x="11655.2" y="1923.8">SysML wish trace and the executable run-record</text>
+<text class="feature" x="11655.2" y="1940.8">snapshot are both named. The checker identity,</text>
+<text class="feature" x="11655.2" y="1957.8">frozen plan ID and hash, stage, artifact</text>
+<text class="feature" x="11655.2" y="1974.8">revision and artifact-set digest select the</text>
+<text class="feature" x="11655.2" y="1991.8">exact fixed rule set and input. The report…</text>
+<line class="rule" x1="11635.2" y1="2001.0" x2="11996.4" y2="2001.0"/>
+<text class="compartment" x="11645.2" y="2018.8">directed features</text>
+<text class="feature" x="11655.2" y="2035.8">in attribute wishModel : String</text>
+<text class="feature" x="11655.2" y="2052.8">in attribute recordUri : String</text>
+<text class="feature" x="11655.2" y="2069.8">in attribute checkerId : String</text>
+<text class="feature" x="11655.2" y="2086.8">in attribute planId : String</text>
+<text class="feature" x="11655.2" y="2103.8">in attribute planSha256 : String</text>
+<text class="feature" x="11655.2" y="2120.8">in attribute stage : String</text>
+<text class="feature" x="11655.2" y="2137.8">in attribute artifactRevision : Integer</text>
+<text class="feature" x="11655.2" y="2154.8">in attribute snapshotDigest : String</text>
+<text class="feature" x="11655.2" y="2171.8">out attribute report : String</text>
+<text class="feature" x="11655.2" y="2188.8">out attribute reportedRevision : Integer</text>
+<text class="feature" x="11655.2" y="2205.8">out attribute reportedSnapshotDigest : String</text>
+<text class="feature" x="11655.2" y="2222.8">out attribute reportedRuleIds : String[1..*]</text>
+<text class="feature" x="11655.2" y="2239.8">out attribute holds : Boolean</text>
+</g>
+<g>
+<rect class="box" x="6768.8" y="1823.0" width="186.3" height="54.0" rx="0"/>
+<text class="keyword" x="6861.9" y="1845.8" text-anchor="middle">«conjugated port def»</text>
+<text class="name" x="6861.9" y="1862.8" text-anchor="middle">~CheckCommandExchange</text>
+</g>
+<g>
+<rect class="box" x="10205.7" y="519.5" width="375.6" height="475.0" rx="0"/>
+<text class="keyword" x="10393.5" y="542.2" text-anchor="middle">«interface def»</text>
+<text class="name" x="10393.5" y="559.2" text-anchor="middle">CheckCommandInterface</text>
+<line class="rule" x1="10205.7" y1="568.5" x2="10581.3" y2="568.5"/>
+<text class="compartment" x="10215.7" y="586.2">doc</text>
+<text class="feature" x="10225.7" y="603.2">The caller-command interface a syntactic gate is</text>
+<text class="feature" x="10225.7" y="620.2">run through: the run invokes the named checker</text>
+<text class="feature" x="10225.7" y="637.2">with the wish trace, run record, frozen plan,</text>
+<text class="feature" x="10225.7" y="654.2">stage, revision and artifact-set digest, then</text>
+<text class="feature" x="10225.7" y="671.2">validates the returned rule report and verdict.</text>
+<line class="rule" x1="10205.7" y1="680.5" x2="10581.3" y2="680.5"/>
+<text class="compartment" x="10215.7" y="698.2">ends</text>
+<text class="feature" x="10225.7" y="715.2">port caller : ~CheckCommandExchange</text>
+<text class="feature" x="10225.7" y="732.2">port command : CheckCommandExchange</text>
+<line class="rule" x1="10205.7" y1="741.5" x2="10581.3" y2="741.5"/>
+<text class="compartment" x="10215.7" y="759.2">flows</text>
+<text class="feature" x="10225.7" y="776.2">flow invocation</text>
+<text class="feature" x="10225.7" y="793.2">flow recordArgument</text>
+<text class="feature" x="10225.7" y="810.2">flow checkerArgument</text>
+<text class="feature" x="10225.7" y="827.2">flow planArgument</text>
+<text class="feature" x="10225.7" y="844.2">flow planHashArgument</text>
+<text class="feature" x="10225.7" y="861.2">flow stageArgument</text>
+<text class="feature" x="10225.7" y="878.2">flow revisionArgument</text>
+<text class="feature" x="10225.7" y="895.2">flow snapshotArgument</text>
+<text class="feature" x="10225.7" y="912.2">flow ruleReport</text>
+<text class="feature" x="10225.7" y="929.2">flow reportRevision</text>
+<text class="feature" x="10225.7" y="946.2">flow reportSnapshot</text>
+<text class="feature" x="10225.7" y="963.2">flow ruleIdentifiers</text>
+<text class="feature" x="10225.7" y="980.2">flow verdict</text>
+</g>
+<g>
+<rect class="box" x="14972.5" y="1823.0" width="346.8" height="244.0" rx="0"/>
+<text class="keyword" x="15145.9" y="1845.8" text-anchor="middle">«port def»</text>
+<text class="name" x="15145.9" y="1862.8" text-anchor="middle">JudgmentExchange</text>
+<line class="rule" x1="14972.5" y1="1872.0" x2="15319.3" y2="1872.0"/>
+<text class="compartment" x="14982.5" y="1889.8">doc</text>
+<text class="feature" x="14992.5" y="1906.8">The judgment interface: the criteria and the</text>
+<text class="feature" x="14992.5" y="1923.8">artifacts go out to a permitted judge, the</text>
+<text class="feature" x="14992.5" y="1940.8">outcome and its rationale come back. What a</text>
+<text class="feature" x="14992.5" y="1957.8">script cannot settle crosses this interface.</text>
+<line class="rule" x1="14972.5" y1="1967.0" x2="15319.3" y2="1967.0"/>
+<text class="compartment" x="14982.5" y="1984.8">directed features</text>
+<text class="feature" x="14992.5" y="2001.8">out attribute criteria : String[1..*]</text>
+<text class="feature" x="14992.5" y="2018.8">out attribute artifactsUris : String[0..*]</text>
+<text class="feature" x="14992.5" y="2035.8">in attribute outcome : CheckpointOutcome</text>
+<text class="feature" x="14992.5" y="2052.8">in attribute rationale : String</text>
+</g>
+<g>
+<rect class="box" x="18661.9" y="1823.0" width="171.2" height="54.0" rx="0"/>
+<text class="keyword" x="18747.5" y="1845.8" text-anchor="middle">«conjugated port def»</text>
+<text class="name" x="18747.5" y="1862.8" text-anchor="middle">~JudgmentExchange</text>
+</g>
+<g>
+<rect class="box" x="20949.4" y="621.5" width="332.4" height="271.0" rx="0"/>
+<text class="keyword" x="21115.6" y="644.2" text-anchor="middle">«interface def»</text>
+<text class="name" x="21115.6" y="661.2" text-anchor="middle">JudgmentInterface</text>
+<line class="rule" x1="20949.4" y1="670.5" x2="21281.8" y2="670.5"/>
+<text class="compartment" x="20959.4" y="688.2">doc</text>
+<text class="feature" x="20969.4" y="705.2">The run-judge interface a semantic gate is</text>
+<text class="feature" x="20969.4" y="722.2">judged through.</text>
+<line class="rule" x1="20949.4" y1="731.5" x2="21281.8" y2="731.5"/>
+<text class="compartment" x="20959.4" y="749.2">ends</text>
+<text class="feature" x="20969.4" y="766.2">port judge : JudgmentExchange</text>
+<text class="feature" x="20969.4" y="783.2">port requester : ~JudgmentExchange</text>
+<line class="rule" x1="20949.4" y1="792.5" x2="21281.8" y2="792.5"/>
+<text class="compartment" x="20959.4" y="810.2">flows</text>
+<text class="feature" x="20969.4" y="827.2">flow criteriaPresented</text>
+<text class="feature" x="20969.4" y="844.2">flow artifactsPresented</text>
+<text class="feature" x="20969.4" y="861.2">flow outcomeReturned</text>
+<text class="feature" x="20969.4" y="878.2">flow rationaleReturned</text>
+</g>
+<g>
+<rect class="box" x="12061.9" y="1201.5" width="375.6" height="227.0" rx="0"/>
+<text class="keyword" x="12249.7" y="1224.2" text-anchor="middle">«part def»</text>
+<text class="name" x="12249.7" y="1241.2" text-anchor="middle">CheckerCommand</text>
+<line class="rule" x1="12061.9" y1="1250.5" x2="12437.5" y2="1250.5"/>
+<text class="compartment" x="12071.9" y="1268.2">doc</text>
+<text class="feature" x="12081.9" y="1285.2">A checker&apos;s command as the design&apos;s part,</text>
+<text class="feature" x="12081.9" y="1302.2">reached through the check command interface. The</text>
+<text class="feature" x="12081.9" y="1319.2">four designed SimpleFlow commands are</text>
+<text class="feature" x="12081.9" y="1336.2">implemented as Python scripts under</text>
+<text class="feature" x="12081.9" y="1353.2">tools/checks/. The default V-model commands</text>
+<text class="feature" x="12081.9" y="1370.2">remain separate work.</text>
+<line class="rule" x1="12061.9" y1="1379.5" x2="12437.5" y2="1379.5"/>
+<text class="compartment" x="12071.9" y="1397.2">ports</text>
+<text class="feature" x="12081.9" y="1414.2">port command : CheckCommandExchange</text>
+</g>
+<g>
+<rect class="box" x="14130.2" y="1169.6" width="375.6" height="176.0" rx="0"/>
+<text class="keyword" x="14318.0" y="1192.3" text-anchor="middle">«part def»</text>
+<text class="name" x="14318.0" y="1209.3" text-anchor="middle">Judge</text>
+<line class="rule" x1="14130.2" y1="1218.6" x2="14505.8" y2="1218.6"/>
+<text class="compartment" x="14140.2" y="1236.3">doc</text>
+<text class="feature" x="14150.2" y="1253.3">A permitted judge as the design&apos;s part: an agent</text>
+<text class="feature" x="14150.2" y="1270.3">or a human, reached through the judgment</text>
+<text class="feature" x="14150.2" y="1287.3">interface.</text>
+<line class="rule" x1="14130.2" y1="1296.6" x2="14505.8" y2="1296.6"/>
+<text class="compartment" x="14140.2" y="1314.3">ports</text>
+<text class="feature" x="14150.2" y="1331.3">port judgment : JudgmentExchange</text>
+</g>
+<g>
+<rect class="box" x="11545.3" y="607.3" width="505.2" height="322.0" rx="0"/>
+<text class="keyword" x="11797.9" y="630.1" text-anchor="middle">«part def»</text>
+<text class="name" x="11797.9" y="647.1" text-anchor="middle">SimpleFlowAutomation</text>
+<line class="rule" x1="11545.3" y1="656.3" x2="12050.5" y2="656.3"/>
+<text class="compartment" x="11555.3" y="674.1">doc</text>
+<text class="feature" x="11565.3" y="691.1">The parts a run of the designed flow is automated by, wired by</text>
+<text class="feature" x="11565.3" y="708.1">their interfaces: the factory creates the run, the run invokes a</text>
+<text class="feature" x="11565.3" y="725.1">checker command through the check command interface, and presents</text>
+<text class="feature" x="11565.3" y="742.1">its semantic gates to a judge through the judgment interface.</text>
+<line class="rule" x1="11545.3" y1="751.3" x2="12050.5" y2="751.3"/>
+<text class="compartment" x="11555.3" y="769.1">parts</text>
+<text class="feature" x="11565.3" y="786.1">part runner : SimpleFlowRun</text>
+<text class="feature" x="11565.3" y="803.1">part factory : SimpleFlowRunFactory</text>
+<text class="feature" x="11565.3" y="820.1">part checkpoints : SimpleFlowCheckpoint[0..*] = runner.checkpoints</text>
+<text class="feature" x="11565.3" y="837.1">part command : CheckerCommand</text>
+<text class="feature" x="11565.3" y="854.1">part judge : Judge</text>
+<line class="rule" x1="11545.3" y1="863.3" x2="12050.5" y2="863.3"/>
+<text class="compartment" x="11555.3" y="881.1">interfaces</text>
+<text class="feature" x="11565.3" y="898.1">interface checking : CheckCommandInterface</text>
+<text class="feature" x="11565.3" y="915.1">interface judging : JudgmentInterface</text>
+</g>
+<g>
+<rect class="box" x="8909.9" y="494.0" width="382.8" height="526.0" rx="0"/>
+<text class="keyword" x="9101.3" y="516.8" text-anchor="middle">«occurrence def»</text>
+<text class="name" x="9101.3" y="533.8" text-anchor="middle">SimpleFlowRunTimeline</text>
+<line class="rule" x1="8909.9" y1="543.0" x2="9292.7" y2="543.0"/>
+<text class="compartment" x="8919.9" y="560.8">doc</text>
+<text class="feature" x="8929.9" y="577.8">One run of the designed flow over time, whatever</text>
+<text class="feature" x="8929.9" y="594.8">wish it answers: the run is created, each stage</text>
+<text class="feature" x="8929.9" y="611.8">is entered and its gate assessed in order, and</text>
+<text class="feature" x="8929.9" y="628.8">the terminal stage&apos;s completion finishes the run.</text>
+<text class="feature" x="8929.9" y="645.8">The messages are the moments the flow defines; a</text>
+<text class="feature" x="8929.9" y="662.8">particular wish&apos;s journey is the same shape with…</text>
+<line class="rule" x1="8909.9" y1="672.0" x2="9292.7" y2="672.0"/>
+<text class="compartment" x="8919.9" y="689.8">parts</text>
+<text class="feature" x="8929.9" y="706.8">part controller : Controller</text>
+<text class="feature" x="8929.9" y="723.8">part run : SimpleFlowRun</text>
+<text class="feature" x="8929.9" y="740.8">part flow : DesignedSimpleFlow = run.assignedFlow</text>
+<text class="feature" x="8929.9" y="757.8">part requirements : Stage = &apos;flow&apos;.requirements</text>
+<text class="feature" x="8929.9" y="774.8">part design : Stage = &apos;flow&apos;.design</text>
+<text class="feature" x="8929.9" y="791.8">part implement : Stage = &apos;flow&apos;.implement</text>
+<text class="feature" x="8929.9" y="808.8">part verify : Stage = &apos;flow&apos;.&apos;verify&apos;</text>
+<line class="rule" x1="8909.9" y1="818.0" x2="9292.7" y2="818.0"/>
+<text class="compartment" x="8919.9" y="835.8">flows</text>
+<text class="feature" x="8929.9" y="852.8">flow createRun</text>
+<text class="feature" x="8929.9" y="869.8">flow enterRequirements</text>
+<text class="feature" x="8929.9" y="886.8">flow assessRequirements</text>
+<text class="feature" x="8929.9" y="903.8">flow enterDesign</text>
+<text class="feature" x="8929.9" y="920.8">flow assessDesign</text>
+<text class="feature" x="8929.9" y="937.8">flow enterImplementation</text>
+<text class="feature" x="8929.9" y="954.8">flow assessImplementation</text>
+<text class="feature" x="8929.9" y="971.8">flow enterVerification</text>
+<text class="feature" x="8929.9" y="988.8">flow assessVerification</text>
+<text class="feature" x="8929.9" y="1005.8">flow completeRun</text>
+</g>
+<g>
+<rect class="box" x="20153.0" y="173.0" width="375.6" height="210.0" rx="0"/>
+<text class="keyword" x="20340.8" y="195.8" text-anchor="middle">«item def»</text>
+<text class="name" x="20340.8" y="212.8" text-anchor="middle">SimpleFlowFileEntry</text>
+<line class="rule" x1="20153.0" y1="222.0" x2="20528.6" y2="222.0"/>
+<text class="compartment" x="20163.0" y="239.8">doc</text>
+<text class="feature" x="20173.0" y="256.8">One repository file in the SimpleFlow</text>
+<text class="feature" x="20173.0" y="273.8">implementation plan. Its path names source,</text>
+<text class="feature" x="20173.0" y="290.8">tests, or a checked input, never generated cache</text>
+<text class="feature" x="20173.0" y="307.8">output.</text>
+<line class="rule" x1="20153.0" y1="317.0" x2="20528.6" y2="317.0"/>
+<text class="compartment" x="20163.0" y="334.8">attributes</text>
+<text class="feature" x="20173.0" y="351.8">attribute repositoryPath : String</text>
+<text class="feature" x="20173.0" y="368.8">attribute responsibility : String</text>
+</g>
+<g>
+<rect class="box" x="3556.6" y="494.0" width="368.4" height="261.0" rx="0"/>
+<text class="keyword" x="3740.8" y="516.8" text-anchor="middle">«constraint def»</text>
+<text class="name" x="3740.8" y="533.8" text-anchor="middle">GateAuthorization</text>
+<line class="rule" x1="3556.6" y1="543.0" x2="3925.0" y2="543.0"/>
+<text class="compartment" x="3566.6" y="560.8">doc</text>
+<text class="feature" x="3576.6" y="577.8">Count distinct required gates with a passed</text>
+<text class="feature" x="3576.6" y="594.8">assessment at the visited revision.</text>
+<text class="feature" x="3576.6" y="611.8">Authorization also requires the nested flow, if</text>
+<text class="feature" x="3576.6" y="628.8">any, to finish. This equation is a design</text>
+<text class="feature" x="3576.6" y="645.8">constraint, not an executed compiler check.</text>
+<line class="rule" x1="3556.6" y1="655.0" x2="3925.0" y2="655.0"/>
+<text class="compartment" x="3566.6" y="672.8">parameters</text>
+<text class="feature" x="3576.6" y="689.8">in attribute requiredGates : Integer</text>
+<text class="feature" x="3576.6" y="706.8">in attribute passedGates : Integer</text>
+<text class="feature" x="3576.6" y="723.8">in attribute subFlowComplete : Boolean</text>
+<text class="feature" x="3576.6" y="740.8">in attribute authorized : Boolean</text>
+</g>
+<g>
+<rect class="box" x="574.8" y="173.0" width="2974.8" height="281.0" rx="0"/>
+<text class="keyword" x="2062.2" y="195.8" text-anchor="middle">«part def»</text>
+<text class="name" x="2062.2" y="212.8" text-anchor="middle">SimpleFlowAuthorization</text>
+<line class="rule" x1="574.8" y1="222.0" x2="3549.6" y2="222.0"/>
+<text class="compartment" x="584.8" y="239.8">doc</text>
+<text class="feature" x="594.8" y="256.8">Parametric context for a real stage visit. Counting gates rather than assessments prevents duplicate passes from compensating for a missing gate. A stale or failed assessment contributes nothing.</text>
+<line class="rule" x1="574.8" y1="266.0" x2="3549.6" y2="266.0"/>
+<text class="compartment" x="584.8" y="283.8">parts</text>
+<text class="feature" x="594.8" y="300.8">part visit : StageRecord</text>
+<line class="rule" x1="574.8" y1="310.0" x2="3549.6" y2="310.0"/>
+<text class="compartment" x="584.8" y="327.8">attributes</text>
+<text class="feature" x="594.8" y="344.8">attribute requiredGates : Integer = size(visit.stage.exitCheckpoints)</text>
+<text class="feature" x="594.8" y="361.8">attribute passedGates : Integer = size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })</text>
+<text class="feature" x="594.8" y="378.8">attribute subFlowComplete : Boolean = visit.subFlowSatisfied</text>
+<text class="feature" x="594.8" y="395.8">attribute authorized : Boolean = visit.completionAuthorized</text>
+<line class="rule" x1="574.8" y1="405.0" x2="3549.6" y2="405.0"/>
+<text class="compartment" x="584.8" y="422.8">constraints</text>
+<text class="feature" x="594.8" y="439.8">constraint authorization : GateAuthorization</text>
+</g>
+<g>
+<rect class="box" x="15604.7" y="2324.0" width="368.4" height="322.0" rx="0"/>
+<text class="keyword" x="15788.9" y="2346.8" text-anchor="middle">«state def»</text>
+<text class="name" x="15788.9" y="2363.8" text-anchor="middle">SimpleFlowRunLifecycle</text>
+<line class="rule" x1="15604.7" y1="2373.0" x2="15973.1" y2="2373.0"/>
+<text class="compartment" x="15614.7" y="2390.8">doc</text>
+<text class="feature" x="15624.7" y="2407.8">Lifecycle of one run, distinct from the four</text>
+<text class="feature" x="15624.7" y="2424.8">engineering stages. The factory activates the</text>
+<text class="feature" x="15624.7" y="2441.8">run. A failed, missing or stale gate blocks it;</text>
+<text class="feature" x="15624.7" y="2458.8">corrective work resumes the same current visit</text>
+<text class="feature" x="15624.7" y="2475.8">at a new artifact revision. Only authorization</text>
+<text class="feature" x="15624.7" y="2492.8">of a terminal visit permits completion.…</text>
+<line class="rule" x1="15604.7" y1="2502.0" x2="15973.1" y2="2502.0"/>
+<text class="compartment" x="15614.7" y="2519.8">parts</text>
+<text class="feature" x="15624.7" y="2536.8">part run : SimpleFlowRun</text>
+<line class="rule" x1="15604.7" y1="2546.0" x2="15973.1" y2="2546.0"/>
+<text class="compartment" x="15614.7" y="2563.8">states</text>
+<text class="feature" x="15624.7" y="2580.8">state pending</text>
+<text class="feature" x="15624.7" y="2597.8">state active</text>
+<text class="feature" x="15624.7" y="2614.8">state blocked</text>
+<text class="feature" x="15624.7" y="2631.8">state completed</text>
+</g>
+<g>
+<rect class="box" x="11559.6" y="182.0" width="375.6" height="254.0" rx="0"/>
+<text class="keyword" x="11747.4" y="204.8" text-anchor="middle">«use case def»</text>
+<text class="name" x="11747.4" y="221.8" text-anchor="middle">ProgressWish</text>
+<line class="rule" x1="11559.6" y1="231.0" x2="11935.2" y2="231.0"/>
+<text class="compartment" x="11569.6" y="248.8">doc</text>
+<text class="feature" x="11579.6" y="265.8">The requester&apos;s goal: progress a wish to an</text>
+<text class="feature" x="11579.6" y="282.8">evidence-backed delivery, inspect its record and</text>
+<text class="feature" x="11579.6" y="299.8">request corrective work when evidence is</text>
+<text class="feature" x="11579.6" y="316.8">insufficient. Gate evaluation is internal</text>
+<text class="feature" x="11579.6" y="333.8">behavior, not another external user goal.</text>
+<line class="rule" x1="11559.6" y1="343.0" x2="11935.2" y2="343.0"/>
+<text class="compartment" x="11569.6" y="360.8">subject</text>
+<text class="feature" x="11579.6" y="377.8">in ref automation : SimpleFlowAutomation</text>
+<line class="rule" x1="11559.6" y1="387.0" x2="11935.2" y2="387.0"/>
+<text class="compartment" x="11569.6" y="404.8">actors</text>
+<text class="feature" x="11579.6" y="421.8">in part requester : WishRequester</text>
+</g>
+<g>
+<rect class="box" x="13557.0" y="186.5" width="361.2" height="254.0" rx="0"/>
+<text class="keyword" x="13737.6" y="209.2" text-anchor="middle">«use case def»</text>
+<text class="name" x="13737.6" y="226.2" text-anchor="middle">ReviewEvidence</text>
+<line class="rule" x1="13557.0" y1="235.5" x2="13918.2" y2="235.5"/>
+<text class="compartment" x="13567.0" y="253.2">doc</text>
+<text class="feature" x="13577.0" y="270.2">A permitted agent or human judge reviews</text>
+<text class="feature" x="13577.0" y="287.2">semantic criteria, artifacts and evidence, and</text>
+<text class="feature" x="13577.0" y="304.2">returns a reasoned verdict through</text>
+<text class="feature" x="13577.0" y="321.2">JudgmentInterface. The checker command remains</text>
+<text class="feature" x="13577.0" y="338.2">an internal part of the automation.</text>
+<line class="rule" x1="13557.0" y1="347.5" x2="13918.2" y2="347.5"/>
+<text class="compartment" x="13567.0" y="365.2">subject</text>
+<text class="feature" x="13577.0" y="382.2">in ref automation : SimpleFlowAutomation</text>
+<line class="rule" x1="13557.0" y1="391.5" x2="13918.2" y2="391.5"/>
+<text class="compartment" x="13567.0" y="409.2">actors</text>
+<text class="feature" x="13577.0" y="426.2">in part reviewer : Judge</text>
+</g>
+<g>
+<rect class="box" x="19620.8" y="173.0" width="382.8" height="227.0" rx="0"/>
+<text class="keyword" x="19812.2" y="195.8" text-anchor="middle">«part def»</text>
+<text class="name" x="19812.2" y="212.8" text-anchor="middle">DiagramDocumentationRenderer</text>
+<line class="rule" x1="19620.8" y1="222.0" x2="20003.6" y2="222.0"/>
+<text class="compartment" x="19630.8" y="239.8">doc</text>
+<text class="feature" x="19640.8" y="256.8">The documentation rendering utility, separate</text>
+<text class="feature" x="19640.8" y="273.8">from runtime flow automation. It consumes native</text>
+<text class="feature" x="19640.8" y="290.8">view selections and compiler exports, composes</text>
+<text class="feature" x="19640.8" y="307.8">each diagram using its own notation, lays out</text>
+<text class="feature" x="19640.8" y="324.8">nodes and edges through Graphviz, and writes</text>
+<text class="feature" x="19640.8" y="341.8">SVGs with native source references. Short labels…</text>
+<line class="rule" x1="19620.8" y1="351.0" x2="20003.6" y2="351.0"/>
+<text class="compartment" x="19630.8" y="368.8">perform actions</text>
+<text class="feature" x="19640.8" y="385.8">perform action buildFigures</text>
+</g>
+<g>
+<rect class="box" x="22407.8" y="173.0" width="375.6" height="244.0" rx="0"/>
+<text class="keyword" x="22595.6" y="195.8" text-anchor="middle">«viewpoint def»</text>
+<text class="name" x="22595.6" y="212.8" text-anchor="middle">DocumentationViewpoint</text>
+<line class="rule" x1="22407.8" y1="222.0" x2="22783.4" y2="222.0"/>
+<text class="compartment" x="22417.8" y="239.8">doc</text>
+<text class="feature" x="22427.8" y="256.8">Records a stakeholder concern for one declared</text>
+<text class="feature" x="22427.8" y="273.8">documentation view. A concrete viewpoint usage</text>
+<text class="feature" x="22427.8" y="290.8">names its subject view; that view selects native</text>
+<text class="feature" x="22427.8" y="307.8">model elements with expose and locates its</text>
+<text class="feature" x="22427.8" y="324.8">rendered figure with DocFigure. The concern text</text>
+<text class="feature" x="22427.8" y="341.8">must agree with the view&apos;s presentation…</text>
+<line class="rule" x1="22407.8" y1="351.0" x2="22783.4" y2="351.0"/>
+<text class="compartment" x="22417.8" y="368.8">attributes</text>
+<text class="feature" x="22427.8" y="385.8">attribute concernText : String</text>
+<text class="feature" x="22427.8" y="402.8">attribute stakeholderRole : String</text>
+</g>
+<g>
+<rect class="box" x="21675.9" y="1853.7" width="404.4" height="339.0" rx="0"/>
+<text class="keyword" x="21878.1" y="1876.4" text-anchor="middle">«part def»</text>
+<text class="name" x="21878.1" y="1893.4" text-anchor="middle">DesignedWishVerifyFlow</text>
+<line class="rule" x1="21675.9" y1="1902.7" x2="22080.3" y2="1902.7"/>
+<text class="compartment" x="21685.9" y="1920.4">doc</text>
+<text class="feature" x="21695.9" y="1937.4">The wish-verify flow specialization: the same two</text>
+<text class="feature" x="21695.9" y="1954.4">stages in the same order, with every stage&apos;s exit</text>
+<text class="feature" x="21695.9" y="1971.4">gated. Both gates are semantic — the architecture</text>
+<text class="feature" x="21695.9" y="1988.4">states that nothing in this flow&apos;s outcome is</text>
+<text class="feature" x="21695.9" y="2005.4">established by a fixed check, so the designed flow</text>
+<text class="feature" x="21695.9" y="2022.4">declares no checker, and a permitted agent or human…</text>
+<line class="rule" x1="21675.9" y1="2031.7" x2="22080.3" y2="2031.7"/>
+<text class="compartment" x="21685.9" y="2049.4">parts</text>
+<text class="feature" x="21695.9" y="2066.4">part checkpoints : WishVerifyCheckpoint[2]</text>
+<text class="feature" x="21695.9" y="2083.4">part wishAccepted : WishVerifySemanticCheckpoint</text>
+<text class="feature" x="21695.9" y="2100.4">part wish : Stage</text>
+<text class="feature" x="21695.9" y="2117.4">part verify : Stage</text>
+<text class="feature" x="21695.9" y="2134.4">part outcomeAccepted : WishVerifySemanticCheckpoint</text>
+<line class="rule" x1="21675.9" y1="2143.7" x2="22080.3" y2="2143.7"/>
+<text class="compartment" x="21685.9" y="2161.4">relationships</text>
+<text class="feature" x="21695.9" y="2178.4">specializes WishVerifyFlow</text>
+</g>
+<g>
+<rect class="box" x="18411.6" y="2866.0" width="418.8" height="315.0" rx="0"/>
+<text class="keyword" x="18621.0" y="2888.8" text-anchor="middle">«part def»</text>
+<text class="name" x="18621.0" y="2905.8" text-anchor="middle">WishVerifyCheckpoint</text>
+<line class="rule" x1="18411.6" y1="2915.0" x2="18830.4" y2="2915.0"/>
+<text class="compartment" x="18421.6" y="2932.8">doc</text>
+<text class="feature" x="18431.6" y="2949.8">One checkpoint of the designed wish-verify flow.</text>
+<text class="feature" x="18431.6" y="2966.8">Unlike the simple flow&apos;s class it needs no syntactic</text>
+<text class="feature" x="18431.6" y="2983.8">adaptation: this flow&apos;s gates are all judged. The</text>
+<text class="feature" x="18431.6" y="3000.8">class owns the evaluate operation and the assessments</text>
+<text class="feature" x="18431.6" y="3017.8">that operation produces, so a gate is judged through</text>
+<text class="feature" x="18431.6" y="3034.8">the class and the record points back to it — the loop…</text>
+<line class="rule" x1="18411.6" y1="3044.0" x2="18830.4" y2="3044.0"/>
+<text class="compartment" x="18421.6" y="3061.8">items</text>
+<text class="feature" x="18431.6" y="3078.8">item assessments : CheckpointAssessment[0..*]</text>
+<line class="rule" x1="18411.6" y1="3088.0" x2="18830.4" y2="3088.0"/>
+<text class="compartment" x="18421.6" y="3105.8">perform actions</text>
+<text class="feature" x="18431.6" y="3122.8">perform action evaluate : EvaluateWishVerifyCheckpoint</text>
+<line class="rule" x1="18411.6" y1="3132.0" x2="18830.4" y2="3132.0"/>
+<text class="compartment" x="18421.6" y="3149.8">relationships</text>
+<text class="feature" x="18431.6" y="3166.8">specializes Checkpoint</text>
+</g>
+<g>
+<rect class="box" x="21967.2" y="3211.0" width="375.6" height="315.0" rx="0"/>
+<text class="keyword" x="22155.0" y="3233.8" text-anchor="middle">«part def»</text>
+<text class="name" x="22155.0" y="3250.8" text-anchor="middle">WishVerifySemanticCheckpoint</text>
+<line class="rule" x1="21967.2" y1="3260.0" x2="22342.8" y2="3260.0"/>
+<text class="compartment" x="21977.2" y="3277.8">doc</text>
+<text class="feature" x="21987.2" y="3294.8">The only adaptation of the wish-verify</text>
+<text class="feature" x="21987.2" y="3311.8">checkpoint class: criteria a permitted judge</text>
+<text class="feature" x="21987.2" y="3328.8">reads, with no checker. Its evaluate operation</text>
+<text class="feature" x="21987.2" y="3345.8">presents the criteria and the visit&apos;s artifacts</text>
+<text class="feature" x="21987.2" y="3362.8">and evidence to the judge and records the</text>
+<text class="feature" x="21987.2" y="3379.8">rationale. The logic a criterion states stays…</text>
+<line class="rule" x1="21967.2" y1="3389.0" x2="22342.8" y2="3389.0"/>
+<text class="compartment" x="21977.2" y="3406.8">attributes</text>
+<text class="feature" x="21987.2" y="3423.8">attribute kind : CheckKind = CheckKind::semantic</text>
+<line class="rule" x1="21967.2" y1="3433.0" x2="22342.8" y2="3433.0"/>
+<text class="compartment" x="21977.2" y="3450.8">perform actions</text>
+<text class="feature" x="21987.2" y="3467.8">perform action evaluate : TakeWishVerifyJudgment</text>
+<line class="rule" x1="21967.2" y1="3477.0" x2="22342.8" y2="3477.0"/>
+<text class="compartment" x="21977.2" y="3494.8">assert constraints</text>
+<text class="feature" x="21987.2" y="3511.8">assert constraint criteriaAreJudged</text>
+</g>
+<g>
+<rect class="box" x="18395.6" y="3588.6" width="375.6" height="339.0" rx="0"/>
+<text class="keyword" x="18583.4" y="3611.3" text-anchor="middle">«action def»</text>
+<text class="name" x="18583.4" y="3628.3" text-anchor="middle">EvaluateWishVerifyCheckpoint</text>
+<line class="rule" x1="18395.6" y1="3637.6" x2="18771.2" y2="3637.6"/>
+<text class="compartment" x="18405.6" y="3655.3">doc</text>
+<text class="feature" x="18415.6" y="3672.3">The evaluate operation of the wish-verify</text>
+<text class="feature" x="18415.6" y="3689.3">checkpoint class, for one gate and one visit:</text>
+<text class="feature" x="18415.6" y="3706.3">read the gate&apos;s criteria and the judges its</text>
+<text class="feature" x="18415.6" y="3723.3">flags permit, take the judgment, and append one</text>
+<text class="feature" x="18415.6" y="3740.3">assessment. The designed flow declares no</text>
+<text class="feature" x="18415.6" y="3757.3">syntactic gate, so the operation has a single…</text>
+<line class="rule" x1="18395.6" y1="3766.6" x2="18771.2" y2="3766.6"/>
+<text class="compartment" x="18405.6" y="3784.3">parameters</text>
+<text class="feature" x="18415.6" y="3801.3">in part checkpoint : WishVerifyCheckpoint</text>
+<text class="feature" x="18415.6" y="3818.3">in part visit : StageRecord</text>
+<text class="feature" x="18415.6" y="3835.3">out item assessment : CheckpointAssessment[0..1]</text>
+<line class="rule" x1="18395.6" y1="3844.6" x2="18771.2" y2="3844.6"/>
+<text class="compartment" x="18405.6" y="3862.3">actions</text>
+<text class="feature" x="18415.6" y="3879.3">action readCriteria</text>
+<text class="feature" x="18415.6" y="3896.3">action takeJudgment</text>
+<text class="feature" x="18415.6" y="3913.3">action appendAssessment</text>
+</g>
+<g>
+<rect class="box" x="22026.2" y="4088.0" width="382.8" height="210.0" rx="0"/>
+<text class="keyword" x="22217.6" y="4110.8" text-anchor="middle">«action def»</text>
+<text class="name" x="22217.6" y="4127.8" text-anchor="middle">TakeWishVerifyJudgment</text>
+<line class="rule" x1="22026.2" y1="4137.0" x2="22409.0" y2="4137.0"/>
+<text class="compartment" x="22036.2" y="4154.8">doc</text>
+<text class="feature" x="22046.2" y="4171.8">The semantic implementation of the wish-verify</text>
+<text class="feature" x="22046.2" y="4188.8">checkpoint class&apos;s evaluate operation: a</text>
+<text class="feature" x="22046.2" y="4205.8">permitted judge reads the criteria with the</text>
+<text class="feature" x="22046.2" y="4222.8">visit&apos;s artifacts and evidence, and the outcome</text>
+<text class="feature" x="22046.2" y="4239.8">and rationale are recorded.</text>
+<line class="rule" x1="22026.2" y1="4249.0" x2="22409.0" y2="4249.0"/>
+<text class="compartment" x="22036.2" y="4266.8">parameters</text>
+<text class="feature" x="22046.2" y="4283.8">in part checkpoint : WishVerifySemanticCheckpoint</text>
+</g>
+<g>
+<rect class="box" x="20469.6" y="1122.1" width="548.4" height="576.0" rx="0"/>
+<text class="keyword" x="20743.8" y="1144.9" text-anchor="middle">«part def»</text>
+<text class="name" x="20743.8" y="1161.9" text-anchor="middle">WishVerifyFlowRun</text>
+<line class="rule" x1="20469.6" y1="1171.1" x2="21018.0" y2="1171.1"/>
+<text class="compartment" x="20479.6" y="1188.9">doc</text>
+<text class="feature" x="20489.6" y="1205.9">One run of the designed wish-verify flow: the class a wish&apos;s execution</text>
+<text class="feature" x="20489.6" y="1222.9">has. It refines the generic FlowExecution with the designed flow&apos;s plan</text>
+<text class="feature" x="20489.6" y="1239.9">— a visit to each of its two stages, more visits when the terminal stage</text>
+<text class="feature" x="20489.6" y="1256.9">is reworked — and carries operations to evaluate the current visit&apos;s</text>
+<text class="feature" x="20489.6" y="1273.9">gates, advance when authorized, and explicitly reopen a completed</text>
+<text class="feature" x="20489.6" y="1290.9">terminal visit. Its only automation port presents its gates to a judge;…</text>
+<line class="rule" x1="20469.6" y1="1300.1" x2="21018.0" y2="1300.1"/>
+<text class="compartment" x="20479.6" y="1317.9">parts</text>
+<text class="feature" x="20489.6" y="1334.9">part assignedFlow : DesignedWishVerifyFlow</text>
+<text class="feature" x="20489.6" y="1351.9">part checkpoints : WishVerifyCheckpoint[0..*] = assignedFlow.checkpoints</text>
+<text class="feature" x="20489.6" y="1368.9">part stageRecords : StageRecord[2..*]</text>
+<line class="rule" x1="20469.6" y1="1378.1" x2="21018.0" y2="1378.1"/>
+<text class="compartment" x="20479.6" y="1395.9">ports</text>
+<text class="feature" x="20489.6" y="1412.9">port judgment : ~JudgmentExchange</text>
+<line class="rule" x1="20469.6" y1="1422.1" x2="21018.0" y2="1422.1"/>
+<text class="compartment" x="20479.6" y="1439.9">occurrences</text>
+<text class="feature" x="20489.6" y="1456.9">event occurrence created</text>
+<text class="feature" x="20489.6" y="1473.9">event occurrence completed</text>
+<line class="rule" x1="20469.6" y1="1483.1" x2="21018.0" y2="1483.1"/>
+<text class="compartment" x="20479.6" y="1500.9">exhibit states</text>
+<text class="feature" x="20489.6" y="1517.9">exhibit state lifecycle : WishVerifyRunLifecycle</text>
+<line class="rule" x1="20469.6" y1="1527.1" x2="21018.0" y2="1527.1"/>
+<text class="compartment" x="20479.6" y="1544.9">perform actions</text>
+<text class="feature" x="20489.6" y="1561.9">perform action evaluateGate : EvaluateWishVerifyGate</text>
+<text class="feature" x="20489.6" y="1578.9">perform action advance : AdvanceWishVerifyRun</text>
+<text class="feature" x="20489.6" y="1595.9">perform action reopenStage : ReopenWishVerifyStage</text>
+<line class="rule" x1="20469.6" y1="1605.1" x2="21018.0" y2="1605.1"/>
+<text class="compartment" x="20479.6" y="1622.9">assert constraints</text>
+<text class="feature" x="20489.6" y="1639.9">assert constraint visitsRealizeThePlannedStages</text>
+<line class="rule" x1="20469.6" y1="1649.1" x2="21018.0" y2="1649.1"/>
+<text class="compartment" x="20479.6" y="1666.9">relationships</text>
+<text class="feature" x="20489.6" y="1683.9">specializes FlowExecution</text>
+</g>
+<g>
+<rect class="box" x="13351.9" y="1110.0" width="375.6" height="227.0" rx="0"/>
+<text class="keyword" x="13539.7" y="1132.8" text-anchor="middle">«part def»</text>
+<text class="name" x="13539.7" y="1149.8" text-anchor="middle">WishVerifyFlowRunFactory</text>
+<line class="rule" x1="13351.9" y1="1159.0" x2="13727.5" y2="1159.0"/>
+<text class="compartment" x="13361.9" y="1176.8">doc</text>
+<text class="feature" x="13371.9" y="1193.8">The factory of a wish-verify run: given a wish</text>
+<text class="feature" x="13371.9" y="1210.8">and the designed flow&apos;s plan, it creates the run</text>
+<text class="feature" x="13371.9" y="1227.8">the controller will hold. It realizes</text>
+<text class="feature" x="13371.9" y="1244.8">registration for this flow — the part of</text>
+<text class="feature" x="13371.9" y="1261.8">Controller::receiveWish that assigns the flow,</text>
+<text class="feature" x="13371.9" y="1278.8">opens the run and enters its initial stage — so…</text>
+<line class="rule" x1="13351.9" y1="1288.0" x2="13727.5" y2="1288.0"/>
+<text class="compartment" x="13361.9" y="1305.8">perform actions</text>
+<text class="feature" x="13371.9" y="1322.8">perform action createRun</text>
+</g>
+<g>
+<rect class="box" x="20399.7" y="2366.5" width="382.8" height="332.0" rx="0"/>
+<text class="keyword" x="20591.1" y="2389.2" text-anchor="middle">«action def»</text>
+<text class="name" x="20591.1" y="2406.2" text-anchor="middle">EvaluateWishVerifyGate</text>
+<line class="rule" x1="20399.7" y1="2415.5" x2="20782.5" y2="2415.5"/>
+<text class="compartment" x="20409.7" y="2433.2">doc</text>
+<text class="feature" x="20419.7" y="2450.2">Evaluate exactly the exit checkpoints of this</text>
+<text class="feature" x="20419.7" y="2467.2">visit&apos;s stage, once per checkpoint, in plan</text>
+<text class="feature" x="20419.7" y="2484.2">order. Each gate&apos;s own evaluate operation takes</text>
+<text class="feature" x="20419.7" y="2501.2">the judged path: its criteria and the visit&apos;s</text>
+<text class="feature" x="20419.7" y="2518.2">artifacts and evidence go through the judgment</text>
+<text class="feature" x="20419.7" y="2535.2">port to a permitted judge, whose rationale is…</text>
+<line class="rule" x1="20399.7" y1="2544.5" x2="20782.5" y2="2544.5"/>
+<text class="compartment" x="20409.7" y="2562.2">parameters</text>
+<text class="feature" x="20419.7" y="2579.2">in part visit : StageRecord</text>
+<text class="feature" x="20419.7" y="2596.2">out item assessments : CheckpointAssessment[0..*]</text>
+<line class="rule" x1="20399.7" y1="2605.5" x2="20782.5" y2="2605.5"/>
+<text class="compartment" x="20409.7" y="2623.2">parts</text>
+<text class="feature" x="20419.7" y="2640.2">part checkpoints : WishVerifyCheckpoint[0..*]</text>
+<line class="rule" x1="20399.7" y1="2649.5" x2="20782.5" y2="2649.5"/>
+<text class="compartment" x="20409.7" y="2667.2">actions</text>
+<text class="feature" x="20419.7" y="2684.2">action readGates</text>
+</g>
+<g>
+<rect class="box" x="18957.0" y="2324.0" width="375.6" height="434.0" rx="0"/>
+<text class="keyword" x="19144.8" y="2346.8" text-anchor="middle">«action def»</text>
+<text class="name" x="19144.8" y="2363.8" text-anchor="middle">AdvanceWishVerifyRun</text>
+<line class="rule" x1="18957.0" y1="2373.0" x2="19332.6" y2="2373.0"/>
+<text class="compartment" x="18967.0" y="2390.8">doc</text>
+<text class="feature" x="18977.0" y="2407.8">The successor rule of the designed wish-verify</text>
+<text class="feature" x="18977.0" y="2424.8">flow, for one run: when the current visit is</text>
+<text class="feature" x="18977.0" y="2441.8">authorized — its exit gate passed and cited at</text>
+<text class="feature" x="18977.0" y="2458.8">the visited revision — decide where the run</text>
+<text class="feature" x="18977.0" y="2475.8">goes. The wish stage hands the run to the verify</text>
+<text class="feature" x="18977.0" y="2492.8">stage&apos;s pending visit, which becomes current.…</text>
+<line class="rule" x1="18957.0" y1="2502.0" x2="19332.6" y2="2502.0"/>
+<text class="compartment" x="18967.0" y="2519.8">parameters</text>
+<text class="feature" x="18977.0" y="2536.8">in part run : WishVerifyFlowRun</text>
+<text class="feature" x="18977.0" y="2553.8">out part nextVisit : StageRecord[0..1]</text>
+<line class="rule" x1="18957.0" y1="2563.0" x2="19332.6" y2="2563.0"/>
+<text class="compartment" x="18967.0" y="2580.8">actions</text>
+<text class="feature" x="18977.0" y="2597.8">action checkAuthorization</text>
+<text class="feature" x="18977.0" y="2614.8">decide advancePath</text>
+<text class="feature" x="18977.0" y="2631.8">action enterNextStage</text>
+<text class="feature" x="18977.0" y="2648.8">action retainBlockedVisit</text>
+<text class="feature" x="18977.0" y="2665.8">action completeRun</text>
+<line class="rule" x1="18957.0" y1="2675.0" x2="19332.6" y2="2675.0"/>
+<text class="compartment" x="18967.0" y="2692.8">successions</text>
+<text class="feature" x="18977.0" y="2709.8">succession nextStageChosen</text>
+<text class="feature" x="18977.0" y="2726.8">succession runCompleted</text>
+<text class="feature" x="18977.0" y="2743.8">succession gateBlocked</text>
+</g>
+<g>
+<rect class="box" x="17932.5" y="2324.0" width="433.2" height="339.0" rx="0"/>
+<text class="keyword" x="18149.1" y="2346.8" text-anchor="middle">«action def»</text>
+<text class="name" x="18149.1" y="2363.8" text-anchor="middle">ReopenWishVerifyStage</text>
+<line class="rule" x1="17932.5" y1="2373.0" x2="18365.7" y2="2373.0"/>
+<text class="compartment" x="17942.5" y="2390.8">doc</text>
+<text class="feature" x="17952.5" y="2407.8">Explicit rework of a completed terminal visit. A</text>
+<text class="feature" x="17952.5" y="2424.8">completed run can reopen its terminal verify stage only</text>
+<text class="feature" x="17952.5" y="2441.8">on a recorded rework request. Keep the completed visit</text>
+<text class="feature" x="17952.5" y="2458.8">and its assessments immutable, append a new active visit</text>
+<text class="feature" x="17952.5" y="2475.8">for that stage at the next visit index with artifact</text>
+<text class="feature" x="17952.5" y="2492.8">revision 0, and return the run to active. Reopening an…</text>
+<line class="rule" x1="17932.5" y1="2502.0" x2="18365.7" y2="2502.0"/>
+<text class="compartment" x="17942.5" y="2519.8">parameters</text>
+<text class="feature" x="17952.5" y="2536.8">in part run : WishVerifyFlowRun</text>
+<text class="feature" x="17952.5" y="2553.8">in part completedVisit : StageRecord = run.currentRecord</text>
+<text class="feature" x="17952.5" y="2570.8">out part newVisit : StageRecord</text>
+<line class="rule" x1="17932.5" y1="2580.0" x2="18365.7" y2="2580.0"/>
+<text class="compartment" x="17942.5" y="2597.8">actions</text>
+<text class="feature" x="17952.5" y="2614.8">action requireCompletedTerminal</text>
+<text class="feature" x="17952.5" y="2631.8">action appendNewVisit</text>
+<text class="feature" x="17952.5" y="2648.8">action reactivateRun</text>
+</g>
+<g>
+<rect class="box" x="17433.2" y="613.0" width="505.2" height="288.0" rx="0"/>
+<text class="keyword" x="17685.8" y="635.8" text-anchor="middle">«part def»</text>
+<text class="name" x="17685.8" y="652.8" text-anchor="middle">WishVerifyAutomation</text>
+<line class="rule" x1="17433.2" y1="662.0" x2="17938.4" y2="662.0"/>
+<text class="compartment" x="17443.2" y="679.8">doc</text>
+<text class="feature" x="17453.2" y="696.8">The parts a run of the designed wish-verify flow is automated by,</text>
+<text class="feature" x="17453.2" y="713.8">wired by their interfaces: the factory creates the run, and the</text>
+<text class="feature" x="17453.2" y="730.8">run presents its gates to a judge through the judgment interface.</text>
+<text class="feature" x="17453.2" y="747.8">No checker command is wired: this flow declares no syntactic gate.</text>
+<line class="rule" x1="17433.2" y1="757.0" x2="17938.4" y2="757.0"/>
+<text class="compartment" x="17443.2" y="774.8">parts</text>
+<text class="feature" x="17453.2" y="791.8">part runner : WishVerifyFlowRun</text>
+<text class="feature" x="17453.2" y="808.8">part factory : WishVerifyFlowRunFactory</text>
+<text class="feature" x="17453.2" y="825.8">part checkpoints : WishVerifyCheckpoint[0..*] = runner.checkpoints</text>
+<text class="feature" x="17453.2" y="842.8">part judge : Judge</text>
+<line class="rule" x1="17433.2" y1="852.0" x2="17938.4" y2="852.0"/>
+<text class="compartment" x="17443.2" y="869.8">interfaces</text>
+<text class="feature" x="17453.2" y="886.8">interface judging : JudgmentInterface</text>
+</g>
+<g>
+<rect class="box" x="21873.0" y="545.0" width="411.6" height="424.0" rx="0"/>
+<text class="keyword" x="22078.8" y="567.8" text-anchor="middle">«occurrence def»</text>
+<text class="name" x="22078.8" y="584.8" text-anchor="middle">WishVerifyRunTimeline</text>
+<line class="rule" x1="21873.0" y1="594.0" x2="22284.6" y2="594.0"/>
+<text class="compartment" x="21883.0" y="611.8">doc</text>
+<text class="feature" x="21893.0" y="628.8">One run of the designed wish-verify flow over time,</text>
+<text class="feature" x="21893.0" y="645.8">whatever wish it answers: the run is created, the</text>
+<text class="feature" x="21893.0" y="662.8">wish stage is entered and its gate assessed, the</text>
+<text class="feature" x="21893.0" y="679.8">verify stage follows, and its completion finishes the</text>
+<text class="feature" x="21893.0" y="696.8">run. The messages are the moments the flow defines; a</text>
+<text class="feature" x="21893.0" y="713.8">particular wish&apos;s journey is the same shape with its…</text>
+<line class="rule" x1="21873.0" y1="723.0" x2="22284.6" y2="723.0"/>
+<text class="compartment" x="21883.0" y="740.8">parts</text>
+<text class="feature" x="21893.0" y="757.8">part controller : Controller</text>
+<text class="feature" x="21893.0" y="774.8">part run : WishVerifyFlowRun</text>
+<text class="feature" x="21893.0" y="791.8">part flow : DesignedWishVerifyFlow = run.assignedFlow</text>
+<text class="feature" x="21893.0" y="808.8">part wish : Stage = &apos;flow&apos;.wish</text>
+<text class="feature" x="21893.0" y="825.8">part verify : Stage = &apos;flow&apos;.&apos;verify&apos;</text>
+<line class="rule" x1="21873.0" y1="835.0" x2="22284.6" y2="835.0"/>
+<text class="compartment" x="21883.0" y="852.8">flows</text>
+<text class="feature" x="21893.0" y="869.8">flow createRun</text>
+<text class="feature" x="21893.0" y="886.8">flow enterWish</text>
+<text class="feature" x="21893.0" y="903.8">flow assessWish</text>
+<text class="feature" x="21893.0" y="920.8">flow enterVerify</text>
+<text class="feature" x="21893.0" y="937.8">flow assessVerify</text>
+<text class="feature" x="21893.0" y="954.8">flow completeRun</text>
+</g>
+<g>
+<rect class="box" x="5422.9" y="173.0" width="2974.8" height="281.0" rx="0"/>
+<text class="keyword" x="6910.3" y="195.8" text-anchor="middle">«part def»</text>
+<text class="name" x="6910.3" y="212.8" text-anchor="middle">WishVerifyAuthorization</text>
+<line class="rule" x1="5422.9" y1="222.0" x2="8397.7" y2="222.0"/>
+<text class="compartment" x="5432.9" y="239.8">doc</text>
+<text class="feature" x="5442.9" y="256.8">Parametric context for a wish-verify stage visit, binding the same GateAuthorization constraint the simple flow defines. Counting gates rather than assessments prevents duplicate passes from compensating for a missing gate. A stale or failed assessment contributes nothing.</text>
+<line class="rule" x1="5422.9" y1="266.0" x2="8397.7" y2="266.0"/>
+<text class="compartment" x="5432.9" y="283.8">parts</text>
+<text class="feature" x="5442.9" y="300.8">part visit : StageRecord</text>
+<line class="rule" x1="5422.9" y1="310.0" x2="8397.7" y2="310.0"/>
+<text class="compartment" x="5432.9" y="327.8">attributes</text>
+<text class="feature" x="5442.9" y="344.8">attribute requiredGates : Integer = size(visit.stage.exitCheckpoints)</text>
+<text class="feature" x="5442.9" y="361.8">attribute passedGates : Integer = size(visit.stage.exitCheckpoints-&gt;select {
+            in gate : Checkpoint;
+            visit.currentAssessments-&gt;exists { in assessment : CheckpointAssessment;
+                assessment.checkpoint == gate and
+                assessment.outcome == CheckpointOutcome::passed and
+                assessment.evaluatedRevision == visit.artifactRevision
+            }
+        })</text>
+<text class="feature" x="5442.9" y="378.8">attribute subFlowComplete : Boolean = visit.subFlowSatisfied</text>
+<text class="feature" x="5442.9" y="395.8">attribute authorized : Boolean = visit.completionAuthorized</text>
+<line class="rule" x1="5422.9" y1="405.0" x2="8397.7" y2="405.0"/>
+<text class="compartment" x="5432.9" y="422.8">constraints</text>
+<text class="feature" x="5442.9" y="439.8">constraint authorization : GateAuthorization</text>
+</g>
+<g>
+<rect class="box" x="10299.2" y="2324.0" width="375.6" height="322.0" rx="0"/>
+<text class="keyword" x="10487.0" y="2346.8" text-anchor="middle">«state def»</text>
+<text class="name" x="10487.0" y="2363.8" text-anchor="middle">WishVerifyRunLifecycle</text>
+<line class="rule" x1="10299.2" y1="2373.0" x2="10674.8" y2="2373.0"/>
+<text class="compartment" x="10309.2" y="2390.8">doc</text>
+<text class="feature" x="10319.2" y="2407.8">Lifecycle of one wish-verify run, distinct from</text>
+<text class="feature" x="10319.2" y="2424.8">the two engineering stages. The factory</text>
+<text class="feature" x="10319.2" y="2441.8">activates the run. A failed, missing or stale</text>
+<text class="feature" x="10319.2" y="2458.8">judgment blocks it; corrective work resumes the</text>
+<text class="feature" x="10319.2" y="2475.8">same current visit at a new artifact revision.</text>
+<text class="feature" x="10319.2" y="2492.8">Only authorization of the terminal verify visit…</text>
+<line class="rule" x1="10299.2" y1="2502.0" x2="10674.8" y2="2502.0"/>
+<text class="compartment" x="10309.2" y="2519.8">parts</text>
+<text class="feature" x="10319.2" y="2536.8">part run : WishVerifyFlowRun</text>
+<line class="rule" x1="10299.2" y1="2546.0" x2="10674.8" y2="2546.0"/>
+<text class="compartment" x="10309.2" y="2563.8">states</text>
+<text class="feature" x="10319.2" y="2580.8">state pending</text>
+<text class="feature" x="10319.2" y="2597.8">state active</text>
+<text class="feature" x="10319.2" y="2614.8">state blocked</text>
+<text class="feature" x="10319.2" y="2631.8">state completed</text>
+</g>
+<g>
+<rect class="box" x="18614.4" y="182.0" width="368.4" height="254.0" rx="0"/>
+<text class="keyword" x="18798.6" y="204.8" text-anchor="middle">«use case def»</text>
+<text class="name" x="18798.6" y="221.8" text-anchor="middle">ProgressJudgedOutcome</text>
+<line class="rule" x1="18614.4" y1="231.0" x2="18982.8" y2="231.0"/>
+<text class="compartment" x="18624.4" y="248.8">doc</text>
+<text class="feature" x="18634.4" y="265.8">The requester&apos;s goal for a judged artifact:</text>
+<text class="feature" x="18634.4" y="282.8">progress the wish to a delivery whose outcome a</text>
+<text class="feature" x="18634.4" y="299.8">permitted judge accepted on recorded evidence.</text>
+<text class="feature" x="18634.4" y="316.8">Gate evaluation is internal behavior, not</text>
+<text class="feature" x="18634.4" y="333.8">another external user goal.</text>
+<line class="rule" x1="18614.4" y1="343.0" x2="18982.8" y2="343.0"/>
+<text class="compartment" x="18624.4" y="360.8">subject</text>
+<text class="feature" x="18634.4" y="377.8">in ref automation : WishVerifyAutomation</text>
+<line class="rule" x1="18614.4" y1="387.0" x2="18982.8" y2="387.0"/>
+<text class="compartment" x="18624.4" y="404.8">actors</text>
+<text class="feature" x="18634.4" y="421.8">in part requester : WishRequester</text>
+</g>
+<g>
+<rect class="box" x="17698.0" y="195.0" width="375.6" height="237.0" rx="0"/>
+<text class="keyword" x="17885.8" y="217.8" text-anchor="middle">«use case def»</text>
+<text class="name" x="17885.8" y="234.8" text-anchor="middle">JudgeRecordedOutcome</text>
+<line class="rule" x1="17698.0" y1="244.0" x2="18073.6" y2="244.0"/>
+<text class="compartment" x="17708.0" y="261.8">doc</text>
+<text class="feature" x="17718.0" y="278.8">A permitted agent or human judge reviews the</text>
+<text class="feature" x="17718.0" y="295.8">gate criteria with the recorded artifacts and</text>
+<text class="feature" x="17718.0" y="312.8">evidence, and returns a reasoned verdict through</text>
+<text class="feature" x="17718.0" y="329.8">JudgmentInterface.</text>
+<line class="rule" x1="17698.0" y1="339.0" x2="18073.6" y2="339.0"/>
+<text class="compartment" x="17708.0" y="356.8">subject</text>
+<text class="feature" x="17718.0" y="373.8">in ref automation : WishVerifyAutomation</text>
+<line class="rule" x1="17698.0" y1="383.0" x2="18073.6" y2="383.0"/>
+<text class="compartment" x="17708.0" y="400.8">actors</text>
+<text class="feature" x="17718.0" y="417.8">in part reviewer : Judge</text>
+</g>
+<path class="box" d="M 3513.4 2166.0 H 3890.8 L 3907.8 2183.0 V 2254.0 H 3513.4 z"/>
+<path class="rule" fill="none" d="M 3890.8 2166.0 V 2183.0 H 3907.8"/>
+<text class="keyword" x="3523.4" y="2188.8">«metadata»</text>
+<text class="feature" x="3523.4" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="3523.4" y="2222.8">ref label = &quot;Gated simple flow&quot;</text>
+<text class="feature" x="3523.4" y="2239.8">ref summary = &quot;Four stages with explicit exit gates&quot;</text>
+<path class="box" d="M 3041.4 2166.0 H 3476.4 L 3493.4 2183.0 V 2254.0 H 3041.4 z"/>
+<path class="rule" fill="none" d="M 3476.4 2166.0 V 2183.0 H 3493.4"/>
+<text class="keyword" x="3051.4" y="2188.8">«metadata»</text>
+<text class="feature" x="3051.4" y="2205.8">DocSection</text>
+<text class="feature" x="3051.4" y="2222.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="3051.4" y="2239.8">ref section = &quot;D01&quot;</text>
+<path class="box" d="M 5280.6 2738.0 H 5672.4 L 5689.4 2755.0 V 2826.0 H 5280.6 z"/>
+<path class="rule" fill="none" d="M 5672.4 2738.0 V 2755.0 H 5689.4"/>
+<text class="keyword" x="5290.6" y="2760.8">«metadata»</text>
+<text class="feature" x="5290.6" y="2777.8">DiagramPresentation</text>
+<text class="feature" x="5290.6" y="2794.8">ref label = &quot;Checkpoint&quot;</text>
+<text class="feature" x="5290.6" y="2811.8">ref summary = &quot;Evaluates one gate for one stage visit&quot;</text>
+<path class="box" d="M 4808.6 2738.0 H 5243.6 L 5260.6 2755.0 V 2826.0 H 4808.6 z"/>
+<path class="rule" fill="none" d="M 5243.6 2738.0 V 2755.0 H 5260.6"/>
+<text class="keyword" x="4818.6" y="2760.8">«metadata»</text>
+<text class="feature" x="4818.6" y="2777.8">DocSection</text>
+<text class="feature" x="4818.6" y="2794.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="4818.6" y="2811.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 5017.1 4318.0 H 5416.1 L 5433.1 4335.0 V 4406.0 H 5017.1 z"/>
+<path class="rule" fill="none" d="M 5416.1 4318.0 V 4335.0 H 5433.1"/>
+<text class="keyword" x="5027.1" y="4340.8">«metadata»</text>
+<text class="feature" x="5027.1" y="4357.8">DiagramPresentation</text>
+<text class="feature" x="5027.1" y="4374.8">ref label = &quot;Script check&quot;</text>
+<text class="feature" x="5027.1" y="4391.8">ref summary = &quot;Runs fixed rules and retains the report&quot;</text>
+<path class="box" d="M 4337.3 4318.0 H 4772.3 L 4789.3 4335.0 V 4406.0 H 4337.3 z"/>
+<path class="rule" fill="none" d="M 4772.3 4318.0 V 4335.0 H 4789.3"/>
+<text class="keyword" x="4347.3" y="4340.8">«metadata»</text>
+<text class="feature" x="4347.3" y="4357.8">DocSection</text>
+<text class="feature" x="4347.3" y="4374.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="4347.3" y="4391.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 3198.8 3093.0 H 3633.8 L 3650.8 3110.0 V 3181.0 H 3198.8 z"/>
+<path class="rule" fill="none" d="M 3633.8 3093.0 V 3110.0 H 3650.8"/>
+<text class="keyword" x="3208.8" y="3115.8">«metadata»</text>
+<text class="feature" x="3208.8" y="3132.8">DiagramPresentation</text>
+<text class="feature" x="3208.8" y="3149.8">ref label = &quot;Semantic judgment&quot;</text>
+<text class="feature" x="3208.8" y="3166.8">ref summary = &quot;A permitted judge records a reasoned verdict&quot;</text>
+<path class="box" d="M 2726.8 3093.0 H 3161.8 L 3178.8 3110.0 V 3181.0 H 2726.8 z"/>
+<path class="rule" fill="none" d="M 3161.8 3093.0 V 3110.0 H 3178.8"/>
+<text class="keyword" x="2736.8" y="3115.8">«metadata»</text>
+<text class="feature" x="2736.8" y="3132.8">DocSection</text>
+<text class="feature" x="2736.8" y="3149.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="2736.8" y="3166.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 4390.8 3438.0 H 4818.6 L 4835.6 3455.0 V 3526.0 H 4390.8 z"/>
+<path class="rule" fill="none" d="M 4818.6 3438.0 V 3455.0 H 4835.6"/>
+<text class="keyword" x="4400.8" y="3460.8">«metadata»</text>
+<text class="feature" x="4400.8" y="3477.8">DiagramPresentation</text>
+<text class="feature" x="4400.8" y="3494.8">ref label = &quot;Evaluate checkpoint&quot;</text>
+<text class="feature" x="4400.8" y="3511.8">ref summary = &quot;Choose scripted checks or semantic judgment&quot;</text>
+<path class="box" d="M 3918.8 3438.0 H 4353.8 L 4370.8 3455.0 V 3526.0 H 3918.8 z"/>
+<path class="rule" fill="none" d="M 4353.8 3438.0 V 3455.0 H 4370.8"/>
+<text class="keyword" x="3928.8" y="3460.8">«metadata»</text>
+<text class="feature" x="3928.8" y="3477.8">DocSection</text>
+<text class="feature" x="3928.8" y="3494.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="3928.8" y="3511.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 4783.5 3970.0 H 5081.7 L 5098.7 3987.0 V 4058.0 H 4783.5 z"/>
+<path class="rule" fill="none" d="M 5081.7 3970.0 V 3987.0 H 5098.7"/>
+<text class="keyword" x="4793.5" y="3992.8">«metadata»</text>
+<text class="feature" x="4793.5" y="4009.8">DiagramPresentation</text>
+<text class="feature" x="4793.5" y="4026.8">ref label = &quot;Run script check&quot;</text>
+<text class="feature" x="4793.5" y="4043.8">ref summary = &quot;Apply fixed checker rules&quot;</text>
+<path class="box" d="M 5118.7 3970.0 H 5553.7 L 5570.7 3987.0 V 4058.0 H 5118.7 z"/>
+<path class="rule" fill="none" d="M 5553.7 3970.0 V 3987.0 H 5570.7"/>
+<text class="keyword" x="5128.7" y="3992.8">«metadata»</text>
+<text class="feature" x="5128.7" y="4009.8">DocSection</text>
+<text class="feature" x="5128.7" y="4026.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="5128.7" y="4043.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 2557.0 3970.0 H 2984.8 L 3001.8 3987.0 V 4058.0 H 2557.0 z"/>
+<path class="rule" fill="none" d="M 2984.8 3970.0 V 3987.0 H 3001.8"/>
+<text class="keyword" x="2567.0" y="3992.8">«metadata»</text>
+<text class="feature" x="2567.0" y="4009.8">DiagramPresentation</text>
+<text class="feature" x="2567.0" y="4026.8">ref label = &quot;Take semantic judgment&quot;</text>
+<text class="feature" x="2567.0" y="4043.8">ref summary = &quot;Review criteria with artifacts and evidence&quot;</text>
+<path class="box" d="M 3021.8 3970.0 H 3456.8 L 3473.8 3987.0 V 4058.0 H 3021.8 z"/>
+<path class="rule" fill="none" d="M 3456.8 3970.0 V 3987.0 H 3473.8"/>
+<text class="keyword" x="3031.8" y="3992.8">«metadata»</text>
+<text class="feature" x="3031.8" y="4009.8">DocSection</text>
+<text class="feature" x="3031.8" y="4026.8">ref document = &quot;docs/design/flows/simple-flow/definition.md&quot;</text>
+<text class="feature" x="3031.8" y="4043.8">ref section = &quot;D11&quot;</text>
+<path class="box" d="M 11102.1 932.0 H 11508.3 L 11525.3 949.0 V 1020.0 H 11102.1 z"/>
+<path class="rule" fill="none" d="M 11508.3 932.0 V 949.0 H 11525.3"/>
+<text class="keyword" x="11112.1" y="954.8">«metadata»</text>
+<text class="feature" x="11112.1" y="971.8">DiagramPresentation</text>
+<text class="feature" x="11112.1" y="988.8">ref label = &quot;Flow run&quot;</text>
+<text class="feature" x="11112.1" y="1005.8">ref summary = &quot;Visits, gate assessments and advancement&quot;</text>
+<path class="box" d="M 10601.3 932.0 H 11065.1 L 11082.1 949.0 V 1020.0 H 10601.3 z"/>
+<path class="rule" fill="none" d="M 11065.1 932.0 V 949.0 H 11082.1"/>
+<text class="keyword" x="10611.3" y="954.8">«metadata»</text>
+<text class="feature" x="10611.3" y="971.8">DocSection</text>
+<text class="feature" x="10611.3" y="988.8">ref document = &quot;docs/design/flows/simple-flow/implementation.md&quot;</text>
+<text class="feature" x="10611.3" y="1005.8">ref section = &quot;D02&quot;</text>
+<path class="box" d="M 3945.0 932.0 H 4322.4 L 4339.4 949.0 V 1020.0 H 3945.0 z"/>
+<path class="rule" fill="none" d="M 4322.4 932.0 V 949.0 H 4339.4"/>
+<text class="keyword" x="3955.0" y="954.8">«metadata»</text>
+<text class="feature" x="3955.0" y="971.8">DiagramPresentation</text>
+<text class="feature" x="3955.0" y="988.8">ref label = &quot;Run factory&quot;</text>
+<text class="feature" x="3955.0" y="1005.8">ref summary = &quot;Creates a run and its initial visits&quot;</text>
+<path class="box" d="M 4359.4 932.0 H 4823.2 L 4840.2 949.0 V 1020.0 H 4359.4 z"/>
+<path class="rule" fill="none" d="M 4823.2 932.0 V 949.0 H 4840.2"/>
+<text class="keyword" x="4369.4" y="954.8">«metadata»</text>
+<text class="feature" x="4369.4" y="971.8">DocSection</text>
+<text class="feature" x="4369.4" y="988.8">ref document = &quot;docs/design/flows/simple-flow/implementation.md&quot;</text>
+<text class="feature" x="4369.4" y="1005.8">ref section = &quot;D03&quot;</text>
+<path class="box" d="M 5228.0 2166.0 H 5627.0 L 5644.0 2183.0 V 2254.0 H 5228.0 z"/>
+<path class="rule" fill="none" d="M 5627.0 2166.0 V 2183.0 H 5644.0"/>
+<text class="keyword" x="5238.0" y="2188.8">«metadata»</text>
+<text class="feature" x="5238.0" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="5238.0" y="2222.8">ref label = &quot;Evaluate stage gates&quot;</text>
+<text class="feature" x="5238.0" y="2239.8">ref summary = &quot;Record an assessment for each exit gate&quot;</text>
+<path class="box" d="M 5664.0 2166.0 H 6127.8 L 6144.8 2183.0 V 2254.0 H 5664.0 z"/>
+<path class="rule" fill="none" d="M 6127.8 2166.0 V 2183.0 H 6144.8"/>
+<text class="keyword" x="5674.0" y="2188.8">«metadata»</text>
+<text class="feature" x="5674.0" y="2205.8">DocSection</text>
+<text class="feature" x="5674.0" y="2222.8">ref document = &quot;docs/design/flows/simple-flow/implementation.md&quot;</text>
+<text class="feature" x="5674.0" y="2239.8">ref section = &quot;D04&quot;</text>
+<path class="box" d="M 6253.6 2166.0 H 6731.8 L 6748.8 2183.0 V 2254.0 H 6253.6 z"/>
+<path class="rule" fill="none" d="M 6731.8 2166.0 V 2183.0 H 6748.8"/>
+<text class="keyword" x="6263.6" y="2188.8">«metadata»</text>
+<text class="feature" x="6263.6" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="6263.6" y="2222.8">ref label = &quot;Advance flow run&quot;</text>
+<text class="feature" x="6263.6" y="2239.8">ref summary = &quot;Authorization selects the next visit or completion&quot;</text>
+<path class="box" d="M 6975.1 2166.0 H 7438.9 L 7455.9 2183.0 V 2254.0 H 6975.1 z"/>
+<path class="rule" fill="none" d="M 7438.9 2166.0 V 2183.0 H 7455.9"/>
+<text class="keyword" x="6985.1" y="2188.8">«metadata»</text>
+<text class="feature" x="6985.1" y="2205.8">DocSection</text>
+<text class="feature" x="6985.1" y="2222.8">ref document = &quot;docs/design/flows/simple-flow/implementation.md&quot;</text>
+<text class="feature" x="6985.1" y="2239.8">ref section = &quot;D04&quot;</text>
+<path class="box" d="M 7943.4 2166.0 H 8407.2 L 8424.2 2183.0 V 2254.0 H 7943.4 z"/>
+<path class="rule" fill="none" d="M 8407.2 2166.0 V 2183.0 H 8424.2"/>
+<text class="keyword" x="7953.4" y="2188.8">«metadata»</text>
+<text class="feature" x="7953.4" y="2205.8">DocSection</text>
+<text class="feature" x="7953.4" y="2222.8">ref document = &quot;docs/design/flows/simple-flow/implementation.md&quot;</text>
+<text class="feature" x="7953.4" y="2239.8">ref section = &quot;D04&quot;</text>
+<path class="box" d="M 11661.9 1615.0 H 12024.9 L 12041.9 1632.0 V 1703.0 H 11661.9 z"/>
+<path class="rule" fill="none" d="M 12024.9 1615.0 V 1632.0 H 12041.9"/>
+<text class="keyword" x="11671.9" y="1637.8">«metadata»</text>
+<text class="feature" x="11671.9" y="1654.8">DiagramPresentation</text>
+<text class="feature" x="11671.9" y="1671.8">ref label = &quot;Check exchange&quot;</text>
+<text class="feature" x="11671.9" y="1688.8">ref summary = &quot;Arguments, rule report and verdict&quot;</text>
+<path class="box" d="M 11225.9 1615.0 H 11624.9 L 11641.9 1632.0 V 1703.0 H 11225.9 z"/>
+<path class="rule" fill="none" d="M 11624.9 1615.0 V 1632.0 H 11641.9"/>
+<text class="keyword" x="11235.9" y="1637.8">«metadata»</text>
+<text class="feature" x="11235.9" y="1654.8">DocSection</text>
+<text class="feature" x="11235.9" y="1671.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="11235.9" y="1688.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 9869.7 366.0 H 10211.1 L 10228.1 383.0 V 454.0 H 9869.7 z"/>
+<path class="rule" fill="none" d="M 10211.1 366.0 V 383.0 H 10228.1"/>
+<text class="keyword" x="9879.7" y="388.8">«metadata»</text>
+<text class="feature" x="9879.7" y="405.8">DiagramPresentation</text>
+<text class="feature" x="9879.7" y="422.8">ref label = &quot;Check interface&quot;</text>
+<text class="feature" x="9879.7" y="439.8">ref summary = &quot;Invokes a fixed checker command&quot;</text>
+<path class="box" d="M 10248.1 366.0 H 10647.1 L 10664.1 383.0 V 454.0 H 10248.1 z"/>
+<path class="rule" fill="none" d="M 10647.1 366.0 V 383.0 H 10664.1"/>
+<text class="keyword" x="10258.1" y="388.8">«metadata»</text>
+<text class="feature" x="10258.1" y="405.8">DocSection</text>
+<text class="feature" x="10258.1" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="10258.1" y="439.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 14961.8 1615.0 H 15382.4 L 15399.4 1632.0 V 1703.0 H 14961.8 z"/>
+<path class="rule" fill="none" d="M 15382.4 1615.0 V 1632.0 H 15399.4"/>
+<text class="keyword" x="14971.8" y="1637.8">«metadata»</text>
+<text class="feature" x="14971.8" y="1654.8">DiagramPresentation</text>
+<text class="feature" x="14971.8" y="1671.8">ref label = &quot;Judgment exchange&quot;</text>
+<text class="feature" x="14971.8" y="1688.8">ref summary = &quot;Criteria, artifacts, outcome and rationale&quot;</text>
+<path class="box" d="M 14525.8 1615.0 H 14924.8 L 14941.8 1632.0 V 1703.0 H 14525.8 z"/>
+<path class="rule" fill="none" d="M 14924.8 1615.0 V 1632.0 H 14941.8"/>
+<text class="keyword" x="14535.8" y="1637.8">«metadata»</text>
+<text class="feature" x="14535.8" y="1654.8">DocSection</text>
+<text class="feature" x="14535.8" y="1671.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="14535.8" y="1688.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 20548.6 366.0 H 20926.0 L 20943.0 383.0 V 454.0 H 20548.6 z"/>
+<path class="rule" fill="none" d="M 20926.0 366.0 V 383.0 H 20943.0"/>
+<text class="keyword" x="20558.6" y="388.8">«metadata»</text>
+<text class="feature" x="20558.6" y="405.8">DiagramPresentation</text>
+<text class="feature" x="20558.6" y="422.8">ref label = &quot;Judgment interface&quot;</text>
+<text class="feature" x="20558.6" y="439.8">ref summary = &quot;Requests a permitted semantic review&quot;</text>
+<path class="box" d="M 20963.0 366.0 H 21362.0 L 21379.0 383.0 V 454.0 H 20963.0 z"/>
+<path class="rule" fill="none" d="M 21362.0 366.0 V 383.0 H 21379.0"/>
+<text class="keyword" x="20973.0" y="388.8">«metadata»</text>
+<text class="feature" x="20973.0" y="405.8">DocSection</text>
+<text class="feature" x="20973.0" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="20973.0" y="439.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 12070.5 932.0 H 12411.9 L 12428.9 949.0 V 1020.0 H 12070.5 z"/>
+<path class="rule" fill="none" d="M 12411.9 932.0 V 949.0 H 12428.9"/>
+<text class="keyword" x="12080.5" y="954.8">«metadata»</text>
+<text class="feature" x="12080.5" y="971.8">DiagramPresentation</text>
+<text class="feature" x="12080.5" y="988.8">ref label = &quot;Checker command&quot;</text>
+<text class="feature" x="12080.5" y="1005.8">ref summary = &quot;Fixed script execution boundary&quot;</text>
+<path class="box" d="M 12448.9 932.0 H 12847.9 L 12864.9 949.0 V 1020.0 H 12448.9 z"/>
+<path class="rule" fill="none" d="M 12847.9 932.0 V 949.0 H 12864.9"/>
+<text class="keyword" x="12458.9" y="954.8">«metadata»</text>
+<text class="feature" x="12458.9" y="971.8">DocSection</text>
+<text class="feature" x="12458.9" y="988.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="12458.9" y="1005.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 13808.8 932.0 H 14099.8 L 14116.8 949.0 V 1020.0 H 13808.8 z"/>
+<path class="rule" fill="none" d="M 14099.8 932.0 V 949.0 H 14116.8"/>
+<text class="keyword" x="13818.8" y="954.8">«metadata»</text>
+<text class="feature" x="13818.8" y="971.8">DiagramPresentation</text>
+<text class="feature" x="13818.8" y="988.8">ref label = &quot;Judge&quot;</text>
+<text class="feature" x="13818.8" y="1005.8">ref summary = &quot;Permitted agent or human&quot;</text>
+<path class="box" d="M 14136.8 932.0 H 14535.8 L 14552.8 949.0 V 1020.0 H 14136.8 z"/>
+<path class="rule" fill="none" d="M 14535.8 932.0 V 949.0 H 14552.8"/>
+<text class="keyword" x="14146.8" y="954.8">«metadata»</text>
+<text class="feature" x="14146.8" y="971.8">DocSection</text>
+<text class="feature" x="14146.8" y="988.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="14146.8" y="1005.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 13938.2 366.0 H 14394.8 L 14411.8 383.0 V 454.0 H 13938.2 z"/>
+<path class="rule" fill="none" d="M 14394.8 366.0 V 383.0 H 14411.8"/>
+<text class="keyword" x="13948.2" y="388.8">«metadata»</text>
+<text class="feature" x="13948.2" y="405.8">DiagramPresentation</text>
+<text class="feature" x="13948.2" y="422.8">ref label = &quot;Simple flow automation&quot;</text>
+<text class="feature" x="13948.2" y="439.8">ref summary = &quot;Run, checker and judge connected by typed ports&quot;</text>
+<path class="box" d="M 11123.6 366.0 H 11522.6 L 11539.6 383.0 V 454.0 H 11123.6 z"/>
+<path class="rule" fill="none" d="M 11522.6 366.0 V 383.0 H 11539.6"/>
+<text class="keyword" x="11133.6" y="388.8">«metadata»</text>
+<text class="feature" x="11133.6" y="405.8">DocSection</text>
+<text class="feature" x="11133.6" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="11133.6" y="439.8">ref section = &quot;D10&quot;</text>
+<path class="box" d="M 8853.7 366.0 H 9331.9 L 9348.9 383.0 V 454.0 H 8853.7 z"/>
+<path class="rule" fill="none" d="M 9331.9 366.0 V 383.0 H 9348.9"/>
+<text class="keyword" x="8863.7" y="388.8">«metadata»</text>
+<text class="feature" x="8863.7" y="405.8">DiagramPresentation</text>
+<text class="feature" x="8863.7" y="422.8">ref label = &quot;Run interactions&quot;</text>
+<text class="feature" x="8863.7" y="439.8">ref summary = &quot;Controller events enter and assess the four stages&quot;</text>
+<path class="box" d="M 8417.7 366.0 H 8816.7 L 8833.7 383.0 V 454.0 H 8417.7 z"/>
+<path class="rule" fill="none" d="M 8816.7 366.0 V 383.0 H 8833.7"/>
+<text class="keyword" x="8427.7" y="388.8">«metadata»</text>
+<text class="feature" x="8427.7" y="405.8">DocSection</text>
+<text class="feature" x="8427.7" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="8427.7" y="439.8">ref section = &quot;D08&quot;</text>
+<path class="box" d="M 9368.9 366.0 H 9832.7 L 9849.7 383.0 V 454.0 H 9368.9 z"/>
+<path class="rule" fill="none" d="M 9832.7 366.0 V 383.0 H 9849.7"/>
+<text class="keyword" x="9378.9" y="388.8">«metadata»</text>
+<text class="feature" x="9378.9" y="405.8">DocFigure</text>
+<text class="feature" x="9378.9" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="9378.9" y="439.8">ref figure = &quot;docs/design/flows/simple-flow/assets/timeline.svg&quot;</text>
+<path class="box" d="M 20114.8 65.0 H 20549.8 L 20566.8 82.0 V 153.0 H 20114.8 z"/>
+<path class="rule" fill="none" d="M 20549.8 65.0 V 82.0 H 20566.8"/>
+<text class="keyword" x="20124.8" y="87.8">«metadata»</text>
+<text class="feature" x="20124.8" y="104.8">DocSection</text>
+<text class="feature" x="20124.8" y="121.8">ref document = &quot;docs/records/plans/simple-flow-file-plan.md&quot;</text>
+<text class="feature" x="20124.8" y="138.8">ref section = &quot;D53&quot;</text>
+<path class="box" d="M 38.0 366.0 H 537.8 L 554.8 383.0 V 454.0 H 38.0 z"/>
+<path class="rule" fill="none" d="M 537.8 366.0 V 383.0 H 554.8"/>
+<text class="keyword" x="48.0" y="388.8">«metadata»</text>
+<text class="feature" x="48.0" y="405.8">DiagramPresentation</text>
+<text class="feature" x="48.0" y="422.8">ref label = &quot;Gate authorization&quot;</text>
+<text class="feature" x="48.0" y="439.8">ref summary = &quot;authorized = (passed = required) and subflow complete&quot;</text>
+<path class="box" d="M 3569.6 366.0 H 3968.6 L 3985.6 383.0 V 454.0 H 3569.6 z"/>
+<path class="rule" fill="none" d="M 3968.6 366.0 V 383.0 H 3985.6"/>
+<text class="keyword" x="3579.6" y="388.8">«metadata»</text>
+<text class="feature" x="3579.6" y="405.8">DocSection</text>
+<text class="feature" x="3579.6" y="422.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="3579.6" y="439.8">ref section = &quot;D16&quot;</text>
+<path class="box" d="M 2285.2 65.0 H 2813.8 L 2830.8 82.0 V 153.0 H 2285.2 z"/>
+<path class="rule" fill="none" d="M 2813.8 65.0 V 82.0 H 2830.8"/>
+<text class="keyword" x="2295.2" y="87.8">«metadata»</text>
+<text class="feature" x="2295.2" y="104.8">DiagramPresentation</text>
+<text class="feature" x="2295.2" y="121.8">ref label = &quot;Visit authorization&quot;</text>
+<text class="feature" x="2295.2" y="138.8">ref summary = &quot;Bind current visit values to the authorization constraint&quot;</text>
+<path class="box" d="M 1358.4 65.0 H 1757.4 L 1774.4 82.0 V 153.0 H 1358.4 z"/>
+<path class="rule" fill="none" d="M 1757.4 65.0 V 82.0 H 1774.4"/>
+<text class="keyword" x="1368.4" y="87.8">«metadata»</text>
+<text class="feature" x="1368.4" y="104.8">DocSection</text>
+<text class="feature" x="1368.4" y="121.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="1368.4" y="138.8">ref section = &quot;D16&quot;</text>
+<path class="box" d="M 13837.3 2166.0 H 14293.9 L 14310.9 2183.0 V 2254.0 H 13837.3 z"/>
+<path class="rule" fill="none" d="M 14293.9 2166.0 V 2183.0 H 14310.9"/>
+<text class="keyword" x="13847.3" y="2188.8">«metadata»</text>
+<text class="feature" x="13847.3" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="13847.3" y="2222.8">ref label = &quot;Run lifecycle&quot;</text>
+<text class="feature" x="13847.3" y="2239.8">ref summary = &quot;Activation, blocking, correction and completion&quot;</text>
+<path class="box" d="M 17343.3 2166.0 H 17742.3 L 17759.3 2183.0 V 2254.0 H 17343.3 z"/>
+<path class="rule" fill="none" d="M 17742.3 2166.0 V 2183.0 H 17759.3"/>
+<text class="keyword" x="17353.3" y="2188.8">«metadata»</text>
+<text class="feature" x="17353.3" y="2205.8">DocSection</text>
+<text class="feature" x="17353.3" y="2222.8">ref document = &quot;docs/design/flows/simple-flow/views.md&quot;</text>
+<text class="feature" x="17353.3" y="2239.8">ref section = &quot;D20&quot;</text>
+<path class="box" d="M 15674.5 2166.0 H 15886.3 L 15903.3 2183.0 V 2254.0 H 15674.5 z"/>
+<path class="rule" fill="none" d="M 15886.3 2166.0 V 2183.0 H 15903.3"/>
+<text class="keyword" x="15684.5" y="2188.8">«metadata»</text>
+<text class="feature" x="15684.5" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="15684.5" y="2222.8">ref label = &quot;Activate&quot;</text>
+<text class="feature" x="15684.5" y="2239.8">ref summary = &quot;run is active&quot;</text>
+<path class="box" d="M 17779.3 2166.0 H 18034.3 L 18051.3 2183.0 V 2254.0 H 17779.3 z"/>
+<path class="rule" fill="none" d="M 18034.3 2166.0 V 2183.0 H 18051.3"/>
+<text class="keyword" x="17789.3" y="2188.8">«metadata»</text>
+<text class="feature" x="17789.3" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="17789.3" y="2222.8">ref label = &quot;Block&quot;</text>
+<text class="feature" x="17789.3" y="2239.8">ref summary = &quot;gate not authorized&quot;</text>
+<path class="box" d="M 14330.9 2166.0 H 14607.5 L 14624.5 2183.0 V 2254.0 H 14330.9 z"/>
+<path class="rule" fill="none" d="M 14607.5 2166.0 V 2183.0 H 14624.5"/>
+<text class="keyword" x="14340.9" y="2188.8">«metadata»</text>
+<text class="feature" x="14340.9" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="14340.9" y="2222.8">ref label = &quot;Resume&quot;</text>
+<text class="feature" x="14340.9" y="2239.8">ref summary = &quot;corrected visit active&quot;</text>
+<path class="box" d="M 16593.7 2166.0 H 16913.5 L 16930.5 2183.0 V 2254.0 H 16593.7 z"/>
+<path class="rule" fill="none" d="M 16913.5 2166.0 V 2183.0 H 16930.5"/>
+<text class="keyword" x="16603.7" y="2188.8">«metadata»</text>
+<text class="feature" x="16603.7" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="16603.7" y="2222.8">ref label = &quot;Next stage&quot;</text>
+<text class="feature" x="16603.7" y="2239.8">ref summary = &quot;nonterminal visit authorized&quot;</text>
+<path class="box" d="M 15339.3 2166.0 H 15637.5 L 15654.5 2183.0 V 2254.0 H 15339.3 z"/>
+<path class="rule" fill="none" d="M 15637.5 2166.0 V 2183.0 H 15654.5"/>
+<text class="keyword" x="15349.3" y="2188.8">«metadata»</text>
+<text class="feature" x="15349.3" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="15349.3" y="2222.8">ref label = &quot;Complete&quot;</text>
+<text class="feature" x="15349.3" y="2239.8">ref summary = &quot;terminal visit authorized&quot;</text>
+<path class="box" d="M 16950.5 2166.0 H 17306.3 L 17323.3 2183.0 V 2254.0 H 16950.5 z"/>
+<path class="rule" fill="none" d="M 17306.3 2166.0 V 2183.0 H 17323.3"/>
+<text class="keyword" x="16960.5" y="2188.8">«metadata»</text>
+<text class="feature" x="16960.5" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="16960.5" y="2222.8">ref label = &quot;Revalidate&quot;</text>
+<text class="feature" x="16960.5" y="2239.8">ref summary = &quot;retained evidence still available&quot;</text>
+<path class="box" d="M 16265.7 2166.0 H 16556.7 L 16573.7 2183.0 V 2254.0 H 16265.7 z"/>
+<path class="rule" fill="none" d="M 16556.7 2166.0 V 2183.0 H 16573.7"/>
+<text class="keyword" x="16275.7" y="2188.8">«metadata»</text>
+<text class="feature" x="16275.7" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="16275.7" y="2222.8">ref label = &quot;Evidence lost&quot;</text>
+<text class="feature" x="16275.7" y="2239.8">ref summary = &quot;completed run is blocked&quot;</text>
+<path class="box" d="M 15923.3 2166.0 H 16228.7 L 16245.7 2183.0 V 2254.0 H 15923.3 z"/>
+<path class="rule" fill="none" d="M 16228.7 2166.0 V 2183.0 H 16245.7"/>
+<text class="keyword" x="15933.3" y="2188.8">«metadata»</text>
+<text class="feature" x="15933.3" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="15933.3" y="2222.8">ref label = &quot;Restore&quot;</text>
+<text class="feature" x="15933.3" y="2239.8">ref summary = &quot;retained evidence restored&quot;</text>
+<path class="box" d="M 14644.5 2166.0 H 14935.5 L 14952.5 2183.0 V 2254.0 H 14644.5 z"/>
+<path class="rule" fill="none" d="M 14935.5 2166.0 V 2183.0 H 14952.5"/>
+<text class="keyword" x="14654.5" y="2188.8">«metadata»</text>
+<text class="feature" x="14654.5" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="14654.5" y="2222.8">ref label = &quot;Rework&quot;</text>
+<text class="feature" x="14654.5" y="2239.8">ref summary = &quot;run and new visit active&quot;</text>
+<path class="box" d="M 11623.6 65.0 H 11979.4 L 11996.4 82.0 V 153.0 H 11623.6 z"/>
+<path class="rule" fill="none" d="M 11979.4 65.0 V 82.0 H 11996.4"/>
+<text class="keyword" x="11633.6" y="87.8">«metadata»</text>
+<text class="feature" x="11633.6" y="104.8">DiagramPresentation</text>
+<text class="feature" x="11633.6" y="121.8">ref label = &quot;Progress wish&quot;</text>
+<text class="feature" x="11633.6" y="138.8">ref summary = &quot;Reach an evidence-backed delivery&quot;</text>
+<path class="box" d="M 11223.6 65.0 H 11586.6 L 11603.6 82.0 V 153.0 H 11223.6 z"/>
+<path class="rule" fill="none" d="M 11586.6 65.0 V 82.0 H 11603.6"/>
+<text class="keyword" x="11233.6" y="87.8">«metadata»</text>
+<text class="feature" x="11233.6" y="104.8">DocSection</text>
+<text class="feature" x="11233.6" y="121.8">ref document = &quot;docs/requirements/requirements.md&quot;</text>
+<text class="feature" x="11233.6" y="138.8">ref section = &quot;D17&quot;</text>
+<path class="box" d="M 13607.8 65.0 H 13970.8 L 13987.8 82.0 V 153.0 H 13607.8 z"/>
+<path class="rule" fill="none" d="M 13970.8 65.0 V 82.0 H 13987.8"/>
+<text class="keyword" x="13617.8" y="87.8">«metadata»</text>
+<text class="feature" x="13617.8" y="104.8">DiagramPresentation</text>
+<text class="feature" x="13617.8" y="121.8">ref label = &quot;Review evidence&quot;</text>
+<text class="feature" x="13617.8" y="138.8">ref summary = &quot;Return a reasoned semantic verdict&quot;</text>
+<path class="box" d="M 13207.8 65.0 H 13570.8 L 13587.8 82.0 V 153.0 H 13207.8 z"/>
+<path class="rule" fill="none" d="M 13570.8 65.0 V 82.0 H 13587.8"/>
+<text class="keyword" x="13217.8" y="87.8">«metadata»</text>
+<text class="feature" x="13217.8" y="104.8">DocSection</text>
+<text class="feature" x="13217.8" y="121.8">ref document = &quot;docs/requirements/requirements.md&quot;</text>
+<text class="feature" x="13217.8" y="138.8">ref section = &quot;D17&quot;</text>
+<path class="box" d="M 19657.2 65.0 H 20077.8 L 20094.8 82.0 V 153.0 H 19657.2 z"/>
+<path class="rule" fill="none" d="M 20077.8 65.0 V 82.0 H 20094.8"/>
+<text class="keyword" x="19667.2" y="87.8">«metadata»</text>
+<text class="feature" x="19667.2" y="104.8">DocSection</text>
+<text class="feature" x="19667.2" y="121.8">ref document = &quot;docs/interfaces/documentation-contract.md&quot;</text>
+<text class="feature" x="19667.2" y="138.8">ref section = &quot;D22&quot;</text>
+<path class="box" d="M 19091.6 65.0 H 19620.2 L 19637.2 82.0 V 153.0 H 19091.6 z"/>
+<path class="rule" fill="none" d="M 19620.2 65.0 V 82.0 H 19637.2"/>
+<text class="keyword" x="19101.6" y="87.8">«metadata»</text>
+<text class="feature" x="19101.6" y="104.8">DiagramPresentation</text>
+<text class="feature" x="19101.6" y="121.8">ref label = &quot;Diagram renderer&quot;</text>
+<text class="feature" x="19101.6" y="138.8">ref summary = &quot;Focused model views become readable documentation figures&quot;</text>
+<path class="box" d="M 22376.8 65.0 H 22797.4 L 22814.4 82.0 V 153.0 H 22376.8 z"/>
+<path class="rule" fill="none" d="M 22797.4 65.0 V 82.0 H 22814.4"/>
+<text class="keyword" x="22386.8" y="87.8">«metadata»</text>
+<text class="feature" x="22386.8" y="104.8">DocSection</text>
+<text class="feature" x="22386.8" y="121.8">ref document = &quot;docs/interfaces/documentation-contract.md&quot;</text>
+<text class="feature" x="22386.8" y="138.8">ref section = &quot;D29&quot;</text>
+<path class="box" d="M 21699.8 1615.0 H 22120.4 L 22137.4 1632.0 V 1703.0 H 21699.8 z"/>
+<path class="rule" fill="none" d="M 22120.4 1615.0 V 1632.0 H 22137.4"/>
+<text class="keyword" x="21709.8" y="1637.8">«metadata»</text>
+<text class="feature" x="21709.8" y="1654.8">DiagramPresentation</text>
+<text class="feature" x="21709.8" y="1671.8">ref label = &quot;Gated wish-verify flow&quot;</text>
+<text class="feature" x="21709.8" y="1688.8">ref summary = &quot;Two judged stages with explicit exit gates&quot;</text>
+<path class="box" d="M 21227.8 1615.0 H 21662.8 L 21679.8 1632.0 V 1703.0 H 21227.8 z"/>
+<path class="rule" fill="none" d="M 21662.8 1615.0 V 1632.0 H 21679.8"/>
+<text class="keyword" x="21237.8" y="1637.8">«metadata»</text>
+<text class="feature" x="21237.8" y="1654.8">DocSection</text>
+<text class="feature" x="21237.8" y="1671.8">ref document = &quot;docs/design/flows/wish-verify/definition.md&quot;</text>
+<text class="feature" x="21237.8" y="1688.8">ref section = &quot;D57&quot;</text>
+<path class="box" d="M 13239.5 2738.0 H 13710.5 L 13727.5 2755.0 V 2826.0 H 13239.5 z"/>
+<path class="rule" fill="none" d="M 13710.5 2738.0 V 2755.0 H 13727.5"/>
+<text class="keyword" x="13249.5" y="2760.8">«metadata»</text>
+<text class="feature" x="13249.5" y="2777.8">DiagramPresentation</text>
+<text class="feature" x="13249.5" y="2794.8">ref label = &quot;Checkpoint&quot;</text>
+<text class="feature" x="13249.5" y="2811.8">ref summary = &quot;Presents one gate&apos;s criteria to a permitted judge&quot;</text>
+<path class="box" d="M 17460.5 2738.0 H 17895.5 L 17912.5 2755.0 V 2826.0 H 17460.5 z"/>
+<path class="rule" fill="none" d="M 17895.5 2738.0 V 2755.0 H 17912.5"/>
+<text class="keyword" x="17470.5" y="2760.8">«metadata»</text>
+<text class="feature" x="17470.5" y="2777.8">DocSection</text>
+<text class="feature" x="17470.5" y="2794.8">ref document = &quot;docs/design/flows/wish-verify/definition.md&quot;</text>
+<text class="feature" x="17470.5" y="2811.8">ref section = &quot;D63&quot;</text>
+<path class="box" d="M 22438.5 3093.0 H 22873.5 L 22890.5 3110.0 V 3181.0 H 22438.5 z"/>
+<path class="rule" fill="none" d="M 22873.5 3093.0 V 3110.0 H 22890.5"/>
+<text class="keyword" x="22448.5" y="3115.8">«metadata»</text>
+<text class="feature" x="22448.5" y="3132.8">DiagramPresentation</text>
+<text class="feature" x="22448.5" y="3149.8">ref label = &quot;Semantic judgment&quot;</text>
+<text class="feature" x="22448.5" y="3166.8">ref summary = &quot;A permitted judge records a reasoned verdict&quot;</text>
+<path class="box" d="M 21966.5 3093.0 H 22401.5 L 22418.5 3110.0 V 3181.0 H 21966.5 z"/>
+<path class="rule" fill="none" d="M 22401.5 3093.0 V 3110.0 H 22418.5"/>
+<text class="keyword" x="21976.5" y="3115.8">«metadata»</text>
+<text class="feature" x="21976.5" y="3132.8">DocSection</text>
+<text class="feature" x="21976.5" y="3149.8">ref document = &quot;docs/design/flows/wish-verify/definition.md&quot;</text>
+<text class="feature" x="21976.5" y="3166.8">ref section = &quot;D63&quot;</text>
+<path class="box" d="M 18632.0 3438.0 H 19016.6 L 19033.6 3455.0 V 3526.0 H 18632.0 z"/>
+<path class="rule" fill="none" d="M 19016.6 3438.0 V 3455.0 H 19033.6"/>
+<text class="keyword" x="18642.0" y="3460.8">«metadata»</text>
+<text class="feature" x="18642.0" y="3477.8">DiagramPresentation</text>
+<text class="feature" x="18642.0" y="3494.8">ref label = &quot;Evaluate checkpoint&quot;</text>
+<text class="feature" x="18642.0" y="3511.8">ref summary = &quot;Present criteria to a permitted judge&quot;</text>
+<path class="box" d="M 18159.0 3438.0 H 18594.0 L 18611.0 3455.0 V 3526.0 H 18159.0 z"/>
+<path class="rule" fill="none" d="M 18594.0 3438.0 V 3455.0 H 18611.0"/>
+<text class="keyword" x="18169.0" y="3460.8">«metadata»</text>
+<text class="feature" x="18169.0" y="3477.8">DocSection</text>
+<text class="feature" x="18169.0" y="3494.8">ref document = &quot;docs/design/flows/wish-verify/definition.md&quot;</text>
+<text class="feature" x="18169.0" y="3511.8">ref section = &quot;D63&quot;</text>
+<path class="box" d="M 22700.6 3970.0 H 23128.4 L 23145.4 3987.0 V 4058.0 H 22700.6 z"/>
+<path class="rule" fill="none" d="M 23128.4 3970.0 V 3987.0 H 23145.4"/>
+<text class="keyword" x="22710.6" y="3992.8">«metadata»</text>
+<text class="feature" x="22710.6" y="4009.8">DiagramPresentation</text>
+<text class="feature" x="22710.6" y="4026.8">ref label = &quot;Take judgment&quot;</text>
+<text class="feature" x="22710.6" y="4043.8">ref summary = &quot;Review criteria with artifacts and evidence&quot;</text>
+<path class="box" d="M 22228.6 3970.0 H 22663.6 L 22680.6 3987.0 V 4058.0 H 22228.6 z"/>
+<path class="rule" fill="none" d="M 22663.6 3970.0 V 3987.0 H 22680.6"/>
+<text class="keyword" x="22238.6" y="3992.8">«metadata»</text>
+<text class="feature" x="22238.6" y="4009.8">DocSection</text>
+<text class="feature" x="22238.6" y="4026.8">ref document = &quot;docs/design/flows/wish-verify/definition.md&quot;</text>
+<text class="feature" x="22238.6" y="4043.8">ref section = &quot;D63&quot;</text>
+<path class="box" d="M 21301.8 932.0 H 21729.6 L 21746.6 949.0 V 1020.0 H 21301.8 z"/>
+<path class="rule" fill="none" d="M 21729.6 932.0 V 949.0 H 21746.6"/>
+<text class="keyword" x="21311.8" y="954.8">«metadata»</text>
+<text class="feature" x="21311.8" y="971.8">DiagramPresentation</text>
+<text class="feature" x="21311.8" y="988.8">ref label = &quot;Wish-verify run&quot;</text>
+<text class="feature" x="21311.8" y="1005.8">ref summary = &quot;Two stage visits, judgments and advancement&quot;</text>
+<path class="box" d="M 20448.6 932.0 H 20912.4 L 20929.4 949.0 V 1020.0 H 20448.6 z"/>
+<path class="rule" fill="none" d="M 20912.4 932.0 V 949.0 H 20929.4"/>
+<text class="keyword" x="20458.6" y="954.8">«metadata»</text>
+<text class="feature" x="20458.6" y="971.8">DocSection</text>
+<text class="feature" x="20458.6" y="988.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="20458.6" y="1005.8">ref section = &quot;D58&quot;</text>
+<path class="box" d="M 12884.9 932.0 H 13262.3 L 13279.3 949.0 V 1020.0 H 12884.9 z"/>
+<path class="rule" fill="none" d="M 13262.3 932.0 V 949.0 H 13279.3"/>
+<text class="keyword" x="12894.9" y="954.8">«metadata»</text>
+<text class="feature" x="12894.9" y="971.8">DiagramPresentation</text>
+<text class="feature" x="12894.9" y="988.8">ref label = &quot;Run factory&quot;</text>
+<text class="feature" x="12894.9" y="1005.8">ref summary = &quot;Creates a run and its initial visits&quot;</text>
+<path class="box" d="M 13299.3 932.0 H 13763.1 L 13780.1 949.0 V 1020.0 H 13299.3 z"/>
+<path class="rule" fill="none" d="M 13763.1 932.0 V 949.0 H 13780.1"/>
+<text class="keyword" x="13309.3" y="954.8">«metadata»</text>
+<text class="feature" x="13309.3" y="971.8">DocSection</text>
+<text class="feature" x="13309.3" y="988.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="13309.3" y="1005.8">ref section = &quot;D59&quot;</text>
+<path class="box" d="M 19957.9 2166.0 H 20313.7 L 20330.7 2183.0 V 2254.0 H 19957.9 z"/>
+<path class="rule" fill="none" d="M 20313.7 2166.0 V 2183.0 H 20330.7"/>
+<text class="keyword" x="19967.9" y="2188.8">«metadata»</text>
+<text class="feature" x="19967.9" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="19967.9" y="2222.8">ref label = &quot;Evaluate stage gates&quot;</text>
+<text class="feature" x="19967.9" y="2239.8">ref summary = &quot;Record one judgment per exit gate&quot;</text>
+<path class="box" d="M 20350.7 2166.0 H 20814.5 L 20831.5 2183.0 V 2254.0 H 20350.7 z"/>
+<path class="rule" fill="none" d="M 20814.5 2166.0 V 2183.0 H 20831.5"/>
+<text class="keyword" x="20360.7" y="2188.8">«metadata»</text>
+<text class="feature" x="20360.7" y="2205.8">DocSection</text>
+<text class="feature" x="20360.7" y="2222.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="20360.7" y="2239.8">ref section = &quot;D60&quot;</text>
+<path class="box" d="M 19442.7 2166.0 H 19920.9 L 19937.9 2183.0 V 2254.0 H 19442.7 z"/>
+<path class="rule" fill="none" d="M 19920.9 2166.0 V 2183.0 H 19937.9"/>
+<text class="keyword" x="19452.7" y="2188.8">«metadata»</text>
+<text class="feature" x="19452.7" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="19452.7" y="2222.8">ref label = &quot;Advance flow run&quot;</text>
+<text class="feature" x="19452.7" y="2239.8">ref summary = &quot;Authorization selects the next visit or completion&quot;</text>
+<path class="box" d="M 18941.9 2166.0 H 19405.7 L 19422.7 2183.0 V 2254.0 H 18941.9 z"/>
+<path class="rule" fill="none" d="M 19405.7 2166.0 V 2183.0 H 19422.7"/>
+<text class="keyword" x="18951.9" y="2188.8">«metadata»</text>
+<text class="feature" x="18951.9" y="2205.8">DocSection</text>
+<text class="feature" x="18951.9" y="2222.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="18951.9" y="2239.8">ref section = &quot;D60&quot;</text>
+<path class="box" d="M 18160.1 2166.0 H 18623.9 L 18640.9 2183.0 V 2254.0 H 18160.1 z"/>
+<path class="rule" fill="none" d="M 18623.9 2166.0 V 2183.0 H 18640.9"/>
+<text class="keyword" x="18170.1" y="2188.8">«metadata»</text>
+<text class="feature" x="18170.1" y="2205.8">DocSection</text>
+<text class="feature" x="18170.1" y="2222.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="18170.1" y="2239.8">ref section = &quot;D60&quot;</text>
+<path class="box" d="M 18093.6 366.0 H 18528.6 L 18545.6 383.0 V 454.0 H 18093.6 z"/>
+<path class="rule" fill="none" d="M 18528.6 366.0 V 383.0 H 18545.6"/>
+<text class="keyword" x="18103.6" y="388.8">«metadata»</text>
+<text class="feature" x="18103.6" y="405.8">DiagramPresentation</text>
+<text class="feature" x="18103.6" y="422.8">ref label = &quot;Wish-verify automation&quot;</text>
+<text class="feature" x="18103.6" y="439.8">ref summary = &quot;Run and judge connected by the judgment port&quot;</text>
+<path class="box" d="M 17197.2 366.0 H 17661.0 L 17678.0 383.0 V 454.0 H 17197.2 z"/>
+<path class="rule" fill="none" d="M 17661.0 366.0 V 383.0 H 17678.0"/>
+<text class="keyword" x="17207.2" y="388.8">«metadata»</text>
+<text class="feature" x="17207.2" y="405.8">DocSection</text>
+<text class="feature" x="17207.2" y="422.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="17207.2" y="439.8">ref section = &quot;D67&quot;</text>
+<path class="box" d="M 21399.0 366.0 H 21870.0 L 21887.0 383.0 V 454.0 H 21399.0 z"/>
+<path class="rule" fill="none" d="M 21870.0 366.0 V 383.0 H 21887.0"/>
+<text class="keyword" x="21409.0" y="388.8">«metadata»</text>
+<text class="feature" x="21409.0" y="405.8">DiagramPresentation</text>
+<text class="feature" x="21409.0" y="422.8">ref label = &quot;Run interactions&quot;</text>
+<text class="feature" x="21409.0" y="439.8">ref summary = &quot;Controller events enter and assess the two stages&quot;</text>
+<path class="box" d="M 21907.0 366.0 H 22370.8 L 22387.8 383.0 V 454.0 H 21907.0 z"/>
+<path class="rule" fill="none" d="M 22370.8 366.0 V 383.0 H 22387.8"/>
+<text class="keyword" x="21917.0" y="388.8">«metadata»</text>
+<text class="feature" x="21917.0" y="405.8">DocSection</text>
+<text class="feature" x="21917.0" y="422.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="21917.0" y="439.8">ref section = &quot;D68&quot;</text>
+<path class="box" d="M 6141.7 65.0 H 6670.3 L 6687.3 82.0 V 153.0 H 6141.7 z"/>
+<path class="rule" fill="none" d="M 6670.3 65.0 V 82.0 H 6687.3"/>
+<text class="keyword" x="6151.7" y="87.8">«metadata»</text>
+<text class="feature" x="6151.7" y="104.8">DiagramPresentation</text>
+<text class="feature" x="6151.7" y="121.8">ref label = &quot;Visit authorization&quot;</text>
+<text class="feature" x="6151.7" y="138.8">ref summary = &quot;Bind current visit values to the authorization constraint&quot;</text>
+<path class="box" d="M 7198.1 65.0 H 7597.1 L 7614.1 82.0 V 153.0 H 7198.1 z"/>
+<path class="rule" fill="none" d="M 7597.1 65.0 V 82.0 H 7614.1"/>
+<text class="keyword" x="7208.1" y="87.8">«metadata»</text>
+<text class="feature" x="7208.1" y="104.8">DocSection</text>
+<text class="feature" x="7208.1" y="121.8">ref document = &quot;docs/design/flows/wish-verify/views.md&quot;</text>
+<text class="feature" x="7208.1" y="138.8">ref section = &quot;D70&quot;</text>
+<path class="box" d="M 10661.0 2166.0 H 11117.6 L 11134.6 2183.0 V 2254.0 H 10661.0 z"/>
+<path class="rule" fill="none" d="M 11117.6 2166.0 V 2183.0 H 11134.6"/>
+<text class="keyword" x="10671.0" y="2188.8">«metadata»</text>
+<text class="feature" x="10671.0" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="10671.0" y="2222.8">ref label = &quot;Run lifecycle&quot;</text>
+<text class="feature" x="10671.0" y="2239.8">ref summary = &quot;Activation, blocking, correction and completion&quot;</text>
+<path class="box" d="M 12344.4 2166.0 H 12808.2 L 12825.2 2183.0 V 2254.0 H 12344.4 z"/>
+<path class="rule" fill="none" d="M 12808.2 2166.0 V 2183.0 H 12825.2"/>
+<text class="keyword" x="12354.4" y="2188.8">«metadata»</text>
+<text class="feature" x="12354.4" y="2205.8">DocSection</text>
+<text class="feature" x="12354.4" y="2222.8">ref document = &quot;docs/design/flows/wish-verify/implementation.md&quot;</text>
+<text class="feature" x="12354.4" y="2239.8">ref section = &quot;D68&quot;</text>
+<path class="box" d="M 8736.2 2166.0 H 8948.0 L 8965.0 2183.0 V 2254.0 H 8736.2 z"/>
+<path class="rule" fill="none" d="M 8948.0 2166.0 V 2183.0 H 8965.0"/>
+<text class="keyword" x="8746.2" y="2188.8">«metadata»</text>
+<text class="feature" x="8746.2" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="8746.2" y="2222.8">ref label = &quot;Activate&quot;</text>
+<text class="feature" x="8746.2" y="2239.8">ref summary = &quot;run is active&quot;</text>
+<path class="box" d="M 8444.2 2166.0 H 8699.2 L 8716.2 2183.0 V 2254.0 H 8444.2 z"/>
+<path class="rule" fill="none" d="M 8699.2 2166.0 V 2183.0 H 8716.2"/>
+<text class="keyword" x="8454.2" y="2188.8">«metadata»</text>
+<text class="feature" x="8454.2" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="8454.2" y="2222.8">ref label = &quot;Block&quot;</text>
+<text class="feature" x="8454.2" y="2239.8">ref summary = &quot;gate not authorized&quot;</text>
+<path class="box" d="M 9320.2 2166.0 H 9596.8 L 9613.8 2183.0 V 2254.0 H 9320.2 z"/>
+<path class="rule" fill="none" d="M 9596.8 2166.0 V 2183.0 H 9613.8"/>
+<text class="keyword" x="9330.2" y="2188.8">«metadata»</text>
+<text class="feature" x="9330.2" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="9330.2" y="2222.8">ref label = &quot;Resume&quot;</text>
+<text class="feature" x="9330.2" y="2239.8">ref summary = &quot;corrected visit active&quot;</text>
+<path class="box" d="M 9976.2 2166.0 H 10296.0 L 10313.0 2183.0 V 2254.0 H 9976.2 z"/>
+<path class="rule" fill="none" d="M 10296.0 2166.0 V 2183.0 H 10313.0"/>
+<text class="keyword" x="9986.2" y="2188.8">«metadata»</text>
+<text class="feature" x="9986.2" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="9986.2" y="2222.8">ref label = &quot;Next stage&quot;</text>
+<text class="feature" x="9986.2" y="2239.8">ref summary = &quot;nonterminal visit authorized&quot;</text>
+<path class="box" d="M 8985.0 2166.0 H 9283.2 L 9300.2 2183.0 V 2254.0 H 8985.0 z"/>
+<path class="rule" fill="none" d="M 9283.2 2166.0 V 2183.0 H 9300.2"/>
+<text class="keyword" x="8995.0" y="2188.8">«metadata»</text>
+<text class="feature" x="8995.0" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="8995.0" y="2222.8">ref label = &quot;Complete&quot;</text>
+<text class="feature" x="8995.0" y="2239.8">ref summary = &quot;terminal visit authorized&quot;</text>
+<path class="box" d="M 11154.6 2166.0 H 11510.4 L 11527.4 2183.0 V 2254.0 H 11154.6 z"/>
+<path class="rule" fill="none" d="M 11510.4 2166.0 V 2183.0 H 11527.4"/>
+<text class="keyword" x="11164.6" y="2188.8">«metadata»</text>
+<text class="feature" x="11164.6" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="11164.6" y="2222.8">ref label = &quot;Revalidate&quot;</text>
+<text class="feature" x="11164.6" y="2239.8">ref summary = &quot;retained evidence still available&quot;</text>
+<path class="box" d="M 12016.4 2166.0 H 12307.4 L 12324.4 2183.0 V 2254.0 H 12016.4 z"/>
+<path class="rule" fill="none" d="M 12307.4 2166.0 V 2183.0 H 12324.4"/>
+<text class="keyword" x="12026.4" y="2188.8">«metadata»</text>
+<text class="feature" x="12026.4" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="12026.4" y="2222.8">ref label = &quot;Evidence lost&quot;</text>
+<text class="feature" x="12026.4" y="2239.8">ref summary = &quot;completed run is blocked&quot;</text>
+<path class="box" d="M 9633.8 2166.0 H 9939.2 L 9956.2 2183.0 V 2254.0 H 9633.8 z"/>
+<path class="rule" fill="none" d="M 9939.2 2166.0 V 2183.0 H 9956.2"/>
+<text class="keyword" x="9643.8" y="2188.8">«metadata»</text>
+<text class="feature" x="9643.8" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="9643.8" y="2222.8">ref label = &quot;Restore&quot;</text>
+<text class="feature" x="9643.8" y="2239.8">ref summary = &quot;retained evidence restored&quot;</text>
+<path class="box" d="M 10333.0 2166.0 H 10624.0 L 10641.0 2183.0 V 2254.0 H 10333.0 z"/>
+<path class="rule" fill="none" d="M 10624.0 2166.0 V 2183.0 H 10641.0"/>
+<text class="keyword" x="10343.0" y="2188.8">«metadata»</text>
+<text class="feature" x="10343.0" y="2205.8">DiagramPresentation</text>
+<text class="feature" x="10343.0" y="2222.8">ref label = &quot;Rework&quot;</text>
+<text class="feature" x="10343.0" y="2239.8">ref summary = &quot;run and new visit active&quot;</text>
+<path class="box" d="M 18648.4 65.0 H 19054.6 L 19071.6 82.0 V 153.0 H 18648.4 z"/>
+<path class="rule" fill="none" d="M 19054.6 65.0 V 82.0 H 19071.6"/>
+<text class="keyword" x="18658.4" y="87.8">«metadata»</text>
+<text class="feature" x="18658.4" y="104.8">DiagramPresentation</text>
+<text class="feature" x="18658.4" y="121.8">ref label = &quot;Progress judged outcome&quot;</text>
+<text class="feature" x="18658.4" y="138.8">ref summary = &quot;Reach an evidence-backed judged delivery&quot;</text>
+<path class="box" d="M 18212.4 65.0 H 18611.4 L 18628.4 82.0 V 153.0 H 18212.4 z"/>
+<path class="rule" fill="none" d="M 18611.4 65.0 V 82.0 H 18628.4"/>
+<text class="keyword" x="18222.4" y="87.8">«metadata»</text>
+<text class="feature" x="18222.4" y="104.8">DocSection</text>
+<text class="feature" x="18222.4" y="121.8">ref document = &quot;docs/design/flows/wish-verify/views.md&quot;</text>
+<text class="feature" x="18222.4" y="138.8">ref section = &quot;D71&quot;</text>
+<path class="box" d="M 17704.4 65.0 H 18175.4 L 18192.4 82.0 V 153.0 H 17704.4 z"/>
+<path class="rule" fill="none" d="M 18175.4 65.0 V 82.0 H 18192.4"/>
+<text class="keyword" x="17714.4" y="87.8">«metadata»</text>
+<text class="feature" x="17714.4" y="104.8">DiagramPresentation</text>
+<text class="feature" x="17714.4" y="121.8">ref label = &quot;Judge recorded outcome&quot;</text>
+<text class="feature" x="17714.4" y="138.8">ref summary = &quot;Return a reasoned verdict on the recorded outcome&quot;</text>
+<path class="box" d="M 17268.4 65.0 H 17667.4 L 17684.4 82.0 V 153.0 H 17268.4 z"/>
+<path class="rule" fill="none" d="M 17667.4 65.0 V 82.0 H 17684.4"/>
+<text class="keyword" x="17278.4" y="87.8">«metadata»</text>
+<text class="feature" x="17278.4" y="104.8">DocSection</text>
+<text class="feature" x="17278.4" y="121.8">ref document = &quot;docs/design/flows/wish-verify/views.md&quot;</text>
+<text class="feature" x="17278.4" y="138.8">ref section = &quot;D71&quot;</text>
+<rect class="port" x="4683.3" y="3550.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 4688.4 3551.7 L 4688.4 3560.3"/>
+<path class="tip" d="M 4686.2 3557.2 L 4688.4 3560.3 L 4690.5 3557.2"/>
+<text class="aside" x="4676.5" y="3548.3" text-anchor="end" dominant-baseline="middle">checkpoint</text>
+<rect class="port" x="4382.8" y="3801.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 4383.6 3807.0 L 4392.2 3807.0"/>
+<path class="tip" d="M 4389.1 3809.1 L 4392.2 3807.0 L 4389.1 3804.9"/>
+<text class="aside" x="4380.2" y="3818.9" text-anchor="end" dominant-baseline="middle">visit</text>
+<rect class="port" x="4758.4" y="3801.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 4759.2 3807.0 L 4767.8 3807.0"/>
+<path class="tip" d="M 4764.7 3809.1 L 4767.8 3807.0 L 4764.7 3804.9"/>
+<text class="aside" x="4771.1" y="3795.1" text-anchor="start" dominant-baseline="middle">assessment</text>
+<rect class="port" x="4741.0" y="4187.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 4741.8 4193.0 L 4750.4 4193.0"/>
+<path class="tip" d="M 4747.3 4195.1 L 4750.4 4193.0 L 4747.3 4190.9"/>
+<text class="aside" x="4738.4" y="4204.9" text-anchor="end" dominant-baseline="middle">checkpoint</text>
+<rect class="port" x="3364.1" y="4187.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 3365.0 4193.0 L 3373.5 4193.0"/>
+<path class="tip" d="M 3370.5 4195.1 L 3373.5 4193.0 L 3370.5 4190.9"/>
+<text class="aside" x="3361.6" y="4204.9" text-anchor="end" dominant-baseline="middle">checkpoint</text>
+<rect class="port" x="7744.5" y="1697.9" width="10.2" height="10.2" rx="0.0"/>
+<text class="aside" x="7761.5" y="1710.7" text-anchor="start" dominant-baseline="middle">check</text>
+<rect class="port" x="8064.4" y="1697.9" width="10.2" height="10.2" rx="0.0"/>
+<text class="aside" x="8057.6" y="1710.7" text-anchor="end" dominant-baseline="middle">judgment</text>
+<rect class="port" x="5704.3" y="2527.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 5705.1 2532.5 L 5713.6 2532.5"/>
+<path class="tip" d="M 5710.6 2534.6 L 5713.6 2532.5 L 5710.6 2530.4"/>
+<text class="aside" x="5701.7" y="2544.4" text-anchor="end" dominant-baseline="middle">visit</text>
+<rect class="port" x="6094.3" y="2527.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 6095.1 2532.5 L 6103.6 2532.5"/>
+<path class="tip" d="M 6100.6 2534.6 L 6103.6 2532.5 L 6100.6 2530.4"/>
+<text class="aside" x="6107.0" y="2520.6" text-anchor="start" dominant-baseline="middle">assessments</text>
+<rect class="port" x="7614.1" y="2318.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 7619.2 2319.7 L 7619.2 2328.3"/>
+<path class="tip" d="M 7617.1 2325.2 L 7619.2 2328.3 L 7621.4 2325.2"/>
+<text class="aside" x="7607.3" y="2316.3" text-anchor="end" dominant-baseline="middle">run</text>
+<rect class="port" x="7307.9" y="2535.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 7317.3 2541.0 L 7308.7 2541.0"/>
+<path class="tip" d="M 7311.8 2538.9 L 7308.7 2541.0 L 7311.8 2543.1"/>
+<text class="aside" x="7305.3" y="2552.9" text-anchor="end" dominant-baseline="middle">nextVisit</text>
+<rect class="port" x="7927.3" y="2318.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 7932.4 2319.7 L 7932.4 2328.3"/>
+<path class="tip" d="M 7930.3 2325.2 L 7932.4 2328.3 L 7934.5 2325.2"/>
+<text class="aside" x="7944.3" y="2316.3" text-anchor="start" dominant-baseline="middle">run</text>
+<rect class="port" x="7710.7" y="2488.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 7711.5 2493.5 L 7720.1 2493.5"/>
+<path class="tip" d="M 7717.0 2495.6 L 7720.1 2493.5 L 7717.0 2491.4"/>
+<text class="aside" x="7708.1" y="2505.4" text-anchor="end" dominant-baseline="middle">completedVisit</text>
+<rect class="port" x="8143.9" y="2488.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 8144.7 2493.5 L 8153.3 2493.5"/>
+<path class="tip" d="M 8150.2 2495.6 L 8153.3 2493.5 L 8150.2 2491.4"/>
+<text class="aside" x="8156.6" y="2481.6" text-anchor="start" dominant-baseline="middle">newVisit</text>
+<rect class="port" x="12244.6" y="1423.4" width="10.2" height="10.2" rx="0.0"/>
+<text class="aside" x="12261.6" y="1436.2" text-anchor="start" dominant-baseline="middle">command</text>
+<rect class="port" x="14312.9" y="1340.5" width="10.2" height="10.2" rx="0.0"/>
+<text class="aside" x="14306.1" y="1353.2" text-anchor="end" dominant-baseline="middle">judgment</text>
+<rect class="port" x="3551.5" y="575.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 3552.3 581.0 L 3560.8 581.0"/>
+<path class="tip" d="M 3557.8 583.1 L 3560.8 581.0 L 3557.8 578.9"/>
+<text class="aside" x="3548.9" y="592.9" text-anchor="end" dominant-baseline="middle">requiredGates</text>
+<rect class="port" x="3919.9" y="575.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 3929.2 581.0 L 3920.7 581.0"/>
+<path class="tip" d="M 3923.7 578.9 L 3920.7 581.0 L 3923.7 583.1"/>
+<text class="aside" x="3932.6" y="569.1" text-anchor="start" dominant-baseline="middle">passedGates</text>
+<rect class="port" x="3551.5" y="662.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 3552.3 668.0 L 3560.8 668.0"/>
+<path class="tip" d="M 3557.8 670.1 L 3560.8 668.0 L 3557.8 665.9"/>
+<text class="aside" x="3548.9" y="679.9" text-anchor="end" dominant-baseline="middle">subFlowComplete</text>
+<rect class="port" x="3919.9" y="662.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 3929.2 668.0 L 3920.7 668.0"/>
+<path class="tip" d="M 3923.7 665.9 L 3920.7 668.0 L 3923.7 670.1"/>
+<text class="aside" x="3932.6" y="656.1" text-anchor="start" dominant-baseline="middle">authorized</text>
+<rect class="port" x="18615.9" y="3583.5" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18621.0 3584.3 L 18621.0 3592.9"/>
+<path class="tip" d="M 18618.9 3589.8 L 18621.0 3592.9 L 18623.1 3589.8"/>
+<text class="aside" x="18609.1" y="3580.9" text-anchor="end" dominant-baseline="middle">checkpoint</text>
+<rect class="port" x="18390.5" y="3753.0" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18391.4 3758.1 L 18399.9 3758.1"/>
+<path class="tip" d="M 18396.9 3760.2 L 18399.9 3758.1 L 18396.9 3756.0"/>
+<text class="aside" x="18388.0" y="3770.0" text-anchor="end" dominant-baseline="middle">visit</text>
+<rect class="port" x="18766.1" y="3753.0" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18767.0 3758.1 L 18775.5 3758.1"/>
+<path class="tip" d="M 18772.5 3760.2 L 18775.5 3758.1 L 18772.5 3756.0"/>
+<text class="aside" x="18778.9" y="3746.2" text-anchor="start" dominant-baseline="middle">assessment</text>
+<rect class="port" x="22021.1" y="4187.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 22021.9 4193.0 L 22030.5 4193.0"/>
+<path class="tip" d="M 22027.4 4195.1 L 22030.5 4193.0 L 22027.4 4190.9"/>
+<text class="aside" x="22018.5" y="4204.9" text-anchor="end" dominant-baseline="middle">checkpoint</text>
+<rect class="port" x="20763.7" y="1693.0" width="10.2" height="10.2" rx="0.0"/>
+<text class="aside" x="20780.7" y="1705.8" text-anchor="start" dominant-baseline="middle">judgment</text>
+<rect class="port" x="20394.6" y="2527.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 20395.4 2532.5 L 20404.0 2532.5"/>
+<path class="tip" d="M 20400.9 2534.6 L 20404.0 2532.5 L 20400.9 2530.4"/>
+<text class="aside" x="20392.1" y="2544.4" text-anchor="end" dominant-baseline="middle">visit</text>
+<rect class="port" x="20777.4" y="2527.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 20778.2 2532.5 L 20786.8 2532.5"/>
+<path class="tip" d="M 20783.7 2534.6 L 20786.8 2532.5 L 20783.7 2530.4"/>
+<text class="aside" x="20790.2" y="2520.6" text-anchor="start" dominant-baseline="middle">assessments</text>
+<rect class="port" x="19102.1" y="2318.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 19107.2 2319.7 L 19107.2 2328.3"/>
+<path class="tip" d="M 19105.1 2325.2 L 19107.2 2328.3 L 19109.3 2325.2"/>
+<text class="aside" x="19095.3" y="2316.3" text-anchor="end" dominant-baseline="middle">run</text>
+<rect class="port" x="18951.9" y="2535.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18961.2 2541.0 L 18952.7 2541.0"/>
+<path class="tip" d="M 18955.7 2538.9 L 18952.7 2541.0 L 18955.7 2543.1"/>
+<text class="aside" x="18949.3" y="2552.9" text-anchor="end" dominant-baseline="middle">nextVisit</text>
+<rect class="port" x="18144.0" y="2318.9" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18149.1 2319.7 L 18149.1 2328.3"/>
+<path class="tip" d="M 18147.0 2325.2 L 18149.1 2328.3 L 18151.3 2325.2"/>
+<text class="aside" x="18137.2" y="2316.3" text-anchor="end" dominant-baseline="middle">run</text>
+<rect class="port" x="17927.4" y="2488.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 17928.2 2493.5 L 17936.8 2493.5"/>
+<path class="tip" d="M 17933.7 2495.6 L 17936.8 2493.5 L 17933.7 2491.4"/>
+<text class="aside" x="17924.9" y="2505.4" text-anchor="end" dominant-baseline="middle">completedVisit</text>
+<rect class="port" x="18360.6" y="2488.4" width="10.2" height="10.2" rx="3.4"/>
+<path class="rule" d="M 18361.4 2493.5 L 18370.0 2493.5"/>
+<path class="tip" d="M 18366.9 2495.6 L 18370.0 2493.5 L 18366.9 2491.4"/>
+<text class="aside" x="18373.4" y="2481.6" text-anchor="start" dominant-baseline="middle">newVisit</text>
+</svg>

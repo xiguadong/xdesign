@@ -31,24 +31,24 @@ from xml.etree import ElementTree as ET
 REPO = Path(__file__).resolve().parents[1]
 SVG = "http://www.w3.org/2000/svg"
 FIGURE_PATHS = (
-    "docs/requirements/assets/01_requirements.svg",
-    "docs/arch/assets/02_simple_flow_packages.svg",
-    "docs/details/simple_flow/assets/05_block_definition.svg",
-    "docs/details/simple_flow/assets/05_internal_block.svg",
-    "docs/details/simple_flow/assets/05_parametric.svg",
-    "docs/requirements/assets/01_use_cases.svg",
-    "docs/details/simple_flow/assets/05_activity.svg",
-    "docs/details/simple_flow/assets/05_sequence.svg",
-    "docs/details/simple_flow/assets/05_state_machine.svg",
+    "docs/verification/assets/requirements.svg",
+    "docs/architecture/assets/simple-flow-packages.svg",
+    "docs/design/flows/simple-flow/assets/block-definition.svg",
+    "docs/design/flows/simple-flow/assets/internal-block.svg",
+    "docs/design/flows/simple-flow/assets/parametric.svg",
+    "docs/requirements/assets/use-cases.svg",
+    "docs/design/flows/simple-flow/assets/activity.svg",
+    "docs/design/flows/simple-flow/assets/sequence.svg",
+    "docs/design/flows/simple-flow/assets/state-machine.svg",
 )
 SOURCE_PATTERNS = (
     "mbse/model/**/*.sysml", "mbse/wishes/**/*.sysml", "tools/render_docs.py",
     "tools/verify_diagrams.py", "tools/sysml_web/*.py", "tools/sysml_web/toolchain.json",
     "tools/sysml_web/bin/sysml", "tools/docs_site/theme/**/*.css",
     "tools/docs_site/theme/**/*.js", "tools/docs_site/requirements.txt", "mkdocs.yml",
-    "docs/details/simple_flow/04_sysml_diagrams.md",
-    "docs/details/simple_flow/05_module_design.md",
-    "docs/requirements/01_baseline.md", "docs/arch/02_design.md",
+    "docs/design/flows/simple-flow/views.md",
+    "docs/design/flows/simple-flow/implementation.md",
+    "docs/requirements/requirements.md", "docs/architecture/system-behavior.md",
 )
 SHARP_SCRIPT = r"""
 const sharp = require('sharp');

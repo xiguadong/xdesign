@@ -13,49 +13,65 @@ The tool must answer two questions:
 
 The project MBSE model expresses the first. An independent SysML traceability model for each wish expresses the second. The workflow organizes how these models and artifacts are produced and checked, who makes judgments, and when work may proceed.
 
+## Start a task
+
+Read docs/index.md for the document map. Use the matching route and read the owning page before editing:
+
+| Work | Read first | Verify with |
+| --- | --- | --- |
+| Requirements or acceptance conditions | docs/requirements/requirements.md and docs/verification/requirements.md | compiler checks; docs audit |
+| Architecture, composition, lifecycle, or constraints | docs/architecture/index.md and the owning system page | compiler checks; docs build |
+| Flow model, run lifecycle, gates, evidence, or adapters | docs/design/flow.md, lifecycle.md, evidence-and-revisions.md, adapters.md | compiler checks; cargo tests; docs audit |
+| SimpleFlow or WishVerifyFlow definition, implementation, or views | docs/design/flows/<flow>/index.md, then definition.md, implementation.md, views.md | compiler checks; cargo tests; design checker; docs build |
+| An API design contract or source behavior | docs/design/api/index.md and the per-API page, then the owning flow implementation | cargo tests; docs audit when docs change |
+| A SysML model or model-derived figure | mbse/AGENTS.md, docs/interfaces/documentation-contract.md, docs/architecture/constraints.md | sysml parse/check; render and verify figures |
+| Documentation structure or prose | docs/AGENTS.md, docs/index.md, and the owning page | docs audit; strict docs build |
+| Plans, reviews, executions, or wish history | docs/records/index.md and the relevant record | do not rewrite historical results; link current records |
+
+Plans for the executed slices are in docs/records/plans. They record the verified sequence and acceptance evidence; current design claims live in the design pages and current requirements/verification pages.
+
 ## Directory Conventions
 
 | Directory | Purpose |
 | --- | --- |
-| `mbse/` | SysML v2 models, including the project MBSE model and wish traceability models. |
-| `src/` | Application source code. |
-| `tools/` | Scripts and development utilities. |
-| `docs/` | Project documentation. |
-| `docs/prj_manage/` | Review synthesis, active implementation plans, and acceptance records. |
-| `cache/` | Temporary data, local project environments, and temporary files. |
+| mbse/ | SysML v2 models, including the project MBSE model and wish traceability models. |
+| src/ | Application source code. |
+| tools/ | Scripts and development utilities. |
+| docs/ | Authored documentation: requirements, architecture, design (common pages plus flow-specific pages and one document per API), interfaces, verification design, and records. Entry: docs/index.md; rules: docs/AGENTS.md. |
+| docs/records/ | Plans, reviews, execution records, evidence summaries, current status, and wish history. |
+| cache/ | Temporary data, local project environments, and temporary files. |
 
-Store all local project environments, including development and test environments, under `cache/`. Configure tools to place all caches, temporary data, and temporary files there as well. The entire `cache/` directory is excluded from version control.
+Store all local project environments, including development and test environments, under cache/. Configure tools to place all caches, temporary data, and temporary files there as well. The entire cache/ directory is excluded from version control.
 
 ## Executable Flow Slices
 
-The SimpleFlow implementation sequence is recorded in
-`docs/prj_manage/02_simple_flow_implementation_plan.md`, and the executable
-two-stage wish-verify slice that followed it in
-`docs/prj_manage/09_wish_verify_flow_implementation_plan.md`. Read a plan's review basis,
-source-file plan, verification cases, and acceptance boundary before changing the
-corresponding flow's model, API, checker commands, or run code. Keep the plan and its linked
-design documents current when a decision, source path, or verification result changes.
-The local `cn_todos` template supplied a useful task/analysis/acceptance structure;
-this repository uses the English plan in `docs/prj_manage/` as its project record.
+The SimpleFlow plan is docs/records/plans/simple-flow.md; the executable two-stage WishVerifyFlow plan is docs/records/plans/wish-verify.md. Their verification design is in docs/verification/design.md, and their executed results are in docs/records/executions/ and the plan records. Read the plan's review basis, source-file plan, verification cases, and acceptance boundary before changing the corresponding flow's model, API, checker commands, or run code. Keep the plan and its linked design/verification documents current when a decision, source path, or verification result changes.
 
-The gated four-stage SimpleFlow and the gated two-stage wish-verify flow are the
-executed executable slices.
-Do not describe those slices as a complete V-model workflow: the default V-model gate
-commands, generic controller integration, persistence, and project-level acceptance
-have separate obligations. A declared verification case or a passing SysML compiler
-check is not an executed engineering result; retain command logs and evidence under
-`cache/` and state exactly what was tested.
+The gated four-stage SimpleFlow and the gated two-stage wish-verify flow are the executed slices. Do not describe them as a complete V-model workflow: the default V-model gate commands, generic controller integration, persistence, and project-level acceptance have separate obligations. A declared verification case or a passing SysML compiler check is not an executed engineering result; retain command logs and evidence under cache/ and state exactly what was tested.
 
 ## SysML v2 Compiler
 
-Use the repository-bundled Rust-based `haradama/sysml-v2-rs` compiler. The selected release was sourced from the local xflow workspace; running this project does not require that workspace.
+Use the repository-bundled Rust-based haradama/sysml-v2-rs compiler. The selected release was sourced from the local xflow workspace; running this project does not require that workspace.
 
-- Selected version: `v0.1.4`.
-- Executable: `tools/sysml_web/bin/sysml`.
-- Toolchain record: `tools/sysml_web/toolchain.json`.
-- Executable SHA-256: `674fce28512a772d1886ff2397f5f02dda66265299c67c01f5cc36eaf00207f6`.
+- Selected version: v0.1.4.
+- Executable: tools/sysml_web/bin/sysml.
+- Toolchain record: tools/sysml_web/toolchain.json.
+- Executable SHA-256: 674fce28512a772d1886ff2397f5f02dda66265299c67c01f5cc36eaf00207f6.
 
-Run `parse` and `check` after model changes, including the related source files needed to resolve cross-file references. Keep compiler reports, exports, and temporary files under this project's `cache/`. Preserve diagnostics and unevaluated rules; passing compiler checks establishes only the checks actually performed, while engineering verification and validation require their own evidence.
+Run parse and check after model changes, including the related source files needed to resolve cross-file references. Keep compiler reports, exports, and temporary files under this project's cache/. Preserve diagnostics and unevaluated rules; passing compiler checks establishes only the checks actually performed, while engineering verification and validation require their own evidence.
+
+## Documentation And Verification Commands
+
+    python3 -B tools/check_documentation.py --json
+    python3 -B tools/docs.py build
+    tools/sysml_web/bin/sysml parse mbse/model/*.sysml mbse/wishes/*.sysml
+    tools/sysml_web/bin/sysml check mbse/model
+    tools/sysml_web/bin/sysml check mbse/model mbse/wishes
+    cargo test
+    python3 -m unittest discover -s tests -p "test_simple_flow_*.py"
+    python3 -m unittest discover -s tools/sysml_web/tests -p "test_*.py"
+
+If cargo is not on PATH in this workspace, prepend cache/toolchain/stable-aarch64-apple-darwin/bin, use CARGO_HOME=cache/cargo-home, and pass --offline for the cached dependency set. Run the checks that the changed artifacts actually require. Keep logs under cache/ and state the tested revision and limits. Do not treat a docs audit or compiler pass as engineering acceptance.
 
 ## Language
 

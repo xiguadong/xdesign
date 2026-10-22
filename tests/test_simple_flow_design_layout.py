@@ -46,7 +46,7 @@ class DetailedDesignLayoutCases(unittest.TestCase):
     def without_run_doc_section(self, header: str) -> str:
         original_header = "    part def SimpleFlowRun :> FlowExecution {"
         original_section = ('        @XDesignCommon::DocSection { '
-                            'document = "docs/details/simple_flow/01_run_design.md"; '
+                            'document = "docs/design/flows/simple-flow/implementation.md"; '
                             'section = "D02"; }')
         self.assertIn(original_header, self.original)
         self.assertIn(original_section, self.original)
@@ -86,7 +86,7 @@ class DetailedDesignLayoutCases(unittest.TestCase):
         closing = opening + len(run[0][1]) - 1
         nested = ('        part nested : SimpleFlowCheckpoint {\n'
                   '            @XDesignCommon::DocSection { '
-                  'document = "docs/details/simple_flow/01_run_design.md"; '
+                  'document = "docs/design/flows/simple-flow/implementation.md"; '
                   'section = "D02"; }\n'
                   '        }\n')
         source = source[:closing] + nested + source[closing:]

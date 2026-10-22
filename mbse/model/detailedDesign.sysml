@@ -1,7 +1,7 @@
 package XDesignDetailedDesign {
     @XDesignCommon::DiagramPresentation { label = "Design"; }
-    @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
-    @XDesignCommon::DocFigure { document = "docs/details/simple_flow/03_structure_graphs.md"; figure = "docs/details/simple_flow/assets/03_logical.svg"; }
+    @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D01"; }
+    @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/logical.svg"; }
     private import ScalarValues::*;
     private import ControlFunctions::exists;
     private import SequenceFunctions::size;
@@ -18,7 +18,7 @@ package XDesignDetailedDesign {
 
     part def DesignedSimpleFlow :> SimpleFlow {
         @XDesignCommon::DiagramPresentation { label = "Gated simple flow"; summary = "Four stages with explicit exit gates"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D01"; }
         doc /* The simple flow specialization: the same four stages in the same
            order, with every stage's exit gated. The first three stages use fixed
            checks; verification uses a record check and inherited semantic judgment.
@@ -27,7 +27,7 @@ package XDesignDetailedDesign {
         part redefines checkpoints : SimpleFlowCheckpoint [5];
 
         item simpleRequirementsCheck : Checker subsets checkers {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D06"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D06"; }
             attribute redefines checkerId = "simpleRequirementsCheck";
             attribute redefines commandUri = "tools/checks/simple_requirements.py";
             attribute redefines establishes = (ConformanceKind::identifierConformance, ConformanceKind::traceConformance);
@@ -44,7 +44,7 @@ package XDesignDetailedDesign {
         }
 
         item simpleDesignCheck : Checker subsets checkers {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D06"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D06"; }
             attribute redefines checkerId = "simpleDesignCheck";
             attribute redefines commandUri = "tools/checks/simple_design.py";
             attribute redefines establishes = (ConformanceKind::artifactPresence, ConformanceKind::definitionCoverage);
@@ -86,7 +86,7 @@ package XDesignDetailedDesign {
         }
 
         item simpleImplementationCheck : Checker subsets checkers {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D06"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D06"; }
             attribute redefines checkerId = "simpleImplementationCheck";
             attribute redefines commandUri = "tools/checks/simple_implementation.py";
             attribute redefines establishes = ConformanceKind::artifactPresence;
@@ -103,7 +103,7 @@ package XDesignDetailedDesign {
         }
 
         item simpleRecordCheck : Checker subsets checkers {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D06"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D06"; }
             attribute redefines checkerId = "simpleRecordCheck";
             attribute redefines commandUri = "tools/checks/simple_record.py";
             attribute redefines establishes = (ConformanceKind::traceConformance, ConformanceKind::artifactPresence);
@@ -145,7 +145,7 @@ package XDesignDetailedDesign {
         }
 
         part simpleRequirementsAccepted : SimpleFlowSyntacticCheckpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D05"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D05"; }
             doc /* Exit gate of the requirements stage. */
             ref part redefines sourceStage = requirements;
             attribute redefines kind = CheckKind::syntactic;
@@ -154,7 +154,7 @@ package XDesignDetailedDesign {
                     }
 
         part simpleDesignAccepted : SimpleFlowSyntacticCheckpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D05"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D05"; }
             doc /* Exit gate of the design stage. */
             ref part redefines sourceStage = design;
             attribute redefines kind = CheckKind::syntactic;
@@ -163,7 +163,7 @@ package XDesignDetailedDesign {
                     }
 
         part simpleImplementationAccepted : SimpleFlowSyntacticCheckpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D05"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D05"; }
             doc /* Exit gate of the implementation stage. */
             ref part redefines sourceStage = implement;
             attribute redefines kind = CheckKind::syntactic;
@@ -172,7 +172,7 @@ package XDesignDetailedDesign {
                     }
 
         part simpleRecordAccepted : SimpleFlowSyntacticCheckpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D05"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D05"; }
             doc /* The record gate of the verification stage: the mechanically checkable
                half of verification, split from the judgment that stays semantic, so a
                script decides the record and a judge decides the meaning. */
@@ -195,7 +195,7 @@ package XDesignDetailedDesign {
             ref part redefines exitCheckpoints = (simpleRecordAccepted, verificationAccepted);
         }
         part redefines verificationAccepted : SimpleFlowSemanticCheckpoint {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D05"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D05"; }
             doc /* The flow's inherited semantic gate, kept and stated exactly: what a
                script cannot establish — that the evidence demonstrates the
                requirements are satisfied — stays a judgment, by an agent or a human,
@@ -208,7 +208,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowCheckpoint :> Checkpoint {
         @XDesignCommon::DiagramPresentation { label = "Checkpoint"; summary = "Evaluates one gate for one stage visit"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* One checkpoint of the designed simple flow, abstracted as one class for both
            kinds of rule. The class adapts the flow's syntax rules and its semantic rules:
            a syntactic checkpoint binds the checker whose command fixes the check and
@@ -225,7 +225,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowSyntacticCheckpoint :> SimpleFlowCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Script check"; summary = "Runs fixed rules and retains the report"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* The syntactic adaptation of the checkpoint class: a fixed command
            applies its declared checker rules. The declared command must exist and
            return a revision-bound report with the exact rule set before this gate
@@ -238,7 +238,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowSemanticCheckpoint :> SimpleFlowCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Semantic judgment"; summary = "A permitted judge records a reasoned verdict"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* The semantic adaptation of the checkpoint class: criteria a permitted judge
            reads, with no checker. Its evaluate operation presents the criteria and the
            visit's artifacts and evidence to the judge and records the rationale. The logic
@@ -256,7 +256,7 @@ package XDesignDetailedDesign {
 
     action def EvaluateSimpleFlowCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Evaluate checkpoint"; summary = "Choose scripted checks or semantic judgment"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* The evaluate operation of a checkpoint class, for one gate and one visit:
            read the class's rules, take the path its adaptation fixes, and produce one
            assessment. A syntactic checkpoint's rules are its checker's CheckerRules,
@@ -315,7 +315,7 @@ package XDesignDetailedDesign {
 
     action def RunSyntacticCheck :> EvaluateSimpleFlowCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Run script check"; summary = "Apply fixed checker rules"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* The syntactic implementation of the checkpoint class's evaluate operation:
            the checker command runs unchanged, its declared rules are applied one by one,
            and the assessment holds only when every rule holds. */
@@ -325,7 +325,7 @@ package XDesignDetailedDesign {
 
     action def TakeSemanticJudgment :> EvaluateSimpleFlowCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Take semantic judgment"; summary = "Review criteria with artifacts and evidence"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
         doc /* The semantic implementation of the checkpoint class's evaluate operation: a
            permitted judge reads the criteria with the visit's artifacts and evidence, and
            the outcome and rationale are recorded. */
@@ -335,7 +335,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowRun :> FlowExecution {
         @XDesignCommon::DiagramPresentation { label = "Flow run"; summary = "Visits, gate assessments and advancement"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D02"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D02"; }
         doc /* One run of the designed simple flow: the class a wish's execution has.
            It refines the generic FlowExecution with the designed flow's plan — a visit
            to each of its four stages, more visits when a stage is reworked — and
@@ -380,7 +380,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowRunFactory {
         @XDesignCommon::DiagramPresentation { label = "Run factory"; summary = "Creates a run and its initial visits"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D03"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D03"; }
         doc /* The factory of a run: given a wish and the designed flow's plan, it
            creates the run the controller will hold. It realizes registration for this
            flow — the part of Controller::receiveWish that assigns the flow, opens the
@@ -388,7 +388,7 @@ package XDesignDetailedDesign {
            does not have to re-invent it from the generic controller. */
 
         perform action createRun {
-            @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D03"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D03"; }
             doc /* Open a run of the designed simple flow for a wish: create the run
                bound to the plan, add one pending visit per stage, enter the
                requirements visit as current, and activate the run. The wish itself
@@ -430,7 +430,7 @@ package XDesignDetailedDesign {
 
     action def EvaluateSimpleFlowGate {
         @XDesignCommon::DiagramPresentation { label = "Evaluate stage gates"; summary = "Record an assessment for each exit gate"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D04"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D04"; }
         doc /* Evaluate exactly the exit checkpoints of this visit's stage, once
            per checkpoint, in plan order. Each checkpoint's evaluate operation
            takes the path its adaptation fixes. A syntactic checkpoint performs
@@ -471,7 +471,7 @@ package XDesignDetailedDesign {
 
     action def AdvanceSimpleFlowRun {
         @XDesignCommon::DiagramPresentation { label = "Advance flow run"; summary = "Authorization selects the next visit or completion"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D04"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D04"; }
         doc /* The successor rule of the designed flow, for one run: when the current
            visit is authorized — every exit gate passed and cited at the visited
            revision — decide where the run goes. A stage with a successor hands the
@@ -522,7 +522,7 @@ package XDesignDetailedDesign {
     }
 
     action def ReopenSimpleFlowStage {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D04"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D04"; }
         doc /* Explicit rework of a completed terminal visit. A completed run can
            reopen its terminal verification stage only on a recorded rework request.
            Keep the completed visit and its assessments immutable, append a new
@@ -566,7 +566,7 @@ package XDesignDetailedDesign {
 
     port def CheckCommandExchange {
         @XDesignCommon::DiagramPresentation { label = "Check exchange"; summary = "Arguments, rule report and verdict"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* The check command's interface: the independent SysML wish trace and
            the executable run-record snapshot are both named. The checker identity,
            frozen plan ID and hash, stage, artifact revision and artifact-set digest
@@ -592,7 +592,7 @@ package XDesignDetailedDesign {
 
     interface def CheckCommandInterface {
         @XDesignCommon::DiagramPresentation { label = "Check interface"; summary = "Invokes a fixed checker command"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* The caller-command interface a syntactic gate is run through: the run
            invokes the named checker with the wish trace, run record, frozen plan,
            stage, revision and artifact-set digest, then validates the returned
@@ -618,7 +618,7 @@ package XDesignDetailedDesign {
 
     port def JudgmentExchange {
         @XDesignCommon::DiagramPresentation { label = "Judgment exchange"; summary = "Criteria, artifacts, outcome and rationale"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* The judgment interface: the criteria and the artifacts go out to a
            permitted judge, the outcome and its rationale come back. What a script
            cannot settle crosses this interface. */
@@ -631,7 +631,7 @@ package XDesignDetailedDesign {
 
     interface def JudgmentInterface {
         @XDesignCommon::DiagramPresentation { label = "Judgment interface"; summary = "Requests a permitted semantic review"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* The run-judge interface a semantic gate is judged through. */
 
         end port judge : JudgmentExchange;
@@ -645,7 +645,7 @@ package XDesignDetailedDesign {
 
     part def CheckerCommand {
         @XDesignCommon::DiagramPresentation { label = "Checker command"; summary = "Fixed script execution boundary"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* A checker's command as the design's part, reached through the check
            command interface. The four designed SimpleFlow commands are implemented
            as Python scripts under tools/checks/. The default V-model commands remain
@@ -657,7 +657,7 @@ package XDesignDetailedDesign {
 
     part def Judge {
         @XDesignCommon::DiagramPresentation { label = "Judge"; summary = "Permitted agent or human"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* A permitted judge as the design's part: an agent or a human, reached
            through the judgment interface. */
         port judgment : JudgmentExchange {
@@ -667,7 +667,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowAutomation {
         @XDesignCommon::DiagramPresentation { label = "Simple flow automation"; summary = "Run, checker and judge connected by typed ports"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
         doc /* The parts a run of the designed flow is automated by, wired by their
            interfaces: the factory creates the run, the run invokes a checker command
            through the check command interface, and presents its semantic gates to a
@@ -693,8 +693,8 @@ package XDesignDetailedDesign {
 
     occurrence def SimpleFlowRunTimeline {
         @XDesignCommon::DiagramPresentation { label = "Run interactions"; summary = "Controller events enter and assess the four stages"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D08"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/03_structure_graphs.md"; figure = "docs/details/simple_flow/assets/03_timeline.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D08"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/timeline.svg"; }
         doc /* One run of the designed flow over time, whatever wish it answers: the
            run is created, each stage is entered and its gate assessed in order, and
            the terminal stage's completion finishes the run. The messages are the
@@ -722,8 +722,8 @@ package XDesignDetailedDesign {
     }
 
     view designedFlowTree : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D01"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/01_run_design.md"; figure = "docs/details/simple_flow/assets/01_designed_flow.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D01"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/definition.md"; figure = "docs/design/flows/simple-flow/assets/designed-flow.svg"; }
         doc /* What the designed flow is made of: its stages, the exit checkpoints it
            redefines onto them, and the checkers the syntactic gates name with the
            rules each checker declares. */
@@ -732,8 +732,8 @@ package XDesignDetailedDesign {
     }
 
     view designTree : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D02"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/01_run_design.md"; figure = "docs/details/simple_flow/assets/01_design_classes.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D02"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/design-classes.svg"; }
         doc /* The design's classes, factory and functions with their members: the
            run's visits, ports and operations, the factory's creation steps, and the
            gate function's paths. */
@@ -749,8 +749,8 @@ package XDesignDetailedDesign {
     }
 
     view factoryFlow : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D03"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/01_run_design.md"; figure = "docs/details/simple_flow/assets/01_factory.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D03"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/factory.svg"; }
         doc /* The factory's creation steps in order: open the run, add the visits,
            enter the initial stage, activate. */
 
@@ -761,8 +761,8 @@ package XDesignDetailedDesign {
     }
 
     view gateEvaluationFlow : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/01_run_design.md"; section = "D04"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/01_run_design.md"; figure = "docs/details/simple_flow/assets/01_gate_evaluation.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D04"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/implementation.md"; figure = "docs/design/flows/simple-flow/assets/gate-evaluation.svg"; }
         doc /* The gate function's shape: select only the visit stage's exit gates,
            iterate over each gate, and delegate to its kind-specific evaluation
            path before recording one assessment per gate. */
@@ -774,8 +774,8 @@ package XDesignDetailedDesign {
     }
 
     view checkpointEvaluationFlow : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/02_gates_and_rules.md"; section = "D11"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/02_gates_and_rules.md"; figure = "docs/details/simple_flow/assets/02_checkpoint_evaluation.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D11"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/definition.md"; figure = "docs/design/flows/simple-flow/assets/checkpoint-evaluation.svg"; }
         doc /* The checkpoint class's evaluate operation: read the class's rules, take the
            syntactic or the semantic path its adaptation fixes, and append the assessment. */
 
@@ -786,7 +786,7 @@ package XDesignDetailedDesign {
     }
 
     item def SimpleFlowFileEntry {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/simple-flow-file-plan.md"; section = "D53"; }
         doc /* One repository file in the SimpleFlow implementation plan. Its path
            names source, tests, or a checked input, never generated cache output. */
         attribute repositoryPath : String;
@@ -795,7 +795,7 @@ package XDesignDetailedDesign {
 
     item simpleFlowFilePlan {
         @XDesignCommon::DiagramPresentation { label = "SimpleFlow file plan"; summary = "Source, checker and test files"; }
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/simple-flow-file-plan.md"; section = "D53"; }
         doc /* Planned repository layout for the first executable SimpleFlow slice.
            Rust modules follow the XDesignRustUml module design; four Python
            commands implement the D06 syntactic checker rule sets. The test files
@@ -837,16 +837,16 @@ package XDesignDetailedDesign {
     }
 
     view simpleFlowFilePlanView : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/06_file_plan_and_verification.md"; section = "D53"; }
-        @XDesignCommon::DocFigure { document = "docs/prj_manage/06_file_plan_and_verification.md"; figure = "docs/prj_manage/assets/06_file_plan.svg"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/simple-flow-file-plan.md"; section = "D53"; }
+        @XDesignCommon::DocFigure { document = "docs/records/plans/simple-flow-file-plan.md"; figure = "docs/records/plans/assets/simple-flow-file-plan.svg"; }
         doc /* Which repository files realize the Rust run, fixed checker commands,
            and executable verification, with generated evidence kept in cache/. */
         expose XDesignDetailedDesign::simpleFlowFilePlan;
     }
 
     view interfaceStructure : StandardViewDefinitions::InterconnectionView {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/03_structure_graphs.md"; section = "D10"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/03_structure_graphs.md"; figure = "docs/details/simple_flow/assets/03_interfaces.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D10"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/interfaces.svg"; }
         doc /* The interfaces a run is automated through: the run's check port wired
            to a checker command by the check command interface, and its judgment port
            wired to a judge by the judgment interface. */
@@ -863,7 +863,7 @@ package XDesignDetailedDesign {
 
     constraint def GateAuthorization {
         @XDesignCommon::DiagramPresentation { label = "Gate authorization"; summary = "authorized = (passed = required) and subflow complete"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D16"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D16"; }
         doc /* Count distinct required gates with a passed assessment at the visited
            revision. Authorization also requires the nested flow, if any, to finish.
            This equation is a design constraint, not an executed compiler check. */
@@ -876,7 +876,7 @@ package XDesignDetailedDesign {
 
     part def SimpleFlowAuthorization {
         @XDesignCommon::DiagramPresentation { label = "Visit authorization"; summary = "Bind current visit values to the authorization constraint"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D16"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D16"; }
         doc /* Parametric context for a real stage visit. Counting gates rather than
            assessments prevents duplicate passes from compensating for a missing gate.
            A stale or failed assessment contributes nothing. */
@@ -911,7 +911,7 @@ package XDesignDetailedDesign {
 
     state def SimpleFlowRunLifecycle {
         @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; summary = "Activation, blocking, correction and completion"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D20"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D20"; }
         doc /* Lifecycle of one run, distinct from the four engineering stages.
            The factory activates the run. A failed, missing or stale gate blocks it;
            corrective work resumes the same current visit at a new artifact revision.
@@ -973,7 +973,7 @@ package XDesignDetailedDesign {
 
     use case def ProgressWish {
         @XDesignCommon::DiagramPresentation { label = "Progress wish"; summary = "Reach an evidence-backed delivery"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
         doc /* The requester's goal: progress a wish to an evidence-backed delivery,
            inspect its record and request corrective work when evidence is insufficient.
            Gate evaluation is internal behavior, not another external user goal. */
@@ -983,7 +983,7 @@ package XDesignDetailedDesign {
 
     use case def ReviewEvidence {
         @XDesignCommon::DiagramPresentation { label = "Review evidence"; summary = "Return a reasoned semantic verdict"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
         doc /* A permitted agent or human judge reviews semantic criteria, artifacts
            and evidence, and returns a reasoned verdict through JudgmentInterface.
            The checker command remains an internal part of the automation. */
@@ -993,15 +993,15 @@ package XDesignDetailedDesign {
 
     use case progressWish : ProgressWish {
         @XDesignCommon::DiagramPresentation { label = "Progress wish"; summary = "Reach an evidence-backed delivery"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
     }
     use case reviewEvidence : ReviewEvidence {
         @XDesignCommon::DiagramPresentation { label = "Review evidence"; summary = "Return a reasoned semantic verdict"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
     }
 
     part def DiagramDocumentationRenderer {
-        @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D22"; }
+        @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D22"; }
         @XDesignCommon::DiagramPresentation { label = "Diagram renderer"; summary = "Focused model views become readable documentation figures"; }
         doc /* The documentation rendering utility, separate from runtime flow
            automation. It consumes native view selections and compiler exports,
@@ -1011,40 +1011,40 @@ package XDesignDetailedDesign {
            Figure generation does not establish engineering acceptance by itself. */
 
         perform action buildFigures {
-            @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D23"; }
+            @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D23"; }
             in attribute sourceUris : String [1..*];
             in attribute selectedViewNames : String [1..*];
             out attribute figureUris : String [1..*];
             out attribute manifestUri : String;
 
             action exportModel {
-                @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D23"; }
+                @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D23"; }
                 doc /* Export native IDs, names, documentation, view selections,
                    metadata and relationships through the pinned compiler. Preserve
                    its diagnostics and disclose omitted export semantics. */
             }
             then action projectView {
-                @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D23"; }
+                @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D23"; }
                 doc /* Resolve the native view's selected elements and endpoints.
                    Apply short presentation labels and diagram-specific notation,
                    retaining source identities and full model details. Do not
                    fabricate relationships to improve composition. */
             }
             then action layoutGraph {
-                @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D23"; }
+                @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D23"; }
                 doc /* Use Graphviz rank placement, ports, clusters and routed
                    edges for focused graph views. Sequence diagrams use ordered
                    event-anchored lifelines. Preserve the meaning of each native
                    relationship, multiplicity, binding and control guard. */
             }
             then action renderFigure {
-                @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D23"; }
+                @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D23"; }
                 doc /* Write the final SVG with readable labels, source identity
                    references and full-text tooltips. Generate a raster preview
                    from that SVG, not from a previous layout or source revision. */
             }
             then action validateFinalFigure {
-                @XDesignCommon::DocSection { document = "docs/details/04_diagram_presentation.md"; section = "D24"; }
+                @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D24"; }
                 doc /* Check selected source identities, endpoints, displayed
                    font size and figure/document links. Record final SVG and
                    preview hashes and generation parameters in the manifest.
@@ -1059,7 +1059,7 @@ package XDesignDetailedDesign {
     }
 
     viewpoint def DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/05_documentation_contract.md"; section = "D29"; }
+        @XDesignCommon::DocSection { document = "docs/interfaces/documentation-contract.md"; section = "D29"; }
         doc /* Records a stakeholder concern for one declared documentation view.
            A concrete viewpoint usage names its subject view; that view selects
            native model elements with expose and locates its rendered figure with
@@ -1071,8 +1071,8 @@ package XDesignDetailedDesign {
 
     view blockDefinitionDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Run structure"; question = "Which reusable types make up a run?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D13"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_block_definition.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D13"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/block-definition.svg"; }
         doc /* Which reusable types form a run, and how do they specialize and compose? */
         expose XDesignDetailedDesign::SimpleFlowRun;
         expose XDesignArchitecture::FlowExecution;
@@ -1086,8 +1086,8 @@ package XDesignDetailedDesign {
 
     view internalBlockDiagram : StandardViewDefinitions::InterconnectionView {
         @XDesignCommon::DiagramPresentation { label = "Automation connections"; question = "How do the run, checker and judge connect?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D14"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_internal_block.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D14"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/internal-block.svg"; }
         doc /* How do this automation's run, checker and judge connect through ports? */
         expose XDesignDetailedDesign::SimpleFlowAutomation;
         render Views::asInterconnectionDiagram;
@@ -1095,8 +1095,8 @@ package XDesignDetailedDesign {
 
     view requirementsDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Requirements coverage"; question = "Which requirements have satisfiers and planned verification?"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D15"; }
-        @XDesignCommon::DocFigure { document = "docs/requirements/01_baseline.md"; figure = "docs/requirements/assets/01_requirements.svg"; }
+        @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "D15"; }
+        @XDesignCommon::DocFigure { document = "docs/verification/requirements.md"; figure = "docs/verification/assets/requirements.svg"; }
         doc /* Which requirements have design satisfiers and a planned review case?
            A verify relationship states coverage; it does not assert a passed test. */
         expose XDesignRequirements::flowRunIsRealizedByDesign;
@@ -1110,8 +1110,8 @@ package XDesignDetailedDesign {
 
     view parametricDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Visit authorization"; question = "Which current visit values authorize advancement?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D16"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_parametric.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D16"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/parametric.svg"; }
         doc /* Which bound record values determine authorization at this revision? */
         expose XDesignDetailedDesign::SimpleFlowAuthorization;
         expose XDesignDetailedDesign::SimpleFlowAuthorization::*;
@@ -1120,8 +1120,8 @@ package XDesignDetailedDesign {
 
     view useCaseDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Actor goals"; question = "Which goals belong to each external actor?"; }
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
-        @XDesignCommon::DocFigure { document = "docs/requirements/01_baseline.md"; figure = "docs/requirements/assets/01_use_cases.svg"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
+        @XDesignCommon::DocFigure { document = "docs/requirements/requirements.md"; figure = "docs/requirements/assets/use-cases.svg"; }
         doc /* Which external actors have which goals at the automation boundary? */
         expose XDesignDetailedDesign::ProgressWish;
         expose XDesignDetailedDesign::ReviewEvidence;
@@ -1134,8 +1134,8 @@ package XDesignDetailedDesign {
 
     view activityDiagram : StandardViewDefinitions::ActionFlowView {
         @XDesignCommon::DiagramPresentation { label = "Checkpoint evaluation"; question = "How does one gate produce an assessment?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D18"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_activity.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D18"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/activity.svg"; }
         doc /* How is one checkpoint evaluated, by a script or a permitted judge? */
         expose XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint;
         expose XDesignDetailedDesign::EvaluateSimpleFlowCheckpoint::*;
@@ -1144,16 +1144,16 @@ package XDesignDetailedDesign {
 
     view sequenceDiagram : StandardViewDefinitions::SequenceView {
         @XDesignCommon::DiagramPresentation { label = "Run interactions"; question = "In which order are the four stages entered and assessed?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D19"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_sequence.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D19"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/sequence.svg"; }
         doc /* In which order do the controller, run and stages exchange events? */
         expose XDesignDetailedDesign::SimpleFlowRunTimeline;
     }
 
     view stateMachineDiagram : StandardViewDefinitions::StateTransitionView {
         @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; question = "When does a run activate, block, resume or complete?"; }
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D20"; }
-        @XDesignCommon::DocFigure { document = "docs/details/simple_flow/05_module_design.md"; figure = "docs/details/simple_flow/assets/05_state_machine.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D20"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/simple-flow/views.md"; figure = "docs/design/flows/simple-flow/assets/state-machine.svg"; }
         doc /* Which conditions activate, block, resume and complete a run? */
         expose XDesignDetailedDesign::SimpleFlowRunLifecycle;
         expose XDesignDetailedDesign::SimpleFlowRunLifecycle::*;
@@ -1162,8 +1162,8 @@ package XDesignDetailedDesign {
 
     view packageDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Model packages"; question = "How do the project model concerns depend on one another?"; }
-        @XDesignCommon::DocSection { document = "docs/arch/02_design.md"; section = "D21"; }
-        @XDesignCommon::DocFigure { document = "docs/arch/02_design.md"; figure = "docs/arch/assets/02_simple_flow_packages.svg"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "D21"; }
+        @XDesignCommon::DocFigure { document = "docs/architecture/system-composition.md"; figure = "docs/architecture/assets/simple-flow-packages.svg"; }
         doc /* How are model concerns separated and which packages depend on which?
            Wish trace models are consumers outside this project-model boundary. */
         expose XDesignCommon;
@@ -1176,63 +1176,63 @@ package XDesignDetailedDesign {
     }
 
     viewpoint blockDefinitionConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D13"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D13"; }
         subject blockDefinitionDiagram;
         attribute redefines concernText = "Which reusable types make up a run?";
         attribute redefines stakeholderRole = "flow designer";
     }
 
     viewpoint internalBlockConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D14"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D14"; }
         subject internalBlockDiagram;
         attribute redefines concernText = "How do the run, checker and judge connect?";
         attribute redefines stakeholderRole = "integrator";
     }
 
     viewpoint requirementsConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D15"; }
+        @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "D15"; }
         subject requirementsDiagram;
         attribute redefines concernText = "Which requirements have satisfiers and planned verification?";
         attribute redefines stakeholderRole = "requirements reviewer";
     }
 
     viewpoint parametricConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D16"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D16"; }
         subject parametricDiagram;
         attribute redefines concernText = "Which current visit values authorize advancement?";
         attribute redefines stakeholderRole = "verification engineer";
     }
 
     viewpoint useCaseConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/requirements/01_baseline.md"; section = "D17"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "D17"; }
         subject useCaseDiagram;
         attribute redefines concernText = "Which goals belong to each external actor?";
         attribute redefines stakeholderRole = "requester";
     }
 
     viewpoint activityConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D18"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D18"; }
         subject activityDiagram;
         attribute redefines concernText = "How does one gate produce an assessment?";
         attribute redefines stakeholderRole = "implementer";
     }
 
     viewpoint sequenceConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D19"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D19"; }
         subject sequenceDiagram;
         attribute redefines concernText = "In which order are the four stages entered and assessed?";
         attribute redefines stakeholderRole = "integrator";
     }
 
     viewpoint stateMachineConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/simple_flow/05_module_design.md"; section = "D20"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/views.md"; section = "D20"; }
         subject stateMachineDiagram;
         attribute redefines concernText = "When does a run activate, block, resume or complete?";
         attribute redefines stakeholderRole = "maintainer";
     }
 
     viewpoint packageConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/arch/02_design.md"; section = "D21"; }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "D21"; }
         subject packageDiagram;
         attribute redefines concernText = "How do the project model concerns depend on one another?";
         attribute redefines stakeholderRole = "model maintainer";
@@ -1240,7 +1240,7 @@ package XDesignDetailedDesign {
 
     part def DesignedWishVerifyFlow :> WishVerifyFlow {
         @XDesignCommon::DiagramPresentation { label = "Gated wish-verify flow"; summary = "Two judged stages with explicit exit gates"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D57"; }
         doc /* The wish-verify flow specialization: the same two stages in the
            same order, with every stage's exit gated. Both gates are semantic —
            the architecture states that nothing in this flow's outcome is
@@ -1252,7 +1252,7 @@ package XDesignDetailedDesign {
         part redefines checkpoints : WishVerifyCheckpoint [2];
 
         part wishAccepted : WishVerifySemanticCheckpoint subsets checkpoints {
-            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D61"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D61"; }
             doc /* Exit gate of the wish stage. The wish stage has no exit gate
                in the architecture's flow; a designed flow gates every stage, so
                the judgment that the request and its answering artifacts are
@@ -1272,7 +1272,7 @@ package XDesignDetailedDesign {
             ref part redefines exitCheckpoints = outcomeAccepted;
         }
         part redefines outcomeAccepted : WishVerifySemanticCheckpoint {
-            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D61"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D61"; }
             doc /* The flow's inherited terminal gate, retyped to the designed
                checkpoint class so the run evaluates it through the class. Its
                criteria, kind and judge flags stay exactly as the architecture
@@ -1282,7 +1282,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifyCheckpoint :> Checkpoint {
         @XDesignCommon::DiagramPresentation { label = "Checkpoint"; summary = "Presents one gate's criteria to a permitted judge"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
         doc /* One checkpoint of the designed wish-verify flow. Unlike the simple
            flow's class it needs no syntactic adaptation: this flow's gates are
            all judged. The class owns the evaluate operation and the assessments
@@ -1296,7 +1296,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifySemanticCheckpoint :> WishVerifyCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Semantic judgment"; summary = "A permitted judge records a reasoned verdict"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
         doc /* The only adaptation of the wish-verify checkpoint class: criteria
            a permitted judge reads, with no checker. Its evaluate operation
            presents the criteria and the visit's artifacts and evidence to the
@@ -1315,7 +1315,7 @@ package XDesignDetailedDesign {
 
     action def EvaluateWishVerifyCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Evaluate checkpoint"; summary = "Present criteria to a permitted judge"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
         doc /* The evaluate operation of the wish-verify checkpoint class, for one
            gate and one visit: read the gate's criteria and the judges its flags
            permit, take the judgment, and append one assessment. The designed
@@ -1350,7 +1350,7 @@ package XDesignDetailedDesign {
 
     action def TakeWishVerifyJudgment :> EvaluateWishVerifyCheckpoint {
         @XDesignCommon::DiagramPresentation { label = "Take judgment"; summary = "Review criteria with artifacts and evidence"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
         doc /* The semantic implementation of the wish-verify checkpoint class's
            evaluate operation: a permitted judge reads the criteria with the
            visit's artifacts and evidence, and the outcome and rationale are
@@ -1361,7 +1361,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifyFlowRun :> FlowExecution {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify run"; summary = "Two stage visits, judgments and advancement"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D58"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D58"; }
         doc /* One run of the designed wish-verify flow: the class a wish's
            execution has. It refines the generic FlowExecution with the designed
            flow's plan — a visit to each of its two stages, more visits when the
@@ -1403,7 +1403,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifyFlowRunFactory {
         @XDesignCommon::DiagramPresentation { label = "Run factory"; summary = "Creates a run and its initial visits"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D59"; }
         doc /* The factory of a wish-verify run: given a wish and the designed
            flow's plan, it creates the run the controller will hold. It realizes
            registration for this flow — the part of Controller::receiveWish that
@@ -1412,7 +1412,7 @@ package XDesignDetailedDesign {
            generic controller. */
 
         perform action createRun {
-            @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
+            @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D59"; }
             doc /* Open a run of the designed wish-verify flow for a wish: create
                the run bound to the plan, add one pending visit per stage, enter
                the wish visit as current, and activate the run. The wish itself
@@ -1454,7 +1454,7 @@ package XDesignDetailedDesign {
 
     action def EvaluateWishVerifyGate {
         @XDesignCommon::DiagramPresentation { label = "Evaluate stage gates"; summary = "Record one judgment per exit gate"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D60"; }
         doc /* Evaluate exactly the exit checkpoints of this visit's stage, once
            per checkpoint, in plan order. Each gate's own evaluate operation
            takes the judged path: its criteria and the visit's artifacts and
@@ -1489,7 +1489,7 @@ package XDesignDetailedDesign {
 
     action def AdvanceWishVerifyRun {
         @XDesignCommon::DiagramPresentation { label = "Advance flow run"; summary = "Authorization selects the next visit or completion"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D60"; }
         doc /* The successor rule of the designed wish-verify flow, for one run:
            when the current visit is authorized — its exit gate passed and cited
            at the visited revision — decide where the run goes. The wish stage
@@ -1542,7 +1542,7 @@ package XDesignDetailedDesign {
     }
 
     action def ReopenWishVerifyStage {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D60"; }
         doc /* Explicit rework of a completed terminal visit. A completed run can
            reopen its terminal verify stage only on a recorded rework request.
            Keep the completed visit and its assessments immutable, append a new
@@ -1587,7 +1587,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifyAutomation {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify automation"; summary = "Run and judge connected by the judgment port"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D67"; }
         doc /* The parts a run of the designed wish-verify flow is automated by,
            wired by their interfaces: the factory creates the run, and the run
            presents its gates to a judge through the judgment interface. No
@@ -1608,7 +1608,7 @@ package XDesignDetailedDesign {
 
     occurrence def WishVerifyRunTimeline {
         @XDesignCommon::DiagramPresentation { label = "Run interactions"; summary = "Controller events enter and assess the two stages"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
         doc /* One run of the designed wish-verify flow over time, whatever wish
            it answers: the run is created, the wish stage is entered and its
            gate assessed, the verify stage follows, and its completion finishes
@@ -1631,7 +1631,7 @@ package XDesignDetailedDesign {
 
     part def WishVerifyAuthorization {
         @XDesignCommon::DiagramPresentation { label = "Visit authorization"; summary = "Bind current visit values to the authorization constraint"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D70"; }
         doc /* Parametric context for a wish-verify stage visit, binding the same
            GateAuthorization constraint the simple flow defines. Counting gates
            rather than assessments prevents duplicate passes from compensating
@@ -1668,7 +1668,7 @@ package XDesignDetailedDesign {
 
     state def WishVerifyRunLifecycle {
         @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; summary = "Activation, blocking, correction and completion"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
         doc /* Lifecycle of one wish-verify run, distinct from the two
            engineering stages. The factory activates the run. A failed, missing
            or stale judgment blocks it; corrective work resumes the same current
@@ -1730,7 +1730,7 @@ package XDesignDetailedDesign {
 
     use case def ProgressJudgedOutcome {
         @XDesignCommon::DiagramPresentation { label = "Progress judged outcome"; summary = "Reach an evidence-backed judged delivery"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
         doc /* The requester's goal for a judged artifact: progress the wish to a
            delivery whose outcome a permitted judge accepted on recorded
            evidence. Gate evaluation is internal behavior, not another external
@@ -1741,7 +1741,7 @@ package XDesignDetailedDesign {
 
     use case def JudgeRecordedOutcome {
         @XDesignCommon::DiagramPresentation { label = "Judge recorded outcome"; summary = "Return a reasoned verdict on the recorded outcome"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
         doc /* A permitted agent or human judge reviews the gate criteria with
            the recorded artifacts and evidence, and returns a reasoned verdict
            through JudgmentInterface. */
@@ -1751,16 +1751,16 @@ package XDesignDetailedDesign {
 
     use case progressJudgedOutcome : ProgressJudgedOutcome {
         @XDesignCommon::DiagramPresentation { label = "Progress judged outcome"; summary = "Reach an evidence-backed judged delivery"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
     }
     use case judgeRecordedOutcome : JudgeRecordedOutcome {
         @XDesignCommon::DiagramPresentation { label = "Judge recorded outcome"; summary = "Return a reasoned verdict on the recorded outcome"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
     }
 
     item wishVerifyFlowFilePlan {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify file plan"; summary = "Flow module and test files"; }
-        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P27"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/wish-verify.md"; section = "P27"; }
         doc /* Planned repository layout for the executable wish-verify slice.
            Only the files this slice owns are entries; the shared crate files it
            extends — src/lib.rs, src/main.rs and tests/plan_model_sync.rs among
@@ -1779,24 +1779,24 @@ package XDesignDetailedDesign {
     }
 
     view wishVerifyFlowFilePlanView : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; section = "P27"; }
-        @XDesignCommon::DocFigure { document = "docs/prj_manage/09_wish_verify_flow_implementation_plan.md"; figure = "docs/prj_manage/assets/09_file_plan.svg"; }
+        @XDesignCommon::DocSection { document = "docs/records/plans/wish-verify.md"; section = "P27"; }
+        @XDesignCommon::DocFigure { document = "docs/records/plans/wish-verify.md"; figure = "docs/records/plans/assets/wish-verify-file-plan.svg"; }
         doc /* Which repository files realize the wish-verify flow module and its
            executable verification, with generated evidence kept in cache/. */
         expose XDesignDetailedDesign::wishVerifyFlowFilePlan;
     }
 
     view wishVerifyFlowTree : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D57"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_designed_flow.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D57"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/definition.md"; figure = "docs/design/flows/wish-verify/assets/designed-flow.svg"; }
         doc /* What the designed wish-verify flow is made of: its two stages and
            the two semantic exit checkpoints it declares for them. */
         expose XDesignDetailedDesign::DesignedWishVerifyFlow;
     }
 
     view wishVerifyDesignTree : StandardViewDefinitions::BrowserView {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D58"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_design_classes.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D58"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/design-classes.svg"; }
         doc /* The design's classes, factory and functions with their members:
            the run's visits, judgment port and operations, the factory's
            creation steps, and the gate function's single judged path. */
@@ -1810,8 +1810,8 @@ package XDesignDetailedDesign {
     }
 
     view wishVerifyFactoryFlow : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D59"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_factory.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D59"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/factory.svg"; }
         doc /* The factory's creation steps in order: open the run, add the
            visits, enter the initial stage, activate. */
         expose XDesignDetailedDesign::WishVerifyFlowRunFactory::createRun;
@@ -1820,8 +1820,8 @@ package XDesignDetailedDesign {
     }
 
     view wishVerifyGateEvaluationFlow : StandardViewDefinitions::ActionFlowView {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/01_run_design.md"; section = "D60"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/01_run_design.md"; figure = "docs/details/wish_verify_flow/assets/01_gate_evaluation.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D60"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/gate-evaluation.svg"; }
         doc /* The gate function's shape: select only the visit stage's exit
            gates and delegate each to its judged evaluation path before
            recording one assessment per gate. */
@@ -1832,8 +1832,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyActivityDiagram : StandardViewDefinitions::ActionFlowView {
         @XDesignCommon::DiagramPresentation { label = "Checkpoint evaluation"; question = "How does one gate produce an assessment?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; figure = "docs/details/wish_verify_flow/assets/02_checkpoint_evaluation.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/definition.md"; figure = "docs/design/flows/wish-verify/assets/checkpoint-evaluation.svg"; }
         doc /* How is one checkpoint evaluated by a permitted judge? This flow
            declares no syntactic gate, so the activity has a single judged
            path. */
@@ -1844,8 +1844,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyPackageDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Wish-verify packages"; question = "Which model packages carry this flow's design?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D65"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_packages.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D65"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/packages.svg"; }
         doc /* The packages that carry this flow's design: the architecture's
            WishVerifyFlow, this file's designed specialization, the composition's
            selectable usage, the Rust UML mapping and the planned verification. */
@@ -1858,8 +1858,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyBlockDefinitionDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Run structure"; question = "Which reusable types make up a wish-verify run?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D66"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_block_definition.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D66"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/block-definition.svg"; }
         doc /* Which reusable types form a wish-verify run, and how do they
            specialize and compose? */
         expose XDesignDetailedDesign::WishVerifyFlowRun;
@@ -1873,8 +1873,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyInternalBlockDiagram : StandardViewDefinitions::InterconnectionView {
         @XDesignCommon::DiagramPresentation { label = "Automation connections"; question = "How do the run and the judge connect?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_internal_block.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D67"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/internal-block.svg"; }
         doc /* How do this automation's run and judge connect through ports? No
            checker command is wired: this flow declares no syntactic gate. */
         expose XDesignDetailedDesign::WishVerifyAutomation;
@@ -1883,16 +1883,16 @@ package XDesignDetailedDesign {
 
     view wishVerifySequenceDiagram : StandardViewDefinitions::SequenceView {
         @XDesignCommon::DiagramPresentation { label = "Run interactions"; question = "In which order are the two stages entered and assessed?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_sequence.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/sequence.svg"; }
         doc /* In which order do the controller, run and stages exchange events? */
         expose XDesignDetailedDesign::WishVerifyRunTimeline;
     }
 
     view wishVerifyStateMachineDiagram : StandardViewDefinitions::StateTransitionView {
         @XDesignCommon::DiagramPresentation { label = "Run lifecycle"; question = "When does a wish-verify run activate, block, resume or complete?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_state_machine.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/implementation.md"; figure = "docs/design/flows/wish-verify/assets/state-machine.svg"; }
         doc /* Which conditions activate, block, resume and complete a run? */
         expose XDesignDetailedDesign::WishVerifyRunLifecycle;
         expose XDesignDetailedDesign::WishVerifyRunLifecycle::*;
@@ -1901,8 +1901,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyRequirementsDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Requirements coverage"; question = "Which requirements does this flow satisfy, and what verification is planned?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D69"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_requirements.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D69"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/views.md"; figure = "docs/design/flows/wish-verify/assets/requirements.svg"; }
         doc /* Which requirements have design satisfiers in this flow and a
            planned review case? A verify relationship states coverage; it does
            not assert a passed test. */
@@ -1917,8 +1917,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyParametricDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Visit authorization"; question = "Which current visit values authorize advancement?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_parametric.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D70"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/views.md"; figure = "docs/design/flows/wish-verify/assets/parametric.svg"; }
         doc /* Which bound record values determine authorization at this
            revision? */
         expose XDesignDetailedDesign::WishVerifyAuthorization;
@@ -1928,8 +1928,8 @@ package XDesignDetailedDesign {
 
     view wishVerifyUseCaseDiagram : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Actor goals"; question = "Which goals belong to each external actor?"; }
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
-        @XDesignCommon::DocFigure { document = "docs/details/wish_verify_flow/04_module_design.md"; figure = "docs/details/wish_verify_flow/assets/04_use_cases.svg"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/views.md"; figure = "docs/design/flows/wish-verify/assets/use-cases.svg"; }
         doc /* Which external actors have which goals at this automation's
            boundary? */
         expose XDesignDetailedDesign::ProgressJudgedOutcome;
@@ -1942,63 +1942,63 @@ package XDesignDetailedDesign {
     }
 
     viewpoint wishVerifyBlockDefinitionConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D66"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D66"; }
         subject wishVerifyBlockDefinitionDiagram;
         attribute redefines concernText = "Which reusable types make up a wish-verify run?";
         attribute redefines stakeholderRole = "flow designer";
     }
 
     viewpoint wishVerifyInternalBlockConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D67"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D67"; }
         subject wishVerifyInternalBlockDiagram;
         attribute redefines concernText = "How do the run and the judge connect?";
         attribute redefines stakeholderRole = "integrator";
     }
 
     viewpoint wishVerifyRequirementsConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D69"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D69"; }
         subject wishVerifyRequirementsDiagram;
         attribute redefines concernText = "Which requirements does this flow satisfy, and what verification is planned?";
         attribute redefines stakeholderRole = "requirements reviewer";
     }
 
     viewpoint wishVerifyParametricConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D70"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D70"; }
         subject wishVerifyParametricDiagram;
         attribute redefines concernText = "Which current visit values authorize advancement?";
         attribute redefines stakeholderRole = "verification engineer";
     }
 
     viewpoint wishVerifyUseCaseConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D71"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D71"; }
         subject wishVerifyUseCaseDiagram;
         attribute redefines concernText = "Which goals belong to each external actor?";
         attribute redefines stakeholderRole = "requester";
     }
 
     viewpoint wishVerifyActivityConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/02_gates_and_judgment.md"; section = "D63"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/definition.md"; section = "D63"; }
         subject wishVerifyActivityDiagram;
         attribute redefines concernText = "How does one gate produce an assessment?";
         attribute redefines stakeholderRole = "implementer";
     }
 
     viewpoint wishVerifySequenceConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
         subject wishVerifySequenceDiagram;
         attribute redefines concernText = "In which order are the two stages entered and assessed?";
         attribute redefines stakeholderRole = "integrator";
     }
 
     viewpoint wishVerifyStateMachineConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D68"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D68"; }
         subject wishVerifyStateMachineDiagram;
         attribute redefines concernText = "When does a wish-verify run activate, block, resume or complete?";
         attribute redefines stakeholderRole = "maintainer";
     }
 
     viewpoint wishVerifyPackageConcern : DocumentationViewpoint {
-        @XDesignCommon::DocSection { document = "docs/details/wish_verify_flow/04_module_design.md"; section = "D65"; }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/implementation.md"; section = "D65"; }
         subject wishVerifyPackageDiagram;
         attribute redefines concernText = "Which model packages carry this flow's design?";
         attribute redefines stakeholderRole = "model maintainer";
