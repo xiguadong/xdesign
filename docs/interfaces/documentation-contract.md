@@ -219,6 +219,10 @@ beside its carrying design page in an `assets/` child and uses a unique semantic
 for example, `docs/design/flows/simple-flow/views.md` carries
 `docs/design/flows/simple-flow/assets/block-definition.svg`.
 
+The [project overview](../README.md) may reuse a canonical SVG with a compact caption
+linking to its owning page. This overview embed does not move the figure, add a second
+`DocFigure`, or replace the owning page's full figure block.
+
 ```sysml
 view blockDefinitionDiagram : StandardViewDefinitions::GeneralView {
     @XDesignCommon::DocSection {

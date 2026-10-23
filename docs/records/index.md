@@ -19,6 +19,12 @@ the crate source. The
 [WishVerifyFlow implementation plan](plans/wish-verify.md#p25)
 records the designed two-stage judged flow: its model, documentation, the
 `xdesign::wish_verify` module, and its acceptance cases.
+The [stage CLI implementation plan](plans/stage-cli.md#p30)
+records wish-0010's SimpleFlow implementation sequence for the flat `next` and
+`check` commands and local run restoration. Its
+[execution record](plans/stage-cli.md#p34) retains the completed technical
+acceptance run, observed test coverage, remaining limits, and pending final
+human acceptance.
 The [SimpleFlow file plan and verification cases](plans/simple-flow-file-plan.md#d53)
 record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,

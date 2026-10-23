@@ -104,6 +104,7 @@ its path below `docs/`, within the carrying document directory's `assets/` child
 | `architecture/assets/lifecycle.svg` | declared view `XDesignWorkflow::wishLifecycle` | `Workflow::executeWish` and its actions |
 | `architecture/assets/wish-to-delivery.svg` | native stage/checkpoint projection of `XDesignArchitecture::VModel` | compiler-exported stage successors, exit gates, kinds, criteria, and verification correspondences in [B30](wish-lifecycle.md#b30) |
 | `architecture/assets/composition.svg` | internal structure | `XDesignArchitecture::XDesign` |
+| `architecture/assets/stage-cli-packages.svg` | declared view `XDesignComposition::stageCliPackageView` | selected CLI types, controller actions, records, and the concrete `xdesign.cli` binding in [B01](system-composition.md#b01) |
 | `architecture/assets/interfaces.svg` | declared view `XDesignWorkflow::workflowInterfaces` | `Workflow` parts and interfaces |
 | `design/assets/wish-verify-flow.svg` | internal structure | `XDesignArchitecture::WishVerifyFlow` |
 | `design/assets/controller.svg` | internal structure | `XDesignArchitecture::Controller` |
@@ -118,6 +119,8 @@ its path below `docs/`, within the carrying document directory's `assets/` child
 | `design/flows/simple-flow/assets/gate-evaluation.svg` | declared view `XDesignDetailedDesign::gateEvaluationFlow` | the gate evaluation action's dispatch and assessment path |
 | `design/flows/simple-flow/assets/checkpoint-evaluation.svg` | declared view `XDesignDetailedDesign::checkpointEvaluationFlow` | the checkpoint class's evaluate operation, its two paths and the assessment |
 | `design/flows/simple-flow/assets/timeline.svg` | sequence | `SimpleFlowRunTimeline` |
+| `design/flows/wish-verify/assets/cli-timeline.svg` | declared view `XDesignDetailedDesign::wishVerifyCliTimelineView`; action-order projection | one `AgentStageWork` iteration expanded through `StageCli` and `Controller`, scoped to the simplest gated two-stage WishVerifyFlow in [D84](../design/flows/wish-verify/views.md#d84) |
+| `design/flows/wish-verify/assets/cli-swimlane.svg` | declared view `XDesignDetailedDesign::wishVerifyCliSwimlaneView`; responsibility projection | the same action selection and authorization branches; lanes are documented responsibilities and the repeat path is documented intent in [D84](../design/flows/wish-verify/views.md#d84) |
 | `design/flows/simple-flow/assets/logical.svg` | definitions of one file, the rest as library | `mbse/model/detailedDesign.sysml` |
 | `design/flows/simple-flow/assets/interfaces.svg` | declared view `XDesignDetailedDesign::interfaceStructure` | the automation's parts, ports and interfaces |
 | `verification/assets/requirements.svg`, `requirements/assets/use-cases.svg` | requirement-trace and actor-goal projections | the two SRS views in [D15](../verification/requirements.md#d15) and [D17](../requirements/requirements.md#d17) |
@@ -153,6 +156,14 @@ actors, and control-flow notation. Graphviz places the graph elements and routes
 the primary sequence preserves its selected participants and message order in a compact
 layout. The historical wish journey figures continue to use the pinned compiler's native
 sequence renderer.
+
+The WishVerifyFlow CLI timeline and swimlane project common action order and
+responsibilities in the simplest two-stage flow context. Their declared views select
+`AgentStageWork`, `StageCli`, `StageWorkOrder`, `Controller`, and the base and gated
+wish-verify flow definitions. They are separate from the native run timeline:
+no sequence messages, allocations, or loop back-edge are added by the projection.
+Source identities and projection limits remain available in the SVG details and the
+[carrying section](../design/flows/wish-verify/views.md#d84).
 
 Generated layout input, SVGs, previews, and review records must refer to the same final
 assets. The presentation review uses per-file hashes and actual built-article screenshots

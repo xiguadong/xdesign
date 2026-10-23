@@ -60,4 +60,6 @@ package XDesignTraceability {
        no model satisfier: their product is the documentation set — the stated
        applicability of each UML view and the honest designed-only status the
        documents carry — which the documentation review judges. */
+    satisfy stageCliUsesUniformInteraction by XDesignWorkflow::StageCli;
+    satisfy stageCliPreservesRunIntegrity by XDesignWorkflow::LocalStageCliRuntime;
 }

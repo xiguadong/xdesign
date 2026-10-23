@@ -25,6 +25,11 @@ package XDesignArchitecture {
            The entered and assessed event occurrences anchor journey sequences
            that present a flow as a sequence view. */
 
+        attribute goal : String [0..1];
+        attribute workInstructions : String [0..1];
+        attribute inputArtifacts : String [0..*];
+        attribute expectedOutputs : String [0..*];
+
         part subFlow : Flow [0..1];
         ref part nextStages : Stage [0..*];
         ref part exitCheckpoints : Checkpoint [0..*];

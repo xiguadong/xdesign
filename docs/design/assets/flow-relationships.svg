@@ -103,7 +103,7 @@
 <rect class="base" x="690" y="145" width="360" height="54" rx="9"/>
 <text class="card-text" x="705" y="179">xdesign.'flow' : Flow</text>
 </g>
-<text x="690" y="224" class="hint" data-native-id="111e956a-285f-53fa-8e55-30389234dcde">selectedFlow → xdesign.vModel (default)</text>
+<text x="690" y="224" class="hint" data-native-id="f90e3470-57a4-5426-86fe-69cef480949e">selectedFlow → xdesign.vModel (default)</text>
 <rect class="note" x="54" y="960" width="1032" height="75" rx="10"/>
 <text x="72" y="987" class="note-title">Why Workflow.'flow' also appears in the model</text>
 <text x="72" y="1012" class="note-text" data-native-id="ce469670-7a9d-5cc0-b87a-2f00abab6a99">It redefines XDesign.'flow' in the separate Workflow configuration and is typed WorkflowFlow; xdesign.workflowFlow is the portfolio usage.</text>

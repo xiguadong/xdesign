@@ -19,7 +19,7 @@ and [V04](wishes/wish-history.md#v04); wish-0008's own outcome must be read from
 | --- | --- | --- |
 | Functional requirements | Working; no SRR freeze | [R13](../requirements/requirements.md#r13), [V09](../verification/review-criteria.md#v09) |
 | Allocated architecture and module design | Working; no PDR or CDR freeze | [B28](reviews/architecture-baseline.md#b28), [D40](../design/flows/simple-flow/implementation.md#d40) |
-| Product | Four-stage SimpleFlow slice and two-stage wish-verify slice executed; complete workflow application and VModel gate commands incomplete; no FRR | [P08](executions/simple-flow.md#p08), [P28](plans/wish-verify.md#p28), [V08](../verification/review-criteria.md#v08) |
+| Product | Four-stage SimpleFlow and two-stage wish-verify slices execute through a flat local `init` / `next` / `check` CLI with restart support. Complete workflow application and VModel gate commands remain incomplete; no FRR. | [P08](executions/simple-flow.md#p08), [P28](plans/wish-verify.md#p28), [CLI final acceptance](plans/stage-cli.md#p34), [V08](../verification/review-criteria.md#v08) |
 | SysML model and rendered figures | Revision-4 parse/check, render, audit, and figure verification passed for their stated scopes | [V07](wishes/wish-history.md#v07) |
 
 Run the pinned compiler and inspect its diagnostics as described in [T02](../architecture/constraints.md#t02).
@@ -53,6 +53,7 @@ their own corresponding evidence.
 | Default VModel | Eleven stages, their gates, and the verification correspondences are modeled. The three fixed VModel gate commands are declared but not implemented; a complete default-flow run has not executed. |
 | Four-stage `designedSimpleFlow` | The requirements → design → implement → verify slice, including four fixed checks and a terminal semantic judgment boundary, executes locally ([P08](executions/simple-flow.md#p08)). It is a selected flow within xdesign, not proof that this eleven-stage route runs. |
 | Wish records | Each wish trace records which flow it actually selected and the evidence for its own assessments. A modeled gate or declared verification case is not a passing result ([V02](wishes/wish-history.md#v02)). |
+| Uniform stage CLI | Wish-0010's final technical acceptance run completed four SimpleFlow visits at revision 1, with four fixed-check passes and an explicit agent semantic pass. Both supported flat flows resume locally across processes. [Execution evidence and limits](plans/stage-cli.md#p34) retain the 53 Rust and 22 Python checker passes plus two existing renderer assertion failures. Final human acceptance is pending. |
 
 This is a dependency and authorization sequence, not a dated project schedule.
 Dates, effort, owners, and deadlines would require a separate project plan. For

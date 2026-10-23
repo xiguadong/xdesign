@@ -44,9 +44,9 @@ and the [wish-verify Rust UML design](../flows/wish-verify/implementation.md#d75
 `xdesign` is the Rust package for this project. Its library entry point is
 `src/lib.rs`, which exposes the `core`, `simple_flow`, and `wish_verify` modules. The
 [crate inventory](#u14) below and the one-API-per-page reference under the three
-layer directories describe that implemented slice. `src/main.rs` is a local
-four-stage demonstration command; it is not the public controller for every
-selectable flow.
+layer directories describe that implemented slice. `src/main.rs` exposes the [local stage CLI](../stage-cli.md#d85) for both built-in
+flat plans and retains the earlier demo commands. It is not the generic controller
+for every selectable flow.
 
 Read the [crate structure](#u68), the
 [xdesign architecture](../../architecture/system-behavior.md#b13), the
@@ -209,6 +209,7 @@ path.
 | API | Signature | One-liner | Page |
 | --- | --- | --- | --- |
 | `create_run` | `fn create_run(plan, wish_model_uri, run_record_uri, check, judgment) -> Result<RsFlowRun, RsPlanError>` | Structurally validate the frozen plan, then build a run and its planned visits | [core/46](core/create-run.md#u16) |
+| `restore_run` | `fn restore_run(plan, wish_model_uri, run_record_uri, check, judgment) -> Result<RsFlowRun, String>` | Restore a validated persisted run without writes | [restore API](core/restore-run.md#u78) |
 
 ### Simple flow — the designed flow
 
@@ -317,7 +318,7 @@ through `DocSection` annotations.
   four-stage SimpleFlow with executable behavior and checker tests — and
   `xdesign::wish_verify` — the gated two-stage judged flow with both gates
   semantic. Neither is the complete V-model workflow — the generic controller,
-  persistence, and project-level acceptance remain modeled-only ([U66](#u66)).
+  multi-user persistence, and project-level acceptance remain modeled-only ([U66](#u66)).
 - The layered split documented here is realized in the SysML model
   (`XDesignRustUml`), in this reference, and in the source: the crate has been
   `src/core/` + `src/simple_flow/` since step 3 of the

@@ -45,6 +45,7 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO))
 
 from tools.sysml_web.cst import unsupported_view_syntax  # noqa: E402
+from tools.sysml_web.cli_views import CLI_KINDS, render_cli_view  # noqa: E402
 from tools.sysml_web.declared_views import DeclaredViews  # noqa: E402
 from tools.sysml_web.documentation_views import TITLES, render_documentation_view  # noqa: E402
 from tools.sysml_web.file_plan_view import render_file_plan  # noqa: E402
@@ -61,6 +62,9 @@ TMP = REPO / "cache" / "sysml" / "tmp"
 
 # name, kind, target. The name becomes docs/<owner>/assets/<file>.svg.
 FIGURES = [
+    ("architecture/assets/stage-cli-packages", "cli_packages", "XDesignComposition::stageCliPackageView"),
+    ("design/flows/wish-verify/assets/cli-timeline", "cli_timeline", "XDesignDetailedDesign::wishVerifyCliTimelineView"),
+    ("design/flows/wish-verify/assets/cli-swimlane", "cli_swimlane", "XDesignDetailedDesign::wishVerifyCliSwimlaneView"),
     ("architecture/assets/model-definitions", "definitions", ""),
     ("architecture/assets/lifecycle", "declared", "XDesignWorkflow::wishLifecycle"),
     ("architecture/assets/wish-to-delivery", "vmodel_overview", "XDesignArchitecture::VModel"),
@@ -182,6 +186,7 @@ def render_declared(name: str, target: str, kind="declared") -> tuple[bool, str]
     if kind == "declared_sequence":
         kind = "sequence"
     svg, declared = (render_file_plan(exported, guards, target) if kind == "file_plan"
+                     else render_cli_view(exported, guards, target, kind) if kind in CLI_KINDS
                      else render_flow_relationships(exported) if kind == "flow_relationships"
                      else render_vmodel_overview(exported) if kind == "vmodel_overview"
                      else render_documentation_view(exported, guards, target, kind) if kind in TITLES
@@ -203,7 +208,7 @@ def main() -> int:
         if requested and name not in requested:
             continue
         try:
-            ok, note = (render_declared(name, target, kind) if kind != "sequence" and kind in {"declared", "declared_sequence", "file_plan", "vmodel_overview", "flow_relationships", *TITLES}
+            ok, note = (render_declared(name, target, kind) if kind != "sequence" and kind in {"declared", "declared_sequence", "file_plan", "vmodel_overview", "flow_relationships", *TITLES, *CLI_KINDS}
                         else render_native(name, kind, target))
         except (OSError, ValueError) as error:
             ok, note = False, str(error)

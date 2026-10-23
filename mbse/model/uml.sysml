@@ -69,6 +69,16 @@ package XDesignRustUml {
                    plan, record, ports and run. */
             }
 
+            package restore {
+                doc /* Validated read-only reconstruction of a persisted run.
+                   Depends on plan, record, ports, status and run. */
+            }
+            dependency restoreUsesRun from crate::core::restore to crate::core::run;
+            dependency restoreUsesPlan from crate::core::restore to crate::core::plan;
+            dependency restoreUsesRecord from crate::core::restore to crate::core::record;
+            dependency restoreUsesPorts from crate::core::restore to crate::core::ports;
+            dependency restoreUsesStatus from crate::core::restore to crate::core::status;
+
             dependency planUsesStatus from crate::core::plan to crate::core::status;
             dependency recordUsesStatus from crate::core::record to crate::core::status;
             dependency recordUsesPlan from crate::core::record to crate::core::plan;
@@ -961,4 +971,23 @@ package XDesignRustUml {
         attribute redefines concernText = "Which Rust elements does the wish-verify module add, and what does each realize?";
         attribute redefines stakeholderRole = "implementer";
     }
+
+    action def RsRestoreRun {
+        @XDesignCommon::DocSection { document = "docs/design/api/core/restore-run.md"; section = "U78"; }
+        doc /* src/core/restore.rs restores a FlowRun from validated persisted
+           JSON and the caller's frozen plan and adapters. No writes; reject
+           malformed lifecycle, revision, snapshot or assessment history. */
+        in part plan : RsFlowPlan;
+        out part run : RsFlowRun;
+    }
+    dependency rsRestoreRunRealizes from RsRestoreRun to XDesignWorkflow::LocalStageCliRuntime::restore;
+    part def RsStageCliApplication {
+        @XDesignCommon::DocSection { document = "docs/design/stage-cli.md"; section = "D85"; }
+        doc /* Binary module src/stage_cli: mod.rs parses and dispatches init,
+           next and check; work.rs freezes stage content and collects artifact
+           digests; store.rs validates registration and serializes writers.
+           Uses core::restore_run plus existing flow factories, process checker
+           and supplied judge. The library keeps its three existing layers. */
+    }
+    dependency rsStageCliRealizes from RsStageCliApplication to XDesignWorkflow::LocalStageCliRuntime;
 }

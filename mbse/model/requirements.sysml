@@ -246,4 +246,22 @@ package XDesignRequirements {
            does not exist in the repository. */
         attribute redefines rationale = "A design read as a finished product sends integrators looking for code that is not there and hides the work that remains; an explicit status keeps the design usable without pretending to be its realization.";
     }
+
+    requirement stageCliUsesUniformInteraction : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* Every supported stage exposes the same next/check interaction.
+           next returns current work without writes. check records collected outputs,
+           assesses every exit gate, advances only when authorized, and returns the
+           assessed visit plus correction work, successor work, or completion. */
+        attribute redefines rationale = "Agents should follow stage content rather than coordinate separate recording, assessment and progression commands.";
+    }
+    requirement stageCliPreservesRunIntegrity : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* Independent command processes restore the same registered run and
+           frozen work definitions. Reject corrupt records, changed plans, stale
+           submissions and concurrent writes. Semantic judgments bind to the exact
+           collected artifact snapshot and never substitute for fixed checker reports.
+           Completed next/check calls are read-only; registration is explicit. */
+        attribute redefines rationale = "A short command interface is useful only if process restarts and corrections preserve evidence, authority and stage identity.";
+    }
 }

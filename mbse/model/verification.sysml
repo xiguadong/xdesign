@@ -8,6 +8,37 @@ package XDesignVerification {
        and its verify relationships specifies coverage; run evidence belongs to the
        independent trace record, and compiler checks do not execute this review. */
 
+    verification def StageCliInteractionVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
+        doc /* Planned verification of the two-command stage interaction, not
+           an executed CLI test. On two different configured flows, call next
+           repeatedly and confirm the current work order comes from the assigned
+           stage without changing visits, revisions, activities or assessments.
+           Perform workspace work and call check once: it must record outputs
+           before evaluating that visit's exit checkpoints, retain assessments
+           and evidence, and either return the same blocked visit with reasons,
+           enter the successor and return its work, or report terminal completion.
+           Correct blocked work in the same visit; only content changes raise
+           its revision and invalidate old passes. Missing artifacts, unavailable
+           checks, stale passes and unpermitted judges cannot authorize progress.
+           A valid negative check is failed; an unavailable evaluation is
+           unevaluated. Check can return the next work without another next call.
+           A completed run returns completion from both commands without writing
+           or reopening; an unknown wish produces an error without registration.
+           Resume with next in a fresh process. Missing work instructions or an
+           uninitialized required subflow must be rejected without mutation;
+           select an initialized incomplete child and resume its parent after
+           child completion. Registration, final human
+           acceptance and any subflow-entry initialization stay outside the
+           read-only query. No extra record/assess/advance command is required. */
+        subject cli : XDesignWorkflow::StageCli;
+        objective interaction {
+            verify requirement scriptAssessment :> XDesignRequirements::syntacticAssessmentIsScripted;
+            verify requirement judgeAuthority :> XDesignRequirements::semanticCheckNamesItsJudges;
+            verify requirement honestStatus :> XDesignRequirements::softwareDesignClaimsNoImplementation;
+        }
+    }
+
     verification def SimpleFlowViewReview {
         @XDesignCommon::DiagramPresentation { label = "Design review"; summary = "Planned coverage review"; }
         @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "D15"; }
@@ -171,6 +202,21 @@ package XDesignVerification {
         objective fileCoverage {
             verify requirement mapping :> XDesignRequirements::rustUmlDesignMapsEveryDesignElement;
             verify requirement flows :> XDesignRequirements::documentationSupportsMultipleFlows;
+        }
+    }
+
+    verification def LocalStageCliRuntimeVerification {
+        @XDesignCommon::DocSection { document = "docs/design/stage-cli.md"; section = "D85"; }
+        doc /* Executable cases cover both built-in flows across independent
+           processes; read-only repeated next and completed calls; fixed gate
+           success and semantic refusal/recovery; stale envelopes and changed
+           artifact judgment digests; corrupt records and plan/work drift;
+           exclusive writer refusal and unsafe paths. See the implementation
+           plan for revision-bound executed evidence; this declaration is not a pass. */
+        subject cli : XDesignWorkflow::LocalStageCliRuntime;
+        objective interaction {
+            verify requirement uniform :> XDesignRequirements::stageCliUsesUniformInteraction;
+            verify requirement integrity :> XDesignRequirements::stageCliPreservesRunIntegrity;
         }
     }
 }

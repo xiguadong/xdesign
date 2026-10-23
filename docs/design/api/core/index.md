@@ -29,6 +29,7 @@ Module-to-file map (one file per module):
 | `gate` | `src/core/gate.rs` | Gate evaluation |
 | `run` | `src/core/run.rs` | Run engine |
 | `factory` | `src/core/factory.rs` | Construction |
+| `restore` | `src/core/restore.rs` | [Validated read-only restoration](restore-run.md#u78) |
 
 Reading order for a newcomer: `status` → `plan` → `record` → `ports` → `gate` →
 `run` → `factory` — each module depends only on the ones before it.

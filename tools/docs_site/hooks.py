@@ -1,6 +1,17 @@
-"""Verify that the built site keeps the real documentation home page."""
+"""Publish the requested README overview alongside the documentation map."""
 
 from pathlib import Path
+
+from mkdocs.structure.files import File, InclusionLevel
+
+
+def on_files(files, config):
+    """Keep README.md links while avoiding its default index.md output collision."""
+    files.append(File(
+        "README.md", config.docs_dir, config.site_dir, config.use_directory_urls,
+        dest_uri="overview/index.html", inclusion=InclusionLevel.INCLUDED,
+    ))
+    return files
 
 
 def on_post_build(config):

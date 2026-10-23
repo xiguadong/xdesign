@@ -183,15 +183,31 @@ package XDesignDetailedDesign {
                     }
 
         part redefines requirements {
+            attribute redefines goal = "Define requirements and their rationale.";
+            attribute redefines workInstructions = "State the requirements, rationale and satisfaction relationships in the project model.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "checker:simpleRequirementsCheck";
             ref part redefines exitCheckpoints = simpleRequirementsAccepted;
         }
         part redefines design {
+            attribute redefines goal = "Design the solution and its verification.";
+            attribute redefines workInstructions = "Update the SysML design, API contracts and documentation; keep model views and checker declarations consistent.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "checker:simpleDesignCheck";
             ref part redefines exitCheckpoints = simpleDesignAccepted;
         }
         part redefines implement {
+            attribute redefines goal = "Implement the reviewed design.";
+            attribute redefines workInstructions = "Implement the source and tests required by the design; retain source artifacts for checking.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "source:src";
             ref part redefines exitCheckpoints = simpleImplementationAccepted;
         }
         part redefines 'verify' {
+            attribute redefines goal = "Demonstrate that the implementation satisfies the requirements.";
+            attribute redefines workInstructions = "Run the planned tests, retain verification evidence and supply a permitted semantic judgment.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "result:artifacts";
             ref part redefines exitCheckpoints = (simpleRecordAccepted, verificationAccepted);
         }
         part redefines verificationAccepted : SimpleFlowSemanticCheckpoint {
@@ -803,6 +819,10 @@ package XDesignDetailedDesign {
            caches belong under cache/ and are not source entries here. */
 
         item application {
+            item stageCli : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/mod.rs"; attribute redefines responsibility = "Top-level stage command dispatch and interaction"; }
+            item stageCliWork : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/work.rs"; attribute redefines responsibility = "Frozen stage work definitions and artifact collection"; }
+            item stageCliStore : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/store.rs"; attribute redefines responsibility = "Wish registry, locks and state integrity"; }
+            item restoreRun : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/restore.rs"; attribute redefines responsibility = "Validated read-only run restoration"; }
             item manifest : SimpleFlowFileEntry { attribute redefines repositoryPath = "Cargo.toml"; attribute redefines responsibility = "Rust crate manifest"; }
             item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "xdesign application module boundary"; }
             item commandLine : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/main.rs"; attribute redefines responsibility = "Local run and check entry point"; }
@@ -828,6 +848,8 @@ package XDesignDetailedDesign {
             item record : SimpleFlowFileEntry { attribute redefines repositoryPath = "tools/checks/simple_record.py"; attribute redefines responsibility = "Verification record gate rules"; }
         }
         item testCases {
+            item stageCliTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/stage_cli.rs"; attribute redefines responsibility = "CLI process, restart and failure integration cases"; }
+            item restoreTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/run_restore.rs"; attribute redefines responsibility = "Run restoration corruption and history cases"; }
             item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/simple_flow.rs"; attribute redefines responsibility = "Plan, authorization, recovery and reopen cases"; }
             item modelPlanCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/plan_model_sync.rs"; attribute redefines responsibility = "Frozen rule and model declaration agreement"; }
             item processCheckCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/process_check_contract.rs"; attribute redefines responsibility = "Process adapter report contract cases"; }
@@ -1266,9 +1288,17 @@ package XDesignDetailedDesign {
         }
 
         part redefines wish {
+            attribute redefines goal = "Record the wish and the artifacts that answer it.";
+            attribute redefines workInstructions = "Record the requested outcome and its answering artifacts, then supply a permitted semantic judgment.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "wish:model";
             ref part redefines exitCheckpoints = wishAccepted;
         }
         part redefines 'verify' {
+            attribute redefines goal = "Demonstrate that the implementation satisfies the requirements.";
+            attribute redefines workInstructions = "Run the planned tests, retain verification evidence and supply a permitted semantic judgment.";
+            attribute redefines inputArtifacts = "wish:model";
+            attribute redefines expectedOutputs = "result:artifacts";
             ref part redefines exitCheckpoints = outcomeAccepted;
         }
         part redefines outcomeAccepted : WishVerifySemanticCheckpoint {
@@ -1776,6 +1806,61 @@ package XDesignDetailedDesign {
         item testCases {
             item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/wish_verify.rs"; attribute redefines responsibility = "Plan conformance, judgment, authorization, recovery and reopen cases"; }
         }
+    }
+
+    view wishVerifyCliTimelineView : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation {
+            label = "WishVerifyFlow CLI timeline";
+            summary = "Simplest flow: wish -> verify -> completed; the same interaction at each stage";
+            question = "How do next and check coordinate an agent iteration in the simplest two-stage WishVerifyFlow?";
+        }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D84"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/views.md"; figure = "docs/design/flows/wish-verify/assets/cli-timeline.svg"; }
+        doc /* The common stage CLI projected in the context of the simplest
+           two-stage WishVerifyFlow. This example selects the gated specialization
+           DesignedWishVerifyFlow: wishAccepted authorizes wish -> verify and
+           outcomeAccepted authorizes terminal completion. Both gates require
+           permitted agent or human judgment; neither invokes a fixed checker.
+           The figure expands one AgentStageWork iteration through StageCli and
+           Controller actions; the same pattern applies at each stage. It does
+           not declare sequence Message usages or record an executed run.
+           Repetition is documented intent, not a native action back-edge.
+           Work metadata, artifact bindings and the next/check runtime remain
+           separate integration obligations. */
+        expose XDesignWorkflow::StageCli;
+        expose XDesignWorkflow::StageWorkOrder;
+        expose XDesignWorkflow::AgentStageWork;
+        expose XDesignArchitecture::Controller;
+        expose XDesignArchitecture::WishVerifyFlow;
+        expose XDesignDetailedDesign::DesignedWishVerifyFlow;
+        expose XDesignDetailedDesign::WishVerifySemanticCheckpoint;
+    }
+
+    view wishVerifyCliSwimlaneView : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation {
+            label = "WishVerifyFlow CLI swimlane";
+            summary = "Simplest flow: wish -> verify -> completed; agent work and xdesign responsibilities";
+            question = "Who performs work, records evidence, judges gates and advances the simplest two-stage WishVerifyFlow?";
+        }
+        @XDesignCommon::DocSection { document = "docs/design/flows/wish-verify/views.md"; section = "D84"; }
+        @XDesignCommon::DocFigure { document = "docs/design/flows/wish-verify/views.md"; figure = "docs/design/flows/wish-verify/assets/cli-swimlane.svg"; }
+        doc /* Companion responsibility projection of the same two-stage CLI
+           example as wishVerifyCliTimelineView. AgentStageWork produces workspace
+           artifacts; StageCli collects them and delegates recordActivity and
+           progressWish to Controller. The latter evaluates the current stage's
+           semantic exit gate and advances or retains the visit. The completed
+           run bypass preserves the read-only completion response. Lanes reflect
+           action ownership and documented responsibility, not native allocations.
+           Any repeat path is explicitly prose intent until an action loop is
+           declared. Registration and final human acceptance remain outside this
+           stage interaction; this view adds no runtime implementation. */
+        expose XDesignWorkflow::StageCli;
+        expose XDesignWorkflow::StageWorkOrder;
+        expose XDesignWorkflow::AgentStageWork;
+        expose XDesignArchitecture::Controller;
+        expose XDesignArchitecture::WishVerifyFlow;
+        expose XDesignDetailedDesign::DesignedWishVerifyFlow;
+        expose XDesignDetailedDesign::WishVerifySemanticCheckpoint;
     }
 
     view wishVerifyFlowFilePlanView : StandardViewDefinitions::BrowserView {

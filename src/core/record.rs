@@ -10,12 +10,14 @@ use std::{
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RsArtifactDigest {
     pub uri: String,
     pub sha256: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RsActivityEntry {
     pub description: String,
     pub performed_by: String,
@@ -27,6 +29,7 @@ pub struct RsActivityEntry {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RsAssessmentEntry {
     pub checkpoint_id: String,
     pub evaluated_revision: u32,
@@ -60,6 +63,7 @@ impl RsAssessmentEntry {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct RsStageVisit {
     stage_id: String,
     visit_index: u32,

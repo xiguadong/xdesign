@@ -36,7 +36,10 @@ flow and command set ([A10](../../index.md#a10)).
 
 The file-plan audit compares in both directions: every declared path must exist, and
 every source or test file in `src/`, `tests/`, and `tools/checks/` that belongs to this
-slice must have one declaration. The 26 entries above cover the current source plane.
+slice must have one declaration. The 26 original entries above cover the original source plane. The
+[stage CLI plan](stage-cli.md) adds `src/core/restore.rs`, the three files under
+`src/stage_cli/`, `tests/run_restore.rs`, and `tests/stage_cli.rs`; their six entries
+are retained in the same model file-plan inventory.
 
 The existing project model in `mbse/model/` defines stages, gates, records, views, and
 planned verification. The existing documentation in `docs/` explains their contracts;

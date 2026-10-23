@@ -62,6 +62,41 @@ class DocumentLayoutTests(unittest.TestCase):
         self.assertIn("missing-root-entry", {finding["code"] for finding in result["diagnostics"]})
         self.assertFalse(result["ok"])
 
+    def test_root_readme_can_reuse_canonical_figure(self):
+        self.good_page()
+        (self.root / "docs" / "README.md").write_text(
+            '# Project overview\n\n'
+            '![Model figure](architecture/assets/figure.svg)\n\n'
+            'See the [owning design](architecture/topic.md#d01).\n'
+        )
+        result = inspect(self.root)
+        self.assertTrue(result["ok"], result["diagnostics"])
+        self.assertEqual(result["counts"]["overview_figure_reuses"], 1)
+        self.assertEqual(result["counts"]["figure_blocks"], 1)
+
+    def test_root_readme_cannot_reuse_unowned_figure(self):
+        self.good_page()
+        (self.root / "mbse" / "model.sysml").write_text("package Example {}\n")
+        (self.root / "docs" / "README.md").write_text(
+            '# Project overview\n\n![Model figure](architecture/assets/figure.svg)\n'
+        )
+        codes = {finding["code"] for finding in inspect(self.root)["diagnostics"]}
+        self.assertEqual(codes, {"unowned-overview-image"})
+
+    def test_nested_readme_does_not_get_overview_exception(self):
+        self.good_page()
+        (self.root / "docs" / "architecture" / "README.md").write_text(
+            '# Another overview\n\n![Model figure](assets/figure.svg)\n'
+        )
+        codes = {finding["code"] for finding in inspect(self.root)["diagnostics"]}
+        self.assertIn("invalid-document-name", codes)
+        self.assertIn("missing-figure-block", codes)
+
+    def test_other_root_page_does_not_get_overview_exception(self):
+        (self.root / "docs" / "overview.md").write_text("# Another overview\n")
+        codes = {finding["code"] for finding in inspect(self.root)["diagnostics"]}
+        self.assertIn("invalid-document-directory", codes)
+
     def test_numeric_filename_is_not_allowed(self):
         self.good_page("01_topic.md")
         result = inspect(self.root)

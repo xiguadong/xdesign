@@ -47,6 +47,7 @@ assessments; [V04](#v04) records those limits.
 | wish-0007 — make the nine diagrams readable | `xdesign.workflowFlow` (`SimpleFlow`) | delivered, revision 1 | Replaced fixed-grid rendering with model-owned captions, diagram-specific projection, Graphviz layout, and a compact sequence. All nine primary figures passed source-fidelity, typography, and final-image review. | Reviewed at 900-pixel article width and in the built desktop article; final SVG, PNG, and screenshot hashes bind the evidence to the assets. See [V06](#v06). |
 | wish-0008 — reorganize the documentation structure and the SysML v2 specification | `designFlow` | delivered, revision 4 | Revision 1 established the locator and viewpoint contract; revision 2 added stage topics and placed the nine primary views; revision 3 added directory overviews and contiguous topic numbering; revision 4 places figures in each document directory's own `assets/`. | Separate script and agent assessments are recorded for each revision; the revision-4 evidence and remaining stage-gate gaps are in [V07](#v07). |
 | wish-0009 — Rust UML design for SimpleFlow | `wishVerifyFlow` | delivered, revision 3 (closed) | Revision 1 delivered the module-level design; revision 2 corrected granularity to an API reference (inventory plus one page per API); revision 3 adopted the API-reference structure into the project's conventions ([U47](../../design/api/index.md#u47)) | At that wish's closure the result was design only; the later Rust implementation is recorded in [P08](../executions/simple-flow.md#p08). See [V16](#v16). |
+| wish-0010 — uniform stage CLI | `xdesign.designedSimpleFlow` | technical root flow completed; final human acceptance pending | Final acceptance run after implementation completed four visits at revision 1 with four fixed-check passes (2/7/2/7 rules) and one explicit agent semantic pass. The flat `init` / `next` / `check` interface resumes both supported local flows. | [Executed evidence and limits](../plans/stage-cli.md#p34); [current wish record](#v17). The model's `delivered` state denotes root completion, not human approval. |
 
 <a id="v03"></a>
 
@@ -426,3 +427,45 @@ and the workflow application and gate commands were unimplemented. The later
 executable SimpleFlow slice has its own evidence record in
 [P08](../executions/simple-flow.md#p08); it does not retroactively
 change wish-0009's historical assessment.
+
+<a id="v17"></a>
+
+## wish-0010 — uniform stage CLI
+
+Registered on 2026-10-22 at the requester's direction to implement the agreed CLI
+as a new wish using SimpleFlow. The independent trace is
+`mbse/wishes/wish-0010.sysml`, assigned to `xdesign.designedSimpleFlow`. Its initial
+registration left requirements active and the later stages pending. The completed
+trace now records the actual final acceptance run; the original registration bytes
+remain in the evidence directory.
+
+The requested interaction is one-time `init`, followed by repeated `next` and
+`check`: obtain current work, let the agent perform it, and evaluate the selected
+flow's gates before returning correction, successor work, or completion. The
+[implementation plan](../plans/stage-cli.md#p30) records the requirements,
+design, implementation, and verification sequence, acceptance cases, snapshot
+boundaries, and the final acceptance run. The [runtime design](../../design/stage-cli.md#d85)
+defines the local SimpleFlow and WishVerifyFlow command contract.
+
+The final acceptance run occurred **after implementation**, from
+`2026-10-22T13:15:53.082922Z` through `2026-10-22T13:15:54.984763Z`. It completed
+requirements, design, implement, and verify, each at visit 0 and artifact revision 1.
+The fixed reports passed exactly 2, 7, 2, and 7 rules; the terminal semantic pass
+was explicitly supplied by `codex-root-cli-review`. These four fixed assessments
+and one semantic assessment preserve their exact runtime fields and evidence URIs
+in the SysML trace. They do not retrospectively authorize earlier development.
+
+`cache/evidence/wish-0010/final-cli-20261022T131553082464Z/manifest.json` retains
+the command evidence and hashes; `completed-run.json` beside it retains the runtime
+history. The original wish input, SHA-256
+`10fe7cd7cfd9fc0757f19859bf512d2e7ed5516d4bc5505fc2a48129413c68f7`, is preserved
+as `wish-source.sysml` there. The [execution record](../plans/stage-cli.md#p34)
+maps acceptance cases to tests and records 53 passing Rust tests, 22 passing
+checker tests, compiler/documentation results, and the two existing renderer
+assertion failures that remain disclosed.
+
+The model's `WishStatus::delivered` means the root flow completed. **Final human
+acceptance remains pending.** This scope does not establish the default V-model,
+nested controller execution, durable multi-user storage, remote judge
+authentication, or final human acceptance. Completed CLI inspection returns the
+retained completion result without performing a new live-artifact assessment.

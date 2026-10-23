@@ -25,7 +25,7 @@ pub struct RsFlowRun {
 }
 ```
 
-RsFlowRun is the generic run engine for one structurally valid plan. Use it to drive a run through visits, gate evaluation, advancement, reopening, and blocked correction; flow factories construct it and the sibling API pages describe its methods.
+RsFlowRun is the generic run engine for one structurally valid plan. Use it to drive a run through visits, gate evaluation, advancement, reopening, and blocked correction; flow factories construct it and [restore_run](restore-run.md#u78) reloads a validated saved record and the sibling API pages describe its methods.
 
 **Fields** (UML attributes compartment)
 

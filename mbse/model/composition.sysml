@@ -15,6 +15,9 @@ package XDesignComposition {
     part xdesign : XDesign {
         @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B01"; }
 
+        part cli : StageCli;
+        bind cli.controller = controller;
+
         part vModel : VModel :> 'flow' subsets availableFlows {
             @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }
             doc /* The default full V-model path. */
@@ -47,5 +50,24 @@ package XDesignComposition {
         }
 
         ref part redefines selectedFlow = vModel;
+    }
+
+    view stageCliPackageView : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation {
+            label = "Where the two-command CLI is embedded";
+            summary = "Focused package projection of the current SysML design";
+            question = "Where does the stage CLI connect to the existing xdesign model?";
+        }
+        @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B01"; }
+        @XDesignCommon::DocFigure { document = "docs/architecture/system-composition.md"; figure = "docs/architecture/assets/stage-cli-packages.svg"; }
+        doc /* Focused package projection of the stage CLI, its work order and
+           agent iteration, the concrete cli.controller binding, the existing
+           controller and records, and the planned interaction verification.
+           Containment expresses ownership; imports and subject typing express
+           model dependencies. This view does not add runtime messages. */
+        expose XDesignComposition;
+        expose XDesignWorkflow;
+        expose XDesignArchitecture;
+        expose XDesignVerification;
     }
 }

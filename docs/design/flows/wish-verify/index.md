@@ -26,6 +26,7 @@ fixes the task, decisions, file ownership, and acceptance cases.
 | [Run design](definition.md#d57) | Stage plan, run class, factory, and gate/advance/reopen functions | `xdesign::wish_verify` realizes this slice; the generic controller remains separate |
 | [Gates and judgment](definition.md#d61) | The two semantic gates, the judgment contract, and the checkpoint class | No fixed command exists; every pass is a recorded, evidence-citing judgment |
 | [Nine-view coverage](views.md#d64) | Applicability of the nine SysML questions and where each view is embedded | Navigation and coverage record, not a figure gallery |
+| [Simplest CLI interaction](views.md#d84) | Timeline and swimlane for the same `next` / work / `check` pattern at `wish` and `verify` | Action-order and responsibility projections; local CLI execution has separate evidence |
 | [Module design](implementation.md#d65) | Packages, types, judgment interface, key flows, parametrics, actor goals, errors, tests, and status | Working design; no frozen module baseline |
 | [Rust UML design](implementation.md#d75) | The `xdesign::wish_verify` module on `xdesign::core`, its realization mapping, and view applicability | The crate slice exists; the API design set records its boundary |
 
@@ -40,6 +41,9 @@ decision would still need. Executed verification is recorded in
 [P28](../../../records/plans/wish-verify.md#p28); a declared case
 in `mbse/model/verification.sysml` is a plan, not a result.
 
-Reading order: run design → gates and judgment → view coverage → module design →
+For a first look at how an agent would use the flow, start with the
+[simplest WishVerifyFlow CLI timeline and swimlane](views.md#d84).
+
+Detailed reading order: run design → gates and judgment → view coverage → module design →
 Rust UML design, then the [API pages](../../api/wish-verify/index.md#u73)
 for the class-and-function contract.

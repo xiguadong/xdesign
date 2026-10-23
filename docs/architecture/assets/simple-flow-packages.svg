@@ -86,19 +86,19 @@ e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf</title>
 <text xml:space="preserve" text-anchor="middle" x="219.84" y="-527.73" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="014cfdc7-c704-542d-b70f-91200155409c" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<g class="edge" data-native-id="ccef2e3f-2179-5fbe-8f0e-0b59acc65d8c" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
-014cfdc7-c704-542d-b70f-91200155409c</title>
+ccef2e3f-2179-5fbe-8f0e-0b59acc65d8c</title>
 <path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M345.01,-281.54C357.14,-262.29 369.26,-243.04 369.26,-243.04 369.26,-243.04 377.59,-235.61 388.48,-225.9" />
 <polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="394.36,-220.65 390.79,-228.66 392.66,-222.37 388.49,-226.09 388.39,-225.98 388.29,-225.87 392.46,-222.15 385.99,-223.29 394.36,-220.65" />
 <text xml:space="preserve" text-anchor="middle" x="391.01" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="2df90471-8c05-5db4-9cdc-383892a77bbc" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
+<g class="edge" data-native-id="1967766b-5bc1-5985-b12c-ff9157cd0ccf" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
-2df90471-8c05-5db4-9cdc-383892a77bbc</title>
+1967766b-5bc1-5985-b12c-ff9157cd0ccf</title>
 <path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M312.21,-281.41C301,-230.77 281.35,-142.01 269.25,-87.38" />
 <polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="267.58,-79.8 272.82,-86.84 268.24,-82.13 269.45,-87.58 269.3,-87.62 269.16,-87.65 267.95,-82.2 265.79,-88.39 267.58,-79.8" />
 <text xml:space="preserve" text-anchor="middle" x="319.69" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
@@ -408,6 +408,8 @@ usecase JudgeRecordedOutcome
 usecase progressJudgedOutcome : ProgressJudgedOutcome
 usecase judgeRecordedOutcome : JudgeRecordedOutcome
 ref item wishVerifyFlowFilePlan
+view wishVerifyCliTimelineView
+view wishVerifyCliSwimlaneView
 view wishVerifyFlowFilePlanView
 view wishVerifyFlowTree
 view wishVerifyDesignTree
@@ -662,6 +664,20 @@ run.status == FlowStatus::completed and
             run.currentRecord.stage.completesFlow
 run.status == FlowStatus::active and
             run.currentRecord.status == StageStatus::active
+XDesignWorkflow::StageCli
+XDesignWorkflow::StageWorkOrder
+XDesignWorkflow::AgentStageWork
+XDesignArchitecture::Controller
+XDesignArchitecture::WishVerifyFlow
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignWorkflow::StageCli
+XDesignWorkflow::StageWorkOrder
+XDesignWorkflow::AgentStageWork
+XDesignArchitecture::Controller
+XDesignArchitecture::WishVerifyFlow
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
 XDesignDetailedDesign::wishVerifyFlowFilePlan
 XDesignDetailedDesign::DesignedWishVerifyFlow
 XDesignDetailedDesign::WishVerifyFlowRun
@@ -746,6 +762,8 @@ requirement checkerRulesAreImplementationReady : XDesignRequirement
 requirement rustUmlDesignMapsEveryDesignElement : XDesignRequirement
 requirement umlViewsAreSelectedWithReasons : XDesignRequirement
 requirement softwareDesignClaimsNoImplementation : XDesignRequirement
+requirement stageCliUsesUniformInteraction : XDesignRequirement
+requirement stageCliPreservesRunIntegrity : XDesignRequirement
 5a18489b-6186-5c00-b446-8a50301a313e</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="719.65,-501.08 716.65,-505.08 695.65,-505.08 692.65,-501.08 579.88,-501.08 579.88,-423.06 719.65,-423.06 719.65,-501.08" />
 <rect fill="white" stroke="none" x="588.51" y="-495.32" width="122.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="596.51" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -764,6 +782,7 @@ e7bdc20d-fa91-5636-a07d-c3a4e3641e7a</title>
 <g id="n9981f09fb4b8bf838297" class="node diagram-node shape-package" data-native-id="640470ec-0731-5073-b510-e03b3f6c7741" data-shape="package">
 <title>XDesignVerification
 640470ec-0731-5073-b510-e03b3f6c7741
+verificationcase StageCliInteractionVerification
 verificationcase SimpleFlowViewReview
 verificationcase DiagramPresentationReview
 verificationcase DocumentationContractReview
@@ -773,6 +792,7 @@ verificationcase SimpleFlowRecoveryVerification
 verificationcase SimpleFlowFilePlanVerification
 verificationcase WishVerifyFlowBehaviorVerification
 verificationcase WishVerifyFlowFilePlanVerification
+verificationcase LocalStageCliRuntimeVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="119.53,-642.1 116.53,-646.1 95.53,-646.1 92.53,-642.1 0,-642.1 0,-564.08 119.53,-564.08 119.53,-642.1" />
 <rect fill="white" stroke="none" x="8.64" y="-636.34" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -789,15 +809,52 @@ interface FlowInterface
 part WishRequester
 part WorkflowFlow
 part WorkflowController
+item StageWorkOrder
+part StageCli
+action AgentStageWork
 action StageWork
 part Workflow
 view wishLifecycle
 view workflowInterfaces
+part LocalStageCliRuntime
 self
 receiveWish.description
 receiveWish.registeredWish
 receiveWish.registeredTrace
 defaultFlow
+visit.stage
+trace.wish.wishId
+stage.goal
+stage.workInstructions
+stage.inputArtifacts
+stage.expectedOutputs
+visit.artifactRevision
+stage.exitCheckpoints
+visit.currentAssessments
+((completed and size(work) == 0) or
+                    (not completed and size(work) == 1)) and
+                work-&gt;forAll { in order : StageWorkOrder;
+                    order.wishId == wishId and
+                    controller.traces-&gt;includes(order.trace) and
+                    order.visit == order.execution.currentRecord and
+                    order.execution.assignedFlow.stages-&gt;includes(order.stage)
+                }
+returnWork.completed
+returnWork.work
+observe.work.visit.currentAssessments
+check.wishId
+not observe.completed
+observe.work
+resultUri
+observe.work.trace
+collectOutputs.activity
+observe.work.trace
+check.wishId
+AgentStageWork.wishId
+not observe.completed
+observe.work
+AgentStageWork.wishId
+performWork.resultUri
 stage
 wishTrace
 produceArtifacts.activity

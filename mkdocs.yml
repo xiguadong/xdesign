@@ -7,9 +7,11 @@ use_directory_urls: true
 
 exclude_docs: |
   AGENTS.md
+  /README.md
 
 nav:
   - "Start here":
+    - "Project overview": README.md
     - "xdesign documentation": index.md
   - "Requirements":
     - "Requirements overview": requirements/index.md
@@ -25,6 +27,7 @@ nav:
     - "Overview": design/index.md
     - "Flow model and catalog": design/flow.md
     - "Run lifecycle": design/lifecycle.md
+    - "Stage CLI": design/stage-cli.md
     - "Evidence and revisions": design/evidence-and-revisions.md
     - "Ports and adapters": design/adapters.md
     - "SimpleFlow":
@@ -88,6 +91,7 @@ nav:
         - "RsFlowRun::reopen_stage": design/api/core/rs-flow-run-reopen-stage.md
         - "RsFlowRun::write_record": design/api/core/rs-flow-run-write-record.md
         - "create_run": design/api/core/create-run.md
+        - "restore_run": design/api/core/restore-run.md
       - "simple-flow: xdesign simple_flow API overview":
         - "xdesign simple_flow API overview": design/api/simple-flow/index.md
         - "designed_simple_flow_plan": design/api/simple-flow/designed-simple-flow-plan.md
@@ -119,6 +123,7 @@ nav:
       - "SimpleFlow implementation file plan and verification cases": records/plans/simple-flow-file-plan.md
       - "API layering restructure plan": records/plans/api-layering.md
       - "WishVerifyFlow implementation plan": records/plans/wish-verify.md
+      - "Stage CLI implementation plan": records/plans/stage-cli.md
     - "Reviews":
       - "Design review synthesis": records/reviews/initial-synthesis.md
       - "SimpleFlow review fixes and follow-up verification": records/reviews/simple-flow-fixes.md

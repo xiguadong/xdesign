@@ -7,7 +7,7 @@ This page is the shared starting point for the design of every flow: the flow/st
 | Page | Scope | Owns |
 | --- | --- | --- |
 | flow.md (this page) | common | flow/stage/checkpoint vocabulary and flow catalog |
-| [lifecycle.md](lifecycle.md) | common | generic run lifecycle, advancement, reopening, blocked correction, rework |
+| [lifecycle.md](lifecycle.md) | common | two-command stage interaction and generic run lifecycle, advancement, reopening, blocked correction, rework |
 | [evidence-and-revisions.md](evidence-and-revisions.md) | common | revisions, assessments, artifact identity, retained evidence, invariants |
 | [adapters.md](adapters.md) | common | checker-command and judge boundaries, reports, authority |
 | [flows/simple-flow/](flows/simple-flow/index.md) | flow-specific | definition, implementation, views for the four-stage flow |
@@ -24,7 +24,7 @@ This page is the shared starting point for the design of every flow: the flow/st
 | Definition | Fields | Meaning |
 | --- | --- | --- |
 | `Flow` | `stages [1..*]`, `checkpoints [1..*]`, `checkers [0..*]`, `initialStage` | Owns the stages and gates of one workflow. `stagesUseOwnedElements` requires every stage to reference only stages, checkpoints and checkers of its own flow |
-| `Stage` | `subFlow [0..1]`, `nextStages [0..*]`, `exitCheckpoints [0..*]`, `verifiesStage [0..1]`, `completesFlow`; events `entered`, `assessed` | One step: work happens here, successors allow branching and rework, exit checkpoints gate leaving. A verification stage names the stage it checks |
+| `Stage` | `goal [0..1]`, `workInstructions [0..1]`, `inputArtifacts [0..*]`, `expectedOutputs [0..*]`, `subFlow [0..1]`, `nextStages [0..*]`, `exitCheckpoints [0..*]`, `verifiesStage [0..1]`, `completesFlow`; events `entered`, `assessed` | One step: declares the work and artifact locations, successors allow branching and rework, and exit checkpoints gate leaving. A verification stage names the stage it checks |
 | `Checkpoint` | `sourceStage`, `kind`, `criteria [1..*]`, `checkers [0..*]`, `agentMayJudge`, `humanMayJudge` | A gate. Criteria are what must hold before the stage is left |
 | `Checker` | `checkerId`, `commandUri`, `establishes [1..*]`, `rules [0..*]` | A deterministic check fixed as code or a script, so the flow runs it unchanged instead of judging afresh. A designed flow's checkers declare the rules that decide them ([D06](flows/simple-flow/definition.md#d06)) |
 | `CheckerRule` | `ruleId`, `condition`, `reads [1..*]` | One logical rule a checker applies; the checker's outcome is the conjunction of its rules' verdicts, and its report names each rule with its verdict |
@@ -32,6 +32,19 @@ This page is the shared starting point for the design of every flow: the flow/st
 A flow is independent of any wish: it says what work exists and what must hold, never who
 wants it or when it ran. The state of one wish inside a flow is recorded separately
 ([E01](../interfaces/record-format.md#e01)).
+
+The stage's goal, instructions, and artifact declarations supply the work content
+for the designed [two-command CLI](lifecycle.md#f04). Concrete flow bindings must
+provide that content before the CLI can offer a stage as executable work; optional
+fields preserve existing flow definitions without claiming they are CLI-ready.
+The work order reads the assigned frozen plan. Input and output declarations
+identify workspace artifacts, including inputs needed by fixed checkers; they do
+not prescribe a separate command sequence for each stage.
+
+The workflow shorthand `flowstage.check` means the existing `exitCheckpoints` and
+their checker or judge contracts. There is no competing check property or new
+gate authority. The CLI uses those declarations for both the acceptance conditions
+shown to the agent and the checks performed after the agent's work.
 
 <a id="f03"></a>
 

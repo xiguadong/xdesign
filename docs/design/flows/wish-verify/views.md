@@ -2,7 +2,10 @@
 
 
 
-The views that explain the WishVerifyFlow design: the nine-question coverage index, requirements coverage, authorization parametrics, actor goals, view applicability, and design limits. The block/sequence/state/internal views remain with the implementation sections they explain; this page owns their coverage map.
+The views that explain the WishVerifyFlow design: the nine-question coverage index,
+requirements coverage, authorization parametrics, actor goals, view applicability,
+and the simplest two-stage CLI interaction. The block/sequence/state/internal views
+remain with the implementation sections they explain; this page owns their coverage map.
 
 
 
@@ -13,6 +16,7 @@ Figure ownership:
 | Coverage, requirements, authorization parametric, actor goals, applicability views | D64, D69-D71, D80 | views.md |
 | Designed flow, run/factory/checkpoint figures | D57-D63 | definition.md and implementation.md beside their sections |
 | Block, internal-block, sequence, state, and Rust mapping figures | D66-D68, D75-D79 | implementation.md beside the sections they explain |
+| Simplest WishVerifyFlow CLI timeline and swimlane | D84 | views.md |
 
 <a id="d64"></a>
 
@@ -207,3 +211,52 @@ records what has actually run. The module has no checker adapter, no async workf
 generic controller integration, and no durable multi-user persistence. A CDR for this
 module would still need the evidence package the checklist lists
 ([V08](../../../verification/review-criteria.md#v08)).
+
+<a id="d84"></a>
+
+## 6. Simplest WishVerifyFlow CLI interaction
+
+These timeline and swimlane views show the simplest WishVerifyFlow interaction:
+`wish` → `verify` → completed. The example uses the gated specialization
+`DesignedWishVerifyFlow`: `wishAccepted` authorizes leaving `wish`, and
+`outcomeAccepted` authorizes terminal completion. Both gates require a permitted
+agent or human judgment; neither invokes a fixed checker. The base architecture's
+historical `WishVerifyFlow` leaves `wish` ungated
+([flow definition](definition.md#d57), [gate definitions](definition.md#d61)).
+
+The same two-command contract applies at both stages. The agent retrieves current
+work through `next`, edits workspace artifacts, and calls `check`; xdesign records
+the outputs, assesses the current stage, and returns correction work, the next
+stage's work, or completion. The figures expand one iteration so that this simple
+public interaction and its internal responsibilities can be read together. The
+[common lifecycle](../../lifecycle.md#f04) owns the full command contract, and the
+[package integration](../../../architecture/system-composition.md#b01) shows where
+the CLI is embedded.
+
+![Simplest WishVerifyFlow CLI timeline for one stage iteration](assets/cli-timeline.svg)
+
+> **Figure D84-1 — Simplest WishVerifyFlow CLI timeline.**
+> **Question:** How do `next` and `check` coordinate an agent iteration in the simplest two-stage WishVerifyFlow?
+> **Model view:** `XDesignDetailedDesign::wishVerifyCliTimelineView`, an action-order projection of the common CLI in the two-stage flow context.
+> **Companions:** [Figure D84-2](#d84) shows responsibilities and branches; the [run sequence](implementation.md#d68) shows the separately declared stage-entry and assessment events.
+> **Status:** renderable-now; design projection of the local CLI interaction.
+> **Reading:** The agent requests work, performs it, and submits it to `StageCli.check`. The CLI reads the current visit, collects outputs, delegates recording and progression to `Controller`, then returns assessments and current or successor work. This pattern applies first at `wish` and then at `verify`, with completion after the terminal gate is authorized.
+> **Limits:** This is a projection of action order and parameter bindings, not native sequence messages or an executed run. Repetition is documented intent; `AgentStageWork` declares one iteration without a native loop back-edge.
+
+![Simplest WishVerifyFlow CLI swimlane showing agent, CLI, and controller responsibilities](assets/cli-swimlane.svg)
+
+> **Figure D84-2 — Simplest WishVerifyFlow CLI swimlane.**
+> **Question:** Who performs work, records evidence, evaluates gates, and advances the simplest two-stage WishVerifyFlow?
+> **Model view:** `XDesignDetailedDesign::wishVerifyCliSwimlaneView`, a responsibility projection of the same CLI actions.
+> **Companions:** [Figure D84-1](#d84) gives the interaction order; [gate authorization](#d70) explains the current-visit completion condition.
+> **Status:** renderable-now; design projection of the local CLI interaction.
+> **Reading:** The agent owns workspace work, the CLI collects it, and the controller records and assesses the current visit. The authorization branch advances an eligible visit or retains it for correction; an already completed run bypasses mutations. The returned work supports another iteration, shown by a distinct documented-intent repeat path.
+> **Limits:** Lanes express action ownership and documented responsibility, not native allocations. The figure does not add a modeled judge-call action or provide evidence of engineering acceptance; the local runtime supplies judgment through the result-file contract.
+
+The boundary keeps the agent's work separate from xdesign's records: an agent can
+change artifacts, while xdesign decides which revision was assessed and whether
+progress is authorized. The [local CLI](../../stage-cli.md#d85) supplies stage instructions, artifact collection
+and process restart for the two built-in flat flows. An explicit modeled repetition
+action and generic nested execution remain integration obligations.
+Wish registration and final human acceptance sit outside this stage interaction;
+these views do not add an acceptance-state implementation.

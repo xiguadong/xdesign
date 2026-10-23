@@ -11,6 +11,8 @@ use xdesign::core::{
 use xdesign::simple_flow::{create_designed_run, designed_simple_flow_plan, RsProcessCheck};
 use xdesign::wish_verify::{create_wish_verify_run, wish_verify_flow_plan};
 
+mod stage_cli;
+
 fn option(args: &[String], name: &str) -> Result<String, String> {
     let index = args
         .iter()
@@ -261,6 +263,22 @@ mod main_wish_tests;
 
 fn main() {
     let args: Vec<_> = env::args().collect();
+    if args.len() == 2 && args[1] == "--help" {
+        println!("{}", stage_cli::HELP);
+        return;
+    }
+    if matches!(args.get(1).map(String::as_str), Some("init" | "next" | "check")) {
+        match stage_cli::dispatch(&args[1..]) {
+            Ok((reply, code)) => {
+                println!("{}", serde_json::to_string_pretty(&reply).expect("JSON response"));
+                std::process::exit(code);
+            }
+            Err(error) => {
+                eprintln!("xdesign: {error}");
+                std::process::exit(2);
+            }
+        }
+    }
     let result = match args.get(1).map(String::as_str) {
         Some("simple-flow") if args.get(2).map(String::as_str) == Some("demo") => {
             run_demo(&args[3..])
@@ -268,7 +286,10 @@ fn main() {
         Some("wish-verify") if args.get(2).map(String::as_str) == Some("demo") => {
             run_wish_verify_demo(&args[3..])
         }
-        _ => Err("usage: xdesign <simple-flow|wish-verify> demo --wish-model PATH --plan cache/PLAN.json --record cache/RECORD.json --verify-evidence PATH --judge-authority agent|human --judge-identity NAME --judge-outcome passed|failed|unevaluated --judge-rationale TEXT".into()),
+        _ => {
+            eprintln!("{}", stage_cli::HELP);
+            std::process::exit(2);
+        }
     };
     if let Err(error) = result {
         eprintln!("xdesign: {error}");

@@ -176,19 +176,19 @@ e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf</title>
 <text xml:space="preserve" text-anchor="middle" x="143.52" y="-668.75" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="014cfdc7-c704-542d-b70f-91200155409c" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
+<g class="edge" data-native-id="ccef2e3f-2179-5fbe-8f0e-0b59acc65d8c" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="7def8b87-d29a-5822-b4d9-666bd91325c8" data-edge-kind="dependency">
 <title>imports
 
-014cfdc7-c704-542d-b70f-91200155409c</title>
+ccef2e3f-2179-5fbe-8f0e-0b59acc65d8c</title>
 <path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M645.07,-281.69C632.34,-264.68 617.26,-244.52 603.95,-226.72" />
 <polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="599.31,-220.53 606.99,-224.78 600.88,-222.37 604.23,-226.84 604.11,-226.93 603.99,-227.02 600.64,-222.55 601.22,-229.09 599.31,-220.53" />
 <text xml:space="preserve" text-anchor="middle" x="646.63" y="-245.69" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
 </g>
 
-<g class="edge" data-native-id="2df90471-8c05-5db4-9cdc-383892a77bbc" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
+<g class="edge" data-native-id="1967766b-5bc1-5985-b12c-ff9157cd0ccf" data-source-id="7fa367e3-b361-5dad-b43c-a161cc036e1d" data-target-id="fc9e6046-b3d8-5f4a-b4b7-7125975a4afe" data-edge-kind="dependency">
 <title>imports
 
-2df90471-8c05-5db4-9cdc-383892a77bbc</title>
+1967766b-5bc1-5985-b12c-ff9157cd0ccf</title>
 <path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M675.63,-281.48C676.24,-268.87 676.76,-258.04 676.76,-258.04 676.76,-258.04 676.76,-243.04 676.76,-243.04 676.76,-243.04 671.76,-102.02 671.76,-102.02 671.76,-102.02 671.11,-96.18 670.19,-88.08" />
 <polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="669.3,-80.15 673.77,-87.7 669.72,-82.53 670.34,-88.08 670.19,-88.1 670.04,-88.12 669.42,-82.57 666.62,-88.5 669.3,-80.15" />
 <text xml:space="preserve" text-anchor="middle" x="697.64" y="-175.18" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">imports</text>
@@ -424,7 +424,13 @@ fc9e6046-b3d8-5f4a-b4b7-7125975a4afe</title>
 <title>XDesignComposition
 3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327
 ref part xdesign : XDesign
+view stageCliPackageView
+controller
 vModel
+XDesignComposition
+XDesignWorkflow
+XDesignArchitecture
+XDesignVerification
 3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="832.15,-642.1 829.15,-646.1 808.15,-646.1 805.15,-642.1 635.38,-642.1 635.38,-564.08 832.15,-564.08 832.15,-642.1" />
 <rect fill="white" stroke="none" x="644.01" y="-636.34" width="179.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="652.01" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -509,6 +515,8 @@ usecase JudgeRecordedOutcome
 usecase progressJudgedOutcome : ProgressJudgedOutcome
 usecase judgeRecordedOutcome : JudgeRecordedOutcome
 ref item wishVerifyFlowFilePlan
+view wishVerifyCliTimelineView
+view wishVerifyCliSwimlaneView
 view wishVerifyFlowFilePlanView
 view wishVerifyFlowTree
 view wishVerifyDesignTree
@@ -763,6 +771,20 @@ run.status == FlowStatus::completed and
             run.currentRecord.stage.completesFlow
 run.status == FlowStatus::active and
             run.currentRecord.status == StageStatus::active
+XDesignWorkflow::StageCli
+XDesignWorkflow::StageWorkOrder
+XDesignWorkflow::AgentStageWork
+XDesignArchitecture::Controller
+XDesignArchitecture::WishVerifyFlow
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
+XDesignWorkflow::StageCli
+XDesignWorkflow::StageWorkOrder
+XDesignWorkflow::AgentStageWork
+XDesignArchitecture::Controller
+XDesignArchitecture::WishVerifyFlow
+XDesignDetailedDesign::DesignedWishVerifyFlow
+XDesignDetailedDesign::WishVerifySemanticCheckpoint
 XDesignDetailedDesign::wishVerifyFlowFilePlan
 XDesignDetailedDesign::DesignedWishVerifyFlow
 XDesignDetailedDesign::WishVerifyFlowRun
@@ -847,6 +869,8 @@ requirement checkerRulesAreImplementationReady : XDesignRequirement
 requirement rustUmlDesignMapsEveryDesignElement : XDesignRequirement
 requirement umlViewsAreSelectedWithReasons : XDesignRequirement
 requirement softwareDesignClaimsNoImplementation : XDesignRequirement
+requirement stageCliUsesUniformInteraction : XDesignRequirement
+requirement stageCliPreservesRunIntegrity : XDesignRequirement
 5a18489b-6186-5c00-b446-8a50301a313e</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="537.65,-642.1 534.65,-646.1 513.65,-646.1 510.65,-642.1 397.88,-642.1 397.88,-564.08 537.65,-564.08 537.65,-642.1" />
 <rect fill="white" stroke="none" x="406.51" y="-636.34" width="122.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="414.51" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -913,6 +937,8 @@ view wishVerifyRustModules
 view wishVerifyRustTypes
 viewpoint wishVerifyRustModulesConcern : DocumentationViewpoint
 viewpoint wishVerifyRustTypesConcern : DocumentationViewpoint
+action RsRestoreRun
+part RsStageCliApplication
 self
 run.status == RsFlowStatus::active
 run.status == RsFlowStatus::blocked
@@ -996,6 +1022,7 @@ e7bdc20d-fa91-5636-a07d-c3a4e3641e7a</title>
 <g id="n9981f09fb4b8bf838297" class="node diagram-node shape-package" data-native-id="640470ec-0731-5073-b510-e03b3f6c7741" data-shape="package">
 <title>XDesignVerification
 640470ec-0731-5073-b510-e03b3f6c7741
+verificationcase StageCliInteractionVerification
 verificationcase SimpleFlowViewReview
 verificationcase DiagramPresentationReview
 verificationcase DocumentationContractReview
@@ -1005,6 +1032,7 @@ verificationcase SimpleFlowRecoveryVerification
 verificationcase SimpleFlowFilePlanVerification
 verificationcase WishVerifyFlowBehaviorVerification
 verificationcase WishVerifyFlowFilePlanVerification
+verificationcase LocalStageCliRuntimeVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="119.53,-783.12 116.53,-787.12 95.53,-787.12 92.53,-783.12 0,-783.12 0,-705.1 119.53,-705.1 119.53,-783.12" />
 <rect fill="white" stroke="none" x="8.64" y="-777.36" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-756.61" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -1021,15 +1049,52 @@ interface FlowInterface
 part WishRequester
 part WorkflowFlow
 part WorkflowController
+item StageWorkOrder
+part StageCli
+action AgentStageWork
 action StageWork
 part Workflow
 view wishLifecycle
 view workflowInterfaces
+part LocalStageCliRuntime
 self
 receiveWish.description
 receiveWish.registeredWish
 receiveWish.registeredTrace
 defaultFlow
+visit.stage
+trace.wish.wishId
+stage.goal
+stage.workInstructions
+stage.inputArtifacts
+stage.expectedOutputs
+visit.artifactRevision
+stage.exitCheckpoints
+visit.currentAssessments
+((completed and size(work) == 0) or
+                    (not completed and size(work) == 1)) and
+                work-&gt;forAll { in order : StageWorkOrder;
+                    order.wishId == wishId and
+                    controller.traces-&gt;includes(order.trace) and
+                    order.visit == order.execution.currentRecord and
+                    order.execution.assignedFlow.stages-&gt;includes(order.stage)
+                }
+returnWork.completed
+returnWork.work
+observe.work.visit.currentAssessments
+check.wishId
+not observe.completed
+observe.work
+resultUri
+observe.work.trace
+collectOutputs.activity
+observe.work.trace
+check.wishId
+AgentStageWork.wishId
+not observe.completed
+observe.work
+AgentStageWork.wishId
+performWork.resultUri
 stage
 wishTrace
 produceArtifacts.activity

@@ -15,7 +15,7 @@ and how the model points at this documentation.
 > **Companions:** [B02](#b02) for typed interfaces and [E01](../interfaces/record-format.md#e01) for record definitions.  
 > **Status:** renderable-now.  
 > **Reading:** The abstract flow origin, owned flow portfolio, selected default, controller, wishes, and traces form one composition. Bindings give the controller its available plans and default selection.  
-> **Limits:** Ownership and bindings do not show a run's stage order or prove its delivery invariants.
+> **Limits:** Ownership and bindings do not show a run's stage order or prove its delivery invariants. This base-type projection does not include the concrete `xdesign.cli` addition.
 
 `XDesignArchitecture::XDesign` defines the system composition.
 `XDesignComposition::xdesign` supplies its concrete flow portfolio:
@@ -39,6 +39,29 @@ Bindings: `controller.availableFlows = availableFlows`,
 composition together:
 `XDesign::everyWishHasOneTrace` — every wish has exactly one trace, and every trace
 belongs to a wish.
+
+The concrete `XDesignComposition::xdesign` also owns `cli : StageCli` and binds
+`cli.controller = controller`. This boundary exposes the two repeated
+stage operations, `next` and `check`, described in the [run lifecycle](../design/lifecycle.md#f04).
+It delegates recording, checkpoint evaluation, and progress to the existing
+controller; the agent performs the returned work in the project workspace.
+The [local CLI implementation](../design/stage-cli.md#d85) realizes this interaction
+for the two built-in flat flows.
+
+![Stage CLI packages and their integration into xdesign](assets/stage-cli-packages.svg)
+
+> **Figure B01-2 — Stage CLI package integration.**
+> **Question:** Where do the two stage commands fit in the project model and concrete system?
+> **Model view:** `XDesignComposition::stageCliPackageView`, a focused package and relationship projection.
+> **Companions:** [Run lifecycle](../design/lifecycle.md#f04) defines the command contract; the [simplest WishVerifyFlow interaction](../design/flows/wish-verify/views.md#d84) expands its timeline and responsibilities.
+> **Status:** renderable-now; common CLI design with a bounded local implementation.
+> **Reading:** The workflow package owns `StageCli`, `StageWorkOrder`, and `AgentStageWork`; the architecture package supplies the controller, stages, and records. The concrete `xdesign.cli` binds to the existing controller, while the verification package declares interaction checks. Typed references, action references, and bindings explain how the added boundary uses the existing model.
+> **Limits:** These package relationships do not implement the commands or establish a passed verification case. The projection selects the CLI integration rather than every project package member.
+
+The CLI belongs at the composition boundary because every stage uses the same
+work-and-check interaction. Keeping flow content in `Stage` and progression in
+`Controller` lets `StageCli` expose two operations without adding a separate public
+command for each internal recording or assessment step.
 
 <a id="b02"></a>
 

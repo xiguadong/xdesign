@@ -54,6 +54,7 @@ RULE_CODES = {
     },
     "embed-source": {
         "invalid-image-path", "missing-image", "image-directory-mismatch", "duplicate-image",
+        "unowned-overview-image",
     },
 }
 
@@ -168,19 +169,21 @@ def inspect(root: Path = REPO) -> dict:
 
     if root / "docs" / "index.md" not in markdown:
         report("missing-root-entry", root / "docs", 1, "The documentation root needs index.md")
+    overview = root / "docs" / "README.md"
     allowed_top = {"requirements", "architecture", "design", "interfaces", "verification", "records"}
     semantic = re.compile(r"^[a-z0-9]+(?:-[a-z0-9]+)*$")
     for document in markdown:
         rel = document.relative_to(root / "docs")
         if len(rel.parts) == 1:
-            if document.name != "index.md":
+            if document.name != "index.md" and document != overview:
                 report("invalid-document-directory", document, 1, document.name)
         elif rel.parts[0] not in allowed_top:
             report("invalid-document-directory", document, 1, rel.parts[0])
         for part in rel.parts[:-1]:
             if part != "assets" and not semantic.match(part):
                 report("invalid-directory-name", document, 1, part)
-        if document.name != "index.md" and not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", document.name):
+        if (document.name != "index.md" and document != overview
+                and not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*\.md", document.name)):
             report("invalid-document-name", document, 1, document.name)
     counts["documentation_directories"] = len({document.parent for document in markdown})
     anchors: dict[str, list[tuple[Path, int]]] = {}
@@ -229,12 +232,16 @@ def inspect(root: Path = REPO) -> dict:
                 document_images.append((target, line_number))
                 if not target.is_relative_to(root / "docs") or target.suffix != ".svg":
                     report("invalid-image-path", document, line_number, raw)
-                elif target.parent != document.parent / "assets":
+                elif document != overview and target.parent != document.parent / "assets":
                     report("image-directory-mismatch", document, line_number, raw)
                 elif not target.is_file():
                     report("missing-image", document, line_number, raw)
                 elif not _readable(target):
                     report("unreadable-image", document, line_number, raw)
+                if document == overview:
+                    # The overview reuses canonical figures; their owning pages keep
+                    # the model locators and full figure blocks. Validate ownership below.
+                    continue
                 block = _figure_block(lines, line_number - 1)
                 if block is None:
                     report("missing-figure-block", document, line_number, raw)
@@ -278,6 +285,7 @@ def inspect(root: Path = REPO) -> dict:
         return next((section for start, section in reversed(section_points[document]) if start <= line_number), None)
 
     sources = sorted((root / "mbse").rglob("*.sysml"))
+    canonical_figures: set[Path] = set()
     if not sources:
         report("missing-model-set", root / "mbse", 1, "No SysML model sources found")
     for source in sources:
@@ -334,6 +342,9 @@ def inspect(root: Path = REPO) -> dict:
                     if not _readable(figure):
                         report("unreadable-figure", source, line, figure_name)
                     embed_lines = [image_line for target, image_line in images[document] if target == figure]
+                    if (document != overview and figure.parent == document.parent / "assets"
+                            and len(embed_lines) == 1):
+                        canonical_figures.add(figure)
                     if len(embed_lines) != 1:
                         report("figure-embed-count", source, line, f"{figure_name} in {document_name}: {len(embed_lines)}")
                     elif (preceding is not None and preceding.group("kind") == "DocSection"
@@ -348,6 +359,13 @@ def inspect(root: Path = REPO) -> dict:
                                        f"{figure_name}: expected {expected}, found {actual}")
             preceding = annotation
 
+    for figure, line in images.get(overview, []):
+        if figure not in canonical_figures:
+            report("unowned-overview-image", overview, line,
+                   f"{figure}: overview images must reuse a DocFigure embedded by its owning page")
+        else:
+            counts["overview_figure_reuses"] += 1
+
     failures = Counter(finding["rule"] for finding in diagnostics)
     return {
         "ok": not diagnostics,
@@ -355,7 +373,7 @@ def inspect(root: Path = REPO) -> dict:
         "rules": {name: {"passed": failures[name] == 0, "failures": failures[name]}
                   for name in (*RULE_CODES, "input")},
         "diagnostics": sorted(diagnostics, key=lambda item: (item["file"], item["line"], item["code"])),
-        "scope": "Document class paths and semantic names, model locator paths, unique explicit anchors with headings, figures in each carrying page's assets child, embeds, and adjacent six-field figure blocks. SysML name resolution and semantic view/document agreement require separate checks.",
+        "scope": "Document class paths and semantic names, model locator paths, unique explicit anchors with headings, figures in each carrying page's assets child, embeds, and adjacent six-field figure blocks. The root docs/README.md overview may reuse canonical figures with compact captions. SysML name resolution and semantic view/document agreement require separate checks.",
     }
 
 

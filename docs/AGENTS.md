@@ -18,6 +18,9 @@ named, identified, linked, and verified. It is a rules file, not a published pag
 
 ## Paths and filenames
 
+- `docs/README.md` is the project overview requested by the user. It contains project
+  composition, usage, and the simplest WishVerifyFlow timeline and swimlane. It is the
+  explicit exception to the root-page and lowercase-filename rules below.
 - Use the document classes and paths in the repository's approved target tree. Do not add
   `governance/`, `decisions/`, `reference/`, `start/`, `guides/`, or `process/` trees.
 - File names are lowercase kebab-case and semantic. Do not use numeric prefixes or
@@ -41,6 +44,9 @@ named, identified, linked, and verified. It is a rules file, not a published pag
 
 ## Links and figures
 
+- The overview `docs/README.md` may embed existing canonical figures from their owning
+  pages with compact captions linking to those pages. Reuse the same SVG files; keep
+  model locators, renderer mappings, and the six-field figure blocks in the owning pages.
 - Use file-relative Markdown links and descriptive link text such as "gate authorization",
   not a bare `U19` or `D27` label as the reading interface.
 - A model-rendered figure sits in the `assets/` child of its carrying page, has a unique

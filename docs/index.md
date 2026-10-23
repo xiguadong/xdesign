@@ -5,6 +5,9 @@ independent trace for each wish explains why its requirements, design, implement
 verification followed. This documentation set states the design, the exact interfaces, the
 verification design, and the records behind what has actually run.
 
+Start with the [project overview](README.md) for project composition, usage, and the
+package, timeline, and swimlane diagrams together on one page.
+
 <a id="a07"></a>
 
 ## Read by task
@@ -14,6 +17,7 @@ verification design, and the records behind what has actually run.
 | The project, its parts, and how they collaborate | [architecture/index.md](architecture/index.md) |
 | What the system must do and why | [requirements/index.md](requirements/index.md) |
 | How the flows and runs are designed | [design/index.md](design/index.md) |
+| The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
 | How the design is verified and accepted | [verification/index.md](verification/index.md) |

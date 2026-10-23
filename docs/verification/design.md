@@ -33,3 +33,22 @@ not a difference between URI lists. SF-08 follows the controller's same-visit co
 path ([F04](../design/lifecycle.md#f04)). SF-09 uses the explicit
 `ReopenSimpleFlowStage` design action, currently limited to a completed terminal run;
 upstream-stage reopening needs downstream invalidation rules before implementation.
+
+`XDesignVerification::StageCliInteractionVerification` specifies planned coverage
+for the [two-command stage interaction](../design/lifecycle.md#f04). These CLI cases
+have no executed result and do not extend the acceptance claims of the Rust slices.
+Apply them to two different configured flows whose frozen stage definitions supply
+the required work content.
+
+| Case | Input or operation | Expected result |
+| --- | --- | --- |
+| CLI-01 Current work | Call `next` repeatedly, then retrieve the same wish in a fresh process. | The work order reflects the assigned stage's goal, instructions, artifacts, exit checkpoints, current assessments, and reasons. Visits, revisions, activities, and assessments are unchanged. |
+| CLI-02 Check and continue | Perform workspace work, then call `check`, including a result file where declarations cannot locate the work. | Outputs are recorded before the current visit's exit checkpoints are evaluated; evidence and assessments are retained. An authorized pass returns successor work or terminal completion without another `next`; the result file never bypasses a gate. |
+| CLI-03 Block and correct | Fail a gate, correct work, and call `check` again; repeat once with unchanged content. | Failure returns reasons and the same blocked visit. Only changed content increases its revision and invalidates prior passes; no corrective visit is appended. |
+| CLI-04 Authorization failures | Supply missing required artifacts, unavailable checks, stale passes, or an unpermitted judge. | None authorizes progress. A valid negative evaluation is failed; inability to evaluate is unevaluated. |
+| CLI-05 Completed and unknown wishes | Call both commands on a completed run and an unknown wish. | Completion produces no work or writes and does not reopen. An unknown wish produces an error without registration. |
+| CLI-06 Prepared work and subflows | Omit required work content or leave a required child uninitialized; separately query an initialized incomplete child and then its completed state. | Incomplete definitions and unprepared nested paths are rejected without mutation. An initialized incomplete child supplies current work; a completed child resumes its parent. Querying never initializes a subflow. |
+
+Registration and final human acceptance are outside this repeated interaction.
+The cases require no separate public record, assessment, or advancement command;
+compiler checks of their declarations do not execute them.

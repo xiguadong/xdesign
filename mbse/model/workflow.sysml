@@ -2,6 +2,9 @@ package XDesignWorkflow {
     @XDesignCommon::DiagramPresentation { label = "Workflow"; }
     @XDesignCommon::DocSection { document = "docs/architecture/system-composition.md"; section = "B02"; }
     private import ScalarValues::*;
+    private import ControlFunctions::forAll;
+    private import SequenceFunctions::includes;
+    private import SequenceFunctions::size;
     private import XDesignArchitecture::*;
     private import XDesignCommon::*;
 
@@ -66,6 +69,159 @@ package XDesignWorkflow {
         bind wishPort.registeredWish = receiveWish.registeredWish;
         bind wishPort.registeredTrace = receiveWish.registeredTrace;
         bind flowPort.selectedFlow = defaultFlow;
+    }
+
+    item def StageWorkOrder {
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F04"; }
+        doc /* Ephemeral read-only projection of one registered wish's current
+           stage visit at query time, not a separately editable execution record.
+           Work content and exit checks come from its assigned frozen flow plan;
+           the agent does not invent a stage-specific command procedure.
+           Artifact declarations identify workspace inputs and expected outputs,
+           including the inputs read by fixed checkers. Concrete flow bindings
+           must supply the goal, instructions and artifact declarations before
+           the CLI can offer that stage as executable work. */
+
+        ref part trace : Trace;
+        ref part execution : FlowExecution;
+        ref part visit : StageRecord;
+        ref part stage : Stage = visit.stage;
+        attribute wishId : String = trace.wish.wishId;
+        attribute goal : String [0..1] = stage.goal;
+        attribute workInstructions : String [0..1] = stage.workInstructions;
+        attribute inputArtifacts : String [0..*] = stage.inputArtifacts;
+        attribute expectedOutputs : String [0..*] = stage.expectedOutputs;
+        attribute artifactRevision : Integer = visit.artifactRevision;
+        ref part exitCheckpoints : Checkpoint [0..*] = stage.exitCheckpoints;
+        ref item currentAssessments : CheckpointAssessment [0..*] = visit.currentAssessments;
+        attribute correctionReasons : String [0..*];
+
+    }
+
+    part def StageCli {
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F04"; }
+        doc /* Common command boundary for the agent's repeated stage loop.
+           Its two public operations are xdesign next WISH_ID and
+           xdesign check WISH_ID. Registration and final human acceptance are
+           boundary interactions outside this loop. LocalStageCliRuntime realizes a bounded flat-flow implementation;
+           historical flow results remain unchanged.
+           Resolve the existing wish through controller.traces on every call;
+           an unknown wish is an error, never an implicit registration.
+           Only xdesign writes activities, assessments and execution state. */
+
+        ref part controller : Controller;
+
+        perform action 'next' {
+            doc /* Read the existing wish's active execution path and return its
+               current work order, or completed with no work when the root run
+               is complete. Include the goal, instructions, input/output
+               declarations, exit checkpoint criteria and permitted checker or
+               judges, current assessments and correction reasons. Do not
+               record work, assess, increment a revision, advance, initialize
+               a subflow, or reopen a completed visit. Repeating next observes
+               the same visit until a mutating operation changes it. Follow the
+               deepest initialized incomplete child execution; a completed child
+               resumes its parent. Reject an uninitialized required child or
+               missing goal/instructions with a diagnostic and no mutation.
+               Entry preparation belongs to registration/progression, and CLI
+               integration for unprepared nested flows remains unavailable. */
+
+            in attribute wishId : String;
+            out attribute completed : Boolean;
+            out item work : StageWorkOrder [0..1];
+
+            assert constraint responseMatchesCurrentWork {
+                ((completed and size(work) == 0) or
+                    (not completed and size(work) == 1)) and
+                work->forAll { in order : StageWorkOrder;
+                    order.wishId == wishId and
+                    controller.traces->includes(order.trace) and
+                    order.visit == order.execution.currentRecord and
+                    order.execution.assignedFlow.stages->includes(order.stage)
+                }
+            }
+        }
+
+        perform action check {
+            doc /* Collect and record the current stage outputs, assess its exit
+               checkpoints and advance when authorized, all in one public call.
+               An optional --result FILE supplies work/evidence that the stage's
+               artifact declarations cannot locate. It is not an unchecked pass.
+               Fixed checkers produce syntactic verdicts; semantic checkpoints
+               use only their permitted judges. A missing or refused judgment
+               stays unevaluated; a valid negative evaluation is failed.
+               Retain evidence and assessments before returning the result.
+               Calling check on a completed run returns completion without
+               recording, reassessing or reopening it. */
+
+            in attribute wishId : String;
+            in attribute resultUri : String [0..1];
+            out attribute completed : Boolean = returnWork.completed;
+            out item work : StageWorkOrder [0..1] = returnWork.work;
+            out ref item assessments : CheckpointAssessment [0..*] = observe.work.visit.currentAssessments;
+
+            action observe :> 'next' {
+                in attribute redefines wishId = check.wishId;
+            }
+            then if not observe.completed {
+                action collectOutputs {
+                    doc /* Capture the declared outputs and any supplied result
+                       as one activity for the observed visit. xdesign derives
+                       content changes from the recorded artifacts. Unchanged
+                       content does not raise the revision; changed content
+                       invalidates earlier passes. Missing required outputs
+                       remain diagnostic input to assessment, never a pass. */
+                    in item workOrder : StageWorkOrder = observe.work;
+                    in attribute suppliedResult : String [0..1] = resultUri;
+                    out item activity : ActivityRecord;
+                }
+                then action record :> controller.recordActivity {
+                    in part redefines trace = observe.work.trace;
+                    in item redefines activity = collectOutputs.activity;
+                }
+                then action assessAndAdvance :> controller.progressWish {
+                    doc /* Assess the recorded visit at its current revision.
+                       Failed, stale or unevaluated exit checkpoints retain the
+                       same visit and return correction reasons. A pass enters
+                       the successor; an authorized terminal visit completes
+                       the run. Return the assessed visit's assessments even
+                       when the returned work order belongs to its successor. */
+                    in part redefines trace = observe.work.trace;
+                }
+            }
+            then action returnWork :> 'next' {
+                in attribute redefines wishId = check.wishId;
+            }
+        }
+    }
+
+    action def AgentStageWork {
+        @XDesignCommon::DocSection { document = "docs/design/lifecycle.md"; section = "F04"; }
+        doc /* One uniform agent iteration for any stage. The agent calls next,
+           performs the returned work directly in the project workspace, then
+           calls check. Repeat with the returned current or successor work order
+           until completion; next also recovers the work order after a restart.
+           Work production belongs to the agent; record/check/advance belong
+           to xdesign and are not separate public stage commands. */
+
+        in part cli : StageCli;
+        in attribute wishId : String;
+
+        action observe :> cli.'next' {
+            in attribute redefines wishId = AgentStageWork.wishId;
+        }
+        then if not observe.completed {
+            action performWork {
+                doc /* The agent edits workspace artifacts according to the
+                   work order, without editing xdesign's execution records. */
+                in item workOrder : StageWorkOrder = observe.work;
+                out attribute resultUri : String [0..1];
+            }
+            then action submit :> cli.check {
+                in attribute redefines wishId = AgentStageWork.wishId;
+                in attribute redefines resultUri = performWork.resultUri;
+            }
+        }
     }
 
     action def StageWork {
@@ -226,5 +382,37 @@ package XDesignWorkflow {
         expose Workflow::flowExchange;
 
         render Views::asInterconnectionDiagram;
+    }
+
+    part def LocalStageCliRuntime :> StageCli {
+        @XDesignCommon::DocSection { document = "docs/design/stage-cli.md"; section = "D85"; }
+        doc /* Local flat-flow realization of StageCli. Explicit init registers an
+           existing independent wish model and freezes the selected built-in plan
+           and companion work definitions under cache/xdesign/WISH_ID. Each next
+           or check restores and validates its run. next creates no files. check
+           holds an exclusive per-wish lock, rejects stale result envelopes before
+           mutation, records only actual digest changes, assesses and advances with
+           the existing core engine, and returns the assessed visit separately from
+           successor work. The local registry binds plan and work hashes; the result
+           token binds registry, plan, work and current record bytes. A supplied
+           semantic judgment additionally binds the collected artifact snapshot.
+           Unsupported or uninitialized nested flows are rejected. This is not a
+           database, identity authentication, or final human acceptance service. */
+        attribute storageRoot : String = "cache/xdesign";
+        attribute schemaVersion : Integer = 1;
+        attribute supportedFlows : String [2] = ("simple-flow", "wish-verify");
+        perform action initialize {
+            doc /* Require an existing wish model, select a supported flow,
+               create a new state directory exclusively, freeze plan and work,
+               create initial visits and publish registration last. Refuse an
+               existing registration; never overwrite an earlier run. */
+        }
+        perform action restore {
+            doc /* Read and validate record identity, plan and work digests,
+               visit shape, replayed activity revisions and assessment authority.
+               Restore reads no live artifact bytes as an authorization decision:
+               next can expose work after edits, and check rehashes the workspace.
+               Only structurally authorized completed records can report completion. */
+        }
     }
 }
