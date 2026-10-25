@@ -15,7 +15,7 @@ Run from the project root. New registration defaults to the legacy wish source a
 `mbse/wishes/WISH_ID.sysml`; `--wish FILE` imports a different existing SysML source:
 
 ```text
-xdesign init WISH_ID --flow simple-flow [--wish FILE]
+xdesign init WISH_ID --flow simple-flow|wish-verify [--wish FILE] [--checks FILE]
 xdesign next WISH_ID
 xdesign check WISH_ID [--result FILE] [--operation-id ID]
 xdesign store init
@@ -25,7 +25,15 @@ xdesign store history WISH_ID
 xdesign store checkout WISH_ID [--revision N] --to DIR
 xdesign store outcome OPERATION_ID
 xdesign store doctor [--verify]
+xdesign web [--host HOST] [--port PORT] [--open]
+            [--project-root PATH] [--store-root PATH]
 ```
+
+`--checks FILE` binds the four SimpleFlow syntactic checkpoints for the new run and is
+meaningful only with `--flow simple-flow`; a non-default binding for another flow is
+rejected, and a default-only file is a no-op. The file, its validation errors and its
+frozen-plan effect are in [§1.5](#d89). `xdesign web` starts the embedded operator page; its command
+line, loopback and lifecycle boundaries are in [§1.6](#d90).
 
 `init` is the one-time boundary before the repeated `next` / `check` loop. New runs create
 a store item and initial revision exclusively, freeze the chosen built-in plan and work,
@@ -204,11 +212,83 @@ The scope remains local, repository-bound flat flows with guarded writers and co
 readers. It excludes arbitrary or nested flows, whole-store backup/migration, remote judge
 authentication, and final human acceptance. Technical completion is not human acceptance.
 
-### 1.5 Software realization and verification
+<a id="d89"></a>
+
+### 1.5 Check binding configuration
+
+`xdesign init` accepts `--checks FILE` for `--flow simple-flow` only. The file selects the
+executor of the four syntactic SimpleFlow checkpoints; the design contract for the modes,
+plan freezing and recorded authority is in [D88](flows/simple-flow/definition.md#d88). The
+file is strict JSON:
+
+```json
+{
+  "schema_version": 1,
+  "checks": [
+    {"checkpoint_id": "simpleRequirementsAccepted", "mode": "default"},
+    {"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
+     "cli": "codex", "model": "gpt-6-astra"},
+    {"checkpoint_id": "simpleImplementationAccepted", "mode": "command",
+     "command_uri": "tools/checks/custom_implementation.py"},
+    {"checkpoint_id": "simpleRecordAccepted", "mode": "default"}
+  ]
+}
+```
+
+| Field | Rule |
+| --- | --- |
+| `schema_version` | required, exactly `1` |
+| `checks` | required array; an empty array is equivalent to an all-default binding |
+| `checkpoint_id` | required; one of the four syntactic SimpleFlow checkpoint ids; no duplicates |
+| `mode` | required; `default`, `cli` or `command` |
+| `cli` | required for `cli`; `codex` or `kimi` |
+| `model` | required for `cli`; a non-empty model identifier passed to the agent CLI |
+| `command_uri` | required for `command`; a normalized project-relative `.py` path that exists in the repository and implements the invocation and report interface |
+
+A checkpoint omitted from the file keeps the `default` binding. Unknown fields, unknown
+checkpoint ids, duplicate checkpoints, unknown modes, missing required members, and empty
+`cli`/`model`/`command_uri` values are invalid requests: `init` exits 2 with the error on
+stderr before it creates the run or commits a store revision. A non-default binding with
+`--flow wish-verify` is rejected because that flow declares only semantic checkpoints; a
+default-only file for that flow is accepted as a no-op.
+The validated binding is frozen into the plan; `next` and `check` accept no binding
+option, and editing the file later does not rebind a registered run ([D88](flows/simple-flow/definition.md#d88)).
+
+<a id="d90"></a>
+
+### 1.6 Operator web command
+
+`xdesign web` starts the embedded operator page and its local HTTP API:
+
+```text
+xdesign web [--host 127.0.0.1] [--port 7788] [--open]
+            [--project-root PATH] [--store-root PATH]
+```
+
+The server listens on loopback by default (`127.0.0.1`), serves page assets embedded in
+the binary, and prints one machine-readable startup line to stdout:
+`xdesign web listening on http://HOST:PORT`. `--port 0` binds an ephemeral port and
+reports the actual one. `--project-root` defaults to the current directory; the server
+changes into it before serving so lifecycle subprocesses and relative paths match the CLI
+contract. `--store-root` defaults to `XDESIGN_STORE_ROOT` when set, else
+`<project>/.xdesign`. `--open` launches the platform browser opener best-effort and never
+fails the command. `SIGINT` terminates the process with default behavior.
+
+The command adds no runtime environment: no Node.js, npm, build step, Python web server,
+CDN, separately installed static server, or rendered documentation site is required, and
+the server performs no network fetch. The page reads the operational store and drives the
+same `init`/`next`/`check` commands as subprocesses of the same executable, so its
+lifecycle actions write exactly where the local CLI writes. The HTTP endpoints,
+envelopes, status codes, and action behavior are in the
+[operator web API](../interfaces/web-api.md#i16); the program design, read/write
+boundaries and embedded-asset release model are in
+[the operator web design](web-operator.md#d91).
+
+### 1.7 Software realization and verification
 
 | Source | Responsibility |
 | --- | --- |
-| `src/main.rs` | Routes the top-level commands and retains the demo entry points |
+| `src/main.rs` | Routes the top-level commands, including `web`, and retains the demo entry points |
 | `src/stage_cli/mod.rs` | Validates arguments, result exchange, and stage orchestration |
 | `src/stage_cli/work.rs` | Freezes modeled stage work and collects artifact snapshots |
 | `src/stage_cli/store.rs` | Resolves wishes, verifies frozen files and serializes writers |

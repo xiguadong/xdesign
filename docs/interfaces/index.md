@@ -31,3 +31,10 @@ The separate [store format](store-format.md#i11) specifies the local persistence
 format and schema identities, strict save requests, revision manifests, operation receipts,
 store commands, exit codes, and checkout/recovery behavior. It is a local file/SQLite
 contract, not a network interface or a frozen migration baseline.
+
+The separate [operator web API](web-api.md#i16) specifies the local loopback HTTP contract
+of the embedded operator page: routes, envelopes, status codes, field tables, and the
+create/work/check actions. Its command line is in the
+[stage CLI](../design/stage-cli.md#d90) and its program design in the
+[operator web design](../design/web-operator.md#d91). It is a local operator surface, not
+one of the four modeled exchanges above and not the documentation site's interface.

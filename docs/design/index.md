@@ -16,6 +16,7 @@ The project SysML model is the structural source. These pages explain the modele
 | [lifecycle.md](lifecycle.md) | common | two-command stage interaction and generic run lifecycle, advancement, reopening, blocking/rework |
 | [evidence-and-revisions.md](evidence-and-revisions.md) | common | revisions, assessments, artifact identity, retained evidence, invariants |
 | [adapters.md](adapters.md) | common | checker-command and judge boundaries, reports, authority |
+| [web-operator.md](web-operator.md) | operator surface | embedded web program: position, request flow, read/write boundaries, embedded-asset release model |
 | [storage.md](storage.md) | operational persistence | store authority, revisions, materials, atomic save, queries, checkout and recovery |
 | [flows/simple-flow/](flows/simple-flow/index.md) | flow-specific | four-stage definition, implementation, views |
 | [flows/wish-verify/](flows/wish-verify/index.md) | flow-specific | two-stage definition, implementation, views |
@@ -31,6 +32,8 @@ The project SysML model is the structural source. These pages explain the modele
 | Revision, assessment, artifact, or evidence semantics | [evidence-and-revisions.md](evidence-and-revisions.md); record fields in [interfaces/record-format.md](../interfaces/record-format.md) |
 | Store schema, save/recovery, queries, material integrity or checkout | [storage.md](storage.md); [store format](../interfaces/store-format.md); storage API pages |
 | Checker command, judge authority, reports, refusal/error boundary | [adapters.md](adapters.md); a flow's definition.md for its commands and rules |
+| Per-wish check binding (default, agent CLI, custom command) | the flow's definition.md and [stage-cli.md](stage-cli.md#d89) |
+| The operator web page, its local HTTP actions, or an embedded asset | [web-operator.md](web-operator.md); HTTP contract in [interfaces/web-api.md](../interfaces/web-api.md#i16) |
 | A flow's module class, factory, adapter, Rust realization, or limits | that flow's implementation.md |
 | A view, view applicability, figure coverage, or figure ownership | that flow's views.md; presentation contract in [interfaces/documentation-contract.md](../interfaces/documentation-contract.md) |
 | Class-and-function contract | [design/api/](api/index.md) (one page per API) |

@@ -28,6 +28,7 @@ nav:
     - "Flow model and catalog": design/flow.md
     - "Run lifecycle": design/lifecycle.md
     - "Stage CLI": design/stage-cli.md
+    - "Operator web program": design/web-operator.md
     - "Operational storage": design/storage.md
     - "Evidence and revisions": design/evidence-and-revisions.md
     - "Ports and adapters": design/adapters.md
@@ -139,6 +140,7 @@ nav:
     - "Interface control document": interfaces/contracts.md
     - "Record format": interfaces/record-format.md
     - "Store format": interfaces/store-format.md
+    - "Operator web API": interfaces/web-api.md
     - "Documentation and SysML contract": interfaces/documentation-contract.md
   - "Verification design":
     - "Verification design": verification/index.md
