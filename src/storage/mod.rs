@@ -2,6 +2,7 @@ mod blobs;
 pub mod cli;
 mod db;
 mod ops;
+mod unicode;
 
 use rusqlite::Connection;
 use serde::{
@@ -301,44 +302,90 @@ fn valid_segment(segment: &str) -> bool {
     !segment.is_empty() && segment.len() <= 255 && segment != "." && segment != ".."
 }
 
-fn case_fold(path: &str) -> String {
-    path.chars().flat_map(char::to_lowercase).collect()
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum ManifestEntryKind {
+    File,
+    Directory,
 }
 
-/// Filesystem-aware manifest name rules. Every material URI and every
-/// intermediate directory it implies is a directory entry; a manifest is
-/// materializable only when no two entries collide, either because one name is
-/// a path prefix of another (file and directory at once) or because distinct
-/// names fold to the same case-insensitive entry.
+struct ManifestEntry {
+    display: String,
+    kind: ManifestEntryKind,
+    /// The material URI that introduced this entry, used only for messages.
+    source: String,
+}
+
+/// Filesystem-aware manifest name rules. Every material URI is a file entry and
+/// every intermediate directory it implies is a directory entry; a manifest is
+/// materializable only when no two entries collide, either because one file
+/// entry is also used as a directory by another entry (including when the two
+/// names are Unicode-equivalent) or because distinct names fold to the same
+/// case- and normalization-insensitive entry. Folding is host-independent
+/// canonical decomposition plus full case folding (see [`unicode::fold`]), which
+/// is a superset of the equivalence a case-insensitive host filesystem applies.
 pub(crate) fn manifest_entry_collision(uris: &BTreeSet<String>) -> Option<(String, String)> {
+    let mut folded_entries: BTreeMap<String, ManifestEntry> = BTreeMap::new();
+    let mut folded_files: Vec<(String, String)> = Vec::new();
     for uri in uris {
-        let prefix = format!("{uri}/");
-        if let Some(child) = uris
-            .range(prefix.clone()..)
-            .next()
-            .filter(|child| child.starts_with(&prefix))
-        {
-            return Some((uri.clone(), child.clone()));
+        let uri_fold = unicode::fold(uri);
+        match folded_entries.get(&uri_fold) {
+            Some(existing)
+                if existing.display != *uri || existing.kind != ManifestEntryKind::File =>
+            {
+                return Some((existing.source.clone(), uri.clone()));
+            }
+            Some(_) => {}
+            None => {
+                folded_entries.insert(
+                    uri_fold.clone(),
+                    ManifestEntry {
+                        display: uri.clone(),
+                        kind: ManifestEntryKind::File,
+                        source: uri.clone(),
+                    },
+                );
+                folded_files.push((uri_fold, uri.clone()));
+            }
         }
-    }
-    let mut folded_entries: BTreeMap<String, String> = BTreeMap::new();
-    for uri in uris {
-        let mut entry = uri.as_str();
-        loop {
-            let fold = case_fold(entry);
-            match folded_entries.get(&fold) {
-                Some(existing) if existing != entry => {
-                    return Some((existing.clone(), entry.to_owned()));
+        let mut segment_start = 0;
+        while let Some(offset) = uri[segment_start..].find('/') {
+            let directory = &uri[..segment_start + offset];
+            let directory_fold = unicode::fold(directory);
+            match folded_entries.get(&directory_fold) {
+                Some(existing)
+                    if existing.display != directory
+                        || existing.kind != ManifestEntryKind::Directory =>
+                {
+                    return Some((existing.source.clone(), uri.clone()));
                 }
                 Some(_) => {}
                 None => {
-                    folded_entries.insert(fold, entry.to_owned());
+                    folded_entries.insert(
+                        directory_fold,
+                        ManifestEntry {
+                            display: directory.to_owned(),
+                            kind: ManifestEntryKind::Directory,
+                            source: uri.clone(),
+                        },
+                    );
                 }
             }
-            match entry.rfind('/') {
-                Some(index) => entry = &entry[..index],
-                None => break,
-            }
+            segment_start += offset + 1;
+        }
+    }
+    // A file entry that is also a prefix of another entry would need to be a
+    // directory and a file at once. Compare folded forms so `A` versus `a/x`
+    // and other Unicode-equivalent spellings are caught as well.
+    let folded_names: BTreeSet<&str> = folded_entries.keys().map(String::as_str).collect();
+    for (folded, source) in &folded_files {
+        let prefix = format!("{folded}/");
+        if let Some(child_fold) = folded_names
+            .range(prefix.as_str()..)
+            .next()
+            .filter(|child| child.starts_with(&prefix))
+        {
+            let child = &folded_entries[*child_fold];
+            return Some((source.clone(), child.source.clone()));
         }
     }
     None
@@ -473,6 +520,12 @@ pub(crate) fn strict_json(raw: &[u8]) -> Result<Value, String> {
         return Err("JSON document exceeds 16 MiB".into());
     }
     validate_numeric_tokens(raw)?;
+    let value = decode_strict_json(raw)?;
+    require_stable_encoding(&value)?;
+    Ok(value)
+}
+
+fn decode_strict_json(raw: &[u8]) -> Result<Value, String> {
     let mut deserializer = serde_json::Deserializer::from_slice(raw);
     let value = StrictValueSeed(1)
         .deserialize(&mut deserializer)
@@ -481,46 +534,115 @@ pub(crate) fn strict_json(raw: &[u8]) -> Result<Value, String> {
     Ok(value)
 }
 
+/// Stored metadata, results and receipts are decoded from serde_json encodings
+/// and re-encoded into database rows and command envelopes. An accepted
+/// document must therefore already be a fixed point of that codec: decode,
+/// encode, decode and encode again must be byte-identical and must reproduce
+/// the same values. Otherwise a committed revision or receipt could read back
+/// with a different number or fail its integrity checks.
+fn require_stable_encoding(value: &Value) -> Result<(), String> {
+    let first = serde_json::to_vec(value)
+        .map_err(|error| format!("cannot encode accepted JSON value: {error}"))?;
+    let decoded = decode_strict_json(&first)
+        .map_err(|error| format!("accepted JSON value is not readable back: {error}"))?;
+    let second = serde_json::to_vec(&decoded)
+        .map_err(|error| format!("cannot re-encode accepted JSON value: {error}"))?;
+    if first != second || *value != decoded {
+        return Err(
+            "JSON value is not stable under the storage decoder and encoder; a value would change on read-back"
+                .into(),
+        );
+    }
+    Ok(())
+}
+
 /// A decimal number reduced to its significant digits and a power-of-ten
 /// exponent so two numeric tokens can be compared for mathematical equality
 /// without floating point or arbitrary-precision arithmetic.
 struct DecimalParts {
     negative: bool,
     digits: String,
-    exponent: i32,
+    exponent: i64,
 }
 
-fn decimal_parts(token: &str) -> Option<DecimalParts> {
+/// Decimal exponents beyond this magnitude are rejected instead of saturated.
+/// No finite `f64` retains a non-zero decimal value outside this range, and
+/// zero-valued tokens with extreme exponents (for example
+/// `0.0e-2147483648`) are rejected too, so the accepted exponent range stays
+/// explicit and bounded and arithmetic below never overflows.
+const MAX_DECIMAL_EXPONENT: i64 = 10_000;
+
+fn decimal_parts(token: &str) -> Result<DecimalParts, String> {
     let (negative, unsigned) = match token.strip_prefix('-') {
         Some(rest) => (true, rest),
         None => (false, token.strip_prefix('+').unwrap_or(token)),
     };
-    let (mantissa, exponent) = match unsigned.split_once(['e', 'E']) {
-        Some((mantissa, exponent)) => (mantissa, exponent.parse::<i32>().ok()?),
+    let (mantissa, mut exponent) = match unsigned.split_once(['e', 'E']) {
+        Some((mantissa, exponent_token)) => {
+            let (negative_exponent, digits) = match exponent_token.strip_prefix('-') {
+                Some(digits) => (true, digits),
+                None => (
+                    false,
+                    exponent_token.strip_prefix('+').unwrap_or(exponent_token),
+                ),
+            };
+            if digits.is_empty() || !digits.bytes().all(|byte| byte.is_ascii_digit()) {
+                return Err(format!("number {token} has an invalid decimal exponent"));
+            }
+            let mut magnitude: i64 = 0;
+            for byte in digits.bytes() {
+                magnitude = magnitude
+                    .checked_mul(10)
+                    .and_then(|value| value.checked_add(i64::from(byte - b'0')))
+                    .ok_or_else(|| {
+                        format!("number {token} uses an unsupported decimal exponent")
+                    })?;
+                if magnitude > MAX_DECIMAL_EXPONENT {
+                    return Err(format!(
+                        "number {token} uses an unsupported decimal exponent"
+                    ));
+                }
+            }
+            (
+                mantissa,
+                if negative_exponent {
+                    -magnitude
+                } else {
+                    magnitude
+                },
+            )
+        }
         None => (unsigned, 0),
     };
     let (integral, fractional) = match mantissa.split_once('.') {
         Some((integral, fractional)) => (integral, fractional),
         None => (mantissa, ""),
     };
-    if integral.is_empty() && fractional.is_empty() || !integral.bytes().all(|b| b.is_ascii_digit())
-        || !fractional.bytes().all(|b| b.is_ascii_digit())
+    if integral.is_empty() && fractional.is_empty()
+        || !integral.bytes().all(|byte| byte.is_ascii_digit())
+        || !fractional.bytes().all(|byte| byte.is_ascii_digit())
     {
-        return None;
+        return Err(format!("number {token} is not a decimal number"));
     }
     let mut digits = format!("{integral}{fractional}");
-    let mut exponent = exponent - fractional.len() as i32;
+    let fractional_length = i64::try_from(fractional.len())
+        .map_err(|_| format!("number {token} is too long to validate"))?;
+    exponent = exponent
+        .checked_sub(fractional_length)
+        .ok_or_else(|| format!("number {token} uses an unsupported decimal exponent"))?;
     let significant = digits.trim_start_matches('0');
     let leading = digits.len() - significant.len();
     digits.drain(..leading);
     while digits.ends_with('0') {
         digits.pop();
-        exponent += 1;
+        exponent = exponent
+            .checked_add(1)
+            .ok_or_else(|| format!("number {token} uses an unsupported decimal exponent"))?;
     }
     if digits.is_empty() {
         digits.push('0');
     }
-    Some(DecimalParts {
+    Ok(DecimalParts {
         negative,
         digits,
         exponent,
@@ -534,10 +656,16 @@ fn decimal_equal(left: &DecimalParts, right: &DecimalParts) -> bool {
             && left.exponent == right.exponent)
 }
 
-/// Numbers are stored as exact 64-bit integers or IEEE-754 doubles. A token
-/// whose value survives neither path unchanged is rejected instead of being
-/// silently rounded in metadata and receipts.
+/// Numbers are stored through serde_json as exact 64-bit integers or IEEE-754
+/// doubles. Validation must use that same parser and serializer: a token whose
+/// serde_json value serializes to a different decimal value is rejected before
+/// any reservation instead of being silently altered in metadata or results.
 fn check_numeric_token(token: &str) -> Result<(), String> {
+    // Parse with the same decoder used for requests, stored metadata, results
+    // and receipts. This also rejects every token the storage codec cannot read.
+    let value: Value = serde_json::from_str(token).map_err(|error| {
+        format!("number {token} is not a JSON number the store can read: {error}")
+    })?;
     let integer_form = token
         .strip_prefix('-')
         .unwrap_or(token)
@@ -556,24 +684,23 @@ fn check_numeric_token(token: &str) -> Result<(), String> {
         }
         return Ok(());
     }
-    let Ok(value) = token.parse::<f64>() else {
-        return Ok(());
+    let Some(float) = value.as_f64() else {
+        return Err(format!(
+            "number {token} is not a finite value the store can retain"
+        ));
     };
-    if !value.is_finite() {
+    if !float.is_finite() {
         return Err(format!(
             "number {token} is not a finite value the store can retain"
         ));
     }
-    let Some(parsed) = decimal_parts(token) else {
-        return Ok(());
-    };
-    let shortest = format!("{value}");
-    let Some(round_trip) = decimal_parts(&shortest) else {
-        return Ok(());
-    };
-    if !decimal_equal(&parsed, &round_trip) {
+    let canonical = serde_json::to_string(&value)
+        .map_err(|error| format!("cannot serialize number {token}: {error}"))?;
+    let parsed = decimal_parts(token)?;
+    let stored = decimal_parts(&canonical)?;
+    if !decimal_equal(&parsed, &stored) {
         return Err(format!(
-            "number {token} exceeds float64 precision and would be stored as {shortest}"
+            "number {token} exceeds float64 precision and would be stored as {canonical}"
         ));
     }
     Ok(())

@@ -1,6 +1,6 @@
 # xdesign storage API design
 
-> Layer: `xdesign::storage` | Status: exported and implemented; STORE-01 through STORE-10
+> Layer: `xdesign::storage` | Status: exported and implemented; STORE-01 through STORE-11
 > evidence executed within disclosed limits | Audience: application integrators, module owners, and reviewers.
 
 <a id="u79"></a>
@@ -63,7 +63,7 @@ These source files implement the exported module. The stage integration is
 [source plan](../../../records/plans/storage.md#p37). `src/lib.rs` exports `xdesign::storage`.
 The separately integrated `XDesignRustUml` package projection covers the module boundary,
 while these pages own the individual Rust contracts.
-[Executed STORE-01 through STORE-10 evidence](../../../records/plans/storage.md#p38) covers the
+[Executed STORE-01 through STORE-11 evidence](../../../records/plans/storage.md#p38) covers the
 local item/revision store, verified queries, material reads, checkout and doctor, exact-request
 recovery, and two store-backed flow demonstrations within disclosed limits. Two unrelated
 pre-existing renderer failures remain. This evidence does not establish physical power-loss

@@ -162,6 +162,7 @@ nav:
       - "Cross-layer review reconciliation": records/reviews/cross-layer-reconciliation.md
       - "xdesign flow and SimpleFlow integration reconciliation": records/reviews/integration-reconciliation.md
       - "Architecture baseline review": records/reviews/architecture-baseline.md
+      - "Storage acceptance-challenge review fixes": records/reviews/storage-challenge.md
     - "Executions":
       - "SimpleFlow execution record": records/executions/simple-flow.md
       - "Wish journeys": records/executions/wish-journeys.md

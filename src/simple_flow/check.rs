@@ -12,10 +12,22 @@ use std::{
     thread,
     time::{Duration, Instant},
 };
+#[cfg(unix)]
+use std::{
+    os::unix::{io::AsRawFd, process::CommandExt},
+    process::{Child, ExitStatus},
+};
 use uuid::Uuid;
+
+/// How long the Unix deadline loop waits between non-blocking output drains
+/// when neither the checker nor its pipes have finished.
+#[cfg(unix)]
+const OUTPUT_POLL_INTERVAL: Duration = Duration::from_millis(5);
 
 /// A hung checker must never hang the CLI with it: subprocesses are killed at
 /// this deadline (overridable for slow machines) and reported as timed out.
+/// The same deadline bounds the checker's whole process tree, not just its
+/// direct child (see [`run_command_with_timeout`]).
 pub fn checker_timeout() -> Duration {
     std::env::var("XDESIGN_CHECKER_TIMEOUT_SECS")
         .ok()
@@ -31,11 +43,184 @@ pub struct CommandOutcome {
     pub timed_out: bool,
 }
 
-/// Run a command to completion with a hard deadline. On timeout the child and
-/// any of its process group are killed and `timed_out` is reported, so a
-/// checker stuck on I/O or a compiler deadlock surfaces as an explicit error
-/// instead of an indefinite hang.
+/// Run a command to completion with a hard deadline that bounds its whole
+/// process tree, not just the direct child.
+///
+/// On Unix the command is spawned as the leader of its own process group
+/// (`pre_exec` + `setpgid`), its stdout/stderr are read through non-blocking
+/// pipe ends while the deadline loop runs, and an expired deadline sends
+/// `SIGKILL` to the entire group before reaping the direct child. This matters
+/// because a checker can start a descendant that inherits its stdout/stderr:
+/// killing only the direct child leaves those pipes open, so reader threads
+/// would block until the descendant exits, silently extending the deadline
+/// while a checker holds the per-wish writer lock.
+///
+/// Output is accumulated byte-for-byte by the deadline loop. If the direct
+/// child exits before the deadline but descendants still hold the pipes, the
+/// loop keeps draining and only returns success once both pipes reach EOF.
+/// If the deadline expires first, the group is killed and the call returns
+/// `timed_out: true, success: false` without waiting for descendant-held pipe
+/// ends, so the total time is bounded by the deadline plus the process kill
+/// and reap time. A normal command that closes its pipes within the deadline
+/// returns its full captured output and exit status exactly as before.
+///
+/// The non-Unix fallback keeps the previous behavior (kill the direct child,
+/// join the pipe-reader threads) because process groups are a Unix facility.
 pub fn run_command_with_timeout(
+    command: &mut Command,
+    timeout: Duration,
+) -> std::io::Result<CommandOutcome> {
+    #[cfg(unix)]
+    return run_command_with_timeout_unix(command, timeout);
+    #[cfg(not(unix))]
+    return run_command_with_timeout_fallback(command, timeout);
+}
+
+/// Spawn the command as the leader of a new process group so the deadline can
+/// terminate every descendant with a single `kill(-pid, SIGKILL)`.
+#[cfg(unix)]
+fn spawn_checker_process_group(command: &mut Command) -> std::io::Result<Child> {
+    // SAFETY: the closure runs in the forked child between `fork` and `exec`,
+    // where only async-signal-safe operations are permitted. `setpgid` is
+    // async-signal-safe and touches no shared Rust state, so it is sound here.
+    unsafe {
+        command.pre_exec(|| {
+            if libc::setpgid(0, 0) == -1 {
+                return Err(std::io::Error::last_os_error());
+            }
+            Ok(())
+        });
+    }
+    command
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+}
+
+/// Switch a pipe read end to non-blocking mode so the deadline loop can drain
+/// output without ever blocking on a descendant-held pipe.
+#[cfg(unix)]
+fn set_pipe_nonblocking<T: AsRawFd>(pipe: &T) -> std::io::Result<()> {
+    let fd = pipe.as_raw_fd();
+    let flags = unsafe { libc::fcntl(fd, libc::F_GETFL) };
+    if flags == -1 {
+        return Err(std::io::Error::last_os_error());
+    }
+    if unsafe { libc::fcntl(fd, libc::F_SETFL, flags | libc::O_NONBLOCK) } == -1 {
+        return Err(std::io::Error::last_os_error());
+    }
+    Ok(())
+}
+
+/// Drain every byte currently available from a non-blocking pipe.
+///
+/// Returns `true` when the pipe has reached EOF (or a read error leaves no
+/// more bytes to collect), meaning the deadline loop can stop polling it;
+/// `false` means the pipe is still open and should be polled again.
+#[cfg(unix)]
+fn drain_available(pipe: &mut dyn Read, buffer: &mut Vec<u8>) -> bool {
+    let mut chunk = [0u8; 16 * 1024];
+    loop {
+        match pipe.read(&mut chunk) {
+            Ok(0) => return true,
+            Ok(read) => buffer.extend_from_slice(&chunk[..read]),
+            Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return false,
+            // A real read error makes no further bytes available, mirroring
+            // the previous lenient `read_to_end` handling by keeping the
+            // bytes already captured.
+            Err(_) => return true,
+        }
+    }
+}
+
+/// Kill the checker's whole process group. `child.kill` is only the fallback
+/// for the rare case where the group signal cannot be delivered.
+#[cfg(unix)]
+fn kill_process_group(child: &mut Child) {
+    let pid = child.id();
+    let signaled =
+        pid <= i32::MAX as u32 && unsafe { libc::kill(-(pid as libc::pid_t), libc::SIGKILL) } == 0;
+    if !signaled {
+        let _ = child.kill();
+    }
+}
+
+#[cfg(unix)]
+fn run_command_with_timeout_unix(
+    command: &mut Command,
+    timeout: Duration,
+) -> std::io::Result<CommandOutcome> {
+    let deadline = Instant::now() + timeout;
+    let mut child = spawn_checker_process_group(command)?;
+    let mut stdout_pipe = child.stdout.take().expect("piped stdout");
+    let mut stderr_pipe = child.stderr.take().expect("piped stderr");
+    set_pipe_nonblocking(&stdout_pipe)?;
+    set_pipe_nonblocking(&stderr_pipe)?;
+
+    let mut stdout = Vec::new();
+    let mut stderr = Vec::new();
+    let mut stdout_closed = false;
+    let mut stderr_closed = false;
+    let mut status: Option<ExitStatus> = None;
+    loop {
+        // Drain output first: descendants may keep writing while the direct
+        // child is already gone, and a large child output must not block on a
+        // full pipe buffer.
+        if !stdout_closed {
+            stdout_closed = drain_available(&mut stdout_pipe, &mut stdout);
+        }
+        if !stderr_closed {
+            stderr_closed = drain_available(&mut stderr_pipe, &mut stderr);
+        }
+        if status.is_none() {
+            status = child.try_wait()?;
+        }
+        // The command is finished only when the direct child has exited and
+        // no remaining writer (including descendants) holds its pipes open.
+        if let Some(status) = status {
+            if stdout_closed && stderr_closed {
+                return Ok(CommandOutcome {
+                    stdout,
+                    stderr,
+                    success: status.success(),
+                    timed_out: false,
+                });
+            }
+        }
+        let now = Instant::now();
+        if now >= deadline {
+            break;
+        }
+        thread::sleep((deadline - now).min(OUTPUT_POLL_INTERVAL));
+    }
+
+    // Deadline expired. Kill the group before returning so descendants holding
+    // the inherited pipes cannot outlive the checker or hang it. The final
+    // non-blocking drain only collects bytes already buffered; it never waits
+    // for a descendant that survived the group signal.
+    kill_process_group(&mut child);
+    let _ = child.wait();
+    if !stdout_closed {
+        drain_available(&mut stdout_pipe, &mut stdout);
+    }
+    if !stderr_closed {
+        drain_available(&mut stderr_pipe, &mut stderr);
+    }
+    Ok(CommandOutcome {
+        stdout,
+        stderr,
+        success: false,
+        timed_out: true,
+    })
+}
+
+/// Fallback for platforms without Unix process groups: kill only the direct
+/// child and join its output-reader threads. Descendants that inherit the
+/// pipes can still extend the deadline on these platforms.
+#[cfg(not(unix))]
+fn run_command_with_timeout_fallback(
     command: &mut Command,
     timeout: Duration,
 ) -> std::io::Result<CommandOutcome> {
@@ -76,7 +261,7 @@ pub fn run_command_with_timeout(
                     stderr: stderr.join().unwrap_or_default(),
                     success: false,
                     timed_out: true,
-                })
+                });
             }
         }
     }

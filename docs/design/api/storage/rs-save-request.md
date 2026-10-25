@@ -1,6 +1,6 @@
 # `RsSaveRequest`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes `XDesignStorage::SaveRequest` in
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes `XDesignStorage::SaveRequest` in
 > [D86](../../storage.md#d86); implementation projection `src/storage/mod.rs`.
 
 <a id="u80"></a>
@@ -34,9 +34,9 @@ One exact logical save request. A struct literal alone is not validated authorit
 | `item_id` | Target generic item; follows the common item ID rule. A wish uses its wish ID. |
 | `kind` | Immutable item kind token. Creation fixes it; later saves must retain it. |
 | `expected_revision` | `0` creates the item. A positive value appends only when it equals the current head in the commit transaction; the next revision must fit the integer contract. |
-| `metadata` | A JSON object by construction. It has no independently authoritative wish-status field. Wish metadata requirements apply when `kind == "wish"`. |
-| `materials` | The complete desired manifest, including unchanged entries. URIs are unique and every [`RsSaveMaterial`](rs-save-material.md#u85) is validated; this is not a delta. |
-| `result` | Any strict JSON value retained in the receipt. The store does not interpret it as a gate verdict or proof of commit. |
+| `metadata` | A JSON object by construction. It has no independently authoritative wish-status field. Wish metadata requirements apply when `kind == "wish"`. Open numbers follow the exact fixed-point numeric rule in [I13](../../../interfaces/store-format.md#i13); a member that would round or leave the supported range is `InvalidInput` before reservation. |
+| `materials` | The complete desired manifest, including unchanged entries. URIs are unique and every [`RsSaveMaterial`](rs-save-material.md#u85) is validated; this is not a delta. URI and implied-directory names are compared under host-independent Unicode canonical decomposition (NFD) plus Unicode case folding; canonical, case-fold, or file-versus-directory collisions are `InvalidInput`. |
+| `result` | Any strict JSON value retained in the receipt. The store does not interpret it as a gate verdict or proof of commit, but its open numbers follow the same exact fixed-point rule as `metadata` and are never rounded to make the request storable. |
 
 Common IDs, digests, URIs, JSON limits, metadata, and size rules are owned by
 [I13](../../../interfaces/store-format.md#i13); they are not delegated to callers.
@@ -56,17 +56,22 @@ only the proposed result.
 Constructing, cloning, serializing, or dropping this value has no storage effect. A successful
 save either commits the complete revision, receipt, and head advance together or commits only
 a conflict receipt. Failure after reservation can leave a pending receipt; an error does not
-prove absence of effects.
+prove absence of effects. Request and path-syntax validation precedes reservation and does not
+resolve the project root or any source; an identical exact save with a terminal receipt
+returns that receipt before either resolution step.
 
 **Logic**
 
-1. Validate the complete typed request.
+1. Validate the complete typed request and its path syntax, including exact-number fixed
+   points and manifest name equivalence; this step does not resolve the project root or
+   sources.
 2. Encode it as deterministic compact JSON: recursively sorted object members, no
    insignificant whitespace, and primitive forms from the pinned `serde_json` serializer.
    This is the project's deterministic encoding, **not** RFC 8785/JCS interoperability.
 3. Hash and retain those exact bytes for operation identity.
 4. Execute the exact-operation reservation, publication, and commit/conflict protocol in
-   [`RsStore::save`](rs-store-save.md#u82).
+   [`RsStore::save`](rs-store-save.md#u82); an exact terminal receipt is returned before
+   project-root canonicalization or source-path resolution.
 
 **Example** (illustrative, not executed):
 

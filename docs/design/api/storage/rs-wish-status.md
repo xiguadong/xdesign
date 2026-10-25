@@ -1,6 +1,6 @@
 # `RsWishStatus`
 
-> `xdesign::storage` · enum · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · mirrors `XDesignCommon::WishStatus` for the
+> `xdesign::storage` · enum · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · mirrors `XDesignCommon::WishStatus` for the
 > derived projection in [D86](../../storage.md#d86); implementation projection
 > `src/storage/mod.rs`.
 

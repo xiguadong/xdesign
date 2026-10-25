@@ -1,6 +1,6 @@
 # `RsStore::pending_item_operations`
 
-> `xdesign::storage` · method · implemented; STORE-01–STORE-10 evidence executed within
+> `xdesign::storage` · method · implemented; STORE-01–STORE-11 evidence executed within
 > disclosed limits · realizes `XDesignStorage::ProjectStore` queries in
 > [D86](../../storage.md#d86); implementation projection `src/storage/ops.rs`.
 

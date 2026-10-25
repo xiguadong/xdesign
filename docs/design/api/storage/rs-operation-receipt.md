@@ -1,6 +1,6 @@
 # `RsOperationReceipt`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes
 > `XDesignStorage::OperationReceipt` in [D86](../../storage.md#d86); implementation
 > projection `src/storage/mod.rs`.
 
@@ -46,17 +46,18 @@ fallible constructor or independent return channel.
 **Persistence**
 
 Constructing or dropping the value has no effect. The stored pending receipt and exact request
-are durable before source reads. A committed receipt commits with its complete revision and
-head advance; a conflict receipt commits alone. Terminal receipts are immutable. Errors after
-reservation can leave pending state, so an error never implies that no receipt was written.
+are durable before project-root canonicalization, source-path resolution, and any source read.
+A committed receipt commits with its complete revision and head advance; a conflict receipt
+commits alone. Terminal receipts are immutable. Errors after reservation can leave pending
+state, so an error never implies that no receipt was written.
 
 **Logic**
 
-Save inspects the receipt before source reads: an exact terminal receipt returns immediately;
-an exact pending request resumes; different bytes fail without returning the other operation's
-result. [`RsStore::outcome`](rs-store-outcome.md#u83) reads and validates the actual receipt
-without comparing material sources. After uncertain publication/commit/response, callers use
-`outcome` or exact retry, never a fresh operation ID.
+Save inspects the receipt before project-root canonicalization or source-path resolution: an
+exact terminal receipt returns immediately; an exact pending request resumes; different bytes
+fail without returning the other operation's result. [`RsStore::outcome`](rs-store-outcome.md#u83)
+reads and validates the actual receipt without comparing material sources. After uncertain
+publication/commit/response, callers use `outcome` or exact retry, never a fresh operation ID.
 
 **Example** (illustrative, not executed):
 

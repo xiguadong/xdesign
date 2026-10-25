@@ -1,6 +1,6 @@
 # `RsItemSummary`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · language-side current-head projection for
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · language-side current-head projection for
 > `ProjectStore::list`; the logical model has no separate summary authority. Implementation
 > projection `src/storage/mod.rs`.
 

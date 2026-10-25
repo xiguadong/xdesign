@@ -1,6 +1,6 @@
 # `RsDoctorFinding`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes
 > `XDesignStorage::DoctorFinding` in [D86](../../storage.md#d86); implementation
 > projection `src/storage/mod.rs`.
 

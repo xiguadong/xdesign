@@ -34,7 +34,9 @@ fn list_checker_inputs(command_uri: &str) -> Result<Vec<String>, String> {
     )
     .map_err(|e| e.to_string())?;
     if output.timed_out {
-        return Err(format!("{command_uri} --list-inputs exceeded its deadline and was killed"));
+        return Err(format!(
+            "{command_uri} --list-inputs exceeded its deadline and was killed"
+        ));
     }
     if !output.success {
         return Err(format!(

@@ -293,11 +293,13 @@ package XDesignRustUml {
         @XDesignCommon::DocSection { document = "docs/design/api/core/rs-gate-error.md"; section = "U46"; }
         doc /* How gate evaluation fails without fabricating an outcome: the
            checker a syntactic spec needs is absent, the command itself failed
-           to produce a report, or the judge declined to judge. A failed rule
-           is not here — it is data in RsRuleReport. A Rust enum with no SysML
-           counterpart; the model leaves failure channels to the exchanges. */
+           to produce a report, the command outlived its deadline, or the judge
+           declined to judge. A failed rule is not here — it is data in
+           RsRuleReport; a deadline is an explicit failure channel rather than
+           an invented rule failure. */
         enum checkerMissing;
         enum commandFailed;
+        enum checkerTimeout;
         enum judgmentRefused;
         enum judgeNotPermitted;
         enum missingEvidence;

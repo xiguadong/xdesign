@@ -165,19 +165,26 @@ response. A failed or unevaluated gate commits its factual blocked record. Inval
 results and stale-head conflicts do not advance the stored head. Callers can supply an
 operation ID and reconcile a lost response through `store outcome`. Operation lookup
 precedes stale-result validation, so a completed head cannot hide the original assessed
-response. Replaying the exact committed operation does not rerun checkers; a pending
-operation retains its final request so the same stage command can resume it without
-another invocation — including when its transient sources are gone, because published
-blobs are reused first. A retry of an operation with no receipt discards that operation's
-stale speculative files and repairs the on-disk run record from the committed head, so a
-crash mid-attempt or a database timeout before reservation never wedges the wish on
-immutable-record drift; the same projection repair applies to readers. The writer lock is
-removed on normal exit. After a crash, inspect the store and active process before
-manually removing a stale lock; the CLI does not guess that a writer has abandoned it.
+response. Replaying an exact committed operation does not rerun the engine or any checker:
+it publishes the canonical run record and response from the committed revision's verified
+materials, so replay still succeeds after the attempt scratch and canonical cache copies
+have been lost. A pending operation retains its final request so the same stage command
+can resume it without another invocation — including when its transient sources are gone,
+because published blobs are reused first. A retry of an operation with no receipt discards
+that operation's stale speculative files and repairs the on-disk run record from the
+committed head, so a crash mid-attempt or a database timeout before reservation never
+wedges the wish on immutable-record drift; the same projection repair applies to readers.
+The writer lock is removed on normal exit. After a crash, inspect the store and active
+process before manually removing a stale lock; the CLI does not guess that a writer has
+abandoned it.
 
 Checker subprocesses run under a hard deadline (default 600 seconds, overridden by
-`XDESIGN_CHECKER_TIMEOUT_SECS`): a checker that exceeds it is killed, its partial logs are
-retained with a timeout note, and the gate reports an explicit checker timeout instead of
+`XDESIGN_CHECKER_TIMEOUT_SECS`). On the supported Unix-like hosts the deadline bounds the
+entire process tree: each checker runs in an isolated process group, the group is killed
+when the deadline expires, and its stdout/stderr pipes are drained through a bounded drain
+that cannot block completion. A descendant that inherits those pipes therefore cannot extend
+execution past the deadline, whether the direct child has exited or not. Partial logs are
+retained with a timeout note, and the gate reports an explicit `CheckerTimeout` instead of
 blocking the CLI indefinitely.
 
 `store list --kind wish` derives its projection from the stored run: `pending` maps to

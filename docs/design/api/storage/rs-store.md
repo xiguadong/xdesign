@@ -1,6 +1,6 @@
 # `RsStore`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes the local
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes the local
 > `XDesignStorage::ProjectStore` boundary in [D86](../../storage.md#d86); implementation
 > projection `src/storage/{mod,db}.rs`.
 

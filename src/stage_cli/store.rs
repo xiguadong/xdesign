@@ -158,7 +158,8 @@ pub fn write_new(uri: &str, bytes: &[u8]) -> Result<(), String> {
         .create_new(true)
         .open(uri)
         .map_err(|e| format!("cannot create {uri}: {e}"))?;
-    file.write_all(bytes).map_err(|e| format!("cannot write {uri}: {e}"))
+    file.write_all(bytes)
+        .map_err(|e| format!("cannot write {uri}: {e}"))
 }
 
 /// Atomically replace a state file with new bytes: write a sibling temporary,
@@ -166,7 +167,10 @@ pub fn write_new(uri: &str, bytes: &[u8]) -> Result<(), String> {
 pub fn replace_state(uri: &str, bytes: &[u8]) -> Result<(), String> {
     state_path(uri)?;
     let temporary = format!("{uri}.{}.tmp", uuid::Uuid::new_v4());
-    if let Some(parent) = Path::new(uri).parent().filter(|path| !path.as_os_str().is_empty()) {
+    if let Some(parent) = Path::new(uri)
+        .parent()
+        .filter(|path| !path.as_os_str().is_empty())
+    {
         fs::create_dir_all(parent).map_err(|e| format!("cannot create parent for {uri}: {e}"))?;
     }
     {
@@ -180,7 +184,10 @@ pub fn replace_state(uri: &str, bytes: &[u8]) -> Result<(), String> {
             .map_err(|e| format!("cannot write {temporary}: {e}"))?;
     }
     fs::rename(&temporary, uri).map_err(|e| format!("cannot replace {uri}: {e}"))?;
-    if let Some(parent) = Path::new(uri).parent().filter(|path| !path.as_os_str().is_empty()) {
+    if let Some(parent) = Path::new(uri)
+        .parent()
+        .filter(|path| !path.as_os_str().is_empty())
+    {
         if let Ok(directory) = fs::File::open(parent) {
             let _ = directory.sync_all();
         }

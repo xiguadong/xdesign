@@ -828,6 +828,7 @@ package XDesignDetailedDesign {
             item storageBlobs : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/blobs.rs"; attribute redefines responsibility = "Content-addressed publication, verified reads and checkout"; }
             item storageOps : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/ops.rs"; attribute redefines responsibility = "Strict saves, operation receipts, recovery and doctor"; }
             item storageCli : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/cli.rs"; attribute redefines responsibility = "Versioned store command envelope and exit codes"; }
+            item storageUnicode : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/unicode.rs"; attribute redefines responsibility = "Generated Unicode canonical-decomposition and case-folding tables for manifest-name equivalence"; }
             item restoreRun : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/restore.rs"; attribute redefines responsibility = "Validated read-only run restoration"; }
             item manifest : SimpleFlowFileEntry { attribute redefines repositoryPath = "Cargo.toml"; attribute redefines responsibility = "Rust crate manifest"; }
             item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "xdesign application module boundary"; }
@@ -857,7 +858,10 @@ package XDesignDetailedDesign {
             item stageCliTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/stage_cli.rs"; attribute redefines responsibility = "CLI process, restart and failure integration cases"; }
             item storageTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage.rs"; attribute redefines responsibility = "Storage schema, materials, idempotency, conflict and crash recovery cases"; }
             item storageCliTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage_cli.rs"; attribute redefines responsibility = "Store command, query, checkout and cache-loss process cases"; }
-            item checkerTimeoutTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/checker_timeout.rs"; attribute redefines responsibility = "Checker subprocess deadline kill and output collection cases"; }
+            item storagePathsTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage_paths.rs"; attribute redefines responsibility = "Destination-ancestry and bounded streaming checkout cases"; }
+            item storageProtocolTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage_protocol.rs"; attribute redefines responsibility = "Terminal-receipt retry and source-omission attribution cases"; }
+            item storageMemoryTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage_memory.rs"; attribute redefines responsibility = "Bounded checkout peak-heap regression case"; }
+            item checkerTimeoutTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/checker_timeout.rs"; attribute redefines responsibility = "Checker process-tree deadline, group-kill and retained-output cases"; }
             item restoreTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/run_restore.rs"; attribute redefines responsibility = "Run restoration corruption and history cases"; }
             item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/simple_flow.rs"; attribute redefines responsibility = "Plan, authorization, recovery and reopen cases"; }
             item modelPlanCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/plan_model_sync.rs"; attribute redefines responsibility = "Frozen rule and model declaration agreement"; }

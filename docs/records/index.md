@@ -26,7 +26,10 @@ records wish-0010's SimpleFlow implementation sequence for the flat `next` and
 acceptance run, observed test coverage, remaining limits, and pending final
 human acceptance. The [storage redesign and implementation plan](plans/storage.md#p35)
 records wish-0011's SimpleFlow route for durable operational storage, its acceptance
-cases, executed evidence, and remaining limits.
+cases, executed evidence, and remaining limits. The
+[storage acceptance-challenge review fixes](reviews/storage-challenge.md#p40) record the
+nine reproduced defects, their dispositions, the recovery-boundary decision, and the
+executed re-verification.
 The [SimpleFlow file plan and verification cases](plans/simple-flow-file-plan.md#d53)
 record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,

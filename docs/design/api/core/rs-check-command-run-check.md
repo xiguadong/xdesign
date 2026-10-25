@@ -39,13 +39,14 @@ decides it.
 | Case | Type | Guarantee |
 | --- | --- | --- |
 | `Ok(report)` | `RsGateReport` | revision and snapshot digest echo checked inputs; rules cover every declared rule exactly once; `holds` equals their conjunction; `report_uri` names a retained artifact |
-| `Err(e)` | `RsGateError` | The check boundary could not produce a trustworthy report; `RsProcessCheck` returns `CommandFailed` for process, input, and report failures |
+| `Err(e)` | `RsGateError` | The check boundary could not produce a trustworthy report; `RsProcessCheck` returns `CommandFailed` for process, input, and report failures and `CheckerTimeout` when the checker process tree is killed at its deadline |
 
 **Errors**
 
 | Variant | Raised when | Caller action |
 | --- | --- | --- |
 | `RsGateError::CommandFailed` | the provided `RsProcessCheck` could not produce a trustworthy report | Record `Unevaluated`; inspect the command's own diagnostics |
+| `RsGateError::CheckerTimeout` | the bounded checker deadline (whole process tree; default 600 s, `XDESIGN_CHECKER_TIMEOUT_SECS`) expired and the process group was killed with output drained | Record `Unevaluated`; inspect the retained partial logs and timeout note |
 
 Panics: none. A different `RsCheckCommand` implementation can return another
 `RsGateError`; [`evaluate_checkpoint`](evaluate-checkpoint.md#u20)
@@ -61,6 +62,8 @@ propagates that variant unchanged.
 3. recompute each current artifact's SHA-256 from its file bytes;
    require the canonical artifact snapshot digest == snapshot_digest
 4. locate checker.command_uri and run its fixed rules with these inputs
+   in an isolated process group under the checker deadline; at the
+   deadline kill the group and drain its bounded output
 5. parse its per-rule output; require the rule IDs to equal checker.rules
    exactly once each, `input_sha256` to match re-read files, and each
    requirements/design input other than the wish identity, run record, and
@@ -69,7 +72,8 @@ propagates that variant unchanged.
        holds, artifact_revision,
        artifact_snapshot_digest: snapshot_digest,
        report_uri, rules })
-7. on any failure of steps 1–5: return Err(CommandFailed)
+7. on any failure of steps 1–5: return Err(CommandFailed), or
+   Err(CheckerTimeout) when the deadline expired
 ```
 
 **Other**
@@ -77,7 +81,7 @@ propagates that variant unchanged.
 | Item | Value |
 | --- | --- |
 | Side effects | Executes an external command; retains its JSON report and command stdout/stderr logs |
-| Complexity | Bound by the command, not the caller; no timeout is designed ([D50](../../flows/simple-flow/implementation.md#d50)) |
+| Complexity | Bound by the command itself and by the process adapter's hard deadline, which covers the whole process tree including descendants on supported Unix hosts; the trait itself imposes no deadline ([D50](../../flows/simple-flow/implementation.md#d50), [stage CLI contract](../../stage-cli.md#d85)) |
 | Thread safety | `&self`; implementations must be `Send` and internally synchronized |
 
 **See also:** [`RsCheckCommand`](rs-check-command.md#u21), [`RsGateReport`](rs-gate-report.md#u37), [`RsRuleReport`](rs-rule-report.md#u38).

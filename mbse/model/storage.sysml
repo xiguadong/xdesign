@@ -40,9 +40,11 @@ package XDesignStorage {
         @XDesignCommon::DiagramPresentation { label = "Save material"; summary = "Digest declaration and optional source"; }
         @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D86"; }
         doc /* One requested manifest entry. A source is a normalized project-relative
-           path whose exact bytes must match sha256. An absent source carries an already
-           committed blob by digest; it does not mean a missing or unverified blob. Every
-           entry is restated in the new revision's complete manifest. */
+           path whose exact bytes must match sha256. An absent source carries a verified
+           blob by digest: a committed blob row, or a digest this exact operation
+           verifiably published on an earlier attempt while its outcome was pending; an
+           unrelated published or orphan blob is never adopted. Every entry is restated
+           in the new revision's complete manifest. */
         attribute uri : String;
         attribute role : String;
         attribute sha256 : String;
@@ -176,13 +178,14 @@ package XDesignStorage {
         @XDesignCommon::DiagramPresentation { label = "Save revision"; summary = "Reserve, publish, then commit or conflict"; }
         @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D86"; }
         doc /* One exact-request save with expected-head protection. A stored terminal
-           receipt returns before source reads. The pending request is durable before
-           any source read or publication. All required blobs are published with fsync
-           and no-replace semantics before one BEGIN IMMEDIATE transaction rechecks the
-           receipt and head, writes the item on create, appends the revision and complete
-           manifest, finalizes the receipt, and advances the head. A stale head commits a
-           conflict receipt and no revision. Post-publication or post-commit uncertainty
-           is reconciled through outcome, never a fresh operation ID. */
+           receipt for identical request bytes returns before project-root
+           canonicalization or any source-path resolution. The pending request is durable
+           before any source read or publication. All required blobs are published with
+           fsync and no-replace semantics before one BEGIN IMMEDIATE transaction rechecks
+           the receipt and head, writes the item on create, appends the revision and
+           complete manifest, finalizes the receipt, and advances the head. A stale head
+           commits a conflict receipt and no revision. Post-publication or post-commit
+           uncertainty is reconciled through outcome, never a fresh operation ID. */
 
         in attribute projectRootUri : String;
         in item request : SaveRequest;
@@ -193,16 +196,22 @@ package XDesignStorage {
             @XDesignCommon::DiagramPresentation { label = "Validate request"; }
             doc /* Enforce strict JSON limits and schema, IDs, lowercase digests, safe
                unique URIs, metadata object shape, and per-material limits before any
-               reservation. Manifest names must be materializable: no name is both file
-               and directory, and distinct names stay distinct under case folding.
-               Numbers outside exact 64-bit integer or float64 round-trip range are
-               rejected rather than rounded. Results and metadata must reserve room for
-               the response envelope. The exact request bytes determine requestSha256. */
+               reservation; no project-root or source-path resolution happens here.
+               Manifest names must be materializable: no name is both file and directory,
+               and distinct URI and implied-directory names stay distinct under
+               host-independent Unicode canonical decomposition (NFD) plus case folding.
+               Open numbers are accepted only when the stored representation is an exact
+               decode/re-encode fixed point under the single pinned numeric parser and
+               serializer; overflowing integers, non-canonical decimals, and unsupported
+               extreme exponent ranges are rejected without rounding or panic. Results
+               and metadata must reserve room for the response envelope. The exact
+               request bytes determine requestSha256. */
         }
         then action inspectReceipt {
             @XDesignCommon::DiagramPresentation { label = "Inspect receipt"; }
             doc /* Compare both exact request bytes and their digest with any existing
-               operation. The same ID with different bytes is operation_mismatch. */
+               operation before resolving the project root or sources. The same ID with
+               different bytes is operation_mismatch. */
             out attribute returnImmediately : Boolean = false;
         }
         then decide receiptPath {
@@ -210,8 +219,9 @@ package XDesignStorage {
         }
         action returnStoredReceipt {
             @XDesignCommon::DiagramPresentation { label = "Return stored receipt"; }
-            doc /* Return an exact committed or conflict receipt before reading sources.
-               There is no second revision, publication or other storage effect. */
+            doc /* Return an exact committed or conflict receipt before project-root
+               canonicalization or any source-path resolution. There is no second
+               revision, publication or other storage effect. */
         }
         action reservePending {
             @XDesignCommon::DiagramPresentation { label = "Reserve or resume"; }
@@ -221,12 +231,14 @@ package XDesignStorage {
         }
         then action readSources {
             @XDesignCommon::DiagramPresentation { label = "Reuse published, read sources"; }
-            doc /* Reuse and digest-verify content already committed or published by this
-               operation before reading any source, so a pending recovery completes even
-               after its transient sources are gone. Only then read remaining regular
-               files through safe project-relative paths with the 256 MiB per-material
-               cap, requiring byte-for-byte digest matches. A source is never inside the
-               store root under any case or symlink alias. */
+            doc /* Resolve the project root and source paths only after reservation. Reuse
+               and digest-verify content backed by a committed blob row or this operation's
+               own earlier publication before reading any source, so a pending recovery
+               completes even after its transient sources are gone; an unrelated published
+               or orphan blob is never adopted for an omitted source. Only then read
+               remaining regular files through safe project-relative paths with the 256
+               MiB per-material cap, requiring byte-for-byte digest matches. A source is
+               never inside the store root under any case or symlink alias. */
         }
         then action publishBlobs {
             @XDesignCommon::DiagramPresentation { label = "Publish blobs"; }

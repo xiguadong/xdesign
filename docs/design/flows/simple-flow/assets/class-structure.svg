@@ -397,6 +397,7 @@ enum completed
 f1c42bd9-7727-57d1-be8c-349abea19fed
 enum checkerMissing
 enum commandFailed
+enum checkerTimeout
 enum judgmentRefused
 enum judgeNotPermitted
 enum missingEvidence

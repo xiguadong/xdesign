@@ -418,6 +418,38 @@ fn strict_json_and_path_validation() {
         store.get("mismatch", None),
         Err(RsStoreError::NotFound(_))
     ));
+
+    // Numeric-looking text inside a JSON string is data, not a numeric token:
+    // it must save and echo exactly even when the same text as a number would
+    // be rejected as storage-unstable.
+    let mut text_request = fixture.request("numeric-string", "numeric-string-item", 0, vec![]);
+    text_request.metadata.insert(
+        "text".into(),
+        json!("9764.519195169985 1.0468000232875951e-07 0.0e-2147483648"),
+    );
+    let expected_text = text_request.metadata.get("text").unwrap().clone();
+    store.save(&fixture.project, &text_request).unwrap();
+    let echoed = store.get("numeric-string-item", None).unwrap();
+    assert_eq!(echoed.metadata.get("text"), Some(&expected_text));
+
+    // Malformed numeric syntax is a typed invalid input with no operation
+    // receipt, never a panic.
+    for (index, token) in ["01", "+1", ".5", "1.", "1e", "1e+", "--1", "1..2"]
+        .into_iter()
+        .enumerate()
+    {
+        let operation = format!("bad-number-{index}");
+        let raw = minimal_raw(&operation, &format!("{{\"n\":{token}}}"), "null");
+        let error = store.save_bytes(&fixture.project, &raw).unwrap_err();
+        assert!(
+            matches!(&error, RsStoreError::InvalidInput(_)),
+            "token {token}: {error}"
+        );
+        assert!(matches!(
+            store.outcome(&operation),
+            Err(RsStoreError::NotFound(_))
+        ));
+    }
 }
 
 #[cfg(unix)]
@@ -1191,13 +1223,23 @@ fn response_envelope_bytes_are_reserved_before_commitment() {
 fn numeric_precision_is_exact_or_rejected() {
     let fixture = Fixture::new();
     let store = fixture.store();
-    let cases: [(&str, bool); 10] = [
+    let cases: [(&str, bool); 13] = [
         ("18446744073709551617", false),
         ("18446744073709551615", true),
         ("-9223372036854775809", false),
         ("-9223372036854775808", true),
         ("0.30000000000000000004", false),
         ("9007199254740993.0", false),
+        // Review S1 reproductions: the serde_json decoder that storage uses
+        // parses these to a value whose stored decimal form differs from the
+        // token, so they must be rejected before reservation instead of being
+        // committed with a silently altered number.
+        ("9764.519195169985", false),
+        ("1.0468000232875951e-07", false),
+        // Its decimal value survives, but serde_json does not reach a stable
+        // encode/decode fixed point for it, so a committed revision could read
+        // back as a different value.
+        ("1.9432074656054558e-171", false),
         ("0.1", true),
         ("1e2", true),
         ("1.0000000000000002", true),
@@ -1215,23 +1257,95 @@ fn numeric_precision_is_exact_or_rejected() {
             let error = result.unwrap_err();
             assert!(
                 matches!(&error, RsStoreError::InvalidInput(message)
-                    if message.contains("precision") || message.contains("64-bit integer range")),
+                    if message.contains("precision")
+                        || message.contains("64-bit integer range")
+                        || message.contains("stable")),
                 "token {token}: {error}"
             );
             assert!(matches!(
                 store.outcome(&operation),
                 Err(RsStoreError::NotFound(_))
             ));
+            assert!(matches!(
+                store.get(&item, None),
+                Err(RsStoreError::NotFound(_))
+            ));
+            // Retrying the rejected request stays pre-reservation: still a
+            // typed error and still no operation receipt.
+            assert!(matches!(
+                store.save_bytes(&fixture.project, &raw),
+                Err(RsStoreError::InvalidInput(_))
+            ));
+            assert!(matches!(
+                store.outcome(&operation),
+                Err(RsStoreError::NotFound(_))
+            ));
             continue;
         }
-        assert!(result.is_ok(), "token {token} should be accepted");
-        let echoed = store.get(&item, None).unwrap();
-        let number = echoed.metadata.get("n").unwrap();
+        let receipt =
+            result.unwrap_or_else(|error| panic!("token {token} should be accepted: {error}"));
         assert_eq!(
-            number.as_f64(),
-            token.parse::<f64>().ok(),
-            "token {token} echoed as {number}"
+            receipt.outcome,
+            RsOperationOutcome::Committed,
+            "token {token}"
         );
+        let expected: Value = serde_json::from_str(token).unwrap();
+        let revision = store.get(&item, None).unwrap();
+        assert_eq!(revision.metadata.get("n"), Some(&expected), "token {token}");
+        let outcome = store.outcome(&operation).unwrap();
+        assert_eq!(outcome.result, receipt.result, "token {token}");
+        // Exact retry returns the same terminal receipt, and neither get nor
+        // outcome reports an integrity failure for an accepted number.
+        let retry = store.save_bytes(&fixture.project, &raw).unwrap();
+        assert_eq!(
+            retry.outcome,
+            RsOperationOutcome::Committed,
+            "token {token}"
+        );
+        assert_eq!(retry.revision, receipt.revision, "token {token}");
+        assert_eq!(store.get(&item, None).unwrap(), revision, "token {token}");
+    }
+
+    // A drifting number in a result (the review's second probe) is rejected
+    // with a typed error and leaves no operation receipt.
+    let result_raw = b"{\"schema_version\":1,\"operation_id\":\"numeric-result-token\",\"item_id\":\"numeric-result-token\",\"kind\":\"artifact\",\"expected_revision\":0,\"metadata\":{},\"materials\":[],\"result\":{\"n\":1.0468000232875951e-07}}".to_vec();
+    assert!(matches!(
+        store.save_bytes(&fixture.project, &result_raw),
+        Err(RsStoreError::InvalidInput(_))
+    ));
+    assert!(matches!(
+        store.outcome("numeric-result-token"),
+        Err(RsStoreError::NotFound(_))
+    ));
+
+    // S8: extreme exponents are syntactically valid JSON numbers. They must
+    // produce a typed error before reservation, never an arithmetic panic.
+    for (index, token) in [
+        "0.0e-2147483648",
+        "1e999999999999999999999",
+        "0e-999999999999999999999",
+        "1e-400",
+        "0e2147483647",
+        "123456789012345678901234567890.123456789e-99999",
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let operation = format!("numeric-extreme-{index}");
+        let item = format!("numeric-extreme-item-{index}");
+        let raw = format!(
+            "{{\"schema_version\":1,\"operation_id\":\"{operation}\",\"item_id\":\"{item}\",\"kind\":\"artifact\",\"expected_revision\":0,\"metadata\":{{\"n\":{token}}},\"materials\":[],\"result\":{{\"ok\":true}}}}"
+        )
+        .into_bytes();
+        let error = store.save_bytes(&fixture.project, &raw).unwrap_err();
+        assert!(
+            matches!(&error, RsStoreError::InvalidInput(_)),
+            "extreme token {token}: {error}"
+        );
+        assert!(matches!(
+            store.outcome(&operation),
+            Err(RsStoreError::NotFound(_))
+        ));
     }
 }
 
@@ -1252,6 +1366,17 @@ fn manifest_name_collisions_are_rejected() {
         vec!["File.txt", "file.txt"],
         vec!["A/x", "a/y"],
         vec!["dir/nested.txt", "DIR"],
+        // S4 review reproductions: lowercase-only folding missed canonical
+        // decomposition and full case folding, so these committed but could not
+        // be materialized on a case- and normalization-insensitive volume.
+        vec!["\u{03a3}.txt", "\u{03c2}.txt"],
+        vec!["\u{00e9}.txt", "e\u{0301}.txt"],
+        vec!["\u{03a3}/x", "\u{03c3}/x"],
+        vec!["\u{03a3}/x", "\u{03c3}/y"],
+        vec!["\u{212b}.txt", "\u{00c5}.txt"],
+        // Folded file-vs-implied-directory collisions.
+        vec!["A", "a/x"],
+        vec!["\u{00c9}", "\u{00e9}/x"],
     ];
     for (index, uris) in cases.iter().enumerate() {
         let uris = &uris[..];
@@ -1275,12 +1400,7 @@ fn manifest_name_collisions_are_rejected() {
         fixture.material("plain.txt", b"plain"),
         fixture.material("plain.txt-with-suffix", b"suffixed"),
     ];
-    let request = fixture.request(
-        "collide-valid",
-        "collide-valid-item",
-        0,
-        materials,
-    );
+    let request = fixture.request("collide-valid", "collide-valid-item", 0, materials);
     store.save(&fixture.project, &request).unwrap();
     let destination = fixture.base.join("materialized");
     store
@@ -1290,6 +1410,43 @@ fn manifest_name_collisions_are_rejected() {
     assert_eq!(
         fs::read(destination.join("plain.txt-with-suffix")).unwrap(),
         b"suffixed"
+    );
+
+    // Single Unicode names are not collisions: composed and decomposed
+    // spellings of one name, final sigma and an uppercase sigma directory all
+    // save and check out successfully.
+    let materials = vec![
+        fixture.material("\u{00e9}.txt", b"composed"),
+        fixture.material("e\u{0301}-decomposed.txt", b"decomposed"),
+        fixture.material("\u{03c2}.txt", b"final sigma"),
+        fixture.material("\u{03a3}/child.txt", b"sigma dir"),
+    ];
+    let request = fixture.request(
+        "collide-unicode-valid",
+        "collide-unicode-valid-item",
+        0,
+        materials,
+    );
+    store.save(&fixture.project, &request).unwrap();
+    let destination = fixture.base.join("materialized-unicode");
+    store
+        .checkout("collide-unicode-valid-item", None, &destination)
+        .unwrap();
+    assert_eq!(
+        fs::read(destination.join("\u{00e9}.txt")).unwrap(),
+        b"composed"
+    );
+    assert_eq!(
+        fs::read(destination.join("e\u{0301}-decomposed.txt")).unwrap(),
+        b"decomposed"
+    );
+    assert_eq!(
+        fs::read(destination.join("\u{03c2}.txt")).unwrap(),
+        b"final sigma"
+    );
+    assert_eq!(
+        fs::read(destination.join("\u{03a3}").join("child.txt")).unwrap(),
+        b"sigma dir"
     );
 }
 
@@ -1313,7 +1470,9 @@ fn pinned_revision_reads_are_stable_across_appends() {
     store.save(&fixture.project, &second).unwrap();
 
     assert_eq!(
-        store.read_material("pin-item", Some(1), "data.txt").unwrap(),
+        store
+            .read_material("pin-item", Some(1), "data.txt")
+            .unwrap(),
         b"revision one"
     );
     assert_eq!(
@@ -1336,10 +1495,7 @@ fn pinned_revision_reads_are_stable_across_appends() {
     ]));
     assert_eq!(code, 0, "{response}");
     assert_eq!(fs::read(&output).unwrap(), b"revision one");
-    assert_eq!(
-        response["data"]["sha256"],
-        json!(digest(b"revision one"))
-    );
+    assert_eq!(response["data"]["sha256"], json!(digest(b"revision one")));
 }
 
 #[test]

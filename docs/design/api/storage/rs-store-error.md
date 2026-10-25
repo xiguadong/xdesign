@@ -1,6 +1,6 @@
 # `RsStoreError`
 
-> `xdesign::storage` · enum · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · language-side typed failure channel; the logical
+> `xdesign::storage` · enum · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · language-side typed failure channel; the logical
 > model defines storage outcomes and defects but no Rust error type. Implementation projection
 > `src/storage/mod.rs`.
 
@@ -54,10 +54,12 @@ retry before new work; callers must not substitute a fresh operation ID.
 **Logic**
 
 Operations return expected caller/data, format, integrity, path, filesystem, and database
-failures through this enum instead of panicking. Individual doctor findings remain report data
-when inspection completes. `outcome` itself is the reconciliation read and has no
-`UnknownOutcome` result. Resource exhaustion and process abort remain outside the documented
-panic/failure contract.
+failures through this enum instead of panicking. Unsupported numeric tokens — 64-bit integer
+overflow, a decimal whose canonical stored form changes the supplied value, or an
+unsupported extreme exponent — are ordinary `InvalidInput` failures, not panics or aborts.
+Individual doctor findings remain report data when inspection completes. `outcome` itself is
+the reconciliation read and has no `UnknownOutcome` result. Resource exhaustion and process
+abort remain outside the documented panic/failure contract.
 
 **Example** (illustrative reconciliation, not executed):
 

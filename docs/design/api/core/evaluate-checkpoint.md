@@ -53,6 +53,7 @@ most one assessment, cited at the visit's current `artifact_revision`.
 | --- | --- | --- |
 | `RsGateError::CheckerMissing` | syntactic spec with `checker == None` | Reject the plan earlier via `validate`; treat as plan defect |
 | `RsGateError::CommandFailed` | artifact bytes differ from the visit snapshot, command failed, report file is absent, or report invariants fail | Record `Unevaluated`; inspect the command and inputs |
+| `RsGateError::CheckerTimeout` | the checker process tree exceeded its deadline and was killed with output drained, so no trustworthy report exists | Record `Unevaluated`; inspect the retained partial logs and timeout note |
 | `RsGateError::JudgmentRefused` | judge returned `Unevaluated` or supplied no rationale | Record `Unevaluated`; route to a reasoned judgment |
 | `RsGateError::JudgeNotPermitted` | judge authority is not allowed or its identity is empty | Record `Unevaluated`; use a permitted, identified judge |
 | `RsGateError::MissingEvidence` | semantic pass has no current visit artifact, cites no evidence, or cites an invalid URI or missing file | Record `Unevaluated`; supply a retained verification artifact before judging |

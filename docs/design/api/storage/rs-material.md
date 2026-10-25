@@ -1,6 +1,6 @@
 # `RsMaterial`
 
-> `xdesign::storage` · struct · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes `XDesignStorage::Material` in
+> `xdesign::storage` · struct · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes `XDesignStorage::Material` in
 > [D86](../../storage.md#d86); implementation projection `src/storage/mod.rs`.
 
 <a id="u86"></a>

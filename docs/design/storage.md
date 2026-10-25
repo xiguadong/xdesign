@@ -6,7 +6,7 @@
 This page allocates the selected local item/revision store, its save and recovery
 protocol, and its SimpleFlow/WishVerifyFlow adapter. The normative storage
 requirements remain in [R01](../requirements/requirements.md#r01); executed evidence and
-limits for [STORE-01 through STORE-10](../records/plans/storage.md#p38) are recorded separately.
+limits for [STORE-01 through STORE-11](../records/plans/storage.md#p38) are recorded separately.
 The [store format and CLI](../interfaces/store-format.md#i11) owns serialized and physical
 contracts, and the [storage API set](api/storage/index.md#u79) owns Rust signatures.
 
@@ -80,11 +80,18 @@ refusal, not a cue to repair or migrate.
 **Recovery boundary (operational disclosure).** The recorded identity makes a store
 permanently bound to one directory on one filesystem: a moved or restored-from-copy root,
 a replaced disk, or a copied `store.db` is refused at open, and no rebinding, backup,
-restore, or migration operation exists in this slice. If the store is lost or becomes
-unopenable, the recovery path is to re-register the wishes and re-import materials from
-Git and the workspace; blobs without their database remain unusable. The SQLite busy
-timeout is 5 s per connection and may be overridden with `XDESIGN_STORE_BUSY_TIMEOUT_MS`
-(1–600000) for tests and slow local volumes.
+restore, or migration operation exists in this slice. A copied or moved store is therefore
+still refused at open; it is not adopted as a restored authority. This slice **does not**
+treat the store as the sole authority for irreplaceable operational history: the
+technical-acceptance evidence and the review facts that support acceptance remain retained
+in Git-tracked records, independent of any single store directory. If the store is lost or
+becomes unopenable, re-registering the wishes and re-importing materials from Git and the
+workspace cannot recover the original judgments, operation receipts, or run history; blobs
+without their database remain unusable. A supported verified restore or rebind path that
+would make the store a returnable authority is recorded open work and must exist before any
+sole-authority claim. The identity and ownership trust boundary above is unchanged. The
+SQLite busy timeout is 5 s per connection and may be overridden with
+`XDESIGN_STORE_BUSY_TIMEOUT_MS` (1–600000) for tests and slow local volumes.
 
 Source and destination paths use the normalized project-relative URI rules in
 [I13](../interfaces/store-format.md#i13). Sources are opened as regular files beneath the
@@ -93,15 +100,22 @@ identity: the longest existing prefix of a declared source is canonicalized, so
 case-insensitive aliases and symlinks that resolve onto the store root are refused — the
 store never ingests its own root under any spelling. Checkout and materialization reject
 traversal, absolute paths, backslashes, NUL/control characters, and symlink components;
-for destinations, **every** ancestor of the final component must be an existing
-non-symlink directory, not only the immediate parent. These are semantic requirements,
-not a commitment to `cap-std` or any other path-capability dependency. No such dependency
-is selected by this design.
+for destinations, **every** ancestor of the final component — up to the filesystem root —
+must be an existing non-symlink directory, checked before any write and not only the
+immediate parent. An earlier symlink ancestor is refused rather than followed, for read
+output and checkout alike. These are semantic requirements, not a commitment to `cap-std`
+or any other path-capability dependency. No such dependency is selected by this design.
 
-Numbers in requests are stored as exact 64-bit integers or IEEE-754 doubles. A numeric
-token that survives neither path unchanged — an integer beyond the u64/i64 range, or a
-decimal whose shortest float64 round-trip yields a different value — is rejected with an
-`invalid_input` error instead of being silently rounded in metadata and receipts.
+Open `metadata` and `result` numbers must be storeable exactly. Strict validation and
+storage use one pinned `serde_json` numeric parser/serializer: a candidate number is
+accepted only when the representation actually stored for that metadata/result is an exact
+fixed point, stable when the stored representation is decoded and re-encoded. Before the
+operation is reserved, validation checks that fixed point against the exact representation
+that the revision and receipt will persist. A decimal token whose canonical stored form
+differs from the supplied value, an integer token beyond the u64/i64 range, and a token
+whose extreme exponent range the exact representation does not support are rejected with an
+`invalid_input` error; they are never silently rounded, and no input token may panic or
+abort the caller.
 
 WAL readers use one consistent SQLite snapshot, and reads that name a revision are pinned
 to it: a `read`/`read_material` that selected revision N returns revision N's verified
@@ -119,31 +133,44 @@ hashing. Therefore a raw retry must supply identical bytes, including whitespace
 order. An operation ID with different valid request bytes is `operation_mismatch`, even if
 the two documents are semantically equivalent JSON.
 
-1. **Validate before reservation.** Reject oversized/deep JSON, duplicate or unknown
-   protocol fields, unsupported schema versions, invalid IDs/digests/URIs, duplicate URIs,
-   invalid metadata, and materials over 256 MiB. Material names must be materializable on
-   a filesystem: no name may be both a file and an implied directory, and distinct names
-   may not fold to the same case-insensitive entry, so manifests stay valid on
-   case-insensitive volumes. Numbers that cannot be stored exactly (see §1.2) are rejected.
-   The request must also leave room for the response envelope: results and metadata whose
+1. **Validate request and path syntax before reservation.** Reject oversized/deep JSON,
+   duplicate or unknown protocol fields, unsupported schema versions, invalid
+   IDs/digests/URIs, duplicate URIs, invalid metadata, and materials over 256 MiB. This
+   pure request/path-syntax validation happens before reservation and does not resolve the
+   project root or any source path. Material names must be materializable on a filesystem:
+   no name may be both a file and an implied directory, and every manifest URI entry and
+   every implied directory entry is compared under host-independent Unicode canonical
+   decomposition (NFD) and Unicode case folding — a conservative superset of simple case
+   folding. Two distinct names whose canonical decomposed, case-folded forms collide
+   are rejected during save validation. The same equivalence check is repeated when
+   checkout materializes a selected manifest, so a stored manifest that cannot be
+   materialized fails explicitly rather than partially overwriting through a case- or
+   normalization-insensitive alias. The ASCII case and file-versus-directory prefix rules
+   are unchanged. Numbers that cannot be stored exactly (see §1.2) are rejected. The
+   request must also leave room for the response envelope: results and metadata whose
    nesting or serialized size would make the receipt or revision echo exceed the versioned
    JSON envelope limits are rejected here, so a committed operation always has a reportable
    receipt. `expected_revision = 0` means create; positive values mean append at exactly
    that head.
-2. **Inspect or reserve the exact operation.** If an exact committed or conflict receipt
-   exists, return it before any source read or publication. Reusing an ID with different
-   bytes fails without mutation. Otherwise durably write the pending receipt, exact request
-   bytes, and digest reservations in one short transaction, or resume that exact pending
-   request. No source is read before this reservation.
-3. **Reuse published bytes first, then read declared sources.** For each material, content
-   already committed in the database or published by an earlier attempt of this operation
-   is read back from the store and digest-verified, and no transient source is required:
-   a pending recovery completes from its published blobs even if the original sources are
-   gone. Only when no such blob exists does the material's `source` get opened through the
-   safe path checks, read at most 256 MiB plus one detection byte, and compared by length
-   and SHA-256 through end of file. A missing source with no stored blob is refused; it
-   never waives integrity checks. The request still restates every URI and digest in the
-   new complete manifest.
+2. **Inspect or reserve the exact operation.** Compare the exact request bytes and digest
+   first. If an identical exact request already has a committed or conflict terminal
+   receipt, return that receipt here — before the supplied project root is canonicalized
+   and before any source path is resolved, opened, or required to exist. Reusing an ID with
+   different bytes fails without mutation. Otherwise durably write the pending receipt,
+   exact request bytes, and digest reservations in one short transaction, or resume that
+   exact pending request. No source is read before this reservation.
+3. **Resolve the project root, reuse published bytes first, then read declared sources.**
+   Only after reservation does the store canonicalize the supplied project root and resolve
+   declared source paths. For each material, content backed by a committed blob row, or
+   verifiably published by an earlier attempt of this same operation, is read back from the
+   store and digest-verified, and no transient source is required: a pending recovery
+   completes from its published blobs even if the original sources are gone. A digest that
+   exists only as an unrelated published or orphan blob is never adopted by source
+   omission. Only when no committed or same-operation blob exists does the material's
+   `source` get opened through the safe path checks, read at most 256 MiB plus one detection
+   byte, and compared by length and SHA-256 through end of file. A missing source with no
+   stored blob is refused; it never waives integrity checks. The request still restates
+   every URI and digest in the new complete manifest.
 4. **Publish before row commit.** Write each new blob under `staging/<operation-id>/`,
    flush file contents, and publish it at its digest-derived path with atomic no-replace
    semantics, then `fsync` the containing directories. Existing final files are verified
@@ -161,6 +188,9 @@ the two documents are semantically equivalent JSON.
    confirmed commit, or after commit but before a confirmed response, is `unknown_outcome`
    with the operation ID. Call `outcome` or retry the exact request; never use a fresh ID.
    A committed response reports commit state, not the absence of later doctor findings.
+   Publication cleanup of a pending operation's own staging and diagnostic residue is
+   ordered after a confirmed terminal commit, so recovery attribution of that operation's
+   published blobs is not lost before the terminal receipt is durable.
 
 ![Exact-request reservation, blob publication, and atomic commit](assets/storage-save.svg)
 
@@ -169,7 +199,7 @@ the two documents are semantically equivalent JSON.
 > **Model view:** `XDesignStorage::storageSave`, an activity projection of the native ActionFlowView for `SaveOperation`.  
 > **Companions:** The six-step protocol above, [save API U82](api/storage/rs-store-save.md#u82), and [crash-boundary format I12](../interfaces/store-format.md#i12).  
 > **Status:** renderable-now; implemented.  
-> **Reading:** Validation and receipt inspection precede an early return for an exact terminal receipt. The other path reserves or resumes pending work before source reads, publishes blobs, and reaches one commit-or-conflict transaction before the common receipt result.  
+> **Reading:** Validation and exact-operation inspection precede the early terminal-receipt return; that return does not resolve the project root or any source path. The other path reserves or resumes pending work before root/source resolution, publishes blobs, and reaches one commit-or-conflict transaction before the common receipt result.<br>
 > **Limits:** The figure omits SQLite row locks and exhaustive error handling; retained fault, concurrency, and recovery evidence is separate from this projection.
 
 Two writers at one head can both reserve and publish. The transaction is the arbitration:
@@ -216,9 +246,12 @@ have no projection unless a later version defines one.
 
 `read_material` selects a committed manifest entry and verifies exact length and SHA-256
 through end of file before returning any bytes. An orphan with a matching digest is not a
-manifest hit. `checkout` selects one complete revision, verifies every selected blob, and
-publishes the URI tree into a previously absent destination using no-replace semantics. It
-does not overwrite an existing workspace or expose a partial destination as successful.
+manifest hit. `checkout` selects one complete revision, verifies every selected blob in a
+bounded streaming pass, and materializes the URI tree with bounded buffers into a
+previously absent destination using no-replace semantics. It does not overwrite an
+existing workspace or expose a partial destination as successful. Aliases of one blob are
+verified and re-read by digest without retaining a separate material buffer per manifest
+entry, so checkout peak memory is independent of manifest size and alias count.
 [U84](api/storage/rs-store-checkout.md#u84) gives the caller contracts.
 
 `doctor(verify_bytes)` is read-only. It reports invalid records and continuity, pending
@@ -233,9 +266,11 @@ an explicit pending result, not a silent committed success.
 **Scaling limit.** Verification cost is deliberately recompute-over-cache: every finalize
 re-reads and re-hashes each referenced blob, every `get`/`history`/`list` re-parses and
 cross-validates the full producing request chain, and reads re-verify SHA-256 through end
-of file. At the current scale (hundreds of materials) this is negligible; as a stated
-limit, per-operation cost grows linearly with manifest and history size, and no
-performance target is assigned in this slice.
+of file. Checkout bounds its own working set: verification and materialization stream
+through fixed-size buffers and reuse one verified blob for all of its URIs, so peak memory
+does not grow with manifest entry count or alias count. At the current scale (hundreds of
+materials) this is negligible; as a stated limit, per-operation cost still grows linearly
+with manifest and history size, and no performance target is assigned in this slice.
 
 ### 1.6 Implemented stage integration
 
@@ -287,8 +322,10 @@ stored revision silently moves a legacy run to the new backend.
   so an unattended caller can reuse the same ID after a crash; otherwise the CLI generates
   one and includes it in responses/errors. `doctor` exposes pending IDs if a process dies
   before that response. Before running any checker, the adapter calls `outcome`. A
-  committed receipt replays its stored result without rerunning the engine and republishes
-  any attempt-staged material that was not yet published. A pending receipt makes the
+  committed receipt replays its stored result without rerunning the engine and publishes
+  the canonical run record and response from the committed revision's verified materials,
+  so replay remains correct after the attempt scratch and canonical cache copies are lost.
+  A pending receipt makes the
   adapter's private recovery path retrieve the already reserved exact request and call
   `save_bytes`; with published blobs reused before sources, that recovery completes even
   when the original transient sources are gone. A conflict or `operation_mismatch` is not

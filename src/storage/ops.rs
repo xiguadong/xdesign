@@ -1,10 +1,10 @@
 use super::{
     blobs::{
-        self, blob_path, canonical_existing, canonical_for_creation, published_exists,
-        read_published, read_published_any, read_source,
+        self, blob_path, canonical_existing, canonical_for_creation, cleanup_operation_staging,
+        published_by_attempt, read_published, read_published_any, read_source, verify_published,
     },
-    compact_json, database_error, from_i64, io_error, json_depth, manifest_entry_collision,
-    sha256, strict_json, to_i64, valid_digest, valid_id, valid_revision, valid_token, valid_uri,
+    compact_json, database_error, from_i64, io_error, json_depth, manifest_entry_collision, sha256,
+    strict_json, to_i64, valid_digest, valid_id, valid_revision, valid_token, valid_uri,
     RsCheckoutReport, RsDoctorFinding, RsDoctorFindingKind, RsDoctorReport, RsItemRevision,
     RsItemSummary, RsMaterial, RsOperationOutcome, RsOperationReceipt, RsSaveRequest, RsStore,
     RsStoreError, RsWishProjection, RsWishStatus, MAX_JSON_BYTES, MAX_JSON_DEPTH,
@@ -275,7 +275,7 @@ fn validate_request(request: &RsSaveRequest) -> Result<(), RsStoreError> {
     }
     if let Some((existing, entry)) = manifest_entry_collision(&uris) {
         return Err(RsStoreError::InvalidInput(format!(
-            "manifest names '{existing}' and '{entry}' collide: material names must stay distinct under case folding and cannot use one name as both file and directory"
+            "manifest names '{existing}' and '{entry}' collide: material names must stay distinct under Unicode canonical equivalence and case folding and cannot use one name as both file and directory"
         )));
     }
     reserve_response_capacity(request)?;
@@ -524,6 +524,36 @@ fn reserve(
     Ok(Reservation::Pending)
 }
 
+/// Read-only exact-request reconciliation before any project-tree access.
+///
+/// An idempotent retry must not depend on the transient source paths that the
+/// first attempt happened to use. Once a request has been validated, an
+/// existing operation row decides the call by its reserved bytes alone: a
+/// different request is a mismatch, and a terminal outcome is returned as its
+/// stored receipt. Only a new or still-pending operation proceeds to
+/// project-root canonicalization, source containment, and `reserve`, which
+/// rechecks the same conditions under its write transaction.
+fn inspect_operation(
+    store: &RsStore,
+    request: &RsSaveRequest,
+    raw: &[u8],
+) -> Result<Option<Reservation>, RsStoreError> {
+    let Some(row) = load_operation(&store.conn, &request.operation_id)? else {
+        return Ok(None);
+    };
+    let receipt = operation_receipt(&row)?;
+    if row.request_bytes != raw || row.request_sha256 != sha256(raw) {
+        return Err(RsStoreError::OperationMismatch {
+            operation_id: request.operation_id.clone(),
+        });
+    }
+    if row.outcome == RsOperationOutcome::Pending {
+        Ok(Some(Reservation::Pending))
+    } else {
+        Ok(Some(Reservation::Terminal(receipt)))
+    }
+}
+
 fn blob_length(conn: &Connection, digest: &str) -> Result<Option<u64>, RsStoreError> {
     conn.query_row(
         "SELECT byte_length FROM blobs WHERE sha256 = ?1",
@@ -552,24 +582,27 @@ fn prepare_materials(
     let mut to_publish = Vec::new();
     let mut new_digests = BTreeSet::new();
     for material in &request.materials {
-        // Published content is checked before any source is read: a pending
-        // recovery must reuse the verified bytes already inside the store and
-        // must not depend on transient sources that were published earlier.
+        // Published content is reused without consulting a source only when it
+        // is attributable: either a committed blob row already records the
+        // digest, or an earlier attempt of this same operation published it.
+        // An unrelated operation's failed publication leaves an orphan blob
+        // with no committed row and no attribution here, so source omission is
+        // refused rather than adopting another operation's leftover.
         let committed_length = blob_length(&store.conn, &material.sha256)?;
-        let byte_length = if committed_length.is_some()
-            || published_exists(&store.root, &material.sha256)?
-        {
+        let byte_length = if let Some(length) = committed_length {
             let bytes = read_published_any(&store.root, &material.sha256)
                 .map_err(|error| with_operation(error, &request.operation_id))?;
-            if let Some(length) = committed_length {
-                if bytes.len() as u64 != length {
-                    return Err(RsStoreError::Integrity(format!(
-                        "committed blob length differs for {}: expected {length}, read {}",
-                        material.sha256,
-                        bytes.len()
-                    )));
-                }
+            if bytes.len() as u64 != length {
+                return Err(RsStoreError::Integrity(format!(
+                    "committed blob length differs for {}: expected {length}, read {}",
+                    material.sha256,
+                    bytes.len()
+                )));
             }
+            bytes.len() as u64
+        } else if published_by_attempt(&store.root, &request.operation_id, &material.sha256)? {
+            let bytes = read_published_any(&store.root, &material.sha256)
+                .map_err(|error| with_operation(error, &request.operation_id))?;
             bytes.len() as u64
         } else if let Some(source) = &material.source {
             let source = source.to_str().ok_or_else(|| {
@@ -775,6 +808,20 @@ impl RsStore {
             return Err(RsStoreError::Integrity("cannot hash request".into()));
         }
         self.verify_live()?;
+        // Decide exact-request identity and terminal receipts from the store
+        // alone, before the transient project tree is touched: an identical
+        // retry of a committed operation must replay even when the original
+        // project root or source paths no longer exist. A new or pending
+        // operation still re-validates its project tree and reserves below.
+        if let Some(reservation) = inspect_operation(self, &request, raw)? {
+            if let Reservation::Terminal(receipt) = reservation {
+                // The receipt is durable; recovery staging for this operation
+                // is no longer authoritative. Cleanup stays best effort so a
+                // transient filesystem problem cannot hide a committed receipt.
+                let _ = cleanup_operation_staging(&self.root, &request.operation_id);
+                return Ok(receipt);
+            }
+        }
         let project_root = canonical_existing(project_root)?;
         if !project_root.is_dir() {
             return Err(RsStoreError::UnsafePath(
@@ -798,7 +845,10 @@ impl RsStore {
             }
         }
         match reserve(self, &request, raw)? {
-            Reservation::Terminal(receipt) => return Ok(receipt),
+            Reservation::Terminal(receipt) => {
+                let _ = cleanup_operation_staging(&self.root, &request.operation_id);
+                return Ok(receipt);
+            }
             Reservation::Pending => {}
         }
         fault_after_reservation(&request.operation_id)?;
@@ -807,11 +857,20 @@ impl RsStore {
         let publication = blobs::publish_blobs(&self.root, &request.operation_id, &to_publish)
             .map_err(|_| unknown(&request.operation_id))?;
         fault_after_publish(&request.operation_id)?;
-        blobs::cleanup_publication(publication).map_err(|_| unknown(&request.operation_id))?;
-        finalize_operation(self, &request, raw, &prepared).map_err(|error| match error {
-            RsStoreError::UnknownOutcome { .. } => error,
-            _ => unknown(&request.operation_id),
-        })
+        // Publication staging is retained until a terminal receipt is durable:
+        // a failed or unknown finalize must leave the attribution evidence that
+        // lets a retry reuse this operation's own published bytes.
+        let receipt =
+            finalize_operation(self, &request, raw, &prepared).map_err(|error| match error {
+                RsStoreError::UnknownOutcome { .. } => error,
+                _ => unknown(&request.operation_id),
+            })?;
+        // A committed or conflict receipt no longer needs recovery evidence.
+        // Removal cannot alter the durable outcome, so it is best effort and is
+        // never turned into an unknown-outcome error.
+        let _ = blobs::cleanup_publication(publication);
+        let _ = cleanup_operation_staging(&self.root, &request.operation_id);
+        Ok(receipt)
     }
 
     pub fn outcome(&self, operation_id: &str) -> Result<RsOperationReceipt, RsStoreError> {
@@ -994,23 +1053,29 @@ impl RsStore {
         destination: &Path,
     ) -> Result<RsCheckoutReport, RsStoreError> {
         let selected = self.get(item_id, revision)?;
-        let mut verified = Vec::new();
-        for material in &selected.materials {
-            let bytes = read_published(&self.root, &material.sha256, material.byte_length)?;
-            verified.push((material.uri.clone(), bytes));
-        }
         let canonical_destination = canonical_for_creation(destination)?;
         if canonical_destination.starts_with(&self.root) {
             return Err(RsStoreError::UnsafePath(
                 "checkout destination cannot be inside the store".into(),
             ));
         }
-        let destination = blobs::materialize(destination, &verified)?;
+        // First pass: verify every distinct published digest with bounded
+        // buffers. Aliases share a digest, so this work is proportional to the
+        // distinct blob set, not the manifest size.
+        let mut verified = BTreeSet::new();
+        for material in &selected.materials {
+            if verified.insert(material.sha256.as_str()) {
+                verify_published(&self.root, &material.sha256, material.byte_length)?;
+            }
+        }
+        // Second pass: stream each blob into its manifest entry. Peak memory is
+        // bounded by the copy buffer rather than growing with the URI count.
+        let destination = blobs::materialize(&self.root, destination, &selected.materials)?;
         Ok(RsCheckoutReport {
             item_id: selected.item_id,
             revision: selected.revision,
             destination,
-            material_count: verified.len(),
+            material_count: selected.materials.len(),
         })
     }
 }
@@ -2502,5 +2567,70 @@ mod tests {
             store.get("fault-item", None),
             Err(RsStoreError::NotFound(_))
         ));
+    }
+
+    #[test]
+    fn own_publication_is_attributed_only_to_its_operation() {
+        let fixture = Fixture::new();
+        let store = RsStore::init(&fixture.root).unwrap();
+        let request = fixture.request();
+        let raw = serde_json::to_vec_pretty(&request).unwrap();
+        FAULT_POINT.with(|current| current.set(Some(FaultPoint::AfterPublish)));
+        let error = store.save_bytes(&fixture.project, &raw).unwrap_err();
+        assert!(matches!(
+            error,
+            RsStoreError::UnknownOutcome { operation_id } if operation_id == "fault-operation"
+        ));
+        let digest = request.materials[0].sha256.clone();
+        // The crashed attempt left its own publication staging attributed to it.
+        assert!(published_by_attempt(&store.root, "fault-operation", &digest).unwrap());
+        fs::remove_file(fixture.project.join("material.txt")).unwrap();
+
+        // A different operation cannot adopt an orphan it did not publish,
+        // even when it declares the same carried digest without a source.
+        let mut foreign = request.clone();
+        foreign.operation_id = "foreign-operation".into();
+        foreign.item_id = "foreign-item".into();
+        foreign.materials[0].source = None;
+        let foreign_raw = serde_json::to_vec_pretty(&foreign).unwrap();
+        assert!(matches!(
+            store.save_bytes(&fixture.project, &foreign_raw),
+            Err(RsStoreError::NotFound(_))
+        ));
+        assert_eq!(
+            store.outcome("foreign-operation").unwrap().outcome,
+            RsOperationOutcome::Pending
+        );
+        assert!(matches!(
+            store.get("foreign-item", None),
+            Err(RsStoreError::NotFound(_))
+        ));
+
+        // The original operation still recovers from the bytes it published.
+        let retried = store.save_bytes(&fixture.project, &raw).unwrap();
+        assert_eq!(retried.outcome, RsOperationOutcome::Committed);
+        assert_eq!(retried.revision, Some(1));
+        assert_eq!(
+            store
+                .read_material("fault-item", Some(1), "material.txt")
+                .unwrap(),
+            b"fault boundary bytes"
+        );
+        // A terminal receipt releases the recovery staging.
+        assert!(!published_by_attempt(&store.root, "fault-operation", &digest).unwrap());
+
+        // The now-committed blob row authorizes a later carried digest.
+        let mut carried = request.clone();
+        carried.operation_id = "carried-operation".into();
+        carried.item_id = "carried-item".into();
+        carried.materials[0].source = None;
+        let carried_raw = serde_json::to_vec_pretty(&carried).unwrap();
+        assert_eq!(
+            store
+                .save_bytes(&fixture.project, &carried_raw)
+                .unwrap()
+                .outcome,
+            RsOperationOutcome::Committed
+        );
     }
 }

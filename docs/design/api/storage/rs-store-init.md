@@ -1,6 +1,6 @@
 # `RsStore::init`
 
-> `xdesign::storage` · associated function · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes initialization of the
+> `xdesign::storage` · associated function · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes initialization of the
 > local `XDesignStorage::ProjectStore` boundary in [D86](../../storage.md#d86); implementation
 > projection `src/storage/{mod,db}.rs`.
 

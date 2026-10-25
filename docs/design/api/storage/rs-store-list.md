@@ -1,6 +1,6 @@
 # `RsStore::list`
 
-> `xdesign::storage` · method · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes
+> `xdesign::storage` · method · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes
 > `XDesignStorage::ProjectStore::list` in [D86](../../storage.md#d86); implementation
 > projection `src/storage/{ops,db,blobs}.rs`.
 

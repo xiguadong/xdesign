@@ -1,6 +1,6 @@
 # Storage redesign and implementation plan
 
-> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; final human acceptance pending.
+> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; the 2026-10-25 acceptance-challenge review findings were fixed and re-verified; final human acceptance pending.
 > Wish: `wish-0011`, selecting `xdesign.designedSimpleFlow`.
 > Scope: durable local operational storage and integration with the two existing flat flows.
 
@@ -54,9 +54,9 @@ the technical acceptance run.
 | --- | --- |
 | Requirements and trace | `mbse/model/requirements.sysml`, `traceability.sysml`, `verification.sysml`; requirements and verification pages |
 | Storage architecture and design | `mbse/model/storage.sysml`, `architecture.sysml`, `composition.sysml`, `workflow.sysml`, `uml.sysml`; `docs/design/storage.md`; owning architecture/API/interface pages |
-| Store library and commands | `Cargo.toml`, `Cargo.lock`, `src/lib.rs`, `src/main.rs`, `src/storage/{mod,db,blobs,ops,cli}.rs` |
+| Store library and commands | `Cargo.toml`, `Cargo.lock`, `src/lib.rs`, `src/main.rs`, `src/storage/{mod,db,blobs,ops,cli,unicode}.rs`; generated `src/storage/unicode.rs` content comes from `tools/generate_unicode_tables.py` |
 | Stage integration | `src/stage_cli/{mod,store,work,persistent}.rs`; existing flow engine and checkers unchanged unless a demonstrated contract defect requires rework |
-| Verification | `tests/storage.rs`, `tests/storage_cli.rs`, existing Rust/Python suites, and `cache/evidence/wish-0011/` |
+| Verification | `tests/storage.rs`, `tests/storage_cli.rs`, `tests/storage_paths.rs`, `tests/storage_protocol.rs`, `tests/storage_memory.rs`, `tests/checker_timeout.rs`, existing Rust/Python suites, and `cache/evidence/wish-0011/` |
 | Execution history | `mbse/wishes/wish-0011.sysml`, this plan, wish history, and current status |
 
 Do not include this mutable plan, wish history, the live wish trace, runtime run record, or
@@ -82,6 +82,7 @@ Every row is planned until an executed command and retained result are recorded.
 | STORE-08 | A new SimpleFlow run and a WishVerifyFlow run persist through the store with a wish source outside `mbse/wishes/`; status follows the run record |
 | STORE-09 | After deleting generated runtime cache, `next` restores the stored head and checkout recovers every manifest byte; the record checker replays against materialized evidence |
 | STORE-10 | Existing Rust/Python/model/documentation suites pass for their applicable scopes; any pre-existing failure and unevaluated compiler rule remains explicitly disclosed |
+| STORE-11 | Challenge-review regressions: exact numeric identity, Unicode canonical/case-equivalent names, all-ancestor destinations, terminal-receipt retry without sources, own-publication source omission, bounded checkout memory, committed cache-loss replay, and whole-process-tree checker deadlines | Executed on 2026-10-25; each reproduced review defect now yields the documented typed result with permanent regression tests, and the disposition record is [review P40](../reviews/storage-challenge.md#p40) |
 
 <a id="p39"></a>
 
@@ -323,3 +324,70 @@ committed items and by pending operations; and checker kill/output deadline case
 On this branch, 99 Rust tests and 22 SimpleFlow Python checker tests pass. The renderer
 suite keeps the same two pre-existing failures disclosed above; they are unchanged by
 this branch. These fixes are working-tree evidence, not final human acceptance.
+
+### Challenge-review fixes: numeric identity, replay, deadlines, filesystem names, memory, and receipt ordering
+
+A follow-up acceptance-challenge review of the storage slice (`5801897` plus its working
+tree; evidence `cache/storage-challenge-20261025/review.json`) blocked acceptance on three
+P1 and six P2 defects and raised one recovery-boundary decision. All nine findings were
+reproduced against the reviewed tree, then fixed with permanent regressions; the finding
+dispositions, decision, and executed results are [review P40](../reviews/storage-challenge.md#p40)
+and [P41](../reviews/storage-challenge.md#p41).
+
+1. **Numeric storage identity (S1).** Validation now uses the same pinned `serde_json`
+   parser/serializer as storage and accepts an open number only when its canonical stored
+   form is decimal-equal and a whole-document decode/encode fixed point; the review's
+   drifting tokens are rejected before reservation instead of committing unreadable
+   revisions.
+2. **Committed cache-loss replay (S2).** A committed stage check republishes its canonical
+   run record and response from the committed revision's verified materials, so exact
+   replay survives deletion of attempt scratch and canonical cache without rerunning the
+   engine.
+3. **Process-tree checker deadline (S3).** Unix checkers run in an isolated process group;
+   output is drained non-blockingly inside one deadline; expiry kills the group and reports
+   `CheckerTimeout`, so descendants can neither hold the deadline open nor keep the writer
+   lock.
+4. **Filesystem-compatible Unicode names (S4).** Generated NFD and full-casefold tables
+   (Unicode 13.0.0) reject canonical/case-equivalent URI and implied-directory names before
+   commit and again at checkout materialization; a single Unicode name still materializes.
+5. **All-ancestor destination validation (S5).** Read output and checkout now inspect every
+   existing destination ancestor up to the filesystem root and refuse earlier symlinks.
+6. **Terminal receipts before source resolution (S6).** An identical exact retry returns its
+   stored terminal receipt before project-root canonicalization or source resolution, while
+   new/pending operations still resolve and reserve; destroyed sources and project roots no
+   longer break committed retries.
+7. **Own-publication source omission (S9).** A source-less material is reusable only from a
+   committed blob row or verified attribution to an earlier attempt of the same operation;
+   unrelated orphans are never adopted, and publication cleanup is ordered after a durable
+   terminal receipt so recovery attribution survives.
+8. **Bounded checkout (S7).** Checkout verifies distinct digests in a streaming pass and
+   materializes through bounded buffers; 64 aliases of a 1 MiB blob dropped from 73 MB RSS
+   to about 6 MB, with an allocator-based peak-heap regression.
+9. **Checked extreme exponents (S8).** Exponent arithmetic is checked `i64` with an explicit
+   supported range; extreme decimal input returns `invalid_input` instead of a debug panic.
+10. **Recovery-boundary decision (design challenge).** The slice does not claim the store as
+    the sole authority for irreplaceable operational history; Git-tracked records retain
+    the acceptance evidence, re-registration cannot restore judgments/receipts/run history,
+    and a supported verified restore/rebind is open work before any sole-authority claim.
+    A copied or moved store is still refused at open.
+
+Files added: `src/storage/unicode.rs` (generated by `tools/generate_unicode_tables.py`),
+`tests/storage_paths.rs`, `tests/storage_protocol.rs`, and `tests/storage_memory.rs`; the
+model file plan, the storage design/format/API pages, and the `RsGateError` model channel
+were updated with the same changes. No store format or schema version changed.
+
+Executed on the fix tree: `cargo test --offline --locked` 122 passed / 0 failed across 15
+targets (storage 27, storage CLI 10, storage paths 3, storage protocol 4, storage memory 1,
+checker timeout 7, model-plan sync 4, plus the pre-existing suites); 22 SimpleFlow Python
+tests passed; the renderer suite retains its same two pre-existing failures; SysML parse and
+model/full checks had 0 errors, unresolved references, collisions, or violations with 129
+held and 26 pre-existing unevaluated rules; documentation audit was clean, the strict site
+build passed, all 58 figures rendered, and 9/9 primary figure checks passed. The review's
+probes now show: numeric tokens typed-rejected with no receipt; Unicode collisions refused
+pre-reservation; earlier-symlink destinations refused with nothing written; destroyed-root
+retries returning the identical committed receipt; unrelated-orphan adoption refused;
+checkout 6,029,312 vs 73,039,872 baseline bytes RSS; and checker deadlines 150-151 ms vs
+about 2040 ms baseline. Logs are under `cache/lead-probes/final/` and
+`cache/lead-probes/after/`. Limits remain: no physical power-loss certification, the
+non-Unix checker fallback is uncompiled here, staging cleanup is best effort, 26
+unevaluated constraint bodies remain, and final human acceptance is pending.

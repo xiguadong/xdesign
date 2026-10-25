@@ -453,7 +453,7 @@ paths because it specifies the operation, not one execution.
 > **Companions:** [type structure](#d46), [interface implementation](#d49), [activity view D18](views.md#d18).  
 > **Status:** renderable-now; gate evaluation implemented.  
 > **Reading:** Lifelines are the run, the checkpoint spec, the check command and the judge. The middle four messages are the kind branch: check invocation and report for a syntactic spec, judgment request and verdict for a semantic one.  
-> **Limits:** One gate only; `evaluateGates` repeats it per exit checkpoint. No timeouts, retries or concurrency are designed — see [D50](#d50).
+> **Limits:** One gate only; `evaluateGates` repeats it per exit checkpoint. Gate evaluation adds no retry or concurrency of its own; on supported Unix hosts the process adapter bounds each checker invocation with a whole-process-tree deadline — see [D50](#d50) and the [stage CLI contract](../../stage-cli.md#d85).
 
 The run and gate functions map onto the model's operations (full signatures,
 contracts and stepwise logic: the linked API pages):
@@ -512,7 +512,7 @@ Field-level contracts stay in the interface control document
 
 | Interface | Role | Signature or message | Timeout / retry / idempotency | Interface contract |
 | --- | --- | --- | --- | --- |
-| `RsCheckCommand` trait ↔ `CheckCommandExchange` | consumer (run invokes a checker) | `run_check(checker, plan identity/digest, wish model URI, run record URI, stage, revision, snapshot digest) -> Result<RsGateReport, RsGateError>` | One synchronous subprocess per gate; no timeout or automatic retry in this slice | [U22](../../api/core/rs-check-command-run-check.md#u22), [U58](../../api/simple-flow/rs-process-check.md#u58), [I04](../../../interfaces/contracts.md#i04) |
+| `RsCheckCommand` trait ↔ `CheckCommandExchange` | consumer (run invokes a checker) | `run_check(checker, plan identity/digest, wish model URI, run record URI, stage, revision, snapshot digest) -> Result<RsGateReport, RsGateError>` | One synchronous subprocess per gate; on supported Unix hosts the process adapter kills the checker's whole process tree at its deadline and drains output, reporting `CheckerTimeout`; no automatic retry | [U22](../../api/core/rs-check-command-run-check.md#u22), [U58](../../api/simple-flow/rs-process-check.md#u58), [I04](../../../interfaces/contracts.md#i04) |
 | `RsJudge` trait ↔ `JudgmentExchange` | consumer (run presents to a judge) | `review(criteria, evidence_uris) -> (outcome, rationale)` after authority check | Synchronous caller-supplied verdict; no timeout or automatic retry | [U24](../../api/core/rs-judge-review.md#u24), [U59](../../api/core/rs-supplied-judge.md#u59), [I05](../../../interfaces/contracts.md#i05) |
 
 Ordering in the implementation: the run writes its JSON record before each checker,

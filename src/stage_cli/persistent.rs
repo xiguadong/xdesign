@@ -620,7 +620,7 @@ fn discard_attempt(id: &str, operation_id: &str) {
     let _ = fs::remove_file(format!("{attempts}/response-{operation_id}.json"));
 }
 
-/// Publish one attempt-staged material to its canonical URI. The run record
+/// Publish one committed material to its canonical URI. The run record
 /// replaces the previous head's projection; a stage response is written new
 /// or verified against an already-published copy.
 fn publish_staged(uri: &str, bytes: &[u8], replace: bool) -> Result<(), String> {
@@ -646,9 +646,12 @@ fn publish_staged(uri: &str, bytes: &[u8], replace: bool) -> Result<(), String> 
     }
 }
 
-/// Publish every attempt-staged material of a committed request. Idempotent:
+/// Publish every attempt-staged material of a committed request from the
+/// committed revision's verified material bytes. The attempt scratch and the
+/// canonical projections are disposable, so a committed replay never depends
+/// on either: the store's committed revision is the only source. Idempotent:
 /// a retry after a crash between commit and publication replays this safely.
-fn publish_attempt(request: &RsSaveRequest) -> Result<(), String> {
+fn publish_attempt(store: &RsStore, revision: u64, request: &RsSaveRequest) -> Result<(), String> {
     let run_uri = request
         .metadata
         .get("run_uri")
@@ -660,28 +663,21 @@ fn publish_attempt(request: &RsSaveRequest) -> Result<(), String> {
         let Some(source) = &material.source else {
             continue;
         };
-        let source = source.to_string_lossy();
-        if !source.starts_with(&attempts_prefix) {
+        if !source.to_string_lossy().starts_with(&attempts_prefix) {
             continue;
         }
-        let bytes = match fs::read(source.as_ref()) {
-            Ok(bytes) => bytes,
-            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-                // Attempt scratch is discarded only after publication, so a
-                // committed operation without scratch is already published;
-                // a missing canonical target would be a real defect.
-                if fs::symlink_metadata(&material.uri).is_ok() {
-                    continue;
-                }
-                return Err(format!(
-                    "committed material {} has neither staged nor published bytes",
-                    material.uri
-                ));
-            }
-            Err(error) => {
-                return Err(format!("cannot read {source}: {error}"));
-            }
-        };
+        // Read the committed bytes through EOF (digest and length are verified
+        // against the committed manifest) and require them to match the
+        // committed request before projecting them into the canonical cache.
+        let bytes = store
+            .read_material(&request.item_id, Some(revision), &material.uri)
+            .map_err(error)?;
+        if sha256_bytes(&bytes) != material.sha256 {
+            return Err(format!(
+                "committed revision {revision} material {} does not match the committed request digest",
+                material.uri
+            ));
+        }
         publish_staged(&material.uri, &bytes, material.uri == run_uri)?;
     }
     Ok(())
@@ -783,8 +779,9 @@ pub fn init(id: &str, flow: &str, wish: Option<&str>) -> Result<Value, String> {
                 "wish {id} has no committed item but pending operations {pending:?} still reference its files; reconcile them with `xdesign store outcome` before reinitializing"
             ));
         }
-        fs::remove_dir_all(&dir)
-            .map_err(|error| format!("cannot discard leftover operational directory {dir}: {error}"))?;
+        fs::remove_dir_all(&dir).map_err(|error| {
+            format!("cannot discard leftover operational directory {dir}: {error}")
+        })?;
     }
     let operation_id = uuid::Uuid::new_v4().to_string();
     let initialized = (|| -> Result<RsSaveRequest, String> {
@@ -794,9 +791,7 @@ pub fn init(id: &str, flow: &str, wish: Option<&str>) -> Result<Value, String> {
                 publish_parent(&working)?;
                 store::write_new(&working, &imported)?;
             }
-            Err(store_error) => {
-                return Err(format!("cannot inspect {working}: {store_error}"))
-            }
+            Err(store_error) => return Err(format!("cannot inspect {working}: {store_error}")),
         }
         fs::create_dir_all("cache/xdesign").map_err(|error| error.to_string())?;
         fs::create_dir(&dir)
@@ -975,7 +970,11 @@ fn add_run_materials(
     )?;
     manifest.put_file(&stored.registry.plan_uri, "frozen-plan")?;
     manifest.put_file(&stored.registry.work_uri, "frozen-work")?;
-    manifest.put_file_from(run_record_uri, &stored.registry.run_record_uri, "run-record")?;
+    manifest.put_file_from(
+        run_record_uri,
+        &stored.registry.run_record_uri,
+        "run-record",
+    )?;
     manifest.put_file(&stored.registry.wish_model_uri, "wish-source")?;
 
     let mut artifacts = BTreeSet::new();
@@ -1072,9 +1071,14 @@ fn recover(
     }
     let publish_committed = |receipt: &RsOperationReceipt| -> Result<(), String> {
         if receipt.outcome == RsOperationOutcome::Committed {
+            let revision = receipt.revision.ok_or_else(|| {
+                format!(
+                    "committed operation {operation_id} has no committed revision to restore from"
+                )
+            })?;
             let request: RsSaveRequest = serde_json::from_slice(&raw)
                 .map_err(|error| format!("invalid retained stage request: {error}"))?;
-            publish_attempt(&request)?;
+            publish_attempt(store, revision, &request)?;
             discard_attempt(id, operation_id);
         }
         Ok(())
@@ -1169,7 +1173,11 @@ fn run_check(
     )?;
     let mut attempt_stored = stored.clone();
     attempt_stored.restore_record_uri = attempt_run_uri.clone();
-    let mut run = restore(&attempt_stored, judgment, !collection.diagnostics.is_empty())?;
+    let mut run = restore(
+        &attempt_stored,
+        judgment,
+        !collection.diagnostics.is_empty(),
+    )?;
     let prior = run.current().artifact_digests();
     let updated: Vec<_> = collection
         .artifacts
@@ -1283,7 +1291,10 @@ fn commit(
     );
     let mut manifest = Manifest::new(stored);
     add_run_materials(&mut manifest, stored, run, attempt_run_uri)?;
-    let response_uri = format!("{}/responses/check-{operation_id}.json", store::directory(&id));
+    let response_uri = format!(
+        "{}/responses/check-{operation_id}.json",
+        store::directory(&id)
+    );
     let response_bytes = serde_json::to_vec_pretty(&reply).map_err(|error| error.to_string())?;
     let attempts = attempt_directory(&id);
     fs::create_dir_all(&attempts).map_err(|error| format!("cannot create {attempts}: {error}"))?;
@@ -1319,7 +1330,12 @@ fn commit(
     match &receipt.outcome {
         RsOperationOutcome::Committed => {
             let reply = finish_save(&receipt, "check")?;
-            publish_attempt(&request)?;
+            let revision = receipt.revision.ok_or_else(|| {
+                format!(
+                    "committed operation {operation_id} has no committed revision to restore from"
+                )
+            })?;
+            publish_attempt(store, revision, &request)?;
             discard_attempt(&id, operation_id);
             Ok(reply)
         }

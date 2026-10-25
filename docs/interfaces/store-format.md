@@ -117,7 +117,10 @@ Staging is never returned as published material.
 
 No committed revision row may exist without all its blobs published. External deletion or
 alteration after commit is a doctor/read integrity failure, not an event that rewrites the
-manifest.
+manifest. Cleanup of a pending operation's own staging or published residue is ordered
+after a confirmed terminal commit, so the recovery attribution of blobs published by that
+operation is not lost while its outcome is unknown. A digest that exists only as an
+unrelated published or orphan blob is never adopted as a source-less material.
 
 <a id="i13"></a>
 
@@ -134,13 +137,19 @@ manifest.
   values. Unknown members are rejected in every protocol-defined object. Metadata keys and
   result contents are otherwise extensible unless constrained by `kind = "wish"` below.
 - Numbers must be parsed losslessly; floating-point rounding is not accepted for revisions,
-  lengths, or other integral fields. Open `metadata` and `result` numbers are stored as
-  exact 64-bit integers or IEEE-754 doubles: an integer token beyond the u64/i64 range, or
-  a decimal token whose shortest float64 round-trip yields a different value (for example
-  `18446744073709551617` or `0.30000000000000000004`), is rejected with `invalid_input`
-  instead of being silently rounded in stored metadata and receipts. Unknown enum values,
-  null in place of a required value, and `source: null` are invalid. Optional fields are
-  omitted rather than nulled unless their response schema explicitly permits null.
+  lengths, or other integral fields. Strict JSON validation and storage use one pinned
+  `serde_json` numeric parser/serializer, and open `metadata` and `result` numbers are
+  stored as exact 64-bit integers or IEEE-754 doubles only when the stored representation
+  is an exact fixed point: decoding that representation and re-encoding it yields the same
+  value. Validation checks that fixed point against the actual representation the revision
+  and receipt will persist before the operation is reserved. Three token classes are
+  rejected: an integer token beyond the u64/i64 range (for example
+  `18446744073709551617`); a decimal token whose canonical stored form differs from the
+  supplied value (for example `0.30000000000000000004`); and a token whose extreme exponent
+  range the exact representation does not support. Each is rejected with `invalid_input`;
+  they are never silently rounded, and no token may panic or abort the caller. Unknown enum
+  values, null in place of a required value, and `source: null` are invalid. Optional fields
+  are omitted rather than nulled unless their response schema explicitly permits null.
 - `item_id` and `operation_id` match `[A-Za-z0-9][A-Za-z0-9_-]{0,127}`. `kind` matches
   `[a-z][a-z0-9-]{0,63}` and is immutable for an item. `role` uses the same token rule.
   SHA-256 is exactly 64 lowercase hexadecimal characters.
@@ -150,13 +159,19 @@ manifest.
   trailing slash, query/fragment syntax, and non-normal filesystem object types. Percent
   signs are literal; there is no percent-decoding or second path interpretation. URIs are
   unique by exact string within one request. A manifest must also be materializable on a
-  filesystem: no URI may be both a file and an implied directory of another URI, and no
-  two distinct names (including implied directories) may fold to the same entry under
-  Unicode simple case folding, so `a` with `a/x`, `File.txt` with `file.txt`, or `A/x`
-  with `a/y` are all rejected. Source containment is decided on resolved filesystem
-  identity: the longest existing prefix of the joined source path is canonicalized, so
-  case-insensitive aliases or symlinks resolving onto the store root are refused, and a
-  store never ingests its own root under any spelling.
+  filesystem: no URI may be both a file and an implied directory of another URI, and every
+  URI entry and every implied directory entry is compared under host-independent Unicode
+  canonical decomposition (NFD) and Unicode case folding — a conservative superset of simple
+  case folding. Two distinct names whose canonical decomposed, case-folded forms
+  collide are rejected, so `a` with `a/x`, `File.txt` with `file.txt`, or `A/x` with `a/y`
+  are all rejected, as are canonically equivalent forms — for example, a precomposed
+  `é` filename and the same name written as `e` plus a combining acute accent. The same
+  equivalence check is repeated at checkout materialization before any destination file is
+  written, so a stored manifest that cannot be materialized fails explicitly. ASCII case
+  and file-versus-directory prefix rules are unchanged. Source containment is decided on
+  resolved filesystem identity: the longest existing prefix of the joined source path is
+  canonicalized, so case-insensitive aliases or symlinks resolving onto the store root are
+  refused, and a store never ingests its own root under any spelling.
 - A save must reserve room for its own receipt before reservation: the `result` and
   `metadata` nesting and serialized sizes, plus the manifest echo, must leave a fixed
   margin below the envelope limits (6 nesting levels and 2048 bytes in schema version 1),
@@ -218,7 +233,7 @@ optional `source`; no other member is allowed.
 
 The digest strings are shape examples, not evidence or hashes of real artifacts. On an
 append, the request restates the complete desired manifest. An unchanged entry omits
-`source` to carry its already committed blob by digest:
+`source` to carry its verified blob by digest:
 
 ```json
 {
@@ -229,9 +244,12 @@ append, the request restates the complete desired manifest. An unchanged entry o
 ```
 
 A source path is resolved beneath the supplied `project_root`, never beneath the store
-root, and source bytes must equal the declared digest. Source omission requires a committed
-blob row and a verified published file. Omitting a URI from the new complete manifest does
-not delete it from older revisions.
+root, and source bytes must equal the declared digest. Source omission is a carry, not a
+waiver: it is accepted only when the digest has a committed blob row and a verified
+published file, or when this exact operation's earlier attempt verifiably published that
+digest and the attribution is still durable at recovery time. A digest that exists only
+as an unrelated published or orphan blob is never adopted by omission. Omitting a URI from
+the new complete manifest does not delete it from older revisions.
 
 ### 3.3 Wish metadata and projection input
 
@@ -292,9 +310,12 @@ xdesign store doctor [--verify-bytes] [--root PATH]
 - `init` creates version 1 and returns store identity; `info` opens without mutation and
   returns identity plus item, revision, blob, pending-operation, and finding-independent
   counts. `info` does not claim integrity is clean.
-- `save` reads exact request bytes from `FILE` (`-` means standard input), validates them,
-  and resolves material sources against `--project-root` (default current project root).
-  The request file itself is not implicitly a material.
+- `save` reads exact request bytes from `FILE` (`-` means standard input) and validates
+  them. It inspects the exact operation and returns an existing terminal receipt for an
+  identical exact retry before it canonicalizes `--project-root` (default current project
+  root) or resolves any source path; sources are needed only for bytes that no committed
+  blob row or same-operation publication already supplies. The request file itself is not
+  implicitly a material.
 - `outcome`, `list`, `get`, and `history` return committed records/receipts in one read
   snapshot. `outcome` may explicitly return a pending receipt. `get/history` return full
   manifests; list returns heads only. No query silently truncates.
@@ -302,14 +323,16 @@ xdesign store doctor [--verify-bytes] [--root PATH]
   reserved for the JSON envelope, never mixed with binary content. The envelope reports
   URI, digest, length, revision, and output path. With `--revision N` the reported
   metadata and the written bytes are both pinned to revision N even if the head advances
-  concurrently. Every ancestor of `FILE` must be an existing non-symlink directory — a
-  symlink anywhere in the destination chain is refused, not resolved. An existing output
-  or any failed write is an error, not a partial successful read.
-- `checkout` verifies the entire selected manifest before exposing a previously absent
-  destination directory containing every URI. It returns revision, destination, and
-  material count. Destination ancestry obeys the same all-components symlink rule as
-  `read`. The stage adapter's cache restoration uses the same digest/no-overwrite
-  rules for selected operational materials.
+  concurrently. Every ancestor of `FILE`, up to the filesystem root, must be an existing
+  non-symlink directory — a symlink anywhere in the destination chain is refused, not
+  resolved. An existing output or any failed write is an error, not a partial successful
+  read.
+- `checkout` verifies the entire selected manifest in a bounded streaming pass before
+  exposing a previously absent destination directory containing every URI; materialization
+  uses bounded buffers, so peak memory does not grow with manifest size or alias count. It
+  returns revision, destination, and material count. Destination ancestry obeys the same
+  all-components, up-to-root symlink rule as `read`. The stage adapter's cache restoration
+  uses the same digest/no-overwrite rules for selected operational materials.
 - `doctor` uses the read-only inspection core even when normal `open` would reject a root;
   it reports format/identity findings instead of adopting that root. `--verify-bytes` adds
   full blob hashing. Doctor never repairs. The public `RsStore::doctor` method uses the

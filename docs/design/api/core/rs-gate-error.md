@@ -1,6 +1,6 @@
 # `RsGateError`
 
-> `xdesign::core::status` · enum · implemented xdesign slice · Rust-side addition with no SysML counterpart — the model leaves failure channels to the exchanges; the crate makes them typed
+> `xdesign::core::status` · enum · implemented xdesign slice · Rust enum matching the model's `XDesignRustUml::RsGateError` failure-channel enum
 
 <a id="u46"></a>
 
@@ -11,6 +11,7 @@
 pub enum RsGateError {
     CheckerMissing,
     CommandFailed,
+    CheckerTimeout,
     JudgmentRefused,
     JudgeNotPermitted,
     MissingEvidence,
@@ -26,7 +27,8 @@ This split keeps "the gate says no" and "the gate cannot say" distinct.
 | Variant | Meaning | Raised when |
 | --- | --- | --- |
 | `CheckerMissing` | Plan defect reaches runtime | Syntactic spec with `checker == None` (normally caught by `validate`) |
-| `CommandFailed` | No trustworthy report | The command errored, inputs were unreadable, or its report violates the report invariants; no timeout is implemented |
+| `CommandFailed` | No trustworthy report | The command errored, inputs were unreadable, or its report violates the report invariants |
+| `CheckerTimeout` | Deadline exceeded; no trustworthy report | The checker process tree outlived the checker deadline (default 600 s, overridden by `XDESIGN_CHECKER_TIMEOUT_SECS`) and was killed; the timeout is reported explicitly rather than hanging or being invented as a rule failure |
 | `JudgmentRefused` | No verdict | The judge returned `Unevaluated` or an empty rationale |
 | `JudgeNotPermitted` | Invalid authority | The judge's authority is not allowed by this semantic gate or its identity is blank |
 | `MissingEvidence` | Unsupported pass | A semantic judge passed without a current artifact or evidence URI, or cited an invalid or missing file |

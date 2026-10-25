@@ -1,6 +1,6 @@
 # `RsStore::save`
 
-> `xdesign::storage` · method · implemented; STORE-01–STORE-10 evidence executed within disclosed limits · realizes
+> `xdesign::storage` · method · implemented; STORE-01–STORE-11 evidence executed within disclosed limits · realizes
 > `XDesignStorage::SaveOperation` in [D86](../../storage.md#d86); implementation projection
 > `src/storage/{ops,db,blobs}.rs`.
 
@@ -33,10 +33,16 @@ save protocol. A successful return never has `Pending` outcome.
   including its expected head, complete manifest, metadata, and result.
 
 The method recursively sorts object members and emits no insignificant whitespace. Primitive
-values use the pinned `serde_json` serializer's forms. This deterministic compact JSON is
+values use the pinned `serde_json` serializer's forms. Strict numeric validation and the
+stored metadata/result representation use that same pinned numeric parser/serializer: a
+number is accepted only when the representation persisted for it is an exact decode/re-encode
+fixed point, so silent rounding is never committed. This deterministic compact JSON is
 **not RFC 8785/JCS** and claims no interoperability across arbitrary JSON numbers. The
 resulting exact bytes are hashed and retained; save then follows the same protocol as
 [`save_bytes`](rs-store-save-bytes.md#u100), which instead preserves caller-supplied raw bytes.
+Pure request and path-syntax validation precedes reservation and does not resolve the project
+root or any source path. An identical exact request that already holds a terminal receipt
+returns that receipt before the project root is canonicalized or any source is resolved.
 
 **Returns and persistence**
 
@@ -44,7 +50,7 @@ resulting exact bytes are hashed and retained; save then follows the same protoc
 | --- | --- | --- |
 | New operation at expected head | `Ok(receipt)` with `Committed` and `revision = Some(expected + 1)` | Complete revision, manifest, blob references, receipt, and head advance commit together. |
 | Existing item head differs, create collides, or immutable kind differs | `Ok(receipt)` with `Conflict` and `revision = None` | Conflict receipt commits; no revision/manifest/head effect; unreferenced published bytes remain doctor-visible. |
-| Exact committed or conflict retry | Stored `Ok(receipt)` | None; returns before source reads or new publication. |
+| Exact committed or conflict retry | Stored `Ok(receipt)` | None; returned before project-root canonicalization, source-path resolution, or new publication. |
 | Exact pending retry | Final `Ok(receipt)`, or an error/unknown outcome | Resumes the reserved request without another operation. |
 | Same ID, different valid request bytes | `Err(OperationMismatch)` | No new effect and no return of the other operation's result. |
 | Uncertain publication/commit/response | `Err(UnknownOutcome { operation_id })` | Outcome may be pending, committed, or conflict; reconcile before new work. |
@@ -65,13 +71,17 @@ error variant.
 **Logic**
 
 1. Encode `request` as deterministic compact JSON; hash those exact bytes.
-2. Validate root identity, strict request/schema, all IDs/digests/URIs, metadata,
-   complete-manifest uniqueness, and source declarations.
+2. Validate root identity and strict request/schema, all IDs/digests/URIs, metadata,
+   complete-manifest uniqueness, exact-number fixed points, and material name equivalence.
+   This pure request/path-syntax validation does not resolve the project root or sources.
 3. In one short reservation transaction, inspect `operation_id`: reject different bytes,
-   return an exact terminal receipt, resume exact pending work, or insert pending receipt,
-   exact request bytes, and digest reservations.
-4. After reservation, read every supplied source through EOF with the 256 MiB cap and require
-   declared digest/length. For `source = None`, require a committed blob identity.
+   return an exact terminal receipt (before project-root canonicalization or source-path
+   resolution), resume exact pending work, or insert pending receipt, exact request bytes,
+   and digest reservations.
+4. After reservation, canonicalize `project_root` and read every supplied source through EOF
+   with the 256 MiB cap and require the declared digest/length. For `source = None`, accept
+   only a committed blob row or a digest verifiably published by this exact operation's
+   earlier attempt; an unrelated published or orphan blob is never adopted.
 5. Stage, fsync, and no-replace publish all required new blobs; verify existing final bytes
    before deduplication and fsync containing directories.
 6. `BEGIN IMMEDIATE`; recheck operation bytes and current item/head/kind. On conflict finalize

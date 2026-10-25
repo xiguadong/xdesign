@@ -9,84 +9,84 @@
 <title>Committed Receipt Ready
 committedReceiptReady
 fa7788e3-1774-52dc-83a9-9ee1fc666d82</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M118.92,-155.15C118.16,-143.44 117.38,-131.54 117.38,-131.54 117.38,-131.54 117.38,-116.54 117.38,-116.54 117.38,-116.54 137.7,-101.24 159.24,-85.02" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="165.62,-80.22 161.39,-87.91 163.78,-81.79 159.32,-85.15 159.23,-85.03 159.14,-84.91 163.6,-81.56 157.06,-82.16 165.62,-80.22" />
-<text xml:space="preserve" text-anchor="middle" x="195.38" y="-119.19" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Committed Receipt Ready</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M144.48,-155.15C143.72,-143.44 142.94,-131.54 142.94,-131.54 142.94,-131.54 142.94,-116.54 142.94,-116.54 142.94,-116.54 163.27,-101.24 184.81,-85.02" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="191.18,-80.22 186.95,-87.91 189.34,-81.79 184.88,-85.15 184.79,-85.03 184.7,-84.91 189.16,-81.56 182.62,-82.16 191.18,-80.22" />
+<text xml:space="preserve" text-anchor="middle" x="220.94" y="-119.19" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Committed Receipt Ready</text>
 </g>
 
 <g class="edge" data-native-id="43c1a6b4-a811-5219-9492-57b56d0cba4c" data-source-id="994e4975-0b2b-510b-b966-94e106485762" data-target-id="7a7a9ad9-71c1-587c-95f3-a21bf521076c" data-edge-kind="directed">
 <title>
 
 43c1a6b4-a811-5219-9492-57b56d0cba4c</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M215.38,-736.84C215.38,-725.77 215.38,-711.92 215.38,-698.3" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="215.38,-690.53 218.98,-698.53 215.53,-692.95 215.53,-698.53 215.38,-698.53 215.23,-698.53 215.23,-692.95 211.78,-698.53 215.38,-690.53" />
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M237.94,-736.84C237.94,-725.77 237.94,-711.92 237.94,-698.3" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="237.95,-690.53 241.55,-698.53 238.1,-692.95 238.1,-698.53 237.95,-698.53 237.8,-698.53 237.8,-692.95 234.35,-698.53 237.95,-690.53" />
 </g>
 
 <g class="edge" data-native-id="d86c8d66-0994-5e18-8934-a66f46a01153" data-source-id="d1e5a6ef-0ead-50bb-80f6-690ca8c334b9" data-target-id="f7082838-95f1-5ea8-a1de-7e88e7eb3895" data-edge-kind="directed">
 <title>
 
 d86c8d66-0994-5e18-8934-a66f46a01153</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M120.38,-250.37C120.38,-238.77 120.38,-224.43 120.38,-211.71" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="120.38,-203.95 123.98,-211.95 120.53,-206.37 120.53,-211.95 120.38,-211.95 120.23,-211.95 120.23,-206.37 116.78,-211.95 120.38,-203.95" />
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M144.43,-250.37C144.68,-238.77 144.99,-224.43 145.26,-211.71" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="145.42,-203.95 148.85,-212.03 145.52,-206.37 145.4,-211.95 145.25,-211.95 145.1,-211.95 145.22,-206.36 141.65,-211.87 145.42,-203.95" />
 </g>
 
 <g class="edge" data-native-id="84276e38-fe2f-573c-b0af-f39ef58c4f63" data-source-id="34862ece-c17f-58bf-9785-7a942a81c5c8" data-target-id="d1e5a6ef-0ead-50bb-80f6-690ca8c334b9" data-edge-kind="directed">
 <title>
 
 84276e38-fe2f-573c-b0af-f39ef58c4f63</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M121.9,-345.64C121.65,-334.04 121.34,-319.7 121.07,-306.98" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="120.9,-299.22 124.67,-307.14 121.1,-301.63 121.22,-307.22 121.07,-307.22 120.92,-307.22 120.8,-301.64 117.48,-307.3 120.9,-299.22" />
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M140.91,-345.64C141.41,-334.04 142.03,-319.7 142.57,-306.98" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="142.9,-299.22 146.16,-307.37 142.95,-301.64 142.71,-307.22 142.56,-307.21 142.41,-307.21 142.65,-301.63 138.96,-307.06 142.9,-299.22" />
 </g>
 
 <g class="edge" data-native-id="f0881f64-3922-5c12-81bf-52a359adebac" data-source-id="7a7a9ad9-71c1-587c-95f3-a21bf521076c" data-target-id="0bb25a8d-99de-52e5-aba2-4c306b195b62" data-edge-kind="directed">
 <title>Reservation Selected
 reservationSelected
 f0881f64-3922-5c12-81bf-52a359adebac</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M172.76,-606.52C151.44,-589.21 130.13,-571.89 130.13,-571.89 130.13,-571.89 129.49,-557.5 128.82,-542.68" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="128.48,-535.1 132.43,-542.93 128.74,-537.51 128.99,-543.09 128.84,-543.09 128.69,-543.1 128.44,-537.52 125.24,-543.26 128.48,-535.1" />
-<text xml:space="preserve" text-anchor="middle" x="194.26" y="-559.54" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Reservation Selected</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M195.82,-606.52C174.76,-589.21 153.69,-571.89 153.69,-571.89 153.69,-571.89 152.11,-557.5 150.47,-542.68" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="149.63,-535.09 154.09,-542.65 150.05,-537.48 150.66,-543.03 150.51,-543.05 150.36,-543.06 149.75,-537.51 146.93,-543.44 149.63,-535.09" />
+<text xml:space="preserve" text-anchor="middle" x="217.82" y="-559.54" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Reservation Selected</text>
 </g>
 
 <g class="edge" data-native-id="d2540b34-7f32-544f-b685-017c3fc4ab1b" data-source-id="7a7a9ad9-71c1-587c-95f3-a21bf521076c" data-target-id="bddbc241-52b5-5017-85e7-073453554ed7" data-edge-kind="directed">
 <title>Stored Receipt Selected
 storedReceiptSelected
 d2540b34-7f32-544f-b685-017c3fc4ab1b</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M241.63,-602.47C252.4,-586.61 262.38,-571.89 262.38,-571.89 262.38,-571.89 279.11,-510.83 289.76,-471.95" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="291.78,-464.6 293.13,-473.27 291.28,-466.97 289.81,-472.36 289.66,-472.32 289.52,-472.28 290.99,-466.89 286.19,-471.37 291.78,-464.6" />
-<text xml:space="preserve" text-anchor="middle" x="338.88" y="-559.54" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Stored Receipt Selected</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M264.75,-602.47C275.75,-586.61 285.94,-571.89 285.94,-571.89 285.94,-571.89 303.14,-510.83 314.08,-471.95" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="316.16,-464.6 317.45,-473.28 315.64,-466.97 314.13,-472.34 313.99,-472.3 313.84,-472.26 315.36,-466.88 310.52,-471.32 316.16,-464.6" />
+<text xml:space="preserve" text-anchor="middle" x="362.54" y="-559.54" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Stored Receipt Selected</text>
 </g>
 
 <g class="edge" data-native-id="84bd5ae3-1d17-5002-b6e6-e09b80a86795" data-source-id="0bb25a8d-99de-52e5-aba2-4c306b195b62" data-target-id="34862ece-c17f-58bf-9785-7a942a81c5c8" data-edge-kind="directed">
 <title>
 
 84bd5ae3-1d17-5002-b6e6-e09b80a86795</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M126.57,-486.19C125.74,-463.34 124.46,-427.82 123.53,-402.1" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="123.25,-394.36 127.14,-402.22 123.49,-396.76 123.69,-402.34 123.54,-402.35 123.39,-402.36 123.19,-396.78 119.94,-402.48 123.25,-394.36" />
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M145.8,-486.19C144.65,-463.34 142.86,-427.82 141.56,-402.1" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="141.16,-394.35 145.16,-402.16 141.44,-396.76 141.72,-402.34 141.57,-402.34 141.42,-402.35 141.14,-396.77 137.97,-402.53 141.16,-394.35" />
 </g>
 
 <g class="edge" data-native-id="4731a8db-54be-5e15-95f3-dbda7b18d7d9" data-source-id="bddbc241-52b5-5017-85e7-073453554ed7" data-target-id="156631bd-9886-5d92-bedb-c487302be713" data-edge-kind="directed">
 <title>Stored Receipt Ready
 storedReceiptReady
 4731a8db-54be-5e15-95f3-dbda7b18d7d9</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M298.38,-415.76C298.38,-381.89 298.38,-322.08 298.38,-322.08 298.38,-322.08 298.38,-322.08 298.38,-177.67 298.38,-177.67 277.38,-116.54 277.38,-116.54 277.38,-116.54 264.37,-103.28 249.72,-88.37" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="244.49,-83.04 252.67,-86.22 246.29,-84.65 250.2,-88.64 250.1,-88.74 249.99,-88.85 246.08,-84.86 247.53,-91.27 244.49,-83.04" />
-<text xml:space="preserve" text-anchor="middle" x="364.38" y="-269.09" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Stored Receipt Ready</text>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M323.14,-415.76C323.43,-381.89 323.94,-322.08 323.94,-322.08 323.94,-322.08 323.94,-322.08 323.94,-177.67 323.94,-177.67 302.94,-116.54 302.94,-116.54 302.94,-116.54 289.93,-103.28 275.29,-88.37" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="270.05,-83.04 278.23,-86.22 271.85,-84.65 275.77,-88.64 275.66,-88.74 275.55,-88.85 271.64,-84.86 273.09,-91.27 270.05,-83.04" />
+<text xml:space="preserve" text-anchor="middle" x="389.94" y="-269.09" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">Stored Receipt Ready</text>
 </g>
 
 <g class="edge" data-native-id="4835b7b4-2534-5b7b-9521-04cd757857bd" data-source-id="540a6610-ad1a-529f-8a9f-2501d68a1b04" data-target-id="994e4975-0b2b-510b-b966-94e106485762" data-edge-kind="directed">
 <title>
 
 4835b7b4-2534-5b7b-9521-04cd757857bd</title>
-<path fill="none" stroke="#647a91" stroke-width="1.3" d="M215.38,-832.26C215.38,-820.66 215.38,-806.32 215.38,-793.6" />
-<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="215.38,-785.84 218.98,-793.84 215.53,-788.26 215.53,-793.84 215.38,-793.84 215.23,-793.84 215.23,-788.26 211.78,-793.84 215.38,-785.84" />
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M237.94,-832.26C237.94,-820.66 237.94,-806.32 237.94,-793.6" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="237.95,-785.84 241.55,-793.84 238.1,-788.26 238.1,-793.84 237.95,-793.84 237.8,-793.84 237.8,-788.26 234.35,-793.84 237.95,-785.84" />
 </g>
 
 <g id="n9a84ff7165fa68b9b380" class="node diagram-node shape-state" data-native-id="f7082838-95f1-5ea8-a1de-7e88e7eb3895" data-shape="state">
 <title>XDesignStorage::SaveOperation::commitTransaction
 f7082838-95f1-5ea8-a1de-7e88e7eb3895
 f7082838-95f1-5ea8-a1de-7e88e7eb3895</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M195.52,-201.81C195.52,-201.81 45.24,-201.81 45.24,-201.81 39.24,-201.81 33.24,-195.81 33.24,-189.81 33.24,-189.81 33.24,-167.54 33.24,-167.54 33.24,-161.54 39.24,-155.54 45.24,-155.54 45.24,-155.54 195.52,-155.54 195.52,-155.54 201.52,-155.54 207.52,-161.54 207.52,-167.54 207.52,-167.54 207.52,-189.81 207.52,-189.81 207.52,-195.81 201.52,-201.81 195.52,-201.81" />
-<rect fill="white" stroke="none" x="41.88" y="-196.05" width="157.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="49.88" y="-173.85" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Commit or conflict</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M221.08,-201.81C221.08,-201.81 70.8,-201.81 70.8,-201.81 64.81,-201.81 58.8,-195.81 58.8,-189.81 58.8,-189.81 58.8,-167.54 58.8,-167.54 58.8,-161.54 64.8,-155.54 70.8,-155.54 70.8,-155.54 221.08,-155.54 221.08,-155.54 227.08,-155.54 233.08,-161.54 233.08,-167.54 233.08,-167.54 233.08,-189.81 233.08,-189.81 233.08,-195.81 227.08,-201.81 221.08,-201.81" />
+<rect fill="white" stroke="none" x="67.44" y="-196.05" width="157.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="75.44" y="-173.85" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Commit or conflict</text>
 </g>
 
 <g id="n67c6a8e2ea65eea6b1dd" class="node diagram-node shape-state" data-native-id="994e4975-0b2b-510b-b966-94e106485762" data-shape="state">
@@ -94,64 +94,64 @@ f7082838-95f1-5ea8-a1de-7e88e7eb3895</title>
 994e4975-0b2b-510b-b966-94e106485762
 attribute returnImmediately
 994e4975-0b2b-510b-b966-94e106485762</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M276.65,-783.7C276.65,-783.7 154.12,-783.7 154.12,-783.7 148.12,-783.7 142.12,-777.7 142.12,-771.7 142.12,-771.7 142.12,-749.43 142.12,-749.43 142.12,-743.43 148.12,-737.43 154.12,-737.43 154.12,-737.43 276.65,-737.43 276.65,-737.43 282.65,-737.43 288.65,-743.43 288.65,-749.43 288.65,-749.43 288.65,-771.7 288.65,-771.7 288.65,-777.7 282.65,-783.7 276.65,-783.7" />
-<rect fill="white" stroke="none" x="150.76" y="-777.94" width="129.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="158.76" y="-755.74" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Inspect receipt</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M299.21,-783.7C299.21,-783.7 176.68,-783.7 176.68,-783.7 170.68,-783.7 164.68,-777.7 164.68,-771.7 164.68,-771.7 164.68,-749.43 164.68,-749.43 164.68,-743.43 170.68,-737.43 176.68,-737.43 176.68,-737.43 299.21,-737.43 299.21,-737.43 305.21,-737.43 311.21,-743.43 311.21,-749.43 311.21,-749.43 311.21,-771.7 311.21,-771.7 311.21,-777.7 305.21,-783.7 299.21,-783.7" />
+<rect fill="white" stroke="none" x="173.32" y="-777.94" width="129.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="181.32" y="-755.74" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Inspect receipt</text>
 </g>
 
 <g id="n89300688d65637362dbc" class="node diagram-node shape-state" data-native-id="d1e5a6ef-0ead-50bb-80f6-690ca8c334b9" data-shape="state">
 <title>XDesignStorage::SaveOperation::publishBlobs
 d1e5a6ef-0ead-50bb-80f6-690ca8c334b9
 d1e5a6ef-0ead-50bb-80f6-690ca8c334b9</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M177.52,-297.08C177.52,-297.08 63.24,-297.08 63.24,-297.08 57.24,-297.08 51.24,-291.08 51.24,-285.08 51.24,-285.08 51.24,-262.81 51.24,-262.81 51.24,-256.81 57.24,-250.81 63.24,-250.81 63.24,-250.81 177.52,-250.81 177.52,-250.81 183.52,-250.81 189.52,-256.81 189.52,-262.81 189.52,-262.81 189.52,-285.08 189.52,-285.08 189.52,-291.08 183.52,-297.08 177.52,-297.08" />
-<rect fill="white" stroke="none" x="59.88" y="-291.32" width="121.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="67.88" y="-269.12" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Publish blobs</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M201.08,-297.08C201.08,-297.08 86.81,-297.08 86.81,-297.08 80.81,-297.08 74.8,-291.08 74.8,-285.08 74.8,-285.08 74.8,-262.81 74.8,-262.81 74.8,-256.81 80.8,-250.81 86.8,-250.81 86.8,-250.81 201.08,-250.81 201.08,-250.81 207.08,-250.81 213.08,-256.81 213.08,-262.81 213.08,-262.81 213.08,-285.08 213.08,-285.08 213.08,-291.08 207.08,-297.08 201.08,-297.08" />
+<rect fill="white" stroke="none" x="83.44" y="-291.32" width="121.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="91.44" y="-269.12" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Publish blobs</text>
 </g>
 
 <g id="n4021f3c7f8c26f3ce226" class="node diagram-node shape-state" data-native-id="34862ece-c17f-58bf-9785-7a942a81c5c8" data-shape="state">
 <title>XDesignStorage::SaveOperation::readSources
 34862ece-c17f-58bf-9785-7a942a81c5c8
 34862ece-c17f-58bf-9785-7a942a81c5c8</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M202.4,-392.35C202.4,-392.35 42.37,-392.35 42.37,-392.35 36.37,-392.35 30.37,-386.35 30.37,-380.35 30.37,-380.35 30.37,-358.08 30.37,-358.08 30.37,-352.08 36.37,-346.08 42.37,-346.08 42.37,-346.08 202.4,-346.08 202.4,-346.08 208.4,-346.08 214.4,-352.08 214.4,-358.08 214.4,-358.08 214.4,-380.35 214.4,-380.35 214.4,-386.35 208.4,-392.35 202.4,-392.35" />
-<rect fill="white" stroke="none" x="39.01" y="-386.59" width="166.75" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="47.01" y="-364.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Read exact sources</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M263.08,-392.35C263.08,-392.35 16.8,-392.35 16.8,-392.35 10.8,-392.35 4.81,-386.35 4.81,-380.35 4.81,-380.35 4.81,-358.08 4.81,-358.08 4.81,-352.08 10.81,-346.08 16.81,-346.08 16.81,-346.08 263.08,-346.08 263.08,-346.08 269.08,-346.08 275.08,-352.08 275.08,-358.08 275.08,-358.08 275.08,-380.35 275.08,-380.35 275.08,-386.35 269.08,-392.35 263.08,-392.35" />
+<rect fill="white" stroke="none" x="13.44" y="-386.59" width="253.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="21.44" y="-364.39" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Reuse published, read sources</text>
 </g>
 
 <g id="n2e1bb27bdea55fad96ed" class="node diagram-node shape-diamond" data-native-id="7a7a9ad9-71c1-587c-95f3-a21bf521076c" data-shape="diamond">
 <title>XDesignStorage::SaveOperation::receiptPath
 7a7a9ad9-71c1-587c-95f3-a21bf521076c
 7a7a9ad9-71c1-587c-95f3-a21bf521076c</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="215.38,-688.43 38.85,-642.16 215.38,-595.89 391.91,-642.16 215.38,-688.43" />
-<rect fill="white" stroke="none" x="135.76" y="-659.53" width="159.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="143.76" y="-637.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Existing outcome?</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="237.94,-688.43 61.42,-642.16 237.94,-595.89 414.48,-642.16 237.94,-688.43" />
+<rect fill="white" stroke="none" x="158.32" y="-659.53" width="159.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="166.32" y="-637.33" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Existing outcome?</text>
 </g>
 
 <g id="n3ed7a93ffd869dc5a746" class="node diagram-node shape-diamond" data-native-id="156631bd-9886-5d92-bedb-c487302be713" data-shape="diamond">
 <title>XDesignStorage::SaveOperation::receiptReady
 156631bd-9886-5d92-bedb-c487302be713
 156631bd-9886-5d92-bedb-c487302be713</title>
-<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="209.38,-92.54 65.85,-46.27 209.38,0 352.91,-46.27 209.38,-92.54" />
-<rect fill="white" stroke="none" x="146.26" y="-63.64" width="126.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="154.26" y="-41.44" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Receipt Ready</text>
+<polygon fill="white" stroke="#647a91" stroke-width="1.3" points="234.94,-92.54 91.42,-46.27 234.94,0 378.48,-46.27 234.94,-92.54" />
+<rect fill="white" stroke="none" x="171.82" y="-63.64" width="126.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="179.82" y="-41.44" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Receipt Ready</text>
 </g>
 
 <g id="n8d32195fe6d2b249d37a" class="node diagram-node shape-state" data-native-id="0bb25a8d-99de-52e5-aba2-4c306b195b62" data-shape="state">
 <title>XDesignStorage::SaveOperation::reservePending
 0bb25a8d-99de-52e5-aba2-4c306b195b62
 0bb25a8d-99de-52e5-aba2-4c306b195b62</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M204.02,-532.89C204.02,-532.89 50.74,-532.89 50.74,-532.89 44.74,-532.89 38.74,-526.89 38.74,-520.89 38.74,-520.89 38.74,-498.62 38.74,-498.62 38.74,-492.62 44.74,-486.62 50.74,-486.62 50.74,-486.62 204.02,-486.62 204.02,-486.62 210.02,-486.62 216.02,-492.62 216.02,-498.62 216.02,-498.62 216.02,-520.89 216.02,-520.89 216.02,-526.89 210.02,-532.89 204.02,-532.89" />
-<rect fill="white" stroke="none" x="47.38" y="-527.13" width="160.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="55.38" y="-504.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Reserve or resume</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M223.58,-532.89C223.58,-532.89 70.3,-532.89 70.3,-532.89 64.31,-532.89 58.3,-526.89 58.3,-520.89 58.3,-520.89 58.3,-498.62 58.3,-498.62 58.3,-492.62 64.3,-486.62 70.3,-486.62 70.3,-486.62 223.58,-486.62 223.58,-486.62 229.58,-486.62 235.58,-492.62 235.58,-498.62 235.58,-498.62 235.58,-520.89 235.58,-520.89 235.58,-526.89 229.58,-532.89 223.58,-532.89" />
+<rect fill="white" stroke="none" x="66.94" y="-527.13" width="160.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="74.94" y="-504.93" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Reserve or resume</text>
 </g>
 
 <g id="nc88c11c406424073f033" class="node diagram-node shape-state" data-native-id="bddbc241-52b5-5017-85e7-073453554ed7" data-shape="state">
 <title>XDesignStorage::SaveOperation::returnStoredReceipt
 bddbc241-52b5-5017-85e7-073453554ed7
 bddbc241-52b5-5017-85e7-073453554ed7</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M383.65,-462.62C383.65,-462.62 213.12,-462.62 213.12,-462.62 207.12,-462.62 201.12,-456.62 201.12,-450.62 201.12,-450.62 201.12,-428.35 201.12,-428.35 201.12,-422.35 207.12,-416.35 213.12,-416.35 213.12,-416.35 383.65,-416.35 383.65,-416.35 389.65,-416.35 395.65,-422.35 395.65,-428.35 395.65,-428.35 395.65,-450.62 395.65,-450.62 395.65,-456.62 389.65,-462.62 383.65,-462.62" />
-<rect fill="white" stroke="none" x="209.76" y="-456.86" width="177.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="217.76" y="-434.66" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Return stored receipt</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M408.21,-462.62C408.21,-462.62 237.68,-462.62 237.68,-462.62 231.68,-462.62 225.68,-456.62 225.68,-450.62 225.68,-450.62 225.68,-428.35 225.68,-428.35 225.68,-422.35 231.68,-416.35 237.68,-416.35 237.68,-416.35 408.21,-416.35 408.21,-416.35 414.21,-416.35 420.21,-422.35 420.21,-428.35 420.21,-428.35 420.21,-450.62 420.21,-450.62 420.21,-456.62 414.21,-462.62 408.21,-462.62" />
+<rect fill="white" stroke="none" x="234.32" y="-456.86" width="177.25" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="242.32" y="-434.66" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Return stored receipt</text>
 </g>
 
 <g id="nb7aa621f21ed9f056054" class="node diagram-node shape-state" data-native-id="540a6610-ad1a-529f-8a9f-2501d68a1b04" data-shape="state">
 <title>XDesignStorage::SaveOperation::validateRequest
 540a6610-ad1a-529f-8a9f-2501d68a1b04
 540a6610-ad1a-529f-8a9f-2501d68a1b04</title>
-<path fill="white" stroke="#647a91" stroke-width="1.3" d="M281.52,-878.97C281.52,-878.97 149.24,-878.97 149.24,-878.97 143.24,-878.97 137.24,-872.97 137.24,-866.97 137.24,-866.97 137.24,-844.7 137.24,-844.7 137.24,-838.7 143.24,-832.7 149.24,-832.7 149.24,-832.7 281.52,-832.7 281.52,-832.7 287.52,-832.7 293.52,-838.7 293.52,-844.7 293.52,-844.7 293.52,-866.97 293.52,-866.97 293.52,-872.97 287.52,-878.97 281.52,-878.97" />
-<rect fill="white" stroke="none" x="145.88" y="-873.21" width="139.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="153.88" y="-851.01" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Validate request</text>
+<path fill="white" stroke="#647a91" stroke-width="1.3" d="M304.08,-878.97C304.08,-878.97 171.81,-878.97 171.81,-878.97 165.81,-878.97 159.81,-872.97 159.81,-866.97 159.81,-866.97 159.81,-844.7 159.81,-844.7 159.81,-838.7 165.81,-832.7 171.81,-832.7 171.81,-832.7 304.08,-832.7 304.08,-832.7 310.08,-832.7 316.08,-838.7 316.08,-844.7 316.08,-844.7 316.08,-866.97 316.08,-866.97 316.08,-872.97 310.08,-878.97 304.08,-878.97" />
+<rect fill="white" stroke="none" x="168.44" y="-873.21" width="139.0" height="34.75" class="node" /><text xml:space="preserve" text-anchor="start" x="176.44" y="-851.01" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Validate request</text>
 </g>
 </g>
 </svg>

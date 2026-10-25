@@ -866,7 +866,9 @@ fn abandoned_stage_attempt_is_discarded_and_the_check_commits() {
         &json!({"stale": true}),
     );
     fs::write(
-        project.root.join("cache/xdesign/wish-abandoned/attempts/run-abandoned-op.json"),
+        project
+            .root
+            .join("cache/xdesign/wish-abandoned/attempts/run-abandoned-op.json"),
         &drifted,
     )
     .unwrap();
@@ -886,14 +888,20 @@ fn abandoned_stage_attempt_is_discarded_and_the_check_commits() {
         .find(|material| material["uri"] == "cache/xdesign/wish-abandoned/run.json")
         .unwrap();
     let current = fs::read(&run_uri).unwrap();
-    assert_eq!(sha256_bytes(&current), run_material["sha256"].as_str().unwrap());
+    assert_eq!(
+        sha256_bytes(&current),
+        run_material["sha256"].as_str().unwrap()
+    );
     assert!(!project
         .root
         .join("cache/xdesign/wish-abandoned/attempts/run-fresh-op.json")
         .exists());
-    let published_response =
-        fs::read(project.root.join("cache/xdesign/wish-abandoned/responses/check-fresh-op.json"))
-            .unwrap();
+    let published_response = fs::read(
+        project
+            .root
+            .join("cache/xdesign/wish-abandoned/responses/check-fresh-op.json"),
+    )
+    .unwrap();
     let published: Value = serde_json::from_slice(&published_response).unwrap();
     assert_eq!(published["operation_id"], "fresh-op");
     assert_eq!(published["store_revision"], 3);
@@ -973,4 +981,145 @@ fn init_retries_after_abandoned_files_and_blocks_on_pending_operations() {
         "incoming/wish.sysml",
     ]);
     assert!(blocked.contains("pending operations"), "{blocked}");
+}
+
+#[test]
+fn committed_wish_verify_check_replays_from_committed_materials_after_cache_deletion() {
+    let project = Project::new();
+    project.store(&["store", "init"], 0);
+    let initial = project.init("wish-replay", "wish-verify");
+    assert_eq!(initial["store_revision"], 1);
+
+    // A blocked check advances the wish stage, then the judged identical check
+    // commits under a fixed operation id.
+    let blocked = project.stage(&["check", "wish-replay", "--operation-id", "blocked-op"], 1);
+    assert_eq!(blocked["store_revision"], 2);
+    let committed = project.submit("wish-replay", &blocked, &[], "fixed-op", 0);
+    assert_eq!(committed["store_revision"], 3);
+    assert_eq!(committed["operation_id"], "fixed-op");
+    assert_eq!(project.head("wish-replay")["revision"], 3);
+    assert_eq!(
+        project.store(&["store", "history", "wish-replay"], 0)["data"]["revisions"]
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+    let result_bytes = fs::read(project.root.join("result.json")).unwrap();
+
+    // Exact replay with the cache present is idempotent even though the
+    // attempt scratch was discarded after the original commit.
+    let replayed = project.stage(
+        &[
+            "check",
+            "wish-replay",
+            "--result",
+            "result.json",
+            "--operation-id",
+            "fixed-op",
+        ],
+        0,
+    );
+    assert_eq!(replayed, committed);
+
+    // Capture the committed revision's exact material bytes from the store.
+    fs::create_dir_all(project.root.join("checkout")).unwrap();
+    project.store(
+        &[
+            "store",
+            "checkout",
+            "wish-replay",
+            "--revision",
+            "3",
+            "--destination",
+            "checkout/committed",
+        ],
+        0,
+    );
+    let run_uri = "cache/xdesign/wish-replay/run.json";
+    let response_uri = "cache/xdesign/wish-replay/responses/check-fixed-op.json";
+    let committed_bytes =
+        |uri: &str| fs::read(project.root.join("checkout/committed").join(uri)).unwrap();
+    let committed_run = committed_bytes(run_uri);
+    let committed_response = committed_bytes(response_uri);
+    let head = project.head("wish-replay");
+    let material_sha = |uri: &str| {
+        head["materials"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|material| material["uri"] == uri)
+            .unwrap()["sha256"]
+            .as_str()
+            .unwrap()
+            .to_owned()
+    };
+    assert_eq!(material_sha(run_uri), sha256_bytes(&committed_run));
+    assert_eq!(
+        material_sha(response_uri),
+        sha256_bytes(&committed_response)
+    );
+    assert_eq!(
+        head["materials"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|material| material["uri"] == response_uri)
+            .unwrap()["role"],
+        "stage-response"
+    );
+
+    // The attempt scratch and canonical run/response projections are
+    // disposable: remove them all while keeping the CLI result input file.
+    let attempts = project.root.join("cache/xdesign/wish-replay/attempts");
+    assert!(attempts.is_dir());
+    fs::remove_dir_all(&attempts).unwrap();
+    fs::remove_file(project.root.join(run_uri)).unwrap();
+    fs::remove_dir_all(project.root.join("cache/xdesign/wish-replay/responses")).unwrap();
+    assert!(!project.root.join(run_uri).exists());
+    assert!(!project.root.join(response_uri).exists());
+
+    // The identical retry must replay the stored response without an engine
+    // run, a new revision, or any dependence on the deleted cache.
+    let recovered = project.stage(
+        &[
+            "check",
+            "wish-replay",
+            "--result",
+            "result.json",
+            "--operation-id",
+            "fixed-op",
+        ],
+        0,
+    );
+    assert_eq!(recovered, committed);
+    assert_eq!(
+        fs::read(project.root.join("result.json")).unwrap(),
+        result_bytes
+    );
+    let outcome = project.store(&["store", "outcome", "fixed-op"], 0);
+    assert_eq!(outcome["data"]["receipt"]["outcome"], "committed");
+    assert_eq!(outcome["data"]["receipt"]["revision"], 3);
+    assert_eq!(outcome["data"]["receipt"]["result"]["response"], committed);
+    assert_eq!(outcome["data"]["receipt"]["result"]["exit_code"], 0);
+    assert_eq!(project.head("wish-replay")["revision"], 3);
+    assert_eq!(
+        project.store(&["store", "history", "wish-replay"], 0)["data"]["revisions"]
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+    assert_eq!(fs::read(project.root.join(run_uri)).unwrap(), committed_run);
+    assert_eq!(
+        fs::read(project.root.join(response_uri)).unwrap(),
+        committed_response
+    );
+
+    // The repaired projections keep working for later reads.
+    let next = project.next("wish-replay");
+    assert_eq!(next["store_revision"], 3);
+    assert_eq!(next["state_token"], committed["state_token"]);
+    assert_eq!(next["work"]["stage_id"], "verify");
+    assert_eq!(fs::read(project.root.join(run_uri)).unwrap(), committed_run);
 }

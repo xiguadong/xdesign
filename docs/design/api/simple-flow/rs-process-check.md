@@ -39,7 +39,8 @@ For design rules that read `tools/checks/`, the report must name all four
 checker command files from the frozen plan.
 Requirements and design source inputs, other than the wish, plan, and record,
 must belong to the current visit's artifact snapshot. Any process or validation
-failure yields `CommandFailed`.
+failure yields `CommandFailed`; a checker process tree that outlives its
+deadline is killed as a group and yields `CheckerTimeout` instead.
 
 **Logic** — validate inputs; choose a UUID-suffixed JSON report path; execute the
 command; retain stdout/stderr; parse and validate its JSON and input hashes; map

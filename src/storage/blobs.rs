@@ -1,4 +1,6 @@
-use super::{io_error, sha256, valid_digest, valid_uri, RsStoreError, MAX_MATERIAL_BYTES};
+use super::{
+    io_error, sha256, valid_digest, valid_id, valid_uri, RsStoreError, MAX_MATERIAL_BYTES,
+};
 use sha2::{Digest, Sha256};
 use std::{
     collections::BTreeSet,
@@ -99,10 +101,14 @@ pub(crate) fn canonical_for_creation(path: &Path) -> Result<PathBuf, RsStoreErro
     let parent = absolute.parent().ok_or_else(|| {
         RsStoreError::InvalidInput(format!("path has no parent: {}", path_label(path)))
     })?;
-    // Every ancestor of the final component must be a real directory: a
-    // symlink anywhere in the chain would let the write land outside the
-    // validated destination, so the whole chain is checked, not just the
-    // immediate parent.
+    // Every existing ancestor of the final component must be a real
+    // directory: a symlink anywhere in the chain would let the write land
+    // outside the validated destination. Walking must therefore continue
+    // past the first existing ancestor up to the filesystem root. Stopping at
+    // the first existing directory would miss an earlier symlink whenever
+    // that directory is reached through it (for example `alias -> actual`
+    // with `actual/nested` already present, so `alias/nested` stats as a
+    // directory).
     let mut ancestor = parent.to_path_buf();
     let mut missing = Vec::new();
     loop {
@@ -120,7 +126,6 @@ pub(crate) fn canonical_for_creation(path: &Path) -> Result<PathBuf, RsStoreErro
                         path_label(&ancestor)
                     )));
                 }
-                break;
             }
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
                 missing.push(
@@ -134,17 +139,12 @@ pub(crate) fn canonical_for_creation(path: &Path) -> Result<PathBuf, RsStoreErro
                         })?
                         .to_os_string(),
                 );
-                match ancestor.parent() {
-                    Some(higher) => ancestor = higher.to_path_buf(),
-                    None => {
-                        return Err(RsStoreError::UnsafePath(format!(
-                            "destination root is not a directory: {}",
-                            path_label(&ancestor)
-                        )))
-                    }
-                }
             }
             Err(error) => return Err(io_error(error)),
+        }
+        match ancestor.parent() {
+            Some(higher) => ancestor = higher.to_path_buf(),
+            None => break,
         }
     }
     if !missing.is_empty() {
@@ -360,6 +360,89 @@ pub(crate) fn read_published_any(root: &Path, digest: &str) -> Result<Vec<u8>, R
     read_published_checked(root, digest, None)
 }
 
+/// Opens a published blob after the strict store path, ownership, type, and
+/// permission checks shared by every reader. The file is opened read-only
+/// without following a final symlink and checked against its pre-open
+/// identity.
+fn open_published(root: &Path, digest: &str) -> Result<File, RsStoreError> {
+    let path = blob_path(root, digest)?;
+    if let Some(parent) = path.parent() {
+        store_dir(parent)?;
+    }
+    store_dir(root.join("blobs/sha256").as_path())?;
+    open_no_follow(&path, Some(0o400), true).map_err(|error| {
+        if matches!(error, RsStoreError::Io { .. }) && !path.exists() {
+            RsStoreError::Integrity(format!("published blob is missing: {digest}"))
+        } else {
+            error
+        }
+    })
+}
+
+/// Streams an opened published blob through one bounded 64 KiB buffer,
+/// hashing and counting it as it is read. `consume` sees each chunk exactly
+/// once, so callers can discard the bytes (`verify_published`), copy them
+/// (`materialize`), or append them to a bounded in-memory result
+/// (`read_published`). No allocation proportional to the material size is
+/// performed here.
+fn stream_published(
+    file: File,
+    digest: &str,
+    expected_length: Option<u64>,
+    mut consume: impl FnMut(&[u8]) -> Result<(), RsStoreError>,
+) -> Result<(), RsStoreError> {
+    let mut reader = file.take(MAX_MATERIAL_BYTES + 1);
+    let mut buffer = [0_u8; 64 * 1024];
+    let mut length = 0_u64;
+    let mut hasher = Sha256::new();
+    loop {
+        let count = reader.read(&mut buffer).map_err(io_error)?;
+        if count == 0 {
+            break;
+        }
+        length += count as u64;
+        hasher.update(&buffer[..count]);
+        consume(&buffer[..count])?;
+        if length > MAX_MATERIAL_BYTES {
+            return Err(RsStoreError::Integrity(format!(
+                "published blob exceeds 256 MiB: {digest}"
+            )));
+        }
+    }
+    if let Some(expected_length) = expected_length {
+        if length != expected_length {
+            return Err(RsStoreError::Integrity(format!(
+                "published blob length differs for {digest}: expected {expected_length}, read {length}"
+            )));
+        }
+    }
+    let actual = format!("{:x}", hasher.finalize());
+    if actual != digest {
+        return Err(RsStoreError::Integrity(format!(
+            "published blob content differs from its SHA-256 identity: {digest}"
+        )));
+    }
+    Ok(())
+}
+
+/// Verifies a published blob's recorded length and SHA-256 through end of
+/// file without ever holding a material-sized byte vector in memory. This is
+/// the bounded counterpart of `read_published` for callers that only need the
+/// verification, not the bytes.
+pub(crate) fn verify_published(
+    root: &Path,
+    digest: &str,
+    expected_length: u64,
+) -> Result<(), RsStoreError> {
+    if expected_length > MAX_MATERIAL_BYTES {
+        return Err(RsStoreError::Integrity(
+            "stored material length exceeds 256 MiB".into(),
+        ));
+    }
+    let file = open_published(root, digest)?;
+    stream_published(file, digest, Some(expected_length), |_| Ok(()))
+}
+
 fn read_published_checked(
     root: &Path,
     digest: &str,
@@ -370,66 +453,178 @@ fn read_published_checked(
             "stored material length exceeds 256 MiB".into(),
         ));
     }
-    let path = blob_path(root, digest)?;
-    if let Some(parent) = path.parent() {
-        store_dir(parent)?;
-    }
-    store_dir(root.join("blobs/sha256").as_path())?;
-    let file = open_no_follow(&path, Some(0o400), true).map_err(|error| {
-        if matches!(error, RsStoreError::Io { .. }) && !path.exists() {
-            RsStoreError::Integrity(format!("published blob is missing: {digest}"))
-        } else {
-            error
-        }
-    })?;
-    let mut reader = file.take(MAX_MATERIAL_BYTES + 1);
-    let mut buffer = [0_u8; 64 * 1024];
+    let file = open_published(root, digest)?;
     let mut bytes = Vec::with_capacity(expected_length.unwrap_or(0).min(1 << 20) as usize);
-    let mut hasher = Sha256::new();
-    loop {
-        let count = reader.read(&mut buffer).map_err(io_error)?;
-        if count == 0 {
-            break;
-        }
-        hasher.update(&buffer[..count]);
-        bytes.extend_from_slice(&buffer[..count]);
-        if bytes.len() as u64 > MAX_MATERIAL_BYTES {
-            return Err(RsStoreError::Integrity(format!(
-                "published blob exceeds 256 MiB: {digest}"
-            )));
-        }
-    }
-    if let Some(expected_length) = expected_length {
-        if bytes.len() as u64 != expected_length {
-            return Err(RsStoreError::Integrity(format!(
-                "published blob length differs for {digest}: expected {expected_length}, read {}",
-                bytes.len()
-            )));
-        }
-    }
-    let actual = format!("{:x}", hasher.finalize());
-    if actual != digest {
-        return Err(RsStoreError::Integrity(format!(
-            "published blob content differs from its SHA-256 identity: {digest}"
-        )));
-    }
+    stream_published(file, digest, expected_length, |chunk| {
+        bytes.extend_from_slice(chunk);
+        Ok(())
+    })?;
     Ok(bytes)
 }
 
-pub(crate) fn published_exists(root: &Path, digest: &str) -> Result<bool, RsStoreError> {
-    let path = blob_path(root, digest)?;
-    match fs::symlink_metadata(&path) {
-        Ok(metadata) => {
-            if metadata.file_type().is_symlink() || !metadata.is_file() {
-                return Err(RsStoreError::UnsafePath(format!(
-                    "published blob is not a regular file: {digest}"
-                )));
-            }
-            Ok(true)
-        }
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(false),
-        Err(error) => Err(io_error(error)),
+/// Resolves the store-controlled staging directory for one operation, or
+/// `None` when it does not exist. The staging directory and the operation
+/// directory must be real, effective-user-owned directories; a symbolic link
+/// or non-directory there is tampering and is refused rather than followed.
+/// Modes are not required here because staging is transient residue that the
+/// doctor reports, and these helpers must work for manually reconstructed
+/// crash states as well as for directories created by `publish_blobs`.
+fn staging_operation_directory(
+    root: &Path,
+    operation_id: &str,
+) -> Result<Option<PathBuf>, RsStoreError> {
+    if !valid_id(operation_id) {
+        return Err(RsStoreError::InvalidInput("invalid operation_id".into()));
     }
+    let staging = root.join("staging");
+    let operation = staging.join(operation_id);
+    for path in [&staging, &operation] {
+        match fs::symlink_metadata(path) {
+            Ok(metadata) => {
+                if metadata.file_type().is_symlink() {
+                    return Err(RsStoreError::UnsafePath(format!(
+                        "symbolic links are not accepted in the staging path: {}",
+                        path_label(path)
+                    )));
+                }
+                if !metadata.is_dir() {
+                    return Err(RsStoreError::UnsafePath(format!(
+                        "staging path is not a directory: {}",
+                        path_label(path)
+                    )));
+                }
+                check_owner(&metadata, path)?;
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => return Err(io_error(error)),
+        }
+    }
+    Ok(Some(operation))
+}
+
+/// Returns true when this operation's staging area holds a staged regular,
+/// non-symlink file named exactly `digest` inside one attempt directory. This
+/// proves that an earlier attempt of the same operation published those bytes,
+/// which is the attribution rule recovery uses (S9). Absent staging is false;
+/// every staging component traversed here must be effective-user-owned and
+/// must not be a symlink.
+pub(crate) fn published_by_attempt(
+    root: &Path,
+    operation_id: &str,
+    digest: &str,
+) -> Result<bool, RsStoreError> {
+    if !valid_digest(digest) {
+        return Err(RsStoreError::Integrity(
+            "invalid stored SHA-256 digest".into(),
+        ));
+    }
+    let Some(operation) = staging_operation_directory(root, operation_id)? else {
+        return Ok(false);
+    };
+    let entries = match fs::read_dir(&operation) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(error) => return Err(io_error(error)),
+    };
+    for entry in entries {
+        let entry = entry.map_err(io_error)?;
+        let attempt = entry.path();
+        let metadata = match fs::symlink_metadata(&attempt) {
+            Ok(metadata) => metadata,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(error) => return Err(io_error(error)),
+        };
+        if metadata.file_type().is_symlink() {
+            return Err(RsStoreError::UnsafePath(format!(
+                "symbolic links are not accepted in the staging path: {}",
+                path_label(&attempt)
+            )));
+        }
+        if !metadata.is_dir() {
+            continue;
+        }
+        check_owner(&metadata, &attempt)?;
+        let staged = attempt.join(digest);
+        match fs::symlink_metadata(&staged) {
+            Ok(metadata) => {
+                if metadata.file_type().is_symlink() || !metadata.is_file() {
+                    return Err(RsStoreError::UnsafePath(format!(
+                        "staged material is not a regular file: {}",
+                        path_label(&staged)
+                    )));
+                }
+                check_owner(&metadata, &staged)?;
+                return Ok(true);
+            }
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(io_error(error)),
+        }
+    }
+    Ok(false)
+}
+
+/// Best-effort removal of one operation's transient staging residue. Only
+/// digest-named regular files inside effective-user-owned attempt directories
+/// are removed: symbolic links and foreign content are never followed or
+/// deleted, directories are removed only when they are empty, and absent
+/// staging is `Ok`. Published blobs are hard links outside `staging/`, so they
+/// are unaffected.
+pub(crate) fn cleanup_operation_staging(
+    root: &Path,
+    operation_id: &str,
+) -> Result<(), RsStoreError> {
+    let Some(operation) = staging_operation_directory(root, operation_id)? else {
+        return Ok(());
+    };
+    let entries = match fs::read_dir(&operation) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(io_error(error)),
+    };
+    for entry in entries {
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(_) => continue,
+        };
+        let attempt = entry.path();
+        let metadata = match fs::symlink_metadata(&attempt) {
+            Ok(metadata) => metadata,
+            Err(_) => continue,
+        };
+        if metadata.file_type().is_symlink() || !metadata.is_dir() {
+            continue;
+        }
+        if check_owner(&metadata, &attempt).is_err() {
+            continue;
+        }
+        if let Ok(children) = fs::read_dir(&attempt) {
+            for child in children.flatten() {
+                let staged = child.path();
+                let staged_metadata = match fs::symlink_metadata(&staged) {
+                    Ok(metadata) => metadata,
+                    Err(_) => continue,
+                };
+                if staged_metadata.file_type().is_symlink() || !staged_metadata.is_file() {
+                    continue;
+                }
+                let Some(name) = staged.file_name().and_then(|name| name.to_str()) else {
+                    continue;
+                };
+                if !valid_digest(name) || check_owner(&staged_metadata, &staged).is_err() {
+                    continue;
+                }
+                let _ = fs::remove_file(&staged);
+            }
+        }
+        let _ = fs::remove_dir(&attempt);
+    }
+    let _ = fsync_dir(&operation);
+    if fs::remove_dir(&operation).is_ok() {
+        if let Some(staging) = operation.parent() {
+            let _ = fsync_dir(staging);
+        }
+    }
+    Ok(())
 }
 
 pub(crate) struct Publication {
@@ -585,9 +780,16 @@ fn create_external_dir(path: &Path) -> Result<(), RsStoreError> {
     Ok(())
 }
 
+/// Materializes a revision's complete manifest into a previously absent
+/// destination tree using no-replace semantics. Each published blob is
+/// streamed into its destination file through a bounded 64 KiB buffer while
+/// its recorded byte length and SHA-256 are verified, so checkout never holds
+/// a material-sized byte vector in memory. A failed materialization removes
+/// the partial destination tree instead of exposing it.
 pub(crate) fn materialize(
+    root: &Path,
     destination: &Path,
-    materials: &[(String, Vec<u8>)],
+    materials: &[super::RsMaterial],
 ) -> Result<PathBuf, RsStoreError> {
     let destination = canonical_for_creation(destination)?;
     match fs::symlink_metadata(&destination) {
@@ -600,16 +802,13 @@ pub(crate) fn materialize(
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
         Err(error) => return Err(io_error(error)),
     }
-    let uris: BTreeSet<String> = materials
-        .iter()
-        .map(|(uri, _)| uri.as_str())
-        .filter(|uri| valid_uri(uri))
-        .map(str::to_owned)
-        .collect();
-    if uris.len() != materials.len() {
-        return Err(RsStoreError::Integrity(
-            "manifest has an invalid or duplicate URI".into(),
-        ));
+    let mut uris = BTreeSet::new();
+    for material in materials {
+        if !valid_uri(&material.uri) || !uris.insert(material.uri.clone()) {
+            return Err(RsStoreError::Integrity(
+                "manifest has an invalid or duplicate URI".into(),
+            ));
+        }
     }
     if let Some((existing, entry)) = super::manifest_entry_collision(&uris) {
         return Err(RsStoreError::Integrity(format!(
@@ -617,16 +816,43 @@ pub(crate) fn materialize(
         )));
     }
     create_external_dir(&destination)?;
-    for (uri, bytes) in materials {
-        let segments: Vec<_> = uri.split('/').collect();
-        let mut parent = destination.clone();
+    match materialize_blobs(root, &destination, materials) {
+        Ok(()) => Ok(destination),
+        Err(error) => {
+            // The destination was absent before this call and was created
+            // here, so removing the partial tree cannot destroy user content.
+            // This removes the *whole* destination, including files already
+            // materialized for earlier manifest URIs: a checkout either
+            // publishes its complete verified tree or leaves no destination at
+            // all, never a partial success. `remove_dir_all` does not follow
+            // symbolic links.
+            let _ = fs::remove_dir_all(&destination);
+            Err(error)
+        }
+    }
+}
+
+fn materialize_blobs(
+    root: &Path,
+    destination: &Path,
+    materials: &[super::RsMaterial],
+) -> Result<(), RsStoreError> {
+    for material in materials {
+        if material.byte_length > MAX_MATERIAL_BYTES {
+            return Err(RsStoreError::Integrity(
+                "stored material length exceeds 256 MiB".into(),
+            ));
+        }
+        let segments: Vec<_> = material.uri.split('/').collect();
+        let mut parent = destination.to_path_buf();
         for segment in &segments[..segments.len() - 1] {
             parent.push(segment);
             match fs::symlink_metadata(&parent) {
                 Ok(metadata) => {
                     if metadata.file_type().is_symlink() || !metadata.is_dir() {
                         return Err(RsStoreError::UnsafePath(format!(
-                            "checkout parent is not a private directory: {uri}"
+                            "checkout parent is not a private directory: {}",
+                            material.uri
                         )));
                     }
                 }
@@ -637,6 +863,7 @@ pub(crate) fn materialize(
             }
         }
         let path = parent.join(segments[segments.len() - 1]);
+        let published = open_published(root, &material.sha256)?;
         let mut options = OpenOptions::new();
         options.write(true).create_new(true);
         #[cfg(unix)]
@@ -644,11 +871,289 @@ pub(crate) fn materialize(
         let mut file = options.open(&path).map_err(io_error)?;
         #[cfg(unix)]
         fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).map_err(io_error)?;
-        file.write_all(bytes).map_err(io_error)?;
+        stream_published(
+            published,
+            &material.sha256,
+            Some(material.byte_length),
+            |chunk| file.write_all(chunk).map_err(io_error),
+        )?;
         sync_durable(&file).map_err(io_error)?;
         drop(file);
         fsync_dir(&parent)?;
     }
-    fsync_dir(&destination)?;
-    Ok(destination)
+    fsync_dir(destination)?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::RsMaterial;
+    use super::*;
+
+    struct Fixture {
+        base: PathBuf,
+        root: PathBuf,
+    }
+
+    impl Fixture {
+        fn new() -> Self {
+            let base = Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join("cache/implementation/storage-blob-primitive-tests")
+                .join(uuid::Uuid::new_v4().to_string());
+            fs::create_dir_all(&base).unwrap();
+            let fixture = Self {
+                root: base.join("store"),
+                base,
+            };
+            create_store_dir(&fixture.root).unwrap();
+            fixture
+        }
+
+        /// Publishes one blob exactly where `publish_blobs` links it, with the
+        /// strict `0400` published mode.
+        fn publish(&self, bytes: &[u8]) -> String {
+            let digest = sha256(bytes);
+            let path = blob_path(&self.root, &digest).unwrap();
+            create_store_dir(&self.root.join("blobs")).unwrap();
+            create_store_dir(&self.root.join("blobs/sha256")).unwrap();
+            create_store_dir(path.parent().unwrap()).unwrap();
+            fs::write(&path, bytes).unwrap();
+            set_mode(&path, 0o400);
+            digest
+        }
+
+        fn material(&self, uri: &str, digest: &str, byte_length: u64) -> RsMaterial {
+            RsMaterial {
+                uri: uri.into(),
+                role: "artifact".into(),
+                sha256: digest.into(),
+                byte_length,
+            }
+        }
+
+        fn staging_attempt(&self, operation_id: &str, attempt: &str) -> PathBuf {
+            let path = self.root.join("staging").join(operation_id).join(attempt);
+            fs::create_dir_all(&path).unwrap();
+            path
+        }
+    }
+
+    impl Drop for Fixture {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.base);
+        }
+    }
+
+    #[cfg(unix)]
+    fn set_mode(path: &Path, mode: u32) {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(path, fs::Permissions::from_mode(mode)).unwrap();
+    }
+
+    #[cfg(not(unix))]
+    fn set_mode(_path: &Path, _mode: u32) {}
+
+    #[test]
+    fn verify_published_streams_and_rejects_tampering() {
+        let fixture = Fixture::new();
+        let bytes = b"bounded verification bytes";
+        let digest = fixture.publish(bytes);
+        let length = bytes.len() as u64;
+        verify_published(&fixture.root, &digest, length).unwrap();
+
+        assert!(matches!(
+            verify_published(&fixture.root, &digest, length + 1),
+            Err(RsStoreError::Integrity(message)) if message.contains("length differs")
+        ));
+
+        // Same length, different content: the through-EOF digest check catches it.
+        let blob = blob_path(&fixture.root, &digest).unwrap();
+        set_mode(&blob, 0o600);
+        fs::write(&blob, vec![b'x'; bytes.len()]).unwrap();
+        set_mode(&blob, 0o400);
+        assert!(matches!(
+            verify_published(&fixture.root, &digest, length),
+            Err(RsStoreError::Integrity(message))
+                if message.contains("differs from its SHA-256 identity")
+        ));
+
+        fs::remove_file(&blob).unwrap();
+        assert!(matches!(
+            verify_published(&fixture.root, &digest, length),
+            Err(RsStoreError::Integrity(message)) if message.contains("missing")
+        ));
+        assert!(matches!(
+            verify_published(&fixture.root, "not-a-digest", 0),
+            Err(RsStoreError::Integrity(_))
+        ));
+    }
+
+    #[test]
+    fn materialize_streams_manifest_without_partial_destination() {
+        let fixture = Fixture::new();
+        // Larger than one 64 KiB buffer so the copy path must stream.
+        let payload: Vec<u8> = (0..150_000usize).map(|index| (index % 251) as u8).collect();
+        let digest = fixture.publish(&payload);
+        let length = payload.len() as u64;
+        let materials = vec![
+            fixture.material("tree/a.bin", &digest, length),
+            fixture.material("tree/b.bin", &digest, length),
+            fixture.material("deep/dir/c.bin", &digest, length),
+        ];
+
+        let destination = fixture.base.join("checkout");
+        let materialized = materialize(&fixture.root, &destination, &materials).unwrap();
+        assert_eq!(materialized, fs::canonicalize(&destination).unwrap());
+        for uri in ["tree/a.bin", "tree/b.bin", "deep/dir/c.bin"] {
+            assert_eq!(fs::read(destination.join(uri)).unwrap(), payload);
+        }
+        assert!(matches!(
+            materialize(&fixture.root, &destination, &materials),
+            Err(RsStoreError::UnsafePath(_))
+        ));
+
+        // Invalid, duplicate, and length-mismatched entries write nothing.
+        let duplicate = fixture.base.join("duplicate");
+        let aliased = vec![
+            fixture.material("same.txt", &digest, length),
+            fixture.material("same.txt", &digest, length),
+        ];
+        assert!(matches!(
+            materialize(&fixture.root, &duplicate, &aliased),
+            Err(RsStoreError::Integrity(_))
+        ));
+        assert!(!duplicate.exists());
+        let invalid = fixture.base.join("invalid");
+        assert!(matches!(
+            materialize(
+                &fixture.root,
+                &invalid,
+                &[fixture.material("../escape.txt", &digest, length)],
+            ),
+            Err(RsStoreError::Integrity(_))
+        ));
+        assert!(!invalid.exists());
+        let wrong_length = fixture.base.join("wrong-length");
+        assert!(matches!(
+            materialize(
+                &fixture.root,
+                &wrong_length,
+                &[fixture.material("wrong.bin", &digest, length + 1)],
+            ),
+            Err(RsStoreError::Integrity(message)) if message.contains("length differs")
+        ));
+        assert!(!wrong_length.exists());
+
+        // Altered then missing published bytes are refused with no residue.
+        let altered_destination = fixture.base.join("altered-checkout");
+        let blob = blob_path(&fixture.root, &digest).unwrap();
+        set_mode(&blob, 0o600);
+        fs::write(&blob, vec![0_u8; payload.len()]).unwrap();
+        set_mode(&blob, 0o400);
+        assert!(matches!(
+            materialize(&fixture.root, &altered_destination, &materials),
+            Err(RsStoreError::Integrity(message)) if message.contains("differs")
+        ));
+        assert!(!altered_destination.exists());
+
+        fs::remove_file(&blob).unwrap();
+        let missing_destination = fixture.base.join("missing-checkout");
+        assert!(matches!(
+            materialize(&fixture.root, &missing_destination, &materials),
+            Err(RsStoreError::Integrity(message)) if message.contains("missing")
+        ));
+        assert!(!missing_destination.exists());
+    }
+
+    #[test]
+    fn published_by_attempt_attributes_only_this_operations_residue() {
+        let fixture = Fixture::new();
+        let bytes = b"staged publication bytes";
+        let digest = fixture.publish(bytes);
+        let other = sha256(b"some other bytes");
+
+        assert!(!published_by_attempt(&fixture.root, "operation-a", &digest).unwrap());
+
+        let attempt = fixture.staging_attempt("operation-a", "attempt-1");
+        fs::write(attempt.join(&digest), bytes).unwrap();
+        assert!(published_by_attempt(&fixture.root, "operation-a", &digest).unwrap());
+        assert!(!published_by_attempt(&fixture.root, "operation-a", &other).unwrap());
+        assert!(!published_by_attempt(&fixture.root, "operation-b", &digest).unwrap());
+        assert!(matches!(
+            published_by_attempt(&fixture.root, "operation-a", "not-a-digest"),
+            Err(RsStoreError::Integrity(_))
+        ));
+
+        // A file directly under staging/<operation-id>/ is not an attempt
+        // subdirectory entry and does not attribute the bytes.
+        let shallow = fixture.root.join("staging/operation-c");
+        fs::create_dir_all(&shallow).unwrap();
+        fs::write(shallow.join(&digest), bytes).unwrap();
+        assert!(!published_by_attempt(&fixture.root, "operation-c", &digest).unwrap());
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            let elsewhere = fixture.base.join("elsewhere");
+            fs::create_dir_all(&elsewhere).unwrap();
+            fs::write(elsewhere.join(&digest), bytes).unwrap();
+            let operation = fixture.root.join("staging/operation-d");
+            fs::create_dir_all(&operation).unwrap();
+            symlink(&elsewhere, operation.join("attempt-link")).unwrap();
+            assert!(matches!(
+                published_by_attempt(&fixture.root, "operation-d", &digest),
+                Err(RsStoreError::UnsafePath(_))
+            ));
+        }
+    }
+
+    #[test]
+    fn cleanup_operation_staging_removes_residue_but_keeps_published_blobs() {
+        let fixture = Fixture::new();
+        let bytes = b"published bytes kept by cleanup";
+        let digest = fixture.publish(bytes);
+        let length = bytes.len() as u64;
+        let attempt = fixture.staging_attempt("cleanup-operation", "attempt-1");
+        // `publish_blobs` keeps a staging hard link to the published blob;
+        // reproducing that layout proves cleanup cannot damage the blob.
+        fs::hard_link(
+            blob_path(&fixture.root, &digest).unwrap(),
+            attempt.join(&digest),
+        )
+        .unwrap();
+        let operation = attempt.parent().unwrap().to_path_buf();
+        fs::write(operation.join("foreign-direct-file"), b"foreign").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::symlink;
+            symlink(fixture.base.join("link-target"), attempt.join("link")).unwrap();
+        }
+        assert!(published_by_attempt(&fixture.root, "cleanup-operation", &digest).unwrap());
+
+        cleanup_operation_staging(&fixture.root, "cleanup-operation").unwrap();
+        assert!(!attempt.join(&digest).exists());
+        // Foreign entries and symlinks are never followed or removed.
+        assert!(operation.join("foreign-direct-file").exists());
+        #[cfg(unix)]
+        assert!(attempt.join("link").symlink_metadata().is_ok());
+        // The published blob survives the hard-link removal and still verifies.
+        verify_published(&fixture.root, &digest, length).unwrap();
+
+        // Residue-only staging is removed completely, and absent staging is Ok.
+        let clean_attempt = fixture.staging_attempt("cleanup-clean", "attempt-2");
+        fs::write(clean_attempt.join(&other_digest(bytes)), bytes).unwrap();
+        let clean_operation = clean_attempt.parent().unwrap().to_path_buf();
+        cleanup_operation_staging(&fixture.root, "cleanup-clean").unwrap();
+        assert!(!clean_operation.exists());
+        cleanup_operation_staging(&fixture.root, "no-such-operation").unwrap();
+    }
+
+    fn other_digest(bytes: &[u8]) -> String {
+        // A digest-named staged file does not have to be published for
+        // cleanup to recognize it as this store's staging residue.
+        let mut hasher = Sha256::new();
+        hasher.update(bytes);
+        hasher.update(b"staging residue");
+        format!("{:x}", hasher.finalize())
+    }
 }
