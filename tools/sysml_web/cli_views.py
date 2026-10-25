@@ -430,7 +430,7 @@ def _timeline(context):
     text(44,1514,'Action-order projection, not a native event timeline or execution log. Dashed arrows show returns.',18,color=MUTED)
     text(44,1544,'Source: AgentStageWork · StageCli.check · Controller.progressWish. Design projection; see the local CLI contract.',18,color=MUTED)
     add('</g></g></svg>')
-    context.relationships.extend(relations)
+    context.relationships.extend(sorted(relations, key=lambda relation: relation['native_id']))
     return '\n'.join(parts)
 
 

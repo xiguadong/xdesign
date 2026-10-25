@@ -10,23 +10,20 @@ package XDesignRustUml {
 
     doc /* The Rust software design of the whole xdesign crate, expressed as UML
        views over this SysML model: a generic core of flow-agnostic plan, record,
-       ports and run-engine infrastructure, plus one designed flow module per
-       realized flow — simpleFlow for the designed four-stage flow and
-       wishVerify for the designed two-stage wish-verify flow. The views present
-       the crate's layer and module layout, the structs, enums and traits the
-       crate implements, the gate-evaluation interaction, and the run's state
-       handling. The xdesign crate exists in src/, and model realization
-       dependencies connect its designed elements to the architecture and
-       detailed design. */
+       ports and run-engine infrastructure; simpleFlow and wishVerify flow modules;
+       and the sibling operational storage module. The views present the crate's
+       layer and module layout, designed types and realization dependencies.
+       Storage definitions link XDesignStorage to the RsStore records and operations.
+       The xdesign crate exists in src/ only where its implementation status says so;
+       model declarations alone do not establish source or executed behavior. */
 
     package crate {
         @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/implementation.md"; section = "D45"; }
-        doc /* Module layout of the implemented xdesign crate, in two layers:
-           core owns the flow-agnostic infrastructure; one module per realized
-           designed flow — simpleFlow and wishVerify — builds on it. One module
-           owns one concern; dependencies point toward the data definitions, so
-           the run behavior never reaches back into its callers, and a flow
-           module may depend on core, never the reverse. */
+        doc /* Module layout of the xdesign crate: core owns flow-agnostic
+           infrastructure; simpleFlow and wishVerify build designed flows on it;
+           storage owns local operational persistence behind a sibling boundary.
+           One module owns one concern; dependencies point toward core and its
+           data definitions, never from core back into a flow or SQLite storage. */
 
         package core {
             doc /* Flow-agnostic infrastructure of the xdesign crate: status and
@@ -173,6 +170,35 @@ package XDesignRustUml {
         }
 
         dependency wishVerifyUsesCore from crate::wishVerify to crate::core;
+
+        package storage {
+            doc /* Local operational persistence: generic items and immutable
+               revisions, exact-operation receipts, content-addressed materials,
+               verified checkout and recovery. Uses core digest/path primitives;
+               core and flow modules never depend on SQLite or this package. */
+            package db {
+                doc /* SQLite format identity, schema, connection pragmas,
+                   immutable revisions and consistent query snapshots. */
+            }
+            package blobs {
+                doc /* Staging, fsync/no-replace publication, digest-verifying
+                   reads and safe materialization beneath controlled roots. */
+            }
+            package ops {
+                doc /* Strict request decoding, durable pending operations,
+                   expected-head saves, receipts, outcome recovery and doctor. */
+            }
+            package cli {
+                doc /* Versioned store command JSON envelopes and exit codes;
+                   no network or async runtime. */
+            }
+            dependency storageOpsUseDb from crate::storage::ops to crate::storage::db;
+            dependency storageOpsUseBlobs from crate::storage::ops to crate::storage::blobs;
+            dependency storageCliUsesOps from crate::storage::cli to crate::storage::ops;
+            dependency storageBlobsUseDb from crate::storage::blobs to crate::storage::db;
+        }
+        dependency storageUsesCore from crate::storage to crate::core;
+        dependency storageRealizesProjectStore from crate::storage to XDesignStorage::ProjectStore;
     }
 
     enum def RsFlowStatus {
@@ -767,21 +793,23 @@ package XDesignRustUml {
         expose XDesignRustUml::crate::core::*;
         expose XDesignRustUml::crate::simpleFlow::*;
         expose XDesignRustUml::crate::wishVerify::*;
+        expose XDesignRustUml::crate::storage::*;
     }
 
     view rustCrateLayers : StandardViewDefinitions::GeneralView {
         @XDesignCommon::DiagramPresentation { label = "Crate layers"; question = "How is the xdesign crate divided into layers, and which direction may dependencies point?"; }
         @XDesignCommon::DocSection { document = "docs/design/api/index.md"; section = "U68"; }
         @XDesignCommon::DocFigure { document = "docs/design/api/index.md"; figure = "docs/design/api/assets/crate-layers.svg"; }
-        doc /* The crate's layers — core infrastructure and one designed flow
-           module per realized flow, simpleFlow and wishVerify — and the one-way
-           dependencies between them. */
+        doc /* The crate's core, two flow layers and sibling storage layer,
+           with dependencies pointing toward core and no SQLite dependency in core. */
         expose XDesignRustUml::crate;
         expose XDesignRustUml::crate::core;
         expose XDesignRustUml::crate::simpleFlow;
         expose XDesignRustUml::crate::wishVerify;
+        expose XDesignRustUml::crate::storage;
         expose XDesignRustUml::crate::simpleFlowUsesCore;
         expose XDesignRustUml::crate::wishVerifyUsesCore;
+        expose XDesignRustUml::crate::storageUsesCore;
     }
 
     view rustClassStructure : StandardViewDefinitions::GeneralView {
@@ -845,6 +873,7 @@ package XDesignRustUml {
         expose XDesignCommon;
         expose XDesignRequirements;
         expose XDesignArchitecture;
+        expose XDesignStorage;
         expose XDesignWorkflow;
         expose XDesignDetailedDesign;
         expose XDesignComposition;
@@ -972,6 +1001,196 @@ package XDesignRustUml {
         attribute redefines stakeholderRole = "implementer";
     }
 
+    part def RsSaveRequest {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-save-request.md"; section = "U80"; }
+        doc /* Typed version-one save: operation and item IDs, kind, expected head,
+           metadata object, complete materials and result. */
+    }
+    part def RsSaveMaterial {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-save-material.md"; section = "U85"; }
+        attribute uri : String;
+        attribute role : String;
+        attribute sha256 : String;
+        attribute source : String [0..1];
+    }
+    part def RsMaterial {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-material.md"; section = "U86"; }
+        attribute uri : String;
+        attribute role : String;
+        attribute sha256 : String;
+        attribute byteLength : Integer;
+    }
+    part def RsItemRevision {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-item-revision.md"; section = "U87"; }
+        doc /* Complete immutable item/revision value; projection is derived at query. */
+    }
+    part def RsItemSummary {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-item-summary.md"; section = "U88"; }
+        doc /* Language-side head summary for list; never a replacement for history. */
+    }
+    enum def RsOperationOutcome {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-operation-outcome.md"; section = "U89"; }
+        enum pending;
+        enum committed;
+        enum conflict;
+    }
+    part def RsOperationReceipt {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-operation-receipt.md"; section = "U90"; }
+        doc /* Exact request digest, outcome, optional committed revision and result. */
+    }
+    enum def RsWishStatus {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-wish-status.md"; section = "U91"; }
+        enum received;
+        enum active;
+        enum blocked;
+        enum delivered;
+    }
+    part def RsWishProjection {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-wish-projection.md"; section = "U92"; }
+        doc /* Output-only flow/status/current-stage projection at one revision. */
+    }
+    part def RsStoreError {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-error.md"; section = "U93"; }
+        doc /* Language-side typed failures: invalid input, unsupported format,
+           not found, operation mismatch, integrity, unsafe path, I/O, database,
+           and unknown outcome. Conflict itself is a receipt, not an exception. */
+    }
+    part def RsStore {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store.md"; section = "U81"; }
+        doc /* Owns the safe local root, SQLite connection and recorded root/database
+           identities. Construction and every operation revalidate those identities. */
+    }
+    action def RsStoreInit {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-init.md"; section = "U98"; }
+        doc /* Initialize a version-one store at an absent or safe empty root, or
+           reopen a valid store with unchanged identity and no record effect. */
+        in attribute rootUri : String;
+        out part store : RsStore;
+    }
+    action def RsStoreOpen {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-open.md"; section = "U99"; }
+        doc /* Open and validate an existing version-one store without creation,
+           cleanup, repair, adoption, or migration. */
+        in attribute rootUri : String;
+        out part store : RsStore;
+    }
+    action def RsStoreSave {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-save.md"; section = "U82"; }
+        in part store : RsStore;
+        in item request : RsSaveRequest;
+        out item receipt : RsOperationReceipt;
+    }
+    action def RsStoreSaveBytes {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-save-bytes.md"; section = "U100"; }
+        doc /* Exact raw JSON request variant used by CLI and pending recovery. */
+        in part store : RsStore;
+        in attribute rawJson : String;
+        out item receipt : RsOperationReceipt;
+    }
+    action def RsStoreOutcome {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-outcome.md"; section = "U83"; }
+        in part store : RsStore;
+        in attribute operationId : String;
+        out item receipt : RsOperationReceipt;
+    }
+    action def RsStoreList {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-list.md"; section = "U101"; }
+        in part store : RsStore;
+        in attribute kind : String [0..1];
+        in attribute status : String [0..1];
+        out item summaries : RsItemSummary [0..*];
+    }
+    action def RsStoreGet {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-get.md"; section = "U102"; }
+        in part store : RsStore;
+        in attribute itemId : String;
+        in attribute revision : Integer [0..1];
+        out item selected : RsItemRevision;
+    }
+    action def RsStoreHistory {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-history.md"; section = "U103"; }
+        in part store : RsStore;
+        in attribute itemId : String;
+        out item revisions : RsItemRevision [0..*];
+    }
+    action def RsStoreReadMaterial {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-read-material.md"; section = "U104"; }
+        in part store : RsStore;
+        in attribute itemId : String;
+        in attribute revision : Integer [0..1];
+        in attribute uri : String;
+        out attribute verifiedBytes : String;
+    }
+    part def RsCheckoutReport {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-checkout-report.md"; section = "U94"; }
+        attribute itemId : String;
+        attribute revision : Integer;
+        attribute destinationUri : String;
+        attribute materialCount : Integer;
+    }
+    enum def RsDoctorFindingKind {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-doctor-finding-kind.md"; section = "U95"; }
+        enum orphanBlob;
+        enum pendingOperation;
+        enum missingBlob;
+        enum alteredBlob;
+        enum stagingArtifact;
+        enum invalidRecord;
+        enum formatDefect;
+        enum identityMismatch;
+        enum permissionDefect;
+    }
+    part def RsDoctorFinding {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-doctor-finding.md"; section = "U96"; }
+        attribute kind : RsDoctorFindingKind;
+        attribute subjectUri : String;
+        attribute detail : String;
+    }
+    part def RsDoctorReport {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-doctor-report.md"; section = "U97"; }
+        attribute verifyBytes : Boolean;
+        item findings : RsDoctorFinding [0..*];
+    }
+    action def RsStoreCheckout {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-checkout.md"; section = "U84"; }
+        in part store : RsStore;
+        in attribute itemId : String;
+        in attribute revision : Integer [0..1];
+        in attribute destinationUri : String;
+        out item report : RsCheckoutReport;
+    }
+    action def RsStoreDoctor {
+        @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-doctor.md"; section = "U105"; }
+        in part store : RsStore;
+        in attribute verifyBytes : Boolean;
+        out item report : RsDoctorReport;
+    }
+
+    dependency rsSaveRequestRealizes from RsSaveRequest to XDesignStorage::SaveRequest;
+    dependency rsSaveMaterialRealizes from RsSaveMaterial to XDesignStorage::SaveMaterial;
+    dependency rsMaterialRealizes from RsMaterial to XDesignStorage::Material;
+    dependency rsItemRevisionRealizes from RsItemRevision to XDesignStorage::ItemRevision;
+    dependency rsOperationOutcomeRealizes from RsOperationOutcome to XDesignStorage::OperationOutcome;
+    dependency rsOperationReceiptRealizes from RsOperationReceipt to XDesignStorage::OperationReceipt;
+    dependency rsWishStatusMirrors from RsWishStatus to XDesignCommon::WishStatus;
+    dependency rsWishProjectionRealizes from RsWishProjection to XDesignStorage::WishProjection;
+    dependency rsStoreRealizes from RsStore to XDesignStorage::ProjectStore;
+    dependency rsStoreInitRealizes from RsStoreInit to XDesignStorage::ProjectStore;
+    dependency rsStoreOpenRealizes from RsStoreOpen to XDesignStorage::ProjectStore;
+    dependency rsStoreSaveRealizes from RsStoreSave to XDesignStorage::SaveOperation;
+    dependency rsStoreSaveBytesRealizes from RsStoreSaveBytes to XDesignStorage::SaveOperation;
+    dependency rsStoreOutcomeRealizes from RsStoreOutcome to XDesignStorage::ProjectStore::outcome;
+    dependency rsStoreListRealizes from RsStoreList to XDesignStorage::ProjectStore::list;
+    dependency rsStoreGetRealizes from RsStoreGet to XDesignStorage::ProjectStore::get;
+    dependency rsStoreHistoryRealizes from RsStoreHistory to XDesignStorage::ProjectStore::history;
+    dependency rsStoreReadMaterialRealizes from RsStoreReadMaterial to XDesignStorage::ReadMaterialOperation;
+    dependency rsCheckoutReportRealizes from RsCheckoutReport to XDesignStorage::CheckoutReport;
+    dependency rsDoctorFindingKindRealizes from RsDoctorFindingKind to XDesignStorage::DoctorFindingKind;
+    dependency rsDoctorFindingRealizes from RsDoctorFinding to XDesignStorage::DoctorFinding;
+    dependency rsDoctorReportRealizes from RsDoctorReport to XDesignStorage::DoctorReport;
+    dependency rsStoreCheckoutRealizes from RsStoreCheckout to XDesignStorage::CheckoutOperation;
+    dependency rsStoreDoctorRealizes from RsStoreDoctor to XDesignStorage::DoctorOperation;
+
     action def RsRestoreRun {
         @XDesignCommon::DocSection { document = "docs/design/api/core/restore-run.md"; section = "U78"; }
         doc /* src/core/restore.rs restores a FlowRun from validated persisted
@@ -985,9 +1204,11 @@ package XDesignRustUml {
         @XDesignCommon::DocSection { document = "docs/design/stage-cli.md"; section = "D85"; }
         doc /* Binary module src/stage_cli: mod.rs parses and dispatches init,
            next and check; work.rs freezes stage content and collects artifact
-           digests; store.rs validates registration and serializes writers.
-           Uses core::restore_run plus existing flow factories, process checker
-           and supplied judge. The library keeps its three existing layers. */
+           digests; store.rs validates registration and serializes writers;
+           persistent.rs restores stored heads, materializes runtime copies and
+           commits complete stage revisions. Uses core::restore_run plus existing
+           flow factories, process checker and supplied judge. Core and flow
+           libraries remain independent of SQLite and the storage adapter. */
     }
     dependency rsStageCliRealizes from RsStageCliApplication to XDesignWorkflow::LocalStageCliRuntime;
 }

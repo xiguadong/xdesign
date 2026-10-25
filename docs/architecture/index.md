@@ -16,32 +16,35 @@ and open decisions.
 ## What the project does
 
 xdesign manages engineering development with SysML v2. A requester states a wish; the
-model records the wish, the work it causes, and the evidence that answers it. The tool
-must answer two questions:
+system records the work it causes and the evidence that answers it. The tool must answer
+two questions:
 
 1. What makes up the system being developed, and how do its parts relate and work together?
 2. Why did each wish lead to these requirements, designs, implementations and verification results?
 
-The first question is answered by the project MBSE model under `mbse/model/`. The second
-by an independent SysML traceability model per wish under `mbse/wishes/`. The composition
-that holds both is defined by `XDesignArchitecture::XDesign` and instantiated as
-`XDesignComposition::xdesign`.
+The first question is answered by the project MBSE model under `mbse/model/`. For new
+store-backed runs, `XDesignStorage` answers the second through operational items, immutable
+revisions, materials, and receipts. Independent SysML traces under `mbse/wishes/` remain
+the authority for legacy and bootstrap runs. `XDesignArchitecture::XDesign` owns the
+composition and its `ProjectStore`; `XDesignComposition::xdesign` instantiates it.
 
 <a id="a02"></a>
 
-## The three kinds of model
+## Engineering models and operational traces
 
-| Model | Lives in | Holds | Changes when |
+| Record class | Lives in | Holds | Changes when |
 | --- | --- | --- | --- |
-| Project MBSE model | `mbse/model/` | Requirements baseline, architecture, record definitions, workflow definitions and traceability links | The project's own design changes |
-| Wish traceability models | `mbse/wishes/wish-<id>.sysml` | One wish, its trace, its stage records, activities and assessments | That wish advances |
+| Project MBSE model | `mbse/model/` | Requirements baseline, architecture, record and storage definitions, workflow definitions and traceability links | The project's own design changes |
+| Legacy/bootstrap wish traces | `mbse/wishes/wish-<id>.sysml` | One wish, its trace, stage records, activities and assessments | That legacy wish advances |
+| New operational traces | `.xdesign/` metadata and blobs; regenerable working copies under `cache/` | Wish registrations, runs, complete revision manifests, materials, evidence and operation receipts | A guarded save appends a revision |
 | Workflow definitions | inside the project model | `Flow`, `Stage`, `Checkpoint`, `Checker`, `Controller` | The way work is organised changes |
 
 The dependency runs one way. A wish references model elements; no model element names a
 wish (`XDesignRequirements::modelStandsWithoutWishes`). A wish's products — the
 requirements it produces and the model changes it causes — are retained in `mbse/model/`;
 a wish record may describe them but never holds the only copy
-(`XDesignRequirements::wishProductsAreRetained`).
+(`XDesignRequirements::wishProductsAreRetained`). Operational status is projected from the
+stored run rather than maintained as a second editable flag.
 
 <a id="a04"></a>
 
@@ -58,7 +61,9 @@ mbse/
             workflow.sysml      ports, interfaces and the executed lifecycle scenario
             traceability.sysml  which model element satisfies which requirement
             uml.sysml           the xdesign Rust package and API design elements
-  wishes/   wish-0001.sysml ...   one independent traceability model per wish
+            storage.sysml       operational store records, save, query and recovery
+  wishes/   wish-0001.sysml ...   legacy and bootstrap SysML traces
+.xdesign/   store.db and content-addressed blobs for new operational runs (ignored)
 docs/
   index.md                  reader routes and model-to-document map
   AGENTS.md                 authoring/naming/ID/figure/link rules (site-excluded)
@@ -132,6 +137,8 @@ Where each model module and sub-module is documented. Section identifiers are st
 | Documentation audit and SimpleFlow checker rules | [D31](../interfaces/documentation-contract.md#d31), [D06](../design/flows/simple-flow/definition.md#d06) |
 | `XDesignRequirements`, `XDesignRequirement`, every requirement | [R01](../requirements/requirements.md#r01) |
 | `XDesignTraceability` | [R02](../requirements/requirements.md#r02) |
+| `XDesignStorage`, `ProjectStore`, revision/material/save/query/recovery elements | [D86](../design/storage.md#d86), [I11](../interfaces/store-format.md#i11), [storage API](../design/api/storage/index.md) |
+| `StorageVerification` | [D87](../verification/design.md#d87) |
 | `XDesignRustUml` and the xdesign crate's API elements | [D44](../design/flows/simple-flow/implementation.md#d44), [U65](../design/api/index.md#u65), [U14](../design/api/index.md#u14) |
 | `RustUmlDesignReview` | [D52](../design/flows/simple-flow/views.md#d52) |
 | `simpleFlowFilePlan`, `simpleFlowFilePlanView` | [D53](../records/plans/simple-flow-file-plan.md#d53) |
@@ -185,6 +192,8 @@ Where each model module and sub-module is documented. Section identifiers are st
 | `mbse/wishes/wish-0007.sysml` | [V06](../records/wishes/wish-history.md#v06) |
 | `mbse/wishes/wish-0008.sysml` | [V07](../records/wishes/wish-history.md#v07) |
 | `mbse/wishes/wish-0009.sysml` | [V16](../records/wishes/wish-history.md#v16) |
+| `mbse/wishes/wish-0010.sysml` | [V17](../records/wishes/wish-history.md#v17) |
+| `mbse/wishes/wish-0011.sysml` | [V18](../records/wishes/wish-history.md#v18) |
 | `designedFlowTree` (view) | [D01](../design/flows/simple-flow/definition.md#d01) |
 | `designTree` (view) | [D02](../design/flows/simple-flow/implementation.md#d02) |
 | `factoryFlow` (view) | [D03](../design/flows/simple-flow/implementation.md#d03) |

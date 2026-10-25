@@ -27,7 +27,9 @@ current artifacts (`Workflow::executeWish`, `Controller::progressWish`).
 `WishStatus` names the wish's `received`, `active`, `blocked`, and `delivered` states.
 Those literals describe the trace's outcome, distinct from a stage visit's status
 ([E02](../design/evidence-and-revisions.md#e02)) or a flow execution's status
-([E01](../interfaces/record-format.md#e01)).
+([E01](../interfaces/record-format.md#e01)). Legacy traces store the flag explicitly.
+Store queries derive it from the run: `pending` → `received`, `active` → `active`,
+`blocked` → `blocked`, and `completed` → `delivered`; no second editable status exists.
 
 For the whole wish → implementation → verification → delivery route, including
 stage exit gates and V-model verification pairings, see [B30](#b30).

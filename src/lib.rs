@@ -1,9 +1,9 @@
-//! xdesign application library in two layers: `core` holds the flow-agnostic
-//! infrastructure and the flow modules build the designed flows on it:
-//! `simple_flow` the designed four-stage flow, `wish_verify` the designed
-//! two-stage flow. Dependencies point one way: a flow module may use `core`,
-//! never the reverse.
+//! xdesign application library: `core` holds flow-agnostic infrastructure,
+//! `simple_flow` and `wish_verify` build the designed flows on it, and `storage`
+//! owns local operational persistence. Flow and storage modules may use core;
+//! core never depends on a flow or on SQLite storage.
 
 pub mod core;
 pub mod simple_flow;
+pub mod storage;
 pub mod wish_verify;

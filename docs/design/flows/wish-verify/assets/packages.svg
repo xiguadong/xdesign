@@ -255,6 +255,7 @@ availableFlows
 selectedFlow
 wishes
 traces
+store
 wishes-&gt;forAll { in wish : Wish;
                 size(traces-&gt;select { in trace : Trace;
                     trace.wish == wish
@@ -285,6 +286,7 @@ vModel
 XDesignComposition
 XDesignWorkflow
 XDesignArchitecture
+XDesignStorage
 XDesignVerification
 3cf1f4d9-4e74-5e5d-9e2d-a50a0f754327</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="196.78,-360.06 193.78,-364.06 172.78,-364.06 169.78,-360.06 0,-360.06 0,-282.04 196.78,-282.04 196.78,-360.06" />
@@ -754,6 +756,32 @@ view wishVerifyRustModules
 view wishVerifyRustTypes
 viewpoint wishVerifyRustModulesConcern : DocumentationViewpoint
 viewpoint wishVerifyRustTypesConcern : DocumentationViewpoint
+part RsSaveRequest
+part RsSaveMaterial
+part RsMaterial
+part RsItemRevision
+part RsItemSummary
+enum RsOperationOutcome
+part RsOperationReceipt
+enum RsWishStatus
+part RsWishProjection
+part RsStoreError
+part RsStore
+action RsStoreInit
+action RsStoreOpen
+action RsStoreSave
+action RsStoreSaveBytes
+action RsStoreOutcome
+action RsStoreList
+action RsStoreGet
+action RsStoreHistory
+action RsStoreReadMaterial
+part RsCheckoutReport
+enum RsDoctorFindingKind
+part RsDoctorFinding
+part RsDoctorReport
+action RsStoreCheckout
+action RsStoreDoctor
 action RsRestoreRun
 part RsStageCliApplication
 self
@@ -771,12 +799,15 @@ XDesignRustUml::crate::*
 XDesignRustUml::crate::core::*
 XDesignRustUml::crate::simpleFlow::*
 XDesignRustUml::crate::wishVerify::*
+XDesignRustUml::crate::storage::*
 XDesignRustUml::crate
 XDesignRustUml::crate::core
 XDesignRustUml::crate::simpleFlow
 XDesignRustUml::crate::wishVerify
+XDesignRustUml::crate::storage
 XDesignRustUml::crate::simpleFlowUsesCore
 XDesignRustUml::crate::wishVerifyUsesCore
+XDesignRustUml::crate::storageUsesCore
 XDesignRustUml::RsFlowRun
 XDesignRustUml::RsStageVisit
 XDesignRustUml::RsActivityEntry
@@ -806,6 +837,7 @@ XDesignRustUml::RsRunLifecycle::*
 XDesignCommon
 XDesignRequirements
 XDesignArchitecture
+XDesignStorage
 XDesignWorkflow
 XDesignDetailedDesign
 XDesignComposition
@@ -841,6 +873,7 @@ verificationcase SimpleFlowFilePlanVerification
 verificationcase WishVerifyFlowBehaviorVerification
 verificationcase WishVerifyFlowFilePlanVerification
 verificationcase LocalStageCliRuntimeVerification
+verificationcase StorageVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="347.15,-501.08 344.15,-505.08 323.15,-505.08 320.15,-501.08 227.62,-501.08 227.62,-423.06 347.15,-423.06 347.15,-501.08" />
 <rect fill="white" stroke="none" x="236.26" y="-495.32" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="244.26" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>

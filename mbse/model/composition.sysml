@@ -68,6 +68,7 @@ package XDesignComposition {
         expose XDesignComposition;
         expose XDesignWorkflow;
         expose XDesignArchitecture;
+        expose XDesignStorage;
         expose XDesignVerification;
     }
 }

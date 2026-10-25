@@ -26,3 +26,8 @@ items. Transport, complete payload schemas, timing, retries, errors, security au
 and compatibility policy are still open. The four entries are therefore draft
 contracts; the present documents do not authorize an implementation or integration
 baseline.
+
+The separate [store format](store-format.md#i11) specifies the local persistence interface:
+format and schema identities, strict save requests, revision manifests, operation receipts,
+store commands, exit codes, and checkout/recovery behavior. It is a local file/SQLite
+contract, not a network interface or a frozen migration baseline.

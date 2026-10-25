@@ -34,6 +34,7 @@ what a clean run does not establish.
 | Figure renderer | `tools/render_docs.py` — projects declared views and model-owned presentation metadata, uses Graphviz for graph layout and SVG, and uses a compact ordered layout for the primary sequence; historical native exports remain supported ([D22–D26](../interfaces/documentation-contract.md#d22)) |
 | Documentation audit | `tools/check_documentation.py --json` — checks model documentation targets, Markdown SVG embeds, and adjacent figure explanations ([D31](../interfaces/documentation-contract.md#d31)) |
 | Documentation website | `tools/docs.py` — builds or previews these Markdown documents with MkDocs Material; configuration lives in `mkdocs.yml` |
+| Operational storage | `xdesign::storage` and `xdesign store` — local SQLite plus content-addressed materials under `.xdesign/`; `XDESIGN_STORE_ROOT` selects an explicit alternate root ([D86](../design/storage.md#d86)) |
 
 Preview the documentation website from the repository root:
 
@@ -51,9 +52,11 @@ Build static HTML with `python3 tools/docs.py build`. The generated site is writ
 creates `cache/docs-site/venv/` and installs the pinned dependencies from
 `tools/docs_site/requirements.txt`, which requires internet access. Subsequent runs reuse
 that environment. Environments, build output, dependency caches, and temporary files
-stay under `cache/`. The existing document filenames and section anchors are preserved;
-the site root opens the [documentation entry](../index.md). Figure regeneration remains
-a separate command described in [T03](#t03).
+stay under `cache/`. Durable operational revisions and their blobs instead stay under
+`.xdesign/`; neither location is a development environment, and only cache is disposable.
+The existing document filenames and section anchors are preserved; the site root opens the
+[documentation entry](../index.md). Figure regeneration remains a separate command described
+in [T03](#t03).
 
 The compiler resolves the semantic model. The documentation adapter projects its export,
 uses presentation metadata owned by the model, and preserves source identities in the

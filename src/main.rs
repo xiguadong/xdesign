@@ -25,13 +25,18 @@ fn option(args: &[String], name: &str) -> Result<String, String> {
 }
 
 fn list_checker_inputs(command_uri: &str) -> Result<Vec<String>, String> {
-    let output = Command::new("python3")
-        .env("PYTHONDONTWRITEBYTECODE", "1")
-        .arg(command_uri)
-        .arg("--list-inputs")
-        .output()
-        .map_err(|e| e.to_string())?;
-    if !output.status.success() {
+    let output = xdesign::simple_flow::run_command_with_timeout(
+        Command::new("python3")
+            .env("PYTHONDONTWRITEBYTECODE", "1")
+            .arg(command_uri)
+            .arg("--list-inputs"),
+        xdesign::simple_flow::checker_timeout(),
+    )
+    .map_err(|e| e.to_string())?;
+    if output.timed_out {
+        return Err(format!("{command_uri} --list-inputs exceeded its deadline and was killed"));
+    }
+    if !output.success {
         return Err(format!(
             "{command_uri} --list-inputs failed: {}",
             String::from_utf8_lossy(&output.stderr)
@@ -267,10 +272,26 @@ fn main() {
         println!("{}", stage_cli::HELP);
         return;
     }
-    if matches!(args.get(1).map(String::as_str), Some("init" | "next" | "check")) {
+    if args.get(1).map(String::as_str) == Some("store") {
+        let (reply, code) = xdesign::storage::cli::dispatch(&args[2..]);
+        let rendered = serde_json::to_string_pretty(&reply).expect("JSON store response");
+        if reply["ok"] == true {
+            println!("{rendered}");
+        } else {
+            eprintln!("{rendered}");
+        }
+        std::process::exit(code);
+    }
+    if matches!(
+        args.get(1).map(String::as_str),
+        Some("init" | "next" | "check")
+    ) {
         match stage_cli::dispatch(&args[1..]) {
             Ok((reply, code)) => {
-                println!("{}", serde_json::to_string_pretty(&reply).expect("JSON response"));
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&reply).expect("JSON response")
+                );
                 std::process::exit(code);
             }
             Err(error) => {

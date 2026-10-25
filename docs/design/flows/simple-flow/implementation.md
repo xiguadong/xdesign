@@ -158,14 +158,14 @@ The run, factory, checkpoint, stage visit, and assessment types are the module's
 structures. [D02](#d02) gives the run's key features and multiplicities;
 [E01–E04](../../../interfaces/record-format.md#e01) define the retained visit and evidence
 records. The type figure below explains ownership and specialization. A Rust realization
-exists, while durable storage layout remains open.
+exists; durable storage is allocated separately to `XDesignStorage` in [D86](../../storage.md#d86).
 
 | Core type | Modeled shape and responsibility | Range or invariant | Implementation status |
 | --- | --- | --- | --- |
-| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by the generic `RsFlowRun` bound to the designed blueprint for the four-stage local slice; durable persistence open |
+| `SimpleFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by the generic `RsFlowRun` bound to the designed blueprint for the four-stage local slice; store-backed persistence is designed through wish-0011; legacy JSON remains on the old backend |
 | `SimpleFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D03](#d03) | Realized by the local Rust `create_designed_run` function |
 | `SimpleFlowCheckpoint` | Common gate evaluation operation with syntactic and semantic specializations | Assessment kind follows its declared checkpoint kind | Realized by the local Rust gate/checker and judge ports; generic controller integration open |
-| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable storage open |
+| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable revisions are allocated to `ProjectStore` in [D86](../../storage.md#d86) |
 | `CheckpointAssessment` | Checkpoint, evaluated revision, outcome, judge, rationale, and evidence references | Current pass must match the visit's artifact revision | Realized by `RsAssessmentEntry` in the JSON run; historical SysML records remain separate |
 
 These are logical records, not a database schema. No units, byte sizes, persistence keys,
@@ -275,7 +275,7 @@ evidence, not to imply a passed gate ([V08](../../../verification/review-criteri
 | Decision needed | Why it matters | Current state |
 | --- | --- | --- |
 | Checker and assessment provenance policy | Source revision and evidence-byte retention need a durable project policy | Commands and report schema execute; provenance limits remain in [P12](../../../records/reviews/simple-flow-fixes.md#p12) |
-| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely across restarts and users | Local JSON serialization exists; durable storage, retries, and observability remain unspecified |
+| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely across restarts and users | `XDesignStorage` allocates durable revisions, exact-operation retry and doctor in [D86](../../storage.md#d86); legacy JSON remains for old runs, while whole-store backup and remote operation stay open |
 | Performance and capacity targets | Needed for measurable resource design | No target in current requirements |
 | Interface versioning and runtime transport | Needed before binding consumers to an implementation | Proposed contract in [I01](../../../interfaces/contracts.md#i01) |
 
@@ -318,8 +318,8 @@ document explains their design relationship, while the
 [project implementation plan](../../../records/plans/simple-flow.md#p06)
 records executed results. Async runtimes, durable multi-user persistence, generic
 controller integration, and the default V-model remain outside this module's scope.
-The local JSON record under `cache/` supports the fixed checkers but is not a
-durable product evidence store.
+The legacy local JSON record under `cache/` supports the fixed checkers; new durable
+single-project persistence is allocated to [D86](../../storage.md#d86), not to this flow module.
 
 Reading order: [module layout](#d45) -> [types](#d46) -> [interactions](#d47) ->
 [states](#d48) -> [interfaces](#d49) -> [errors and performance](#d50) ->
@@ -331,8 +331,9 @@ stepwise logic — lives in the [xdesign API design set](../../api/index.md#u14)
 
 ## 16. xdesign crate layer and module structure
 
-The `xdesign` crate splits into two layers, and dependencies point one way:
-`simple_flow` may use `core`, never the reverse. `core` owns the flow-agnostic
+The flow-execution portion of the `xdesign` crate splits into core and flow layers;
+`simple_flow` may use `core`, never the reverse. The sibling storage layer is specified in
+[D86](../../storage.md#d86). `core` owns the flow-agnostic
 infrastructure in seven source modules: `status` defines vocabulary, `plan` and
 `record` hold data and hash identities, `ports` declares the check-command and judge
 trait boundaries with their reports, `gate` evaluates one checkpoint, `run` owns the
@@ -531,12 +532,12 @@ and stderr logs under `cache/`.
   with `holds = false` and a diagnostic), not an exception; a missing checker for a
   syntactic spec is a plan error the factory must reject; a judge's refusal is an
   `unevaluated` outcome, never a fabricated pass.
-- Retry, degradation and recovery: none designed. A blocked run resumes through
-  corrective work and a new assessment at the new revision ([D48](#d48)); the design
-  adds no automatic retry of commands or judgments.
-- Logging: the local JSON run record retains activities and assessments; each
-  fixed-command report has stdout and stderr logs. No separate telemetry or
-  durable product evidence store is implemented.
+- Retry, degradation and recovery: the gate design adds no automatic retry of commands
+  or judgments. A blocked run resumes through corrective work and a new assessment;
+  durable operation retry and cache recovery belong to [D86](../../storage.md#d86).
+- Logging: the run record retains activities and assessments; each fixed-command report
+  has stdout and stderr logs. There is no separate telemetry. Store revisions retain
+  required operational and evidence bytes; legacy runs retain their old cache limits.
 - Performance: no budget is set. Gate evaluation is linear in the stage's exit
   checkpoints and their rules; authorization counting is linear in a visit's
   assessments. No measurement exists, and none is claimed.

@@ -26,12 +26,13 @@ and how the model points at this documentation.
 | `availableFlows` | `Flow [1..*]` | Owned portfolio of the concrete plan usages under `xdesign` |
 | `selectedFlow` | reference to `Flow` | Default portfolio member; `xdesign` binds it to `vModel` |
 | `controller` | `Controller` | Registers wishes and traces, records activities, evaluates checkpoints, advances or blocks. It may select only a portfolio member |
+| `store` | `ProjectStore` | Owns new operational items, immutable revisions, content-addressed materials and operation receipts |
 | `wishes` | `Wish [0..*]` | The requested outcomes |
 | `traces` | `Trace [0..*]` | One execution record per wish |
 
 Bindings: `controller.availableFlows = availableFlows`,
-`controller.defaultFlow = selectedFlow`, `controller.wishes = wishes`, and
-`controller.traces = traces`. The portfolio usages are
+`controller.defaultFlow = selectedFlow`, `controller.wishes = wishes`,
+`controller.traces = traces`, and `controller.store = store`. The portfolio usages are
 `xdesign.vModel`, `xdesign.workflowFlow`, `xdesign.wishVerifyFlow`,
 `xdesign.designFlow`, `xdesign.designedSimpleFlow`, and
 `xdesign.nestedFlowExample`; each specializes `xdesign.'flow'`
@@ -166,18 +167,18 @@ resolution separately ([T04](constraints.md#t04)). The earlier
 > **Model view:** `XDesignRustUml::projectPackageIntegration`, a package-dependency projection.  
 > **Companions:** [D13](../design/flows/simple-flow/views.md#d13) for types and [D15](../verification/requirements.md#d15) for requirement relationships.  
 > **Status:** renderable-now; design reviewed.  
-> **Reading:** Nine project packages, including xdesign composition and the Rust UML design, appear within the selected model boundary. Dependency arrows describe model organization and the direction in which changes may have effects.  
+> **Reading:** Ten project packages, including xdesign composition, operational storage and the Rust UML design, appear within the selected model boundary. Dependency arrows describe model organization and the direction in which changes may have effects.<br>
 > **Limits:** Package dependencies are neither runtime messages nor an executed verification result.
 
 `projectPackageIntegration` selects the project packages used by the simple-flow design. Common
 definitions provide the shared vocabulary; requirements declare obligations; architecture
-defines the system and generic flow; workflow defines interfaces and lifecycle actions;
-composition owns the selectable flows and their default; detailed design refines the
-simple flow; traceability links satisfiers; verification declares planned
-verification cases; and Rust UML maps the `xdesign` crate's software design
-(`core` + `simple_flow`) back to the detailed design. A model package is a namespace and dependency unit here; the
+defines the system and generic flow; storage defines operational records and recovery;
+workflow defines interfaces and lifecycle actions; composition owns the selectable flows
+and their default; detailed design refines the simple flow; traceability links satisfiers;
+verification declares planned cases; and Rust UML maps the `xdesign` crate's software design
+back to the detailed design. A model package is a namespace and dependency unit here; the
 runtime module belongs to the xdesign crate.
-The selected package boundary contains these nine project packages.
+The selected package boundary contains these ten project packages.
 The separate wish package consumes the project model to record derivation and delivery;
 it is outside this view's selected project-model boundary.
 
@@ -191,7 +192,7 @@ it is outside this view's selected project-model boundary.
 > **Reading:** The seven packages used by the original detailed-design view remain visible, while D21-1 adds composition and the software design package.  
 > **Limits:** A package arrow indicates a model dependency, not a runtime call or an approval.
 
-Package symbols and short captions distinguish the nine selected packages. Their full
+Package symbols and short captions distinguish the ten selected packages. Their full
 qualified names remain in the source details. Package arrows represent the model's imports
 and dependencies. They organize model
 elements and identify what changes may affect another package. They do not represent run

@@ -25,7 +25,7 @@ and its controller binding in the system model.
 | Public operation | Result and state effect |
 | --- | --- |
 | `xdesign next WISH_ID` | Returns the registered wish's current `StageWorkOrder`, or completion with no work. It does not record, assess, change revisions, advance, initialize a subflow, or reopen a visit. |
-| `xdesign check WISH_ID [--result FILE]` | Collects and records the current stage's outputs, evaluates its exit checkpoints, and advances when authorized. Returns the assessed visit's assessments and either the same blocked visit with correction reasons, the successor's work order, or completion. |
+| `xdesign check WISH_ID [--result FILE] [--operation-id ID]` | Collects and records the current stage's outputs, evaluates its exit checkpoints, advances when authorized, and saves the resulting revision. Returns the assessed visit's assessments and either correction work, successor work, or completion. An explicit operation ID supports exact retry and outcome reconciliation. |
 
 A `StageWorkOrder` is a read-only projection of the current visit, not another
 editable execution record. It identifies the wish, execution, visit, stage, and
@@ -42,13 +42,18 @@ rules](evidence-and-revisions.md#e03): changed content raises the revision and
 invalidates old passes, while unchanged content does not raise it. Fixed checkers
 and permitted semantic judges retain their [existing authority](adapters.md#f02).
 A valid negative evaluation is failed; a missing or refused evaluation remains
-unevaluated. Evidence and assessments are retained before the response is returned.
-The agent can continue directly from the returned work order without another
-`next` call. `next` also retrieves the work after a process restart.
+unevaluated. For a store-backed run, the engine first produces the stage result in its
+regenerable working record; one guarded store operation then commits the run, current
+materials, checker exchanges, evidence and response before that response is returned.
+A failed gate's blocked facts are committed too. A stale result or expected-head conflict
+does not advance the stored head, and an operation receipt reconciles exact retry after an
+uncertain response. The agent can continue directly from the returned work order without
+another `next` call. `next` also retrieves the work after a process restart or cache loss.
 
 Both commands resolve an existing wish through the controller's traces. An unknown
-wish is an error, not registration. Both return completion without writing or
-reopening when the root run is complete. They reject incomplete work definitions or
+wish is an error, not registration. Both return completion without changing stored records
+or reopening when the root run is complete. Regenerating a missing cache copy is not a new
+revision or assessment. They reject incomplete work definitions or
 an uninitialized required subflow with a diagnostic and no mutation. Selection
 follows the deepest initialized incomplete child execution; a completed child
 returns selection to its parent. Registration and progression own entry preparation;

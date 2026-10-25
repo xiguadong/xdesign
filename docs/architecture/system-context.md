@@ -5,10 +5,10 @@
 ## 1. Introduction and constraints
 
 This is the architecture of the xdesign tool, not of a system that an xdesign user might
-develop. Its modeled boundary comprises the workflow definition, controller, wishes, and
-their independent traces. Its current repository also contains the SysML model, documents,
-renderer, compiler integration, and a stand-alone documentation audit. A complete workflow
-application has not been implemented ([R03](../records/status.md#r03)).
+develop. Its modeled boundary comprises the workflow definition, controller, wishes, traces,
+and the operational `ProjectStore`. Its repository also contains the SysML model, documents,
+renderer, compiler integration, and documentation audit. A complete workflow application
+has not been implemented ([R03](../records/status.md#r03)).
 
 <a id="b06"></a>
 
@@ -18,9 +18,9 @@ The architecture must make both system composition and the reason for each wish'
 inspectable. The project model states reusable requirements, structure, workflows, and
 constraints; one trace per wish records selected flow, visits, assessments, evidence, and
 the path to delivery. The requirements inventory and satisfaction links are in
-[R01–R02](../requirements/requirements.md#r01). This design specifies those logical
-responsibilities and their model-level interfaces. Deployment, durable storage, external
-service APIs, and production operations remain to be designed.
+[R01–R02](../requirements/requirements.md#r01). [Storage design](../design/storage.md#d86)
+specifies the local operational boundary; external service APIs and production operations
+remain undesigned.
 
 <a id="b07"></a>
 
@@ -29,7 +29,7 @@ service APIs, and production operations remain to be designed.
 | Term | Meaning in this architecture |
 | --- | --- |
 | Project model | Wish-independent SysML definitions and requirements in `mbse/model/`. |
-| Wish trace | One wish's independent SysML execution and rationale record in `mbse/wishes/`. |
+| Wish trace | One wish's execution and rationale record: a legacy/bootstrap SysML model or a store-backed revisioned run. |
 | Flow definition | Reusable plan of stages and checkpoints; it is distinct from a `FlowExecution`. |
 | Stage visit | One `StageRecord` for an attempt at a stage; rework appends another visit. |
 | Current assessment | The latest assessment per checkpoint for a visit, selected independently of revision; it authorizes progress only when its evaluated revision equals the visit's artifact revision and its outcome passed ([E02–E03](../design/evidence-and-revisions.md#e02)). |
@@ -83,6 +83,7 @@ it to create the execution plan. The typed context and directions are visible in
 | Selected flow definition | `Flow` reference into the controller | Native `FlowExchange` and `FlowInterface`; flow is part of the modeled composition |
 | Checker process or semantic judge | Artifacts and criteria out; report or rationale and evidence in | Generic checkpoint contract; designed SimpleFlow ports in [D10](../design/flows/simple-flow/views.md#d10) |
 | Local compiler and repository files | Model sources in; parse/check reports and documentation assets out | Development toolchain in [T01](constraints.md#t01), not an application deployment interface |
+| Operational store | Revision manifests and exact operation requests in; stored heads, materials, query views and receipts out | Local [store format](../interfaces/store-format.md#i11); SQLite and content blobs beneath `.xdesign/` or an explicit override |
 
 The current context model identifies information crossing typed ports. It does not
 establish a network boundary, user identity protocol, external service, transport, or

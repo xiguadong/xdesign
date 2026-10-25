@@ -8,19 +8,21 @@ together. The [documentation map](index.md) leads to the detailed specifications
 
 ## 1. Project composition
 
-The project model describes the system being developed. An independent trace for each
-wish explains how its requirements, design, implementation, and verification followed.
-Flows organize the work; xdesign records evidence and checks whether a stage may advance.
+The project model describes the system being developed. Each wish's trace explains how its
+requirements, design, implementation, and verification followed. New runs keep operational
+traces in the store; legacy/bootstrap traces remain in SysML. Flows organize the work;
+xdesign records evidence and checks whether a stage may advance.
 
 | Part | Responsibility | Location |
 | --- | --- | --- |
 | Project model | Defines requirements, parts, relationships, and behavior | `mbse/model/` |
-| Wish traces | Retain each wish's flow, stage visits, artifacts, and assessments | `mbse/wishes/` |
+| Operational store | Retains new wish/run revisions, materials, evidence and receipts | `.xdesign/`; [storage design](design/storage.md#d86) |
+| Legacy/bootstrap wish traces | Retain existing SysML flow, stage, artifact and assessment history | `mbse/wishes/` |
 | Execution engine | Records artifact revisions, evaluates gates, and controls advancement | `src/core/` |
 | Flow implementations | Supply the four-stage SimpleFlow and two-stage WishVerifyFlow | `src/simple_flow/`, `src/wish_verify/` |
 | CLI | Initializes a local run and provides the repeated `next` / `check` interaction | `src/main.rs`, `src/stage_cli/`; [CLI contract](design/stage-cli.md#d85) |
 | Documentation and tools | Explain the model and provide checking, rendering, and build tools | `docs/`, `tools/` |
-| Local output | Holds ignored environments, build output, run records, and temporary evidence | `cache/` |
+| Working output | Holds ignored environments, build output, regenerable runtime copies and temporary evidence | `cache/` |
 
 The package diagram shows where the two-command CLI fits. `StageCli` retrieves work and
 delegates recording and assessment to the controller. The agent performs the work in the
@@ -49,22 +51,23 @@ In the prepared macOS workspace, if Cargo is not on `PATH`, prepend
 `$PWD/cache/toolchain/stable-aarch64-apple-darwin/bin`. Cached dependencies support
 `cargo build --offline` and `cargo run --offline -- ...`.
 
-Choose an existing independent wish model at `mbse/wishes/WISH_ID.sysml` and initialize
-its local run once. Replace `WISH_ID` below with that file's wish ID:
+Choose a SysML wish source and initialize its local run once. The default source is
+`mbse/wishes/WISH_ID.sysml`; `--wish FILE` imports another existing source. New runs retain
+revisions in `.xdesign/` and use `cache/wishes/WISH_ID.sysml` as their working copy:
 
 ```bash
-cargo run -- init WISH_ID --flow simple-flow
+cargo run -- init WISH_ID --flow simple-flow [--wish FILE]
 cargo run -- next WISH_ID
 # Perform the work described by the returned stage.
 cargo run -- check WISH_ID
 ```
 
 The repeated interaction is always `next` and `check`. `next` returns the current stage's
-goal, instructions, inputs, expected outputs, and exit criteria without changing the run.
-`check` collects outputs, records their revisions, runs the stage's checks and returns
-correction work, the next stage's work, or completion. The response is JSON, so an agent
-can continue directly from its returned work order. Later processes resume the saved run
-under `cache/xdesign/WISH_ID/`; `init` refuses to overwrite an existing one.
+goal, instructions, inputs, expected outputs, and exit criteria without changing the stored
+run. `check` collects outputs, records their revisions, runs the stage's checks, commits the
+revision and returns correction work, the next stage's work, or completion. The response is
+JSON, so an agent can continue directly from its returned work order. Later processes restore
+the stored head and regenerate missing cache copies; `init` refuses to overwrite a run.
 
 SimpleFlow has four stages: requirements → design → implement → verify. Its first three
 stages run fixed checks. Verification requires retained evidence and an explicit agent
@@ -73,12 +76,14 @@ or human judgment as well as the fixed record check. Supply these through a resu
 ```bash
 cargo run -- next WISH_ID
 # Review the gate criteria and current artifact snapshot; write the result JSON.
-cargo run -- check WISH_ID --result cache/stage-result.json
+cargo run -- check WISH_ID --result cache/stage-result.json --operation-id OP_ID
 ```
 
 The [result-file contract and example](design/stage-cli.md#d85) specify identity, state
 token, artifact digests, judge, outcome and rationale. Missing judgment blocks the stage
-as unevaluated. A stale result is refused before changing the record. Exit 0 means work
+as unevaluated. A stale result is refused before changing the record. Reuse the operation
+ID for exact retry and query `store outcome OP_ID` after uncertainty. `store list`, `get`,
+`history`, `checkout`, and `doctor` inspect the durable revisions. Stage exit 0 means work
 or completion, 1 means a checked stage remains blocked, and 2 means a command error.
 
 Use `--flow wish-verify` at initialization for the simplest two-stage flow shown below;

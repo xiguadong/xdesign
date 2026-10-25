@@ -1,9 +1,10 @@
 # xdesign documentation
 
-xdesign is a SysML v2 engineering tool: the project model explains the system, and an
-independent trace for each wish explains why its requirements, design, implementation, and
-verification followed. This documentation set states the design, the exact interfaces, the
-verification design, and the records behind what has actually run.
+xdesign is a SysML v2 engineering tool: the project model explains the system, and each
+wish's operational trace explains why its requirements, design, implementation, and
+verification followed. New runs retain that trace in the store; legacy and bootstrap runs
+retain independent SysML traces. This documentation set states the design, exact interfaces,
+verification design, and records behind what has actually run.
 
 Start with the [project overview](README.md) for project composition, usage, and the
 package, timeline, and swimlane diagrams together on one page.
@@ -17,6 +18,7 @@ package, timeline, and swimlane diagrams together on one page.
 | The project, its parts, and how they collaborate | [architecture/index.md](architecture/index.md) |
 | What the system must do and why | [requirements/index.md](requirements/index.md) |
 | How the flows and runs are designed | [design/index.md](design/index.md) |
+| How durable revisions, materials, saves and recovery work | [Storage design](design/storage.md#d86) and [store format](interfaces/store-format.md#i11) |
 | The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
@@ -74,8 +76,10 @@ interfaces and meaning of those annotations are defined in
 | `mbse/model/detailedDesign.sysml` | `design/flows/simple-flow/`, `design/flows/wish-verify/` |
 | `mbse/model/verification.sysml` | `verification/` |
 | `mbse/model/uml.sysml` | `design/api/` and the module designs |
+| `mbse/model/storage.sysml` | `design/storage.md`, `interfaces/store-format.md`, `design/api/storage/` |
 | `mbse/model/common.sysml` | `design/evidence-and-revisions.md`, `interfaces/documentation-contract.md` |
-| `mbse/wishes/wish-*.sysml` | `records/wishes/wish-history.md` |
+| `mbse/wishes/wish-*.sysml` | `records/wishes/wish-history.md` (legacy/bootstrap traces) |
+| `.xdesign/` item revisions and materials | `design/storage.md`, `interfaces/store-format.md`; local operational facts, not authored documentation |
 
 ## Status and evidence
 

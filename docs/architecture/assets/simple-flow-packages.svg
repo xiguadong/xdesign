@@ -291,6 +291,7 @@ availableFlows
 selectedFlow
 wishes
 traces
+store
 wishes-&gt;forAll { in wish : Wish;
                 size(traces-&gt;select { in trace : Trace;
                     trace.wish == wish
@@ -764,6 +765,13 @@ requirement umlViewsAreSelectedWithReasons : XDesignRequirement
 requirement softwareDesignClaimsNoImplementation : XDesignRequirement
 requirement stageCliUsesUniformInteraction : XDesignRequirement
 requirement stageCliPreservesRunIntegrity : XDesignRequirement
+requirement operationalRecordsHaveDurableAuthority : XDesignRequirement
+requirement wishHistoryIsRevisioned : XDesignRequirement
+requirement materialsAreContentAddressed : XDesignRequirement
+requirement storageSaveIsAtomicAndIdempotent : XDesignRequirement
+requirement workingCacheIsRecoverable : XDesignRequirement
+requirement wishStatusProjectsFlowExecution : XDesignRequirement
+requirement storageInputAndIntegrityAreChecked : XDesignRequirement
 5a18489b-6186-5c00-b446-8a50301a313e</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="719.65,-501.08 716.65,-505.08 695.65,-505.08 692.65,-501.08 579.88,-501.08 579.88,-423.06 719.65,-423.06 719.65,-501.08" />
 <rect fill="white" stroke="none" x="588.51" y="-495.32" width="122.5" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="596.51" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>
@@ -793,6 +801,7 @@ verificationcase SimpleFlowFilePlanVerification
 verificationcase WishVerifyFlowBehaviorVerification
 verificationcase WishVerifyFlowFilePlanVerification
 verificationcase LocalStageCliRuntimeVerification
+verificationcase StorageVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="119.53,-642.1 116.53,-646.1 95.53,-646.1 92.53,-642.1 0,-642.1 0,-564.08 119.53,-564.08 119.53,-642.1" />
 <rect fill="white" stroke="none" x="8.64" y="-636.34" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="16.64" y="-615.59" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>

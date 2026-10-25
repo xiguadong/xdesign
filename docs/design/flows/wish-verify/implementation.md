@@ -166,7 +166,7 @@ The run, factory, checkpoint, stage visit, and assessment types are the module's
 structures. [D58](#d58) gives the run's key features and
 multiplicities; [E01–E04](../../../interfaces/record-format.md#e01) define the retained visit
 and evidence records. A Rust realization exists on the generic `xdesign::core` engine;
-durable storage layout remains open.
+durable storage is allocated separately to `XDesignStorage` in [D86](../../storage.md#d86).
 
 ![Wish-verify types, ownership, and specialization](assets/block-definition.svg)
 
@@ -189,10 +189,10 @@ the gate and advance functions.
 
 | Core type | Modeled shape and responsibility | Range or invariant | Implementation status |
 | --- | --- | --- | --- |
-| `WishVerifyFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by the generic `RsFlowRun` bound to the designed blueprint; durable persistence open |
+| `WishVerifyFlowRun` | `FlowExecution` specialization with planned stages and visits | At least one visit per planned stage; current visit determines advancement | Realized by the generic `RsFlowRun` bound to the designed blueprint; store-backed persistence is designed through wish-0011; legacy JSON remains on the old backend |
 | `WishVerifyFlowRunFactory` | Creation operation for a typed run and its initial plan | One creation path per requested run in [D59](#d59) | Realized by `create_wish_verify_run` ([U76](../../api/wish-verify/create-wish-verify-run.md#u76)) |
 | `WishVerifyCheckpoint` | Common gate evaluation operation with its semantic specialization | Assessment kind is always semantic in this flow | Realized by `RsCheckpointSpec` and the judge port; generic controller integration open |
-| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable storage open |
+| `StageRecord` | Stage, visit index, artifact revision, activities, assessments, and completion state | New rework visit preserves previous visit history | Realized by `RsStageVisit` in the JSON run; durable revisions are allocated to `ProjectStore` in [D86](../../storage.md#d86) |
 | `CheckpointAssessment` | Checkpoint, evaluated revision, outcome, judge, rationale, and evidence references | Current pass must match the visit's artifact revision | Realized by `RsAssessmentEntry` in the JSON run; historical SysML records remain separate |
 
 These are logical records, not a database schema. No units, byte sizes, persistence
@@ -358,12 +358,12 @@ test has run and its result is recorded in P28.
 | Allocated types, gates, and interface definitions | Model and sections above describe them; the judgment interface is a reused draft, not frozen |
 | Every requirement's verification case, method, and phase | The behavior and file-plan cases are declared with planned case rows; executed results are recorded in [P28](../../../records/plans/wish-verify.md#p28) |
 | Build, assembly, integration, and test maturity | The `xdesign::wish_verify` module slice exists on the unchanged `xdesign::core` engine; generic controller integration remains open |
-| Residual risks and waivers | Unevaluated constraint bodies, draft interface operational fields, durable persistence, and project-level acceptance remain open |
+| Residual risks and waivers | Unevaluated constraint bodies, draft interface operational fields, excluded storage capabilities, and project-level acceptance remain open; executed storage recovery evidence is indexed in [P35](../../../records/plans/storage.md#p35) |
 
 | Decision needed | Why it matters | Current state |
 | --- | --- | --- |
-| Judgment provenance and identity policy | Who judged, on which revision, must stay re-examinable | Assessment records carry judge identity, rationale, and evidence URIs; durable policy open |
-| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely across restarts and users | Local JSON serialization exists on the core engine; durable storage remains unspecified |
+| Judgment provenance and identity policy | Who judged, on which revision, must stay re-examinable | Assessment records carry judge identity, rationale and evidence URIs; store revisions bind their bytes, while authenticated identity remains open |
+| Persistence, retries, and observability for run records | Needed to execute and diagnose rework safely across restarts and users | `XDesignStorage` allocates durable revisions, exact-operation retry and doctor in [D86](../../storage.md#d86); legacy JSON remains for old runs, while whole-store backup and remote operation stay open |
 | Interface versioning and runtime transport | Needed before binding consumers to an implementation | Proposed contract in [I01](../../../interfaces/contracts.md#i01) |
 | Executed verification of the slice | Declared cases do not establish behavior | WV-01–WV-10 executed; results and retained logs recorded in [P28](../../../records/plans/wish-verify.md#p28) |
 
@@ -537,9 +537,9 @@ second, identical state machine would only add a document to keep in sync.
 - Retry, degradation and recovery: none designed. A blocked run resumes through
   corrective work and a new judgment at the new revision ([D78](#d78)); the design adds
   no automatic retry of judgments.
-- Logging: the local JSON run record retains activities and assessments; no fixed
-  commands run, so there are no command logs of this flow's own. No separate telemetry
-  or durable product evidence store is implemented.
+- Logging: the run record retains activities and assessments; no fixed commands run,
+  so there are no command logs of this flow's own. There is no separate telemetry.
+  Durable evidence retention belongs to [D86](../../storage.md#d86), not this flow module.
 - Performance: no budget is set. Gate evaluation is linear in the stage's exit
   checkpoints — one per stage in this flow — and authorization counting is linear in a
   visit's assessments. No measurement exists, and none is claimed.

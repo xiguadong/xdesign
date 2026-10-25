@@ -73,6 +73,8 @@ FIGURES = [
     ("design/assets/wish-verify-flow", "internal", "WishVerifyFlow"),
     ("design/assets/flow-relationships", "flow_relationships", "XDesignComposition::xdesign"),
     ("design/assets/controller", "internal", "Controller"),
+    ("design/assets/storage-structure", "block_definition", "XDesignStorage::storageStructure"),
+    ("design/assets/storage-save", "activity", "XDesignStorage::storageSave"),
     ("interfaces/assets/records", "declared", "XDesignArchitecture::recordStructure"),
     ("records/executions/assets/journey-rework", "sequence", "Wish0002Journey"),
     ("records/wishes/assets/journey-wish0005", "sequence", "Wish0005Journey"),

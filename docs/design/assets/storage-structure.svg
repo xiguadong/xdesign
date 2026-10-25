@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1123pt" height="629pt" viewBox="0.00 0.00 1123.00 629.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Storage structure</title><desc id="diagram-desc">How do items, immutable revisions, materials and receipts relate?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 611.25)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-611.25 1104.75,-611.25 1104.75,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="452.25" y="-563.35" font-family="Arial" font-weight="bold" font-size="22.00">Storage structure</text>
+<text xml:space="preserve" text-anchor="start" x="345.38" y="-535" font-family="Arial" font-size="14.00" fill="#52657a">How do items, immutable revisions, materials and receipts relate?</text>
+
+<g class="edge" data-native-id="0c07942e-99e4-5c03-8797-feed7d107fbd" data-source-id="b82e7bba-872c-55b9-a15a-2fbcc1228018" data-target-id="48aa4bcf-ffc6-5590-8089-33002d68e58b" data-edge-kind="composition">
+<title>owns manifest [0..*]
+FeatureTyping of native feature cd38beb8-9eb7-5ba3-9fb4-5eea5c86724a
+0c07942e-99e4-5c03-8797-feed7d107fbd</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M90,-184.53C90,-167.16 90,-148.84 90,-131.96" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="90,-184.43 93.2,-189.23 90,-194.03 86.8,-189.23 90,-184.43" />
+<text xml:space="preserve" text-anchor="middle" x="148.5" y="-158.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns manifest [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="ce2f5e94-3598-5ee2-82a8-ddaeb1960eb8" data-source-id="9f51c508-ff79-516d-b703-720fbb362a10" data-target-id="58805998-09d4-533f-8e81-e5a33e5092df" data-edge-kind="reference">
+<title>ref outcome
+FeatureTyping of native feature a21df10f-2939-5547-abb2-957329652cd0
+ce2f5e94-3598-5ee2-82a8-ddaeb1960eb8</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M685.05,-456C655.72,-456 621.99,-456 591.31,-456" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="583.48,-456 591.48,-452.4 585.89,-455.85 591.48,-455.85 591.48,-456 591.48,-456.15 585.89,-456.15 591.48,-459.6 583.48,-456" />
+<text xml:space="preserve" text-anchor="middle" x="633.38" y="-461.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref outcome</text>
+</g>
+
+<g class="edge" data-native-id="727a3746-ad9b-5937-92ca-14433ae1cb21" data-source-id="47983ab8-83b5-5c3c-abd9-83e6e6e68d68" data-target-id="a72e6f8f-8e54-59c8-af8b-c34ef9b46e5a" data-edge-kind="composition">
+<title>owns materials [0..*]
+FeatureTyping of native feature e45eb3b5-293e-5885-ba63-a29208f601dc
+727a3746-ad9b-5937-92ca-14433ae1cb21</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M966,-379.53C966,-362.16 966,-343.84 966,-326.96" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="966,-379.43 969.2,-384.23 966,-389.03 962.8,-384.23 966,-379.43" />
+<text xml:space="preserve" text-anchor="middle" x="1026.38" y="-353.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns materials [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="d7c72bfa-2cfc-5d79-b1ba-e8b80c65b63b" data-source-id="d63aed89-4f48-5f98-9d0b-b2f33c441d55" data-target-id="b82e7bba-872c-55b9-a15a-2fbcc1228018" data-edge-kind="composition">
+<title>owns revisions [0..*]
+FeatureTyping of native feature 67f14a64-39c1-5b5a-ba54-2ab2949a6e55
+d7c72bfa-2cfc-5d79-b1ba-e8b80c65b63b</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M90,-379.53C90,-362.16 90,-343.84 90,-326.96" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="90,-379.43 93.2,-384.23 90,-389.03 86.8,-384.23 90,-379.43" />
+<text xml:space="preserve" text-anchor="middle" x="150" y="-353.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns revisions [0..*]</text>
+</g>
+
+<g class="edge" data-native-id="e3fd86aa-cbc8-597b-9899-e71dcae24f7a" data-source-id="55f38842-007b-5297-91c0-3a1843434ed0" data-target-id="b82e7bba-872c-55b9-a15a-2fbcc1228018" data-edge-kind="reference">
+<title>ref revision
+FeatureTyping of native feature 9e82f771-e5ab-5154-8ba4-d5425a712b35
+e3fd86aa-cbc8-597b-9899-e71dcae24f7a</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" stroke-dasharray="5,2" d="M245.77,-390.02C230.81,-369 218,-351 218,-351 218,-351 202.51,-340.23 182.3,-326.18" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="175.97,-321.77 184.59,-323.38 178.03,-323.03 182.62,-326.22 182.53,-326.34 182.45,-326.46 177.86,-323.28 180.48,-329.3 175.97,-321.77" />
+<text xml:space="preserve" text-anchor="middle" x="260.17" y="-353.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">ref revision</text>
+</g>
+
+<g id="nbd29989d5657a55e2275" class="node diagram-node shape-box" data-native-id="b82e7bba-872c-55b9-a15a-2fbcc1228018" data-shape="box">
+<title>XDesignStorage::ItemRevision
+b82e7bba-872c-55b9-a15a-2fbcc1228018
+attribute revision
+item manifest : Material [0..*]
+attribute operationId
+b82e7bba-872c-55b9-a15a-2fbcc1228018</title>
+<rect fill="white" stroke="none" x="5.25" y="-327.0" width="169.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="5.25,-259.5 5.25,-259.5 174.75,-259.5 174.75,-259.5 5.25,-259.5" />
+<rect fill="none" stroke="#647a91" x="5.25" y="-327.0" width="169.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="14.25" y="-305.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="14.25" y="-272.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Item revision</text>
+<text xml:space="preserve" text-anchor="start" x="14.25" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Immutable metadata and</text>
+<text xml:space="preserve" text-anchor="start" x="14.25" y="-207" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">complete URI manifest</text>
+</g>
+
+<g id="ne7f8b0f5a679ad14bd97" class="node diagram-node shape-box" data-native-id="48aa4bcf-ffc6-5590-8089-33002d68e58b" data-shape="box">
+<title>XDesignStorage::Material
+48aa4bcf-ffc6-5590-8089-33002d68e58b
+attribute uri
+attribute role
+attribute sha256
+attribute byteLength
+48aa4bcf-ffc6-5590-8089-33002d68e58b</title>
+<rect fill="white" stroke="none" x="0.0" y="-132.0" width="180.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-64.5 0,-64.5 180,-64.5 180,-64.5 0,-64.5" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-132.0" width="180.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="9" y="-110.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-77.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Material</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-43.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Logical URI bound to exact</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">bytes</text>
+</g>
+
+<g id="n245e40151e90fcf3ee18" class="node diagram-node shape-box" data-native-id="58805998-09d4-533f-8e81-e5a33e5092df" data-shape="box">
+<title>XDesignStorage::OperationOutcome
+58805998-09d4-533f-8e81-e5a33e5092df
+enum pending
+enum committed
+enum conflict
+58805998-09d4-533f-8e81-e5a33e5092df</title>
+<rect fill="white" stroke="none" x="414.0" y="-474.38" width="168.0" height="36.75999999999999" class="node" /><rect fill="none" stroke="#647a91" x="414.0" y="-474.38" width="168.0" height="36.75999999999999" /><text xml:space="preserve" text-anchor="start" x="423" y="-451.18" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Operation Outcome</text>
+</g>
+
+<g id="n6c673ef9e8ff1b9e8f75" class="node diagram-node shape-box" data-native-id="9f51c508-ff79-516d-b703-720fbb362a10" data-shape="box">
+<title>XDesignStorage::OperationReceipt
+9f51c508-ff79-516d-b703-720fbb362a10
+attribute operationId
+attribute requestSha256
+attribute outcome : OperationOutcome
+attribute revision [0..1]
+attribute result
+9f51c508-ff79-516d-b703-720fbb362a10</title>
+<rect fill="white" stroke="none" x="684.75" y="-522.0" width="154.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="684.75,-454.5 684.75,-454.5 839.25,-454.5 839.25,-454.5 684.75,-454.5" />
+<rect fill="none" stroke="#647a91" x="684.75" y="-522.0" width="154.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="693.75" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="693.75" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Operation receipt</text>
+<text xml:space="preserve" text-anchor="start" x="693.75" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Pending, committed or</text>
+<text xml:space="preserve" text-anchor="start" x="693.75" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">conflict outcome</text>
+</g>
+
+<g id="n8550643f41c0949375a6" class="node diagram-node shape-box" data-native-id="a72e6f8f-8e54-59c8-af8b-c34ef9b46e5a" data-shape="box">
+<title>XDesignStorage::SaveMaterial
+a72e6f8f-8e54-59c8-af8b-c34ef9b46e5a
+attribute uri
+attribute role
+attribute sha256
+attribute source [0..1]
+a72e6f8f-8e54-59c8-af8b-c34ef9b46e5a</title>
+<rect fill="white" stroke="none" x="889.88" y="-327.0" width="152.2399999999999" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="889.88,-259.5 889.88,-259.5 1042.12,-259.5 1042.12,-259.5 889.88,-259.5" />
+<rect fill="none" stroke="#647a91" x="889.88" y="-327.0" width="152.2399999999999" height="132.0" /><text xml:space="preserve" text-anchor="start" x="898.88" y="-305.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="898.88" y="-272.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Save material</text>
+<text xml:space="preserve" text-anchor="start" x="898.88" y="-238.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Digest declaration and</text>
+<text xml:space="preserve" text-anchor="start" x="898.88" y="-207" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">optional source</text>
+</g>
+
+<g id="n32b7896f73e49fc574ca" class="node diagram-node shape-box" data-native-id="47983ab8-83b5-5c3c-abd9-83e6e6e68d68" data-shape="box">
+<title>XDesignStorage::SaveRequest
+47983ab8-83b5-5c3c-abd9-83e6e6e68d68
+attribute schemaVersion
+attribute operationId
+attribute itemId
+attribute kind
+attribute expectedRevision
+item materials : SaveMaterial [0..*]
+attribute result
+47983ab8-83b5-5c3c-abd9-83e6e6e68d68</title>
+<rect fill="white" stroke="none" x="871.5" y="-522.0" width="189.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="871.5,-454.5 871.5,-454.5 1060.5,-454.5 1060.5,-454.5 871.5,-454.5" />
+<rect fill="none" stroke="#647a91" x="871.5" y="-522.0" width="189.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="880.5" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="880.5" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Save request</text>
+<text xml:space="preserve" text-anchor="start" x="880.5" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Exact operation, expected</text>
+<text xml:space="preserve" text-anchor="start" x="880.5" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">head and complete manifest</text>
+</g>
+
+<g id="n240c34699a4a7a39cab5" class="node diagram-node shape-box" data-native-id="d63aed89-4f48-5f98-9d0b-b2f33c441d55" data-shape="box">
+<title>XDesignStorage::StoreItem
+d63aed89-4f48-5f98-9d0b-b2f33c441d55
+attribute itemId
+attribute kind
+attribute headRevision
+item revisions : ItemRevision [0..*]
+d63aed89-4f48-5f98-9d0b-b2f33c441d55</title>
+<rect fill="white" stroke="none" x="9.75" y="-522.0" width="160.5" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="9.75,-454.5 9.75,-454.5 170.25,-454.5 170.25,-454.5 9.75,-454.5" />
+<rect fill="none" stroke="#647a91" x="9.75" y="-522.0" width="160.5" height="132.0" /><text xml:space="preserve" text-anchor="start" x="18.75" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="18.75" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Store item</text>
+<text xml:space="preserve" text-anchor="start" x="18.75" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Stable identity, kind and</text>
+<text xml:space="preserve" text-anchor="start" x="18.75" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">append-only revisions</text>
+</g>
+
+<g id="ncc10eae25bf7c87aa1a7" class="node diagram-node shape-box" data-native-id="55f38842-007b-5297-91c0-3a1843434ed0" data-shape="box">
+<title>XDesignStorage::WishProjection
+55f38842-007b-5297-91c0-3a1843434ed0
+ref item revision : ItemRevision
+attribute flowId
+attribute registryUri
+attribute runUri
+attribute status : WishStatus
+attribute currentStage [0..1]
+55f38842-007b-5297-91c0-3a1843434ed0</title>
+<rect fill="white" stroke="none" x="202.0" y="-522.0" width="180.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="202,-454.5 202,-454.5 382,-454.5 382,-454.5 202,-454.5" />
+<rect fill="none" stroke="#647a91" x="202.0" y="-522.0" width="180.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="211" y="-500.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">item def</text>
+<text xml:space="preserve" text-anchor="start" x="211" y="-467.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Wish projection</text>
+<text xml:space="preserve" text-anchor="start" x="211" y="-433.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Derived from flow</text>
+<text xml:space="preserve" text-anchor="start" x="211" y="-402" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">registration and current run</text>
+</g>
+</g>
+</svg>

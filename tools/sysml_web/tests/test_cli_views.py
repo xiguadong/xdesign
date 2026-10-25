@@ -35,6 +35,14 @@ class CliViewTests(unittest.TestCase):
                 self.assertIn("wishAccepted", svg)
                 self.assertIn("outcomeAccepted", svg)
 
+    def test_timeline_provenance_has_stable_native_id_order(self):
+        svg, info = render_cli_view(self.raw, self.guards, TIMELINE, "cli_timeline")
+        ordered = [entry["native_id"] for entry in info["source_relations"]
+                   if "relatedElement" in entry or "subsettedFeature" in entry]
+        self.assertTrue(ordered)
+        self.assertEqual(ordered, sorted(ordered))
+        self.assertEqual((svg, info), render_cli_view(self.raw, self.guards, TIMELINE, "cli_timeline"))
+
     def test_rejects_a_changed_completion_bypass_guard(self):
         raw = [dict(e, body="observe.completed")
                if e["@type"] == "TextualRepresentation" and e.get("body") == "not observe.completed"

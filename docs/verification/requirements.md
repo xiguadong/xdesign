@@ -20,6 +20,20 @@ declared case or a clean compiler result as an executed acceptance test.
 | SimpleFlow gate, recovery, and file-plan behavior | Executable verification for the first implementation slice | `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification`; [D54](design.md#d54) | Gate and recovery behavior tested in [P08](../records/executions/simple-flow.md#p08) and [P12](../records/reviews/simple-flow-fixes.md#p12); named model cases are declarations, not separately executed case records |
 | Runtime gate and record conformance | Scripted test and inspection of local SimpleFlow run | four checks in [D06–D07](../design/flows/simple-flow/definition.md#d06) | Commands, Rust adapter tests, and a four-stage demo executed for this slice ([P08](../records/executions/simple-flow.md#p08), [P12](../records/reviews/simple-flow-fixes.md#p12)); VModel integration and project acceptance remain open |
 | Uniform stage CLI and restart integrity | Process-level tests and corruption/recovery tests | `LocalStageCliRuntimeVerification`; [CLI contract](../design/stage-cli.md#d85) | Planned cases and executed results are distinguished in the [stage CLI plan](../records/plans/stage-cli.md) |
+| Durable operational storage | Automated test, fault injection, process demonstration, and inspection at storage implementation verification | `StorageVerification`; STORE-01 through STORE-10 in the [storage plan](../records/plans/storage.md#p38) | Case and objective criteria defined; the storage plan records executed outcomes and their limits |
+
+The seven storage requirements have the following objective acceptance mapping. These are
+planned criteria, not results; the case identifiers refer to the storage plan.
+
+| Requirement | Acceptance criterion and planned case |
+| --- | --- |
+| `operationalRecordsHaveDurableAuthority` | STORE-08 persists both flat flows' registrations, runs, reports, evidence and receipts with no new Git wish trace and no authoritative runtime byte existing only under `cache/`. |
+| `wishHistoryIsRevisioned` | STORE-02 creates successive immutable revisions and returns their exact metadata and complete manifests through every query; STORE-09 reads a selected earlier revision. |
+| `materialsAreContentAddressed` | STORE-03 demonstrates deduplication, exact digest/length verification and unsafe-path refusal; STORE-07 detects subsequent byte loss or alteration. |
+| `storageSaveIsAtomicAndIdempotent` | STORE-04 repeats an exact operation after reopen without a second effect; STORE-05 produces one winner and one conflict; STORE-06 reconciles every injected crash boundary. |
+| `workingCacheIsRecoverable` | STORE-09 deletes generated runtime cache, restores the stored head, checks out all manifest bytes and passes the existing record checker against that materialization. |
+| `wishStatusProjectsFlowExecution` | STORE-08 obtains identical status/current-stage projections from the stored selected flow and run record across reopen, including a blocked and a completed run; no independent status edit exists. |
+| `storageInputAndIntegrityAreChecked` | STORE-01 refuses foreign formats; STORE-03 rejects malformed and unsafe input; STORE-07 reports missing, altered, orphan and pending state without returning trusted bytes. |
 
 Acceptance of a wish is recorded by that wish's applicable stage assessment at a stated
 artifact revision. It does not freeze the project's entire requirements baseline.

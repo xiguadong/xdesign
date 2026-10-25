@@ -16,6 +16,7 @@ The project SysML model is the structural source. These pages explain the modele
 | [lifecycle.md](lifecycle.md) | common | two-command stage interaction and generic run lifecycle, advancement, reopening, blocking/rework |
 | [evidence-and-revisions.md](evidence-and-revisions.md) | common | revisions, assessments, artifact identity, retained evidence, invariants |
 | [adapters.md](adapters.md) | common | checker-command and judge boundaries, reports, authority |
+| [storage.md](storage.md) | operational persistence | store authority, revisions, materials, atomic save, queries, checkout and recovery |
 | [flows/simple-flow/](flows/simple-flow/index.md) | flow-specific | four-stage definition, implementation, views |
 | [flows/wish-verify/](flows/wish-verify/index.md) | flow-specific | two-stage definition, implementation, views |
 | [api/](api/index.md) | class/function | one design document per API |
@@ -28,6 +29,7 @@ The project SysML model is the structural source. These pages explain the modele
 | Run creation, visits, advancement, reopening, blocked correction | [lifecycle.md](lifecycle.md) for the common behavior; the flow's implementation.md for its run/factory |
 | The agent's `next` → workspace work → `check` interaction | [lifecycle.md](lifecycle.md#f04); work content in [flow.md](flow.md#f01) |
 | Revision, assessment, artifact, or evidence semantics | [evidence-and-revisions.md](evidence-and-revisions.md); record fields in [interfaces/record-format.md](../interfaces/record-format.md) |
+| Store schema, save/recovery, queries, material integrity or checkout | [storage.md](storage.md); [store format](../interfaces/store-format.md); storage API pages |
 | Checker command, judge authority, reports, refusal/error boundary | [adapters.md](adapters.md); a flow's definition.md for its commands and rules |
 | A flow's module class, factory, adapter, Rust realization, or limits | that flow's implementation.md |
 | A view, view applicability, figure coverage, or figure ownership | that flow's views.md; presentation contract in [interfaces/documentation-contract.md](../interfaces/documentation-contract.md) |

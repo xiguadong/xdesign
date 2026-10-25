@@ -9,6 +9,7 @@ package XDesignArchitecture {
     private import SequenceFunctions::last;
     private import SequenceFunctions::size;
     private import XDesignCommon::*;
+    private import XDesignStorage::*;
 
     doc /* Flow describes the workflow, Wish expresses the requested outcome,
        Trace retains its execution history and independent model reference, and
@@ -570,6 +571,7 @@ package XDesignArchitecture {
         ref part defaultFlow : Flow subsets availableFlows;
         ref item wishes : Wish [0..*];
         ref part traces : Trace [0..*];
+        ref part store : ProjectStore;
 
         event occurrence entering;
         event occurrence assessing;
@@ -695,6 +697,7 @@ package XDesignArchitecture {
         part availableFlows : Flow [1..*];
         ref part selectedFlow : Flow subsets availableFlows;
         part controller : Controller;
+        part store : ProjectStore;
         item wishes : Wish [0..*];
         part traces : Trace [0..*];
 
@@ -702,6 +705,7 @@ package XDesignArchitecture {
         bind controller.defaultFlow = selectedFlow;
         bind controller.wishes = wishes;
         bind controller.traces = traces;
+        bind controller.store = store;
 
         assert constraint everyWishHasOneTrace {
             wishes->forAll { in wish : Wish;

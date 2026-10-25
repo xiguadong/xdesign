@@ -29,17 +29,20 @@ claiming a functional baseline. No such SRR outcome is recorded here.
 
 xdesign accepts a wish, assigns an engineering flow, records the work and assessments at
 each stage, and authorizes advancement or rework under that flow's checkpoints. The project
-model describes the system; one independent wish model records why a particular outcome was
-produced and judged. The repository currently contains the SysML model, documentation,
-renderer, four SimpleFlow checker commands, and a local four-stage Rust run. The complete
-workflow application and three VModel gate commands are outside the implemented scope
+model describes the system and retains engineering products. A trace records why a particular
+outcome was produced and judged: existing wishes use independent Git SysML traces, while the
+storage requirements below define a durable operational store for new wish and run records.
+The repository currently contains the SysML model, documentation, renderer, four SimpleFlow
+checker commands, and local flat-flow Rust runs. The complete workflow application and three
+VModel gate commands are outside the implemented scope
 ([R03](../records/status.md#r03), [P08](../records/executions/simple-flow.md#p08)).
 
 ### 1.3 Terms and references
 
 | Term | Meaning here |
 | --- | --- |
-| Wish | A requested outcome assigned a flow and an independent trace. |
+| Wish | A requested outcome assigned a flow and a trace. |
+| Trace | The operational account of a wish's execution, retained in a legacy SysML model or the new store according to the run's registration boundary. |
 | Flow | An ordered set of stages and applicable exit checkpoints. |
 | Assessment | A judgment of one checkpoint at a stated artifact revision, with evidence. |
 | RTM | Requirements traceability matrix; the human view of the model's satisfaction and planned verification links. |
@@ -128,7 +131,7 @@ runtime and verification evidence ([B03](../architecture/system-composition.md#b
 
 ## 5. Functional and supporting requirements inventory
 
-The current inventory has twenty-six requirements. It combines workflow behavior,
+The current inventory has thirty-three requirements. It combines workflow behavior,
 model/document consistency, presentation, and checker obligations; the last three are
 supporting quality constraints rather than user actions. Every requirement specializes
 `XDesignRequirement`, which carries a `rationale`. No requirement names the wish that
@@ -164,7 +167,14 @@ each already has full per-requirement acceptance and verification fields. [R11](
 | `umlViewsAreSelectedWithReasons` | Every view of a module's software design is required, recommended, or not applicable with a reason; adopted views embed with figure block and honest status | A view set without stated applicability hides whether omissions were considered | documentation set (no SysML satisfier) | contract in [U09](../interfaces/documentation-contract.md#u09); first applicability table in [D52](../design/flows/simple-flow/views.md#d52) |
 | `softwareDesignClaimsNoImplementation` | A software design distinguishes designed elements from implemented code and claims no implementation, test or build the repository lacks | A design read as a finished product hides remaining work | documentation set (no SysML satisfier) | stated in [D44](../design/flows/simple-flow/implementation.md#d44) and reviewed per [U12](../verification/review-criteria.md#u12) |
 | `stageCliUsesUniformInteraction` | Every supported stage uses read-only `next` and a single `check` that records, assesses and advances, returning corrections or successor work | Agents follow flow content instead of coordinating internal commands | `StageCli` | [Local CLI contract](../design/stage-cli.md#d85); execution recorded by the new wish |
-| `stageCliPreservesRunIntegrity` | Restore the same run across processes; reject corrupt state, plan drift, stale submissions and concurrent writers; bind judgments to artifact bytes | A short interface must preserve authority and evidence across restarts | `LocalStageCliRuntime` | [Runtime verification](../design/stage-cli.md#d85); local storage, no authentication or database claim |
+| `stageCliPreservesRunIntegrity` | Restore the same run across processes; reject corrupt state, plan drift, stale submissions and concurrent writers; bind judgments to artifact bytes | A short interface must preserve authority and evidence across restarts | `LocalStageCliRuntime` | [Runtime verification](../design/stage-cli.md#d85) and [storage evidence](../records/plans/storage.md#p38); local store, no authentication or remote-service claim |
+| `operationalRecordsHaveDurableAuthority` | Persist new wish/run facts, revision manifests, material bytes and receipts outside regenerable cache; retain engineering products in Git | A run must not lose the facts and judged bytes when cache is discarded | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `wishHistoryIsRevisioned` | Append immutable numbered revisions with stable item identity/kind, typed metadata and complete manifests; support list/get/history/read/checkout | Earlier checked states must remain inspectable instead of being replaced by one mutable snapshot | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `materialsAreContentAddressed` | Bind logical URIs to exact SHA-256-identified bytes; atomically publish, deduplicate and verify reads through EOF | A path alone cannot establish which evidence bytes were judged | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `storageSaveIsAtomicAndIdempotent` | Reserve exact operations, guard expected heads, commit each complete revision and receipt together, and reconcile outcome without duplicate effects | Crash/retry and competing writers must not silently duplicate or overwrite run facts | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `workingCacheIsRecoverable` | Regenerate runtime cache and checkout every manifest byte; replay the SimpleFlow record checker on restored evidence | Cache is disposable only if durable copies reconstruct a usable record | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `wishStatusProjectsFlowExecution` | Derive wish status/current stage from the selected flow's run record and support kind/status queries | An independent status flag could contradict the flow's actual position | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `storageInputAndIntegrityAreChecked` | Refuse incompatible, malformed, excessive, unsafe or replaced state; verify digests and report missing/altered/orphan/pending data | Durable but corrupt or unsafe bytes must not enter engineering decisions | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 
 <a id="r08"></a>
 
@@ -242,12 +252,17 @@ field information. Compatibility and failure semantics remain open in
 | `Wish` and `Trace` | Each wish has exactly one trace; a trace belongs to its wish. | [B01](../architecture/system-composition.md#b01) |
 | `FlowExecution` and `StageRecord` | Record each assigned flow stage, including visits and the current artifact revision. | [E02–E03](../design/evidence-and-revisions.md#e02) |
 | `CheckpointAssessment` | Identify checkpoint, evaluated revision, judge, outcome, and evidence URIs. | [E04](../design/evidence-and-revisions.md#e04) |
-| Project and wish model files | Keep project requirements and design in `mbse/model/`; keep each wish's rationale and run in its own `mbse/wishes/` model. | [A02](../architecture/index.md#a02) |
+| Project engineering files | Keep project requirements, designs, implementations and verification definitions in Git, including `mbse/model/`; a store revision never holds their only authoritative copy. | [A02](../architecture/index.md#a02), `wishProductsAreRetained` |
+| New wish and run records | Persist registration, flow identity, visits, assessments, revision manifests, judged material bytes and receipts in the operational store; derive status from the run. | `operationalRecordsHaveDurableAuthority`, `wishHistoryIsRevisioned`, `wishStatusProjectsFlowExecution` |
+| Legacy wish models | Preserve existing `mbse/wishes/` traces as Git history without automatic import or retroactively changing their authority. | [A02](../architecture/index.md#a02), `operationalRecordsHaveDurableAuthority` |
+| Working cache | Treat materialized sources, runtime copies and generated reports as regenerable after their durable revision is committed. | `workingCacheIsRecoverable` |
 
-The model defines record identity and trace relationships, but it does not yet define a
-persistent database, storage format for a running application, retention term, deletion
-policy, privacy classification, or data migration protocol. Generated compiler reports and
-local verification evidence stay under `cache/` and are not the product data store.
+The existing model defines record identity and trace relationships; the new storage design
+must define format/schema versions, request and manifest contracts, expected-head guards,
+receipts and integrity inspection. Retention deletion, privacy classification, whole-store
+backup and migration from other store formats remain outside this slice. Generated compiler
+reports and local verification logs stay under `cache/`; once cited by a stored revision,
+their required bytes must also have a durable material copy.
 
 <a id="r12"></a>
 
@@ -270,8 +285,8 @@ they do not by themselves certify requirements quality or test coverage.
 
 ## 10. Requirements traceability matrix
 
-`mbse/model/traceability.sysml` — twenty `satisfy` links from a requirement to the model
-feature that answers it:
+`mbse/model/traceability.sysml` — twenty-nine `satisfy` links from a requirement to the
+model feature that answers it:
 
 | Requirement | Satisfier |
 | --- | --- |
@@ -295,6 +310,15 @@ feature that answers it:
 | `viewAndViewpointRolesAreSpecified` | `DocumentationViewpoint` |
 | `checkerRulesAreImplementationReady` | `CheckerRule` |
 | `rustUmlDesignMapsEveryDesignElement` | `XDesignCrate` |
+| `stageCliUsesUniformInteraction` | `StageCli` |
+| `stageCliPreservesRunIntegrity` | `LocalStageCliRuntime` |
+| `operationalRecordsHaveDurableAuthority` | `ProjectStore` |
+| `wishHistoryIsRevisioned` | `ItemRevision` |
+| `materialsAreContentAddressed` | `Material` |
+| `storageSaveIsAtomicAndIdempotent` | `SaveOperation` |
+| `workingCacheIsRecoverable` | `CheckoutOperation` |
+| `wishStatusProjectsFlowExecution` | `WishProjection` |
+| `storageInputAndIntegrityAreChecked` | `DoctorOperation` |
 
 `semanticCheckNamesItsJudges` is the one requirement with two links; every requirement
 with a model satisfier added since has one link. The compiler export cannot attribute
@@ -363,7 +387,8 @@ repository does not implement formal change approval or a frozen RTM workflow.
 | Software design documentation | UML guide and SimpleFlow design; [D52](../design/flows/simple-flow/views.md#d52) | UML applicability and status have a planned review, not a model satisfier. |
 | Planned verification | `XDesignVerification` cases and `verify` links | Case declaration does not record a passed result. |
 | User goals | `XDesignDetailedDesign::ProgressWish`, `ReviewEvidence`, and `useCaseDiagram`; [R06](#r06) | The view concerns SimpleFlow and is not a complete deployed-product scenario set. |
-| Per-wish outcome | `mbse/wishes/wish-<id>.sysml`; [V02](../records/wishes/wish-history.md#v02) | A wish outcome does not freeze the project baseline. |
+| Per-wish outcome | Legacy/bootstrap `mbse/wishes/wish-<id>.sysml`; new store revisions and [V18](../records/wishes/wish-history.md#v18) | A wish outcome does not freeze the project baseline; STORE-01 through STORE-10 evidence applies to its recorded runs and limits. |
+| Operational persistence | `XDesignStorage` and [D86](../design/storage.md#d86) | Local store implemented and exercised; whole-store backup, migration, deletion, privacy and remote operation remain outside this slice. |
 
 Open requirements-stage work is to classify and complete every requirement's method,
 phase, and acceptance criterion; decide runtime performance, security, deployment, data

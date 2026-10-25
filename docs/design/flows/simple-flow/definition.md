@@ -194,13 +194,13 @@ offenders, `failures` is empty. Every row is a model-declared condition implemen
 
 The designed flow declares four checkers, their command paths, and all 18 rules in
 `mbse/model/detailedDesign.sysml`. The command at each path must apply the declared
-conditions. The first executable slice reads both an independent SysML wish trace URI
-(`wishModel`) and an executable JSON run-record snapshot URI (`recordUri`). The former
-preserves the per-wish trace identity; the latter carries visit and assessment data that
-the first implementation can check. A separate adapter is needed before the commands
-can audit all historical `mbse/wishes/*.sysml` records. The commands require an
-existing SysML wish file as a control precondition, but the four D06 rule sets do
-not validate that file's internal trace relationships. The wish path therefore
+conditions. The executable slice reads both a SysML wish source URI (`wishModel`)
+and an executable JSON run-record snapshot URI (`recordUri`). The source is a legacy
+independent trace or an imported store material; the record carries visit and assessment
+data that the implementation can check. A separate adapter is needed before the commands
+can audit all historical `mbse/wishes/*.sysml` records or store-internal claim mappings.
+The commands require an existing SysML wish file as a control precondition, but the four
+D06 rule sets do not validate that file's internal trace relationships. The wish path
 identifies the run; it is not itself a passing per-wish trace check.
 
 The invocation also carries `checkerId`, `planId`, `planSha256`, `stage`,

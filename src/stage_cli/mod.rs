@@ -1,3 +1,4 @@
+mod persistent;
 mod store;
 mod work;
 
@@ -7,26 +8,27 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
 };
-use store::{Registry, Stored};
-use work::{Collection, WorkDefinition};
+use store::{Backend, Stored};
+use work::Collection;
 use xdesign::core::{
-    create_run, hash_artifact, restore_run, sha256_bytes, valid_digest, RsActivityEntry,
-    RsAdvanceOutcome, RsArtifactDigest, RsAssessmentEntry, RsCheckCommand, RsCheckKind,
-    RsCheckerSpec, RsCheckpointOutcome, RsFlowRun, RsFlowStatus, RsGateError, RsGateReport,
-    RsJudgeAuthority, RsSuppliedJudge,
+    hash_artifact, restore_run, valid_digest, RsActivityEntry, RsAdvanceOutcome, RsArtifactDigest,
+    RsAssessmentEntry, RsCheckCommand, RsCheckKind, RsCheckerSpec, RsCheckpointOutcome, RsFlowRun,
+    RsFlowStatus, RsGateError, RsGateReport, RsJudgeAuthority, RsSuppliedJudge,
 };
 use xdesign::simple_flow::RsProcessCheck;
 
-pub const HELP: &str = "Usage: xdesign init WISH_ID --flow simple-flow|wish-verify
+pub const HELP: &str = "Usage: xdesign init WISH_ID --flow simple-flow|wish-verify [--wish FILE]
        xdesign next WISH_ID
-       xdesign check WISH_ID [--result FILE]
+       xdesign check WISH_ID [--result FILE] [--operation-id ID]
+       xdesign store COMMAND [OPTIONS]
        xdesign --help
 
-Run from the project root. init registers mbse/wishes/WISH_ID.sysml once.
-next returns current work without writing. check records outputs, evaluates the
-stage's gates and returns correction work, successor work or completion.
+Run from the project root. init imports mbse/wishes/WISH_ID.sysml by default.
+next returns current work without changing the stored head. check records outputs,
+evaluates the stage's gates and returns correction work, successor work or completion.
 Semantic gates require a snapshot-bound judgment in the optional result JSON;
-see docs/design/stage-cli.md for the exchange schema. State is in cache/xdesign/.
+see docs/design/stage-cli.md for the exchange schema. New runs use .xdesign/ and
+materialize operational state in cache/. Existing cache-backed runs stay legacy.
 Exit codes: 0 work/completed, 1 blocked check, 2 invalid request or command error.
 Legacy commands: xdesign simple-flow demo ...; xdesign wish-verify demo ...";
 
@@ -131,7 +133,7 @@ fn restore(
     let run = restore_run(
         stored.plan.clone(),
         stored.registry.wish_model_uri.clone(),
-        stored.registry.run_record_uri.clone(),
+        stored.restore_record_uri.clone(),
         Box::new(RetainedCheck {
             directory: format!("{}/reports", store::directory(&stored.registry.wish_id)),
             missing_outputs,
@@ -207,89 +209,50 @@ fn response(stored: &Stored, run: &RsFlowRun) -> Result<Value, String> {
             "correction_reasons": corrections, "collection_diagnostics": collection.diagnostics,
             "candidate_artifacts": collection.artifacts, "candidate_snapshot_digest": collection.snapshot })
     };
-    Ok(
-        json!({ "schema_version": 1, "wish_id": stored.registry.wish_id, "run_id": run.run_id(),
+    let mut reply = json!({ "schema_version": 1, "wish_id": stored.registry.wish_id, "run_id": run.run_id(),
         "flow_id": stored.registry.flow_id, "status": run.status(), "completed": completed,
-        "state_token": stored.token, "work": projected }),
-    )
+        "state_token": stored.token, "work": projected });
+    if stored.backend == Backend::Persistent {
+        reply["store_revision"] = json!(stored
+            .store_revision
+            .ok_or("persistent head has no revision")?);
+    }
+    Ok(reply)
 }
 
 fn observe(id: &str) -> Result<(Stored, RsFlowRun, Value), String> {
-    // A reader never takes a writer lock. The final token comparison rejects a
-    // mixed view if restore or collection overlapped another process's write.
+    // A reader never takes a writer lock. The final comparison rejects a mixed
+    // view if restoration or collection overlapped another process's commit.
     for _ in 0..3 {
         let stored = store::load(id)?;
         let run = restore(&stored, unjudged(), false)?;
         let reply = response(&stored, &run)?;
-        if store::load(id)?.token == stored.token {
+        let current = store::load(id)?;
+        if current.token == stored.token && current.store_revision == stored.store_revision {
             return Ok((stored, run, reply));
         }
     }
     Err("run changed during inspection; retry next".into())
 }
 
-fn init(id: &str, flow: &str) -> Result<Value, String> {
-    store::wish_id(id)?;
-    let wish = format!("mbse/wishes/{id}.sysml");
-    store::artifact_path(&wish)?;
-    store::read_file(&wish)?;
-    let mut plan = store::blueprint(flow)?;
-    let work = WorkDefinition::freeze(flow, &plan, &wish)?;
-    let dir = store::directory(id);
-    store::state_path(&dir)?;
-    fs::create_dir_all("cache/xdesign").map_err(|e| e.to_string())?;
-    fs::create_dir(&dir)
-        .map_err(|e| format!("wish is already initialized or directory cannot be reserved: {e}"))?;
-    let initialize = || -> Result<(), String> {
-        let plan_uri = format!("{dir}/plan.json");
-        let work_uri = format!("{dir}/work.json");
-        let run_record_uri = format!("{dir}/run.json");
-        plan.freeze(plan_uri.clone())
-            .map_err(|e| format!("cannot freeze plan: {e:?}"))?;
-        let work_bytes = serde_json::to_vec_pretty(&work).map_err(|e| e.to_string())?;
-        store::write_new(&work_uri, &work_bytes)?;
-        let run = create_run(
-            plan.clone(),
-            wish.clone(),
-            run_record_uri.clone(),
-            Box::new(RetainedCheck {
-                directory: format!("{dir}/reports"),
-                missing_outputs: false,
-            }),
-            Box::new(unjudged()),
-        )
-        .map_err(|e| format!("cannot initialize run: {e:?}"))?;
-        run.write_record()?;
-        let registry = Registry {
-            schema_version: 1,
-            wish_id: id.into(),
-            flow_id: flow.into(),
-            run_id: run.run_id().into(),
-            wish_model_uri: wish,
-            plan_uri,
-            plan_sha256: plan.plan_sha256.clone(),
-            work_uri,
-            work_sha256: sha256_bytes(&work_bytes),
-            run_record_uri,
-        };
-        store::write_new(
-            &format!("{dir}/registry.json"),
-            &serde_json::to_vec_pretty(&registry).map_err(|e| e.to_string())?,
-        )
-    };
-    if let Err(error) = initialize() {
-        let _ = fs::remove_dir_all(&dir);
-        return Err(error);
-    }
-    Ok(observe(id)?.2)
+fn init(id: &str, flow: &str, wish: Option<&str>) -> Result<Value, String> {
+    persistent::init(id, flow, wish)
+}
+
+fn read_result_bytes(uri: Option<&str>) -> Result<Vec<u8>, String> {
+    uri.map(store::read_file)
+        .transpose()
+        .map(Option::unwrap_or_default)
+}
+
+fn parse_result(uri: Option<&str>, bytes: &[u8]) -> Result<Option<StageResult>, String> {
+    uri.map(|_| serde_json::from_slice(bytes).map_err(|e| format!("invalid result JSON: {e}")))
+        .transpose()
 }
 
 fn read_result(uri: Option<&str>) -> Result<Option<StageResult>, String> {
-    uri.map(|uri| {
-        serde_json::from_slice(&store::read_file(uri)?)
-            .map_err(|e| format!("invalid result JSON: {e}"))
-    })
-    .transpose()
+    let bytes = read_result_bytes(uri)?;
+    parse_result(uri, &bytes)
 }
 
 fn validate_result(
@@ -375,7 +338,7 @@ fn judge(result: Option<&StageResult>, collection: &Collection) -> Result<RsSupp
     })
 }
 
-fn check(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), String> {
+fn check_legacy(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), String> {
     let (initial, initial_run, mut initial_reply) = observe(id)?;
     if initial_run.status() == RsFlowStatus::Completed {
         initial_reply["assessed"] = Value::Null;
@@ -478,6 +441,21 @@ fn check(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), String> {
     ))
 }
 
+fn check(
+    id: &str,
+    result_uri: Option<&str>,
+    operation_id: Option<&str>,
+) -> Result<(Value, i32), String> {
+    if store::is_persistent(id)? {
+        let operation_id = operation_id
+            .map(str::to_owned)
+            .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
+        persistent::check(id, result_uri, &operation_id)
+    } else {
+        check_legacy(id, result_uri)
+    }
+}
+
 pub fn dispatch(args: &[String]) -> Result<(Value, i32), String> {
     match args
         .iter()
@@ -485,10 +463,18 @@ pub fn dispatch(args: &[String]) -> Result<(Value, i32), String> {
         .collect::<Vec<_>>()
         .as_slice()
     {
-        ["init", id, "--flow", flow] => Ok((init(id, flow)?, 0)),
+        ["init", id, "--flow", flow] => Ok((init(id, flow, None)?, 0)),
+        ["init", id, "--flow", flow, "--wish", uri] => Ok((init(id, flow, Some(uri))?, 0)),
         ["next", id] => Ok((observe(id)?.2, 0)),
-        ["check", id] => check(id, None),
-        ["check", id, "--result", uri] => check(id, Some(uri)),
+        ["check", id] => check(id, None, None),
+        ["check", id, "--result", uri] => check(id, Some(uri), None),
+        ["check", id, "--operation-id", operation] => check(id, None, Some(operation)),
+        ["check", id, "--result", uri, "--operation-id", operation] => {
+            check(id, Some(uri), Some(operation))
+        }
+        ["check", id, "--operation-id", operation, "--result", uri] => {
+            check(id, Some(uri), Some(operation))
+        }
         _ => Err(format!("invalid arguments\n{HELP}")),
     }
 }

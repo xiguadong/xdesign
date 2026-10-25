@@ -264,4 +264,70 @@ package XDesignRequirements {
            Completed next/check calls are read-only; registration is explicit. */
         attribute redefines rationale = "A short command interface is useful only if process restarts and corrections preserve evidence, authority and stage identity.";
     }
+
+    requirement operationalRecordsHaveDurableAuthority : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* New wish registrations, flow run facts, revision manifests, material
+           and evidence bytes, and operation receipts persist in a local operational
+           store outside regenerable cache. Git retains engineering definitions and
+           products; existing Git wish traces remain legacy records. */
+        attribute redefines rationale = "A run whose only authoritative record lives under cache can lose the account of what executed and which bytes were judged; separating operational facts from engineering products gives each an explicit durable authority.";
+    }
+
+    requirement wishHistoryIsRevisioned : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* A generic store item has a stable identity and kind. Each wish save
+           appends an immutable, numbered revision containing typed metadata and a
+           complete URI-to-material manifest. List, get, history, read and checkout
+           expose the selected revision without deleting earlier revisions. */
+        attribute redefines rationale = "A mutable current JSON snapshot cannot explain earlier decisions or reproduce an earlier checked state; complete retained revisions make wish history inspectable and recoverable without hard-coding the store to one future item kind.";
+    }
+
+    requirement materialsAreContentAddressed : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* Every stored material is identified by the SHA-256 of its exact bytes
+           and bound to a logical URI in each revision manifest. Publication is atomic,
+           identical bytes deduplicate, and read and checkout verify byte length and
+           digest through end of file before returning content. */
+        attribute redefines rationale = "A path alone does not identify the evidence that was judged; content identity prevents later edits from silently replacing historical bytes and makes loss or corruption detectable.";
+    }
+
+    requirement storageSaveIsAtomicAndIdempotent : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* A save names an operation ID, exact request bytes and expected head.
+           The store durably reserves the operation before blob publication, commits
+           the complete revision and receipt in one SQLite transaction, and exposes
+           outcome reconciliation. Repeating the same operation and request has no
+           second effect; a changed request or stale head cannot overwrite another
+           writer. One stage check is saved as one logical operation. */
+        attribute redefines rationale = "Process crashes and retries must not duplicate work or leave run rows without their evidence; explicit guards and receipts turn uncertain outcomes into inspectable recovery instead of silent overwrite.";
+    }
+
+    requirement workingCacheIsRecoverable : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* Runtime plans, work definitions, wish working sources, run records and
+           checker exchanges can be regenerated from the store after their cache copies
+           are deleted. Checkout restores every byte in a selected revision manifest,
+           and the restored SimpleFlow record remains acceptable to its record checker. */
+        attribute redefines rationale = "Treating cache as disposable is safe only when every required operational byte has a durable copy and the restored record remains usable by the existing flow contract.";
+    }
+
+    requirement wishStatusProjectsFlowExecution : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* Wish status and current stage shown by store queries are derived from
+           the selected flow identity and stored run record. No independently editable
+           wish-status flag may contradict the execution position. Generic queries can
+           filter by item kind and projected wish status without hard-coding one flow. */
+        attribute redefines rationale = "The flow already owns stage and completion facts; duplicating them as a separate status creates two authorities that can drift, while a projection works for future flow definitions.";
+    }
+
+    requirement storageInputAndIntegrityAreChecked : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
+        doc /* The store refuses unknown formats and schema versions, malformed or
+           duplicate JSON fields, excessive inputs, unsafe logical paths and symlink
+           escapes, digest mismatches, and replaced store roots or databases. Doctor
+           reports missing, altered, orphan and pending storage state without converting
+           integrity defects into successful reads or writes. */
+        attribute redefines rationale = "Durability is not trust in whatever bytes happen to occupy a database or path; explicit refusal and diagnosis keep incompatible, unsafe or corrupted state out of engineering decisions.";
+    }
 }

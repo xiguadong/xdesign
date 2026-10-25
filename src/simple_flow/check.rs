@@ -6,10 +6,81 @@ use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
     fs,
+    io::Read,
     path::Path,
-    process::Command,
+    process::{Command, Stdio},
+    thread,
+    time::{Duration, Instant},
 };
 use uuid::Uuid;
+
+/// A hung checker must never hang the CLI with it: subprocesses are killed at
+/// this deadline (overridable for slow machines) and reported as timed out.
+pub fn checker_timeout() -> Duration {
+    std::env::var("XDESIGN_CHECKER_TIMEOUT_SECS")
+        .ok()
+        .and_then(|value| value.parse::<u64>().ok())
+        .filter(|secs| *secs > 0)
+        .map_or(Duration::from_secs(600), Duration::from_secs)
+}
+
+pub struct CommandOutcome {
+    pub stdout: Vec<u8>,
+    pub stderr: Vec<u8>,
+    pub success: bool,
+    pub timed_out: bool,
+}
+
+/// Run a command to completion with a hard deadline. On timeout the child and
+/// any of its process group are killed and `timed_out` is reported, so a
+/// checker stuck on I/O or a compiler deadlock surfaces as an explicit error
+/// instead of an indefinite hang.
+pub fn run_command_with_timeout(
+    command: &mut Command,
+    timeout: Duration,
+) -> std::io::Result<CommandOutcome> {
+    let deadline = Instant::now() + timeout;
+    let mut child = command
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+    let mut stdout_pipe = child.stdout.take().expect("piped stdout");
+    let mut stderr_pipe = child.stderr.take().expect("piped stderr");
+    let stdout = thread::spawn(move || {
+        let mut buffer = Vec::new();
+        let _ = stdout_pipe.read_to_end(&mut buffer);
+        buffer
+    });
+    let stderr = thread::spawn(move || {
+        let mut buffer = Vec::new();
+        let _ = stderr_pipe.read_to_end(&mut buffer);
+        buffer
+    });
+    loop {
+        match child.try_wait()? {
+            Some(status) => {
+                return Ok(CommandOutcome {
+                    stdout: stdout.join().unwrap_or_default(),
+                    stderr: stderr.join().unwrap_or_default(),
+                    success: status.success(),
+                    timed_out: false,
+                })
+            }
+            None if Instant::now() < deadline => thread::sleep(Duration::from_millis(50)),
+            None => {
+                let _ = child.kill();
+                let _ = child.wait();
+                return Ok(CommandOutcome {
+                    stdout: stdout.join().unwrap_or_default(),
+                    stderr: stderr.join().unwrap_or_default(),
+                    success: false,
+                    timed_out: true,
+                })
+            }
+        }
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct RsProcessCheck {
@@ -97,34 +168,51 @@ impl RsCheckCommand for RsProcessCheck {
             artifact_revision,
             Uuid::new_v4()
         );
-        let output = Command::new("python3")
-            .env("PYTHONDONTWRITEBYTECODE", "1")
-            .arg(&checker.command_uri)
-            .arg("--wish-model")
-            .arg(wish_model)
-            .arg("--record")
-            .arg(run_record)
-            .arg("--checker-id")
-            .arg(&checker.checker_id)
-            .arg("--plan-id")
-            .arg(plan_id)
-            .arg("--plan-uri")
-            .arg(plan_uri)
-            .arg("--plan-sha256")
-            .arg(plan_sha256)
-            .arg("--stage")
-            .arg(stage)
-            .arg("--artifact-revision")
-            .arg(artifact_revision.to_string())
-            .arg("--snapshot-digest")
-            .arg(snapshot_digest)
-            .arg("--report")
-            .arg(&report_uri)
-            .output()
-            .map_err(|_| RsGateError::CommandFailed)?;
+        let timeout = checker_timeout();
+        let output = run_command_with_timeout(
+            Command::new("python3")
+                .env("PYTHONDONTWRITEBYTECODE", "1")
+                .arg(&checker.command_uri)
+                .arg("--wish-model")
+                .arg(wish_model)
+                .arg("--record")
+                .arg(run_record)
+                .arg("--checker-id")
+                .arg(&checker.checker_id)
+                .arg("--plan-id")
+                .arg(plan_id)
+                .arg("--plan-uri")
+                .arg(plan_uri)
+                .arg("--plan-sha256")
+                .arg(plan_sha256)
+                .arg("--stage")
+                .arg(stage)
+                .arg("--artifact-revision")
+                .arg(artifact_revision.to_string())
+                .arg("--snapshot-digest")
+                .arg(snapshot_digest)
+                .arg("--report")
+                .arg(&report_uri),
+            timeout,
+        )
+        .map_err(|_| RsGateError::CommandFailed)?;
         let _ = fs::write(format!("{report_uri}.stdout.log"), &output.stdout);
-        let _ = fs::write(format!("{report_uri}.stderr.log"), &output.stderr);
-        if !output.status.success() {
+        let _ = fs::write(
+            format!("{report_uri}.stderr.log"),
+            if output.timed_out {
+                format!(
+                    "checker {} exceeded the {:?} deadline and was killed",
+                    checker.checker_id, timeout
+                )
+                .into_bytes()
+            } else {
+                output.stderr.clone()
+            },
+        );
+        if output.timed_out {
+            return Err(RsGateError::CheckerTimeout);
+        }
+        if !output.success {
             return Err(RsGateError::CommandFailed);
         }
         let raw_bytes = fs::read(&report_uri).map_err(|_| RsGateError::CommandFailed)?;

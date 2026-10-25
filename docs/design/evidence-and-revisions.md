@@ -60,9 +60,16 @@ An assessment is the only thing that authorizes progress, and it carries its rea
   checkpoint, an agent or a human only a semantic one
   (`judgmentMatchesCheckpointKind`, see [F02](adapters.md#f02)).
 - `evidenceUris` point at retained files — logs, exports, rendered figures — so a
-  later reader can re-examine the judgment, not just its conclusion. Current local
-  examples use ignored `cache/`; durable delivery requires a separate retention
-  location and access policy.
+  later reader can re-examine the judgment, not just its conclusion. Legacy examples
+  used ignored `cache/` alone. New store-backed revisions also bind each current
+  artifact and evidence URI to archived SHA-256 bytes, while checker record inputs and
+  reports remain separate exchange materials. Historical revisions retain their own
+  manifest when a URI later names different bytes.
+
+The [storage design](storage.md#d86) defines publication, revision and recovery. A stored
+manifest does not rewrite the run record's existing URI fields or turn an unchecked claim
+into a pass; the fixed record checker and semantic judgment still evaluate their stated
+snapshot. Checkout supplies the archived bytes for independent re-examination.
 
 <a id="e05"></a>
 

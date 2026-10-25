@@ -28,6 +28,7 @@ nav:
     - "Flow model and catalog": design/flow.md
     - "Run lifecycle": design/lifecycle.md
     - "Stage CLI": design/stage-cli.md
+    - "Operational storage": design/storage.md
     - "Evidence and revisions": design/evidence-and-revisions.md
     - "Ports and adapters": design/adapters.md
     - "SimpleFlow":
@@ -104,10 +105,40 @@ nav:
         - "validate_wish_verify_plan": design/api/wish-verify/validate-wish-verify-plan.md
         - "create_wish_verify_run": design/api/wish-verify/create-wish-verify-run.md
         - "RsUnusedCheck": design/api/wish-verify/rs-unused-check.md
+      - "storage: xdesign storage API overview":
+        - "xdesign storage API overview": design/api/storage/index.md
+        - "RsSaveRequest": design/api/storage/rs-save-request.md
+        - "RsSaveMaterial": design/api/storage/rs-save-material.md
+        - "RsMaterial": design/api/storage/rs-material.md
+        - "RsItemRevision": design/api/storage/rs-item-revision.md
+        - "RsItemSummary": design/api/storage/rs-item-summary.md
+        - "RsOperationOutcome": design/api/storage/rs-operation-outcome.md
+        - "RsOperationReceipt": design/api/storage/rs-operation-receipt.md
+        - "RsWishStatus": design/api/storage/rs-wish-status.md
+        - "RsWishProjection": design/api/storage/rs-wish-projection.md
+        - "RsStoreError": design/api/storage/rs-store-error.md
+        - "RsCheckoutReport": design/api/storage/rs-checkout-report.md
+        - "RsDoctorFindingKind": design/api/storage/rs-doctor-finding-kind.md
+        - "RsDoctorFinding": design/api/storage/rs-doctor-finding.md
+        - "RsDoctorReport": design/api/storage/rs-doctor-report.md
+        - "RsStore": design/api/storage/rs-store.md
+        - "RsStore::init": design/api/storage/rs-store-init.md
+        - "RsStore::open": design/api/storage/rs-store-open.md
+        - "RsStore::save": design/api/storage/rs-store-save.md
+        - "RsStore::save_bytes": design/api/storage/rs-store-save-bytes.md
+        - "RsStore::outcome": design/api/storage/rs-store-outcome.md
+        - "RsStore::list": design/api/storage/rs-store-list.md
+        - "RsStore::get": design/api/storage/rs-store-get.md
+        - "RsStore::history": design/api/storage/rs-store-history.md
+        - "RsStore::read_material": design/api/storage/rs-store-read-material.md
+        - "RsStore::checkout": design/api/storage/rs-store-checkout.md
+        - "RsStore::doctor": design/api/storage/rs-store-doctor.md
+        - "RsStore::pending_item_operations": design/api/storage/rs-store-pending-item-operations.md
   - "Interfaces":
     - "Interface control overview": interfaces/index.md
     - "Interface control document": interfaces/contracts.md
     - "Record format": interfaces/record-format.md
+    - "Store format": interfaces/store-format.md
     - "Documentation and SysML contract": interfaces/documentation-contract.md
   - "Verification design":
     - "Verification design": verification/index.md
@@ -124,6 +155,7 @@ nav:
       - "API layering restructure plan": records/plans/api-layering.md
       - "WishVerifyFlow implementation plan": records/plans/wish-verify.md
       - "Stage CLI implementation plan": records/plans/stage-cli.md
+      - "Storage redesign and implementation plan": records/plans/storage.md
     - "Reviews":
       - "Design review synthesis": records/reviews/initial-synthesis.md
       - "SimpleFlow review fixes and follow-up verification": records/reviews/simple-flow-fixes.md

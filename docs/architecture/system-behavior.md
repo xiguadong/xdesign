@@ -79,12 +79,11 @@ architecture decision or verified runtime result.
 
 ### 1.3 Physical and deployment view
 
-No physical node, process boundary, network, deployment artifact, or logical-to-physical
-allocation has been selected. Development commands run locally from the repository
-([T01](constraints.md#t01)); that fact is not a deployed product
-architecture. A deployment view would need execution nodes, the location of model and
-evidence storage, component allocation, protocols, operational capacity assumptions,
-and failure boundaries. There is no deployment figure or capacity claim to review yet.
+The selected storage boundary is local: one application process uses SQLite and
+content-addressed files beneath `.xdesign/` or `XDESIGN_STORE_ROOT`; working material is
+under `cache/`. [D86](../design/storage.md#d86) defines the write and failure boundaries.
+This is not a network service, production deployment, multi-user allocation, or capacity
+claim. Those concerns, execution-node diagrams, and operational service levels remain open.
 
 <a id="b16"></a>
 
@@ -98,10 +97,12 @@ one trace define logical cardinality. Evidence URIs refer to artifacts retained 
 current repository workflow; [E04](../design/evidence-and-revisions.md#e04)
 explains the record semantics.
 
-No production database, schema or keys beyond modeled identities, retention period,
-backup policy, migration method, or data-quality service has been chosen. The model is a
-logical data contract, not an ER design or proof of durable storage. Any physical data
-design must preserve visit history, assessment revision, and evidence references.
+`XDesignStorage` adds generic item identity/kind, immutable numbered revisions, complete
+URI-to-SHA-256 manifests, blobs, and operation receipts. The [store format](../interfaces/store-format.md#i11)
+owns physical keys and versions; [D86](../design/storage.md#d86) owns save, checkout and
+integrity behavior. Retention deletion, whole-store backup, migration from other stores,
+and remote data services remain outside this slice. The design must preserve visit history,
+assessment revision, and evidence references; compiler checks do not prove that behavior.
 
 <a id="b17"></a>
 
@@ -130,9 +131,9 @@ without a numerical selection score.
 | Solution-neutral function | Input → output | Modeled refinement |
 | --- | --- | --- |
 | Register a requested outcome | Description and selected flow → wish, trace, initial execution | `Controller::receiveWish` |
-| Preserve work and evidence | Current visit and artifact changes → activity, revision, assessment history | `Controller::recordActivity`, `StageRecord` |
+| Preserve work and evidence | Current visit and artifact changes → activity, revision, assessment history; exact save → stored revision and receipt | `Controller::recordActivity`, `StageRecord`, `ProjectStore`, `SaveOperation` |
 | Decide whether work may advance | Stage, current artifacts, checkpoint criteria → authorized next step or blocked visit | `Controller::progressWish`, `Checkpoint` |
-| Explain system and wish rationale | Reusable model and per-wish history → linked documentation and trace | `DocSection`, `DocFigure`, independent wish model |
+| Explain system and wish rationale | Reusable model and per-wish history → linked documentation and legacy/store trace | `DocSection`, `DocFigure`, `ItemRevision` |
 
 The [flow and controller descriptions](../design/flow.md#f01)
 give the native decomposition. The system does not yet model service performance or

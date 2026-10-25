@@ -469,3 +469,105 @@ acceptance remains pending.** This scope does not establish the default V-model,
 nested controller execution, durable multi-user storage, remote judge
 authentication, or final human acceptance. Completed CLI inspection returns the
 retained completion result without performing a new live-artifact assessment.
+
+<a id="v18"></a>
+
+## wish-0011 — durable operational storage
+
+Registered on 2026-10-24 at the requester's direction to redesign and implement storage
+through SimpleFlow. The bootstrap trace is `mbse/wishes/wish-0011.sysml`, assigned to
+`xdesign.designedSimpleFlow`. The first requirements gate passed, then design preparation
+changed its traceability input; that run was preserved and requirements restarted with the
+final input set. The replacement requirements gate passed at revision 1; the design gate
+then passed all seven rules at revision 1 with 98 recorded artifacts. The legacy development
+implementation gate passed at snapshot
+`8ba7013870191a987ce2d3c43c0d3562e8ea4fcf046b9e252b55d196f64b514f`, but later design
+inputs prevented advancement. That blocked run received no terminal assessment and is
+preserved with 20 digest-verified runtime files under
+`cache/evidence/wish-0011/runtime-before-final-0d217f6f/`.
+
+The proposal, earlier discussion, retired xstorage, and current ProjectStore were inputs,
+not approved design or execution evidence. The [storage implementation plan](../plans/storage.md#p35)
+selected a generic local item-and-revision store, content-addressed materials, atomic
+idempotent saves, verified checkout and recovery, and integration with both flat flows.
+
+Implementation and acceptance then executed. `wish-storage-simple` completed at store
+revision 5 and `wish-storage-verify` at revision 3, each from an external SysML wish source
+without a new Git trace. Their cache-loss recovery, exact replay, and 235-material and
+seven-material checkouts were verified; the completed SimpleFlow checkout independently
+passed all seven record rules. A separate two-process writer race committed revision 2
+through `race-a-append` and retained a conflict for `race-b-append`; doctor reports the
+expected losing-publication orphan. Twenty-six CLI format/input probes and the Rust suites
+cover format refusal, exact retry, fault recovery, deduplication, integrity findings, and
+NUL and truncated-format boundaries. The matrix and its limits are retained in
+`cache/evidence/wish-0011/storage-acceptance-summary.json`.
+
+The initial persistent technical run was `32a3c820-8e19-4ee8-aa60-e9974cb9dca2`,
+not either earlier legacy development run. It completed registration through verification at
+store revisions 1–5. Requirements passed two rules with three artifacts at
+`190c5b9dba4bbe383e4d05467c92a19ffd1d83ae05a945af4df3a15fc7e7e848`;
+design passed seven with 133 at
+`2d65e0742c58073fd4bef9926fc9c3fab9dadf0b0408b6cd0498b6813b1290ef`;
+implementation passed two with 42 at
+`131e104b843ab8a98bb2162d69815188afe32dc07058eb9c34b8c519bb75318a`;
+and verification passed seven record rules plus an agent judgment with 92 evidence artifacts
+at `28ae368cb7f280a9362018792e90f72ec39b8dad8a7ee4648ef4de8e36692337`.
+Its terminal operation was `wish-0011-final-verify-001`.
+
+That initial run's exact replay returned the same response without another revision. After
+runtime-cache removal it recovered the same completed head. Its revision-5 checkout verified
+277 material lengths and SHA-256 digests, and its own record checker passed all seven rules.
+The assessed matrix is `cache/evidence/wish-0011/verification-summary.json`; the subsequent
+completion record is `cache/evidence/wish-0011/final-acceptance-run.json`. Its preflight
+passed 85 Rust and 22 SimpleFlow Python tests, documentation and model checks, 58 renders,
+and nine primary figure checks. The 68-test renderer suite retained two pre-existing failures.
+
+A later full-render live replay **failed** `completed-visits-authorized` because
+`cli-timeline.svg` changed after that design gate. Comparison isolated ordering-only
+`source_relations` metadata: the same 36 relationships appeared in different orders because
+the renderer consumed a set without canonical ordering. The failed report is preserved in
+`cache/evidence/wish-0011/determinism-live-replay-failure.json`; it is not counted as a pass.
+The initial persistent store and its revision-5 head remain preserved in `.xdesign`.
+
+The correction in `tools/sysml_web/cli_views.py` sorts appended relationships by native ID.
+A new regression in `tools/sysml_web/tests/test_cli_views.py` checks deterministic metadata.
+Five focused tests passed, two complete 58-figure renders were byte-identical, and the changed
+figure received a renewed before/after visual review with no presentation change. Development
+run `3635d7c1-0466-434b-9bcf-92080edfd984` then passed all gates, recovered 330 materials,
+and passed checkout and live replays. Its initial store root was nevertheless under `cache/`,
+so it was demoted to development evidence rather than final authority and moved intact to
+`.xdesign-determinism`; `authority-root-review.json` records that boundary correction.
+
+The **final durable** run is `ebf368c0-7a0a-4715-9461-9aa07beabbd4` in `.xdesign-final`,
+store `a55e726d-dd17-4536-b4c9-62313a5dfcaa`, outside cache. The alternate roots were added
+to `.gitignore` before its design gate. Requirements passed two rules with three artifacts at
+`190c5b9dba4bbe383e4d05467c92a19ffd1d83ae05a945af4df3a15fc7e7e848`;
+design passed seven with 153 at
+`045993642c4dfb8f7b09efe91b2d7d09669f6eeb56a948ff22dffd0da0710f8c`;
+implementation passed two with 49 at
+`765436b138a2c19f155ecb2c7175d1586c8f30b0d09a65b6e6a98c13ab4ea107`;
+and verification passed seven record rules plus `kimi-authority-verification`'s explicit
+agent judgment with 192 evidence artifacts at
+`08d907364c03ff0f4316a6b88b3589479bc72bc6b7e5028fec837cfceaa34a93`.
+The terminal operation is `wish-0011-authority-verify-001`.
+
+Its exact replay returned the same response. After runtime-cache removal it recovered the
+same completed head. The revision-5 checkout verified 376 materials, and both checkout and
+live record replays passed all seven rules. Another full post-gate render produced zero
+changes across all 58 figures, and nine primary figure checks passed. Final, original, and
+development stores all reported no full-byte doctor findings. The final assessed matrix is
+`cache/evidence/wish-0011/authority-verification-summary.json`; the completion record is
+`cache/evidence/wish-0011/authority-final-acceptance-run.json`.
+
+Final preflight passed 85 Rust and 22 SimpleFlow Python checker tests, five focused CLI-view
+tests, documentation audit and strict build, and SysML parse/model-only/full checks with no
+violations, 129 held and 26 unevaluated rules. The 69-test renderer suite retains the two
+pre-existing failures (`5 != 6` requirements edges and `9 != 6` state guards); the failing
+source, tests, and affected figures remain unchanged from `HEAD`, and the suite is not green.
+
+The delivered projection and agent semantic pass are technical completion, **not final human
+acceptance**. Physical power-loss certification, whole-store backup/snapshot/baseline,
+deletion/GC, automatic migration, remote service, authentication, encryption, nested or
+arbitrary flows, model-claim audit, and Windows-specific guarantees remain outside this slice.
+The bootstrap SysML trace preserves the legacy development history and points to the final
+store item; the final store-backed run is not duplicated into a second Git trace.

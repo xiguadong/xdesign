@@ -1,8 +1,8 @@
 # xdesign API design
 
 > Project: xdesign | Status: the `xdesign::core` + `xdesign::simple_flow` +
-> `xdesign::wish_verify` slices are implemented; the generic project controller
-> remains at the SysML design level |
+> `xdesign::wish_verify` slices are implemented; `xdesign::storage` is designed
+> through wish-0011; the generic project controller remains at the SysML design level |
 > Audience: application integrators, module owners, and reviewers.
 > This directory is the authored class-and-function design of the `xdesign` crate: one
 > inventory and crate map on this page, then one design page per API under its layer
@@ -12,16 +12,13 @@
 
 ## What this directory owns
 
-The class-and-function level of the `xdesign` crate's software design, in three
-layers: [`core/`](core/index.md#u71), the flow-agnostic infrastructure —
-status vocabulary, plan, record, ports, gate evaluation, the run engine, and
-construction — [`simple_flow/`](simple-flow/index.md#u72), the designed
-four-stage flow: blueprint data, blueprint conformance, the designed-run factory,
-and the fixed-checker adapter — and
-[`wish_verify_flow/`](wish-verify/index.md#u73), the designed two-stage
-judged flow: blueprint data, blueprint conformance, the designed-run factory, and
-the unused-check stub. The crate's layer map is
-[01_struct.md](#u68).
+The class-and-function level of the `xdesign` crate's software design: [`core/`](core/index.md#u71),
+the flow-agnostic infrastructure; [`simple_flow/`](simple-flow/index.md#u72), the designed
+four-stage flow; [`wish_verify/`](wish-verify/index.md#u73), the designed two-stage judged
+flow; and [`storage/`](storage/index.md), the local item, revision, material, receipt, query,
+checkout, and recovery boundary. The flow layers depend on `core`; storage depends on core
+only for shared digest/path primitives, and `core` never depends on SQLite or storage. The
+crate's layer map is [U68](#u68).
 
 | Document | Question it answers |
 | --- | --- |
@@ -30,21 +27,24 @@ the unused-check stub. The crate's layer map is
 | [core design](core/index.md#u71) | What does the core layer own, and in which order should its groups be read? |
 | [simple-flow design](simple-flow/index.md#u72) | What does the four-stage flow layer own, and which core APIs does it build on? |
 | [wish-verify design](wish-verify/index.md#u73) | What does the two-stage judged flow layer own, and which core APIs does it build on? |
+| [storage design](storage/index.md) | How do items, revisions, materials and receipts provide durable recoverable operations? |
 
 This directory does not own system structure, module behavior contracts, or test
 evidence: those belong to the architecture design and the detailed design, which
 embed their own views. A module's UML design lives with that module — today those
-are the [SimpleFlow Rust UML design](../flows/simple-flow/implementation.md#d44)
-and the [wish-verify Rust UML design](../flows/wish-verify/implementation.md#d75).
+are the [SimpleFlow Rust UML design](../flows/simple-flow/implementation.md#d44),
+[wish-verify Rust UML design](../flows/wish-verify/implementation.md#d75), and
+[storage module design](../storage.md#d86).
 
 <a id="u65"></a>
 
 ## API boundary and reading order
 
-`xdesign` is the Rust package for this project. Its library entry point is
-`src/lib.rs`, which exposes the `core`, `simple_flow`, and `wish_verify` modules. The
-[crate inventory](#u14) below and the one-API-per-page reference under the three
-layer directories describe that implemented slice. `src/main.rs` exposes the [local stage CLI](../stage-cli.md#d85) for both built-in
+`xdesign` is the Rust package for this project. Its library entry point currently exposes
+`core`, `simple_flow`, and `wish_verify`; the storage module is designed to be added during
+wish-0011 implementation. The [crate inventory](#u14) and one-API-per-page reference distinguish the
+implemented flow slices from the storage design being delivered by wish-0011.
+`src/main.rs` exposes the [local stage CLI](../stage-cli.md#d85) for both built-in
 flat plans and retains the earlier demo commands. It is not the generic controller
 for every selectable flow.
 
@@ -61,15 +61,16 @@ sets the second slice's.
 
 ## Project responsibilities and software status
 
-The SysML `XDesign` composition owns the selected `flow`, controller, wishes, and
-traces. These are project-level responsibilities. The Rust crate beneath this
-directory implements one selected flow on a generic run engine; it does not
-replace that composition.
+The SysML `XDesign` composition owns the selected `flow`, controller, wishes, traces,
+and `ProjectStore`. These are project-level responsibilities. The Rust crate beneath this
+directory implements selected flow behavior on a generic run engine and the store behind
+a separate library boundary; it does not replace that composition.
 
 | Modeled responsibility | Rust location or intended boundary | Status |
 | --- | --- | --- |
 | `XDesign` composition and flow selection | xdesign application boundary | Modeled; no generic Rust API yet |
 | `Controller::receiveWish`, `recordActivity`, `progressWish` | xdesign controller API | Modeled; no generic Rust signatures or implementation yet |
+| `ProjectStore` and operational revisions/materials/receipts | `xdesign::storage`; stage adapter in `src/stage_cli/persistent.rs` | Implemented and exercised within the [storage acceptance boundary](../../records/plans/storage.md#p38); final human acceptance is separate |
 | `Trace` and `FlowExecution` for a wish | xdesign trace and run API | Modeled; `xdesign::core`'s run engine realizes `FlowExecution` with a local, specialized run record |
 | `designedSimpleFlow` construction, gate evaluation, and advancement | `xdesign::core` + `xdesign::simple_flow` | Implemented four-stage slice; [API inventory](#u14) |
 | Fixed checker commands | `tools/checks/simple_*.py` used by `xdesign::simple_flow` | Implemented for that slice |
@@ -112,7 +113,8 @@ and the [wish-verify plan](../../records/plans/wish-verify.md#p28)
 for executed results and remaining delivery limits. Each layer's overview gives
 its module-to-file map: [core](core/index.md#u71),
 [simple_flow](simple-flow/index.md#u72),
-[wish_verify_flow](wish-verify/index.md#u73).
+[wish_verify](wish-verify/index.md#u73), and [storage](storage/index.md). The storage
+[implementation plan](../../records/plans/storage.md#p35) owns its delivery evidence.
 
 Reading order for a newcomer: the inventory below top to bottom, then the pages of
 `create_run`, `RsFlowRun`, `evaluate_gates`, `advance`, and the flow layers'
@@ -229,6 +231,42 @@ path.
 | `create_wish_verify_run` | `fn create_wish_verify_run(plan, wish_model_uri, run_record_uri, judgment) -> Result<RsFlowRun, RsPlanError>` | Check blueprint conformance, then construct through `create_run` with the unused-check stub | [wish_verify_flow/03](wish-verify/create-wish-verify-run.md#u76) |
 | `RsUnusedCheck` | struct, implements `RsCheckCommand` | Never-invoked check stub: every call returns a command-failed error | [wish_verify_flow/04](wish-verify/rs-unused-check.md#u77) |
 
+### Storage — records and errors (designed through wish-0011)
+
+| API | Kind | One-liner | Page |
+| --- | --- | --- | --- |
+| `RsSaveRequest` | struct | Exact operation, expected head, metadata, complete manifest and result | [storage/RsSaveRequest](storage/rs-save-request.md#u80) |
+| `RsSaveMaterial` | struct | URI, role, digest and optional project-relative source | [storage/RsSaveMaterial](storage/rs-save-material.md#u85) |
+| `RsMaterial` | struct | Committed URI, role, digest and exact byte length | [storage/RsMaterial](storage/rs-material.md#u86) |
+| `RsItemRevision` | struct | Immutable complete revision and derived projection | [storage/RsItemRevision](storage/rs-item-revision.md#u87) |
+| `RsItemSummary` | struct | Current-head list projection | [storage/RsItemSummary](storage/rs-item-summary.md#u88) |
+| `RsOperationOutcome` | enum | Pending, committed or conflict | [storage/RsOperationOutcome](storage/rs-operation-outcome.md#u89) |
+| `RsOperationReceipt` | struct | Exact request digest, outcome, optional revision and result | [storage/RsOperationReceipt](storage/rs-operation-receipt.md#u90) |
+| `RsWishStatus` | enum | Derived received/active/blocked/delivered output | [storage/RsWishStatus](storage/rs-wish-status.md#u91) |
+| `RsWishProjection` | struct | Flow, registry/run, status and current-stage projection | [storage/RsWishProjection](storage/rs-wish-projection.md#u92) |
+| `RsStoreError` | enum | Typed invalid/format/not-found/mismatch/integrity/path/I/O/database/uncertainty failures | [storage/RsStoreError](storage/rs-store-error.md#u93) |
+| `RsCheckoutReport` | struct | Exact checkout item, revision, destination and count | [storage/RsCheckoutReport](storage/rs-checkout-report.md#u94) |
+| `RsDoctorFindingKind` | enum | Orphan, pending, missing, altered, staging, record, format, identity or permission finding | [storage/RsDoctorFindingKind](storage/rs-doctor-finding-kind.md#u95) |
+| `RsDoctorFinding` | struct | One integrity finding and subject | [storage/RsDoctorFinding](storage/rs-doctor-finding.md#u96) |
+| `RsDoctorReport` | struct | Completed read-only inspection and all findings | [storage/RsDoctorReport](storage/rs-doctor-report.md#u97) |
+
+### Storage — lifecycle and operations (designed through wish-0011)
+
+| API | Signature | One-liner | Page |
+| --- | --- | --- | --- |
+| `RsStore` | struct | Own safe root, SQLite handle and root/database identities | [storage/RsStore](storage/rs-store.md#u81) |
+| `RsStore::init` | `fn init(root: &Path) -> Result<Self, RsStoreError>` | Initialize or reopen only a compatible store without adopting foreign content | [storage/RsStore::init](storage/rs-store-init.md#u98) |
+| `RsStore::open` | `fn open(root: &Path) -> Result<Self, RsStoreError>` | Open and validate an existing version-1 store without creation or repair | [storage/RsStore::open](storage/rs-store-open.md#u99) |
+| `RsStore::save` | `fn save(&self, project_root: &Path, request: &RsSaveRequest) -> Result<RsOperationReceipt, RsStoreError>` | Deterministically encode and atomically save one typed request | [storage/RsStore::save](storage/rs-store-save.md#u82) |
+| `RsStore::save_bytes` | `fn save_bytes(&self, project_root: &Path, raw: &[u8]) -> Result<RsOperationReceipt, RsStoreError>` | Save or resume an exact raw request | [storage/RsStore::save_bytes](storage/rs-store-save-bytes.md#u100) |
+| `RsStore::outcome` | `fn outcome(&self, operation_id: &str) -> Result<RsOperationReceipt, RsStoreError>` | Return the actual pending or terminal receipt | [storage/RsStore::outcome](storage/rs-store-outcome.md#u83) |
+| `RsStore::list` | `fn list(&self, kind: Option<&str>, status: Option<&str>) -> Result<Vec<RsItemSummary>, RsStoreError>` | List current heads by kind and derived wish status | [storage/RsStore::list](storage/rs-store-list.md#u101) |
+| `RsStore::get` | `fn get(&self, item_id: &str, revision: Option<u64>) -> Result<RsItemRevision, RsStoreError>` | Return one complete selected revision | [storage/RsStore::get](storage/rs-store-get.md#u102) |
+| `RsStore::history` | `fn history(&self, item_id: &str) -> Result<Vec<RsItemRevision>, RsStoreError>` | Return every revision in ascending order | [storage/RsStore::history](storage/rs-store-history.md#u103) |
+| `RsStore::read_material` | `fn read_material(&self, item_id: &str, revision: Option<u64>, uri: &str) -> Result<Vec<u8>, RsStoreError>` | Return manifest bytes only after full length/digest verification | [storage/RsStore::read_material](storage/rs-store-read-material.md#u104) |
+| `RsStore::checkout` | `fn checkout(&self, item_id: &str, revision: Option<u64>, destination: &Path) -> Result<RsCheckoutReport, RsStoreError>` | Verify and materialize a complete revision without replacement | [storage/RsStore::checkout](storage/rs-store-checkout.md#u84) |
+| `RsStore::doctor` | `fn doctor(&self, verify_bytes: bool) -> Result<RsDoctorReport, RsStoreError>` | Report record, identity, pending, orphan and byte-integrity findings without repair | [storage/RsStore::doctor](storage/rs-store-doctor.md#u105) |
+
 <a id="u15"></a>
 
 ## Conventions
@@ -246,9 +284,9 @@ path.
 - **Signature fidelity.** Pages give full Rust signatures including `Result` error
   channels and trait bounds; `GateError` is reserved for "no conclusion possible" —
   a rule that does not hold is data (`RsRuleReport`), never an error.
-- **Status.** The crate's implemented slice has executable behavior tests. This
-  does not establish the default V-model, durable evidence retention, or acceptance
-  of any developed system; those obligations remain in the project plan.
+- **Status.** The crate's implemented flow slices have executable behavior tests;
+  storage behavior requires wish-0011's STORE cases. This does not establish the default
+  V-model, whole-store backup/migration, or acceptance of any developed system.
 
 <a id="u47"></a>
 
@@ -339,46 +377,38 @@ signature, contracts, and stepwise logic; section identifiers stayed stable acro
 the layer split; and links resolve to existing sections. The documentation review
 checklist is [V12](../../verification/review-criteria.md#v12).
 
-> Project: xdesign | Status: implemented slice in three layers | Audience:
-> application integrators, module owners, and reviewers.
+> Project: xdesign | Status: three implemented flow/core layers plus storage design |
+> Audience: application integrators, module owners, and reviewers.
 
 <a id="u68"></a>
 
 ## Crate structure
 
-The `xdesign` crate is divided into three layers, and dependencies point one way:
-`simple_flow` and `wish_verify` may depend on `core`, never the reverse, and the two
-flow layers do not depend on each other. `core` owns the
-flow-agnostic infrastructure — status vocabulary, plan data and structural
-validation, records, the check-command and judge trait boundaries, gate
-evaluation, the run engine, and generic construction. `simple_flow` owns the
-designed four-stage flow built on it: the blueprint as data, blueprint
-conformance, the designed-run factory, and the fixed-checker adapter.
-`wish_verify` owns the designed two-stage judged flow: the blueprint as data,
-blueprint conformance, the designed-run factory, and the unused-check stub — it
-declares no checker adapter because both its gates are semantic. A further
-designed flow becomes another sibling flow layer, building on `core` the
-same way.
+Dependencies point toward `core`: `simple_flow`, `wish_verify`, and `storage` may use its
+shared data and digest/path primitives, never the reverse. The flow layers do not depend on
+each other. `core` owns flow-agnostic plans, records, gates, and run behavior. The two flow
+layers own their blueprints, conformance, and factories. `storage` owns SQLite, blobs,
+revisions, receipts, queries, checkout, and recovery; `src/stage_cli/` adapts it to runs
+without moving persistence into the engine. A further designed flow remains a sibling layer.
 
 ![Crate layers](assets/crate-layers.svg)
 
 > **Figure U68-1 — Crate layers.**
 > **Question:** How is the xdesign crate divided into layers, and which direction may dependencies point?
 > **Model view:** `XDesignRustUml::rustCrateLayers` (GeneralView projection).
-> **Companions:** the module-level layout and class views in [D45–D46](../flows/simple-flow/implementation.md#d45) and [D76–D77](../flows/wish-verify/implementation.md#d76).
-> **Status:** renderable-now.
-> **Reading:** The crate contains `core`, `simpleFlow`, and `wishVerify`; each flow layer depends on `core`; `core` depends on nothing outside itself.
-> **Limits:** The figure shows layer and module dependencies, not individual types; class-level relations stay in the module design.
+> **Companions:** the module-level layout and class views in [D45–D46](../flows/simple-flow/implementation.md#d45), [D76–D77](../flows/wish-verify/implementation.md#d76), and [storage design](../storage.md#d86).
+> **Status:** renderable-now; module projection, not runtime proof.
+> **Reading:** The crate contains `core`, `simpleFlow`, `wishVerify`, and `storage`; dependencies point toward core, which has no SQLite or storage dependency.
+> **Limits:** The figure shows layer and module dependencies, not individual types or verified storage behavior.
 
 | Layer | API directory | Source module | Group overview |
 | --- | --- | --- | --- |
 | `core` | [core/](core/index.md#u71) | `src/core/` | [core design](core/index.md#u71) |
 | `simple_flow` | [simple_flow/](simple-flow/index.md#u72) | `src/simple_flow/` | [simple-flow design](simple-flow/index.md#u72) |
 | `wish_verify` | [wish_verify/](wish-verify/index.md#u73) | `src/wish_verify/` | [wish-verify design](wish-verify/index.md#u73) |
+| `storage` | [storage/](storage/index.md) | `src/storage/` | [storage design](storage/index.md) |
 
 The `core` and `simple_flow` source modules landed with step 3 of the
-[restructure plan](../../records/plans/api-layering.md#p22);
-`src/wish_verify/` lands with the
-[wish-verify implementation plan](../../records/plans/wish-verify.md#p27).
-The model's `XDesignRustUml::crate` packages and this directory layout are the
-contract they move to.
+[restructure plan](../../records/plans/api-layering.md#p22); `src/wish_verify/` followed its
+flow plan. `src/storage/` is planned by the [storage plan](../../records/plans/storage.md#p35).
+The model's `XDesignRustUml::crate` packages and this directory layout are the contract.

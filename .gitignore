@@ -1,6 +1,11 @@
 # Temporary data, local development environments, and temporary files
 /cache/
 
+# Durable local operational records and alternate acceptance stores; not engineering source
+/.xdesign/
+/.xdesign-determinism/
+/.xdesign-final/
+
 # Operating system files
 .DS_Store
 ._*
@@ -20,6 +25,7 @@ Desktop.ini
 !.env.template
 
 # Common dependency directories and tool caches
+/target/
 node_modules/
 .venv/
 venv/

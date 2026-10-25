@@ -1,10 +1,11 @@
 # xdesign
 
-xdesign is a SysML v2 engineering tool: a project model explains the system, and an
-independent trace for each wish explains why its requirements, design, implementation, and
-verification followed. The implemented slices are the gated four-stage SimpleFlow and the
-gated two-stage wish-verify flow, now exposed through the local `init`, `next`, and
-`check` CLI; the generic controller and full V-model remain open.
+xdesign is a SysML v2 engineering tool: a project model explains the system, and each
+wish's operational trace explains why its requirements, design, implementation, and
+verification followed. New runs use the local store; legacy and bootstrap runs retain
+independent SysML traces. The gated four-stage SimpleFlow and two-stage wish-verify flow
+are exposed through `init`, `next`, and `check`; the generic controller and full V-model
+remain open.
 
 Start with [docs/README.md](docs/README.md) for project composition, usage, and the
 package, timeline, and swimlane diagrams together on one page. Use the
@@ -89,24 +90,25 @@ repository root: they use this repository's models and checker scripts.
 
 ### Initialize a wish and perform its stages
 
-Prepare an independent wish model at `mbse/wishes/WISH_ID.sysml`, then replace
-`WISH_ID` in the examples with its ID. See the [wish model conventions](mbse/AGENTS.md)
-for its structure. `init` registers an existing model; it does not create or rewrite
-that model. IDs use ASCII letters, digits, hyphens, and underscores.
+Prepare a SysML wish source at `mbse/wishes/WISH_ID.sysml`, or pass another source with
+`--wish FILE`. New runs import it into `.xdesign/` and use the regenerable working copy at
+`cache/wishes/WISH_ID.sysml`; they do not require a new Git wish trace. Legacy/bootstrap
+runs keep their existing SysML authority. IDs use ASCII letters, digits, hyphens, and
+underscores.
 
 Initialize once, then repeat the same two commands at each stage:
 
 ```bash
-xdesign init WISH_ID --flow simple-flow
+xdesign init WISH_ID --flow simple-flow [--wish FILE]
 xdesign next WISH_ID
 # Perform the work described by the returned stage.
 xdesign check WISH_ID
 ```
 
 - `next` returns JSON with the current goal, instructions, inputs, expected outputs,
-  and exit checkpoints. It leaves the run unchanged.
-- `check` collects outputs, records their revisions, evaluates the current gates,
-  and returns correction work, the next stage, or completion.
+  and exit checkpoints. It leaves the stored run unchanged.
+- `check` collects outputs, records their revisions, evaluates the current gates, commits
+  the stage revision, and returns correction work, the next stage, or completion.
 - On a blocked result, address the returned correction reasons and check again.
   Stop when `completed` is `true` and `work` is `null`.
 
@@ -126,19 +128,21 @@ artifact snapshot digest.
 ```bash
 xdesign next WISH_ID
 # Review the current work and evidence; prepare cache/stage-result.json.
-xdesign check WISH_ID --result cache/stage-result.json
+xdesign check WISH_ID --result cache/stage-result.json --operation-id OP_ID
 ```
 
 Use the latest work response when preparing the result. New evidence files must
 be included in the complete snapshot covered by the judgment. Missing judgment
 leaves a semantic gate unevaluated; stale results are refused. The contract also
-explains how to record new evidence before supplying its judgment.
+explains how to record new evidence before supplying its judgment. Reuse the operation
+ID for exact retry after an uncertain response and inspect it with `xdesign store
+outcome OP_ID`; do not retry an uncertain save under a fresh identity.
 
-State and checker reports are stored in `cache/xdesign/WISH_ID/`. After restarting
-the terminal, restore the environment and run `xdesign next WISH_ID` to resume;
-`init` refuses to overwrite an existing run. Preserve that directory and its
-referenced evidence while the run is needed. Completed calls return the recorded
-completion without reopening the flow or recording final human acceptance.
+Durable revisions, evidence materials, and receipts live under `.xdesign/` by default;
+`XDESIGN_STORE_ROOT` overrides that location. Runtime files under `cache/` are regenerable.
+Use `xdesign store list`, `get`, `history`, `checkout`, and `doctor` to inspect them.
+Completed calls return the recorded completion without reopening the flow or recording
+final human acceptance.
 
 | Exit code | Meaning |
 | --- | --- |

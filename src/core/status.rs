@@ -78,6 +78,8 @@ pub enum RsPlanError {
 pub enum RsGateError {
     CheckerMissing,
     CommandFailed,
+    /// The checker subprocess exceeded its deadline and was killed.
+    CheckerTimeout,
     JudgmentRefused,
     JudgeNotPermitted,
     MissingEvidence,

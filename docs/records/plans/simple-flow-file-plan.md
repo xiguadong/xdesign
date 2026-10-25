@@ -31,15 +31,18 @@ flow and command set ([A10](../../index.md#a10)).
 | xdesign entry | `Cargo.toml`, `src/lib.rs`, `src/main.rs`, `src/main_wish_tests.rs` | Build and expose the application library; provide a local command entry point and its wish-validation cases. |
 | Core module | `src/core/mod.rs`, `src/core/status.rs`, `src/core/plan.rs`, `src/core/record.rs`, `src/core/ports.rs`, `src/core/gate.rs`, `src/core/run.rs`, `src/core/factory.rs` | Implement the flow-agnostic layer selected by the Rust UML design: vocabulary, plan data and structural validation, records, ports, gate evaluation, the run engine, and generic run construction. |
 | SimpleFlow module | `src/simple_flow/mod.rs`, `src/simple_flow/blueprint.rs`, `src/simple_flow/factory.rs`, `src/simple_flow/check.rs` | Implement the designed four-stage flow on the core layer: the blueprint plan data and conformance, the designed-run factory, and the fixed-checker adapter. |
+| Stage persistence | `src/core/restore.rs`, `src/stage_cli/mod.rs`, `src/stage_cli/store.rs`, `src/stage_cli/work.rs`, `src/stage_cli/persistent.rs` | Restore validated runs, collect work, and adapt new stage registrations and checks to stored-head revisions while preserving legacy runs. |
+| Operational storage | `src/storage/mod.rs`, `src/storage/db.rs`, `src/storage/blobs.rs`, `src/storage/ops.rs`, `src/storage/cli.rs` | Implement SQLite format and queries, content-addressed materials, atomic idempotent revisions, recovery, doctor, and the store command surface. |
 | Fixed gates | `tools/checks/common.py`, `tools/checks/simple_requirements.py`, `tools/checks/simple_design.py`, `tools/checks/simple_implementation.py`, `tools/checks/simple_record.py` | Share a JSON report contract and report the 2, 7, 2, and 7 fixed rules in [D06](../../design/flows/simple-flow/definition.md#d06). |
-| Executable cases | `tests/simple_flow.rs`, `tests/plan_model_sync.rs`, `tests/process_check_contract.rs`, `tests/test_simple_flow_checkers.py`, `tests/test_simple_flow_design_layout.py` | Exercise run behavior, model-plan agreement, process report validation, and checker results, including negative cases. |
+| Executable cases | `tests/simple_flow.rs`, `tests/plan_model_sync.rs`, `tests/process_check_contract.rs`, `tests/run_restore.rs`, `tests/stage_cli.rs`, `tests/storage.rs`, `tests/storage_cli.rs`, `tests/test_simple_flow_checkers.py`, `tests/test_simple_flow_design_layout.py` | Exercise run behavior, model-plan agreement, process and stage interaction, storage faults/recovery, and checker results, including negative cases. |
 
 The file-plan audit compares in both directions: every declared path must exist, and
 every source or test file in `src/`, `tests/`, and `tools/checks/` that belongs to this
-slice must have one declaration. The 26 original entries above cover the original source plane. The
-[stage CLI plan](stage-cli.md) adds `src/core/restore.rs`, the three files under
-`src/stage_cli/`, `tests/run_restore.rs`, and `tests/stage_cli.rs`; their six entries
-are retained in the same model file-plan inventory.
+slice must have one declaration. The original entries cover the first source plane. The
+[stage CLI plan](stage-cli.md) added restoration and the initial stage adapter; the
+[storage plan](storage.md#p35) adds the persistent adapter, storage module and two storage
+test files to the same model inventory. Planned paths become implementation evidence only
+when the files and their executed cases exist.
 
 The existing project model in `mbse/model/` defines stages, gates, records, views, and
 planned verification. The existing documentation in `docs/` explains their contracts;
@@ -47,16 +50,16 @@ the compiler at `tools/sysml_web/bin/sysml`, `tools/check_documentation.py`, and
 `tools/render_docs.py` check or render them. These are inputs and supporting tools for
 the file plan, not replacements for its source files. Reports, previews, dependency
 caches, and local development environments belong under ignored `cache/` as the root
-`AGENTS.md` requires. Durable product evidence needs a separate retention design
-([E04](../../design/evidence-and-revisions.md#e04)); a cache path by itself is not one.
+`AGENTS.md` requires. [D86](../../design/storage.md#d86) allocates durable product evidence
+to store revisions and content-addressed materials; a cache path by itself is not durable.
 
 <a id="d55"></a>
 
 ## Evidence and limits
 
 Retain each executed case's inputs, output report, source revision, and verdict under
-`cache/` while developing. A final delivery needs evidence locations that survive the
-cache lifecycle. The bundled compiler checks syntax, name resolution, and its supported
+`cache/` while developing; new store-backed runs also archive the required bytes in their
+revisions. The bundled compiler checks syntax, name resolution, and its supported
 model rules; it does not evaluate the 26 currently unevaluated constraint bodies or run
 these cases ([T04](../../architecture/constraints.md#t04)). The fixed gates check declared structure,
 record integrity, and artifact presence. Engineering adequacy remains a semantic

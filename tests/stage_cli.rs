@@ -72,6 +72,7 @@ impl Project {
     fn call(&self, args: &[&str]) -> Output {
         Command::new(env!("CARGO_BIN_EXE_xdesign"))
             .current_dir(&self.root)
+            .env_remove("XDESIGN_STORE_ROOT")
             .args(args)
             .output()
             .unwrap()
@@ -103,8 +104,40 @@ impl Project {
         assert!(output.stdout.is_empty());
         String::from_utf8(output.stderr).unwrap()
     }
+    fn legacy_init(&self, flow: &str) -> Value {
+        self.json(&["init", "wish-test", "--flow", flow], 0);
+        let legacy_wish = "mbse/wishes/wish-test.sysml";
+        let working_wish = "cache/wishes/wish-test.sysml";
+        let work_uri = "cache/xdesign/wish-test/work.json";
+        let mut work: Value =
+            serde_json::from_slice(&fs::read(self.root.join(work_uri)).unwrap()).unwrap();
+        for stage in work["stages"].as_array_mut().unwrap() {
+            for path in stage["frozen_paths"].as_array_mut().unwrap() {
+                if path == working_wish {
+                    *path = json!(legacy_wish);
+                }
+            }
+        }
+        let work_bytes = serde_json::to_vec_pretty(&work).unwrap();
+        self.write(work_uri, &work_bytes);
+        let run_uri = "cache/xdesign/wish-test/run.json";
+        let mut run: Value =
+            serde_json::from_slice(&fs::read(self.root.join(run_uri)).unwrap()).unwrap();
+        run["wish_model_uri"] = json!(legacy_wish);
+        self.write(run_uri, &serde_json::to_vec_pretty(&run).unwrap());
+        let registry_uri = "cache/xdesign/wish-test/registry.json";
+        let mut registry: Value =
+            serde_json::from_slice(&fs::read(self.root.join(registry_uri)).unwrap()).unwrap();
+        registry["wish_model_uri"] = json!(legacy_wish);
+        registry["work_sha256"] = json!(sha256_bytes(&work_bytes));
+        self.write(registry_uri, &serde_json::to_vec_pretty(&registry).unwrap());
+        fs::remove_dir_all(self.root.join(".xdesign")).unwrap();
+        fs::remove_dir_all(self.root.join("cache/xdesign/wish-test/responses")).unwrap();
+        fs::remove_file(self.root.join(working_wish)).unwrap();
+        self.next()
+    }
     fn init(&self) -> Value {
-        self.json(&["init", "wish-test", "--flow", "wish-verify"], 0)
+        self.legacy_init("wish-verify")
     }
     fn next(&self) -> Value {
         self.json(&["next", "wish-test"], 0)
@@ -405,7 +438,7 @@ fn frozen_file_drift_corrupt_records_and_busy_writers_do_not_get_repaired() {
 #[test]
 fn real_simple_flow_requirements_checker_retains_immutable_input() {
     let project = Project::simple(false);
-    let initial = project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    let initial = project.legacy_init("simple-flow");
     assert_eq!(initial["work"]["stage_id"], "requirements");
     assert_eq!(
         initial["work"]["candidate_artifacts"]
@@ -443,7 +476,7 @@ fn real_simple_flow_requirements_checker_retains_immutable_input() {
 #[test]
 fn simple_flow_discovers_and_removes_sources_then_runs_both_terminal_gates() {
     let project = Project::simple(true);
-    project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    project.legacy_init("simple-flow");
     project.json(&["check", "wish-test"], 0);
     let implementation = project.json(&["check", "wish-test"], 0);
     assert_eq!(implementation["work"]["stage_id"], "implement");
@@ -495,7 +528,7 @@ fn simultaneous_check_processes_cannot_overwrite_each_other() {
     let script = fs::read_to_string(project.root.join(script_uri)).unwrap();
     let instrumented = script.replace("if __name__ == \"__main__\":", "if __name__ == \"__main__\":\n    import sys, time\n    from common import ROOT\n    if '--list-inputs' not in sys.argv:\n        (ROOT / 'cache' / 'checker-entered').write_text('ready')\n        while not (ROOT / 'cache' / 'checker-release').exists():\n            time.sleep(0.01)");
     project.write(script_uri, instrumented.as_bytes());
-    project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    project.legacy_init("simple-flow");
     let mut first = Command::new(env!("CARGO_BIN_EXE_xdesign"))
         .current_dir(&project.root)
         .args(["check", "wish-test"])

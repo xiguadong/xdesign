@@ -822,6 +822,12 @@ package XDesignDetailedDesign {
             item stageCli : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/mod.rs"; attribute redefines responsibility = "Top-level stage command dispatch and interaction"; }
             item stageCliWork : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/work.rs"; attribute redefines responsibility = "Frozen stage work definitions and artifact collection"; }
             item stageCliStore : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/store.rs"; attribute redefines responsibility = "Wish registry, locks and state integrity"; }
+            item stageCliPersistent : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/stage_cli/persistent.rs"; attribute redefines responsibility = "Stored-head stage adapter and atomic revision commits"; }
+            item storageModule : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/mod.rs"; attribute redefines responsibility = "Public storage records, errors and Store API"; }
+            item storageDb : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/db.rs"; attribute redefines responsibility = "SQLite format, schema and consistent queries"; }
+            item storageBlobs : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/blobs.rs"; attribute redefines responsibility = "Content-addressed publication, verified reads and checkout"; }
+            item storageOps : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/ops.rs"; attribute redefines responsibility = "Strict saves, operation receipts, recovery and doctor"; }
+            item storageCli : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/storage/cli.rs"; attribute redefines responsibility = "Versioned store command envelope and exit codes"; }
             item restoreRun : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/restore.rs"; attribute redefines responsibility = "Validated read-only run restoration"; }
             item manifest : SimpleFlowFileEntry { attribute redefines repositoryPath = "Cargo.toml"; attribute redefines responsibility = "Rust crate manifest"; }
             item crateLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/lib.rs"; attribute redefines responsibility = "xdesign application module boundary"; }
@@ -849,6 +855,9 @@ package XDesignDetailedDesign {
         }
         item testCases {
             item stageCliTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/stage_cli.rs"; attribute redefines responsibility = "CLI process, restart and failure integration cases"; }
+            item storageTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage.rs"; attribute redefines responsibility = "Storage schema, materials, idempotency, conflict and crash recovery cases"; }
+            item storageCliTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/storage_cli.rs"; attribute redefines responsibility = "Store command, query, checkout and cache-loss process cases"; }
+            item checkerTimeoutTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/checker_timeout.rs"; attribute redefines responsibility = "Checker subprocess deadline kill and output collection cases"; }
             item restoreTests : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/run_restore.rs"; attribute redefines responsibility = "Run restoration corruption and history cases"; }
             item runCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/simple_flow.rs"; attribute redefines responsibility = "Plan, authorization, recovery and reopen cases"; }
             item modelPlanCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/plan_model_sync.rs"; attribute redefines responsibility = "Frozen rule and model declaration agreement"; }

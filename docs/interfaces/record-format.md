@@ -24,8 +24,11 @@
 | `CheckpointAssessment` | One preserved evaluation of one checkpoint for one revision: `outcome`, `judgedBy`, `assessor`, `rationale`, `evidenceUris` |
 
 `Trace` and its records are the working record of one wish. Definitions stay in
-`mbse/model/`; a wish file declares only usages of them
-([A02](../architecture/index.md#a02)).
+`mbse/model/`. A legacy/bootstrap wish SysML file declares usages of them; a store-backed
+run retains their instance data in the revisioned run record instead. The wish source itself
+is an imported SysML material with a regenerable working copy, not a second Git authority
+([A02](../architecture/index.md#a02), [store format](store-format.md#i11)).
 `FlowStatus` has the literals `pending`, `active`, `blocked`, and `completed` for
-the execution as a whole. It is separate from the wish's `WishStatus` and each visit's
-`StageStatus`.
+the execution as a whole. It is separate from each visit's `StageStatus`. Legacy traces
+retain an explicit `WishStatus`; store queries project wish status from `assignedFlow`,
+`current_visit`, and the run's status rather than storing another editable flag.

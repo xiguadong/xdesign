@@ -52,3 +52,24 @@ the required work content.
 Registration and final human acceptance are outside this repeated interaction.
 The cases require no separate public record, assessment, or advancement command;
 compiler checks of their declarations do not execute them.
+
+<a id="d87"></a>
+
+## 2. Storage verification cases
+
+`XDesignVerification::StorageVerification` covers the seven storage requirements. The
+following cases are designed verification obligations, not executed results. The
+[storage plan](../records/plans/storage.md#p39) owns observed commands and outcomes.
+
+| Case | Input or operation | Expected result |
+| --- | --- | --- |
+| STORE-01 Format lifecycle | Initialize and reopen a store; then present missing, foreign, truncated and newer-version databases. | Same-format reopen is idempotent; incompatible state is refused without adoption, migration or input-byte changes. |
+| STORE-02 Revision queries | Create a generic item and append revisions with distinct metadata/materials; call list/get/history/read. | Numbered immutable revisions and complete manifests are returned exactly, including a selected earlier revision. |
+| STORE-03 Material identity and paths | Publish duplicate bytes, altered bytes, and unsafe path/source forms. | Identical bytes deduplicate; all reads match length and SHA-256; unsafe or mismatched input is rejected before a row becomes authoritative. |
+| STORE-04 Exact-operation retry | Commit a request, reopen the store, repeat the same operation ID and bytes, then reuse the ID with different bytes. | The committed receipt is identical and no second revision appears; changed request bytes produce `operation_mismatch`. |
+| STORE-05 Atomic guarded save | Start two writers at one expected head and exercise a complete stage check. | One expected-head save commits and the other receives a durable conflict; the stage's run, reports, artifacts, evidence and receipt become visible together. |
+| STORE-06 Crash reconciliation | Inject failure after reservation, after blob publication, before commit, and after commit before response. | `outcome` distinguishes pending from committed; exact retry resumes or returns the original receipt without double effects or rows lacking blobs. |
+| STORE-07 Integrity diagnosis | Remove or alter referenced bytes, add an orphan and pending operation, and call doctor/read/checkout. | Findings identify each defect; digest mismatches and missing bytes cannot be returned as trusted content. |
+| STORE-08 Flow integration and projection | Register SimpleFlow and WishVerifyFlow runs from wish sources outside `mbse/wishes/`, then query active, blocked and completed states. | Both flows persist through the store without new Git traces; flow/current-stage/status projections match the run record and selected flow. |
+| STORE-09 Cache-loss and replay | Delete generated runtime cache, call `next`, checkout a complete revision, verify all manifest digests, and invoke `simple_record.py` on the materialization. | Stored-head work/completion is recovered, every manifest byte is restored exactly, and the existing record checker passes the restored snapshot. |
+| STORE-10 Regression closure | Run applicable Rust, Python, compiler, figure and documentation suites. | All changed-artifact checks pass; existing failures and unevaluated rules are reported with evidence rather than omitted or relabeled. |

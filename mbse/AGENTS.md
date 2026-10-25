@@ -4,7 +4,7 @@ This file defines the model layout under `mbse/`. The repository's root `AGENTS.
 
 ## Model File Structure
 
-Store this project's MBSE model under `mbse/`. Definitions live in `mbse/model/`, and each wish's independent traceability model lives in `mbse/wishes/`:
+Store this project's MBSE model under `mbse/`. Definitions live in `mbse/model/`. Legacy and bootstrap wish traces live in `mbse/wishes/`; new store-backed runs keep their operational trace in `.xdesign/` instead of adding a Git wish model:
 
 ```text
 model/
@@ -12,17 +12,18 @@ model/
 ├── requirements.sysml    → All requirements; nested packages may organize them.
 ├── architecture.sysml    → All architecture: logical, physical, and decisions.
 ├── detailedDesign.sysml  → All detailed design.
-├── uml.sysml             → Software (UML) designs of designed flows, including
-│                           the xdesign crate with its SimpleFlow and wishVerify
-│                           modules.
+├── uml.sysml             → Software (UML) designs of designed flows and storage,
+│                           including the xdesign crate's SimpleFlow, wishVerify
+│                           and storage modules.
 ├── composition.sysml     → The xdesign instance and its selectable flow portfolio.
 ├── verification.sysml    → All verification cases.
+├── storage.sysml         → Operational store records, save, query and recovery.
 └── traceability.sysml    → All traceability relationships in the project model.
 
 wishes/
-└── wish-0001.sysml       → One wish: its Wish, Trace, stage records, activities,
-                            assessments, journey and views. Only local journey
-                            rendering definitions are allowed here.
+└── wish-0001.sysml       → One legacy/bootstrap wish: its Wish, Trace, stage records,
+                            activities, assessments, journey and views. Only local
+                            journey rendering definitions are allowed here.
 ```
 
 ## Model Organization
@@ -36,9 +37,9 @@ wishes/
 - Write requirements into `requirements.sysml`, each carrying its `rationale`, outwards from what the tool must do and why. The wish that asked for a requirement belongs to that wish's own record; a requirement never names one.
 - Retain the products of a wish — the requirements it produces and the model modifications it causes — in `mbse/model/`. A wish's record may describe them, but it must never hold the only copy.
 - Keep the dependency one way. No model element carries a wish's identity, and no file under `mbse/model/` references `mbse/wishes/`; a wish references model elements instead. Record a wish's derivation as a `dependency` from the wish to the requirements it produced. `check mbse/model` on its own must pass, which is how this stays true.
-- Maintain an independent SysML traceability model for each wish, as required by the root `AGENTS.md`. These models reference relevant project model elements.
-- Record each wish in `mbse/wishes/wish-<id>.sysml` as its own package. Declare usages and values there, referencing the product and workflow definitions in `mbse/model/` instead of restating them. A local `occurrence def` may bind lifelines for a wish journey view; it must not define a project product.
-- A wish model records the run: one `StageRecord` per visited stage with its `visitIndex` and `artifactRevision`, the `ActivityRecord`s of that visit, and the `CheckpointAssessment`s with their evidence URIs. An assessment's `evaluatedRevision` must equal the recorded `artifactRevision` it judged, and a stage already marked completed must stay authorized, so record new evidence as a further assessment rather than editing a passed one.
+- Maintain an independent SysML traceability model for each legacy or bootstrap wish. Store-backed runs instead retain their operational trace, revision manifests, and evidence in `.xdesign/`; do not create a second Git trace for those runs.
+- Record each legacy/bootstrap wish in `mbse/wishes/wish-<id>.sysml` as its own package. Declare usages and values there, referencing the product and workflow definitions in `mbse/model/` instead of restating them. A local `occurrence def` may bind lifelines for a wish journey view; it must not define a project product. A store-backed wish source is a material with a regenerable `cache/wishes/` working copy, not a new Git trace.
+- A legacy/bootstrap wish model records the run: one `StageRecord` per visited stage with its `visitIndex` and `artifactRevision`, the `ActivityRecord`s of that visit, and the `CheckpointAssessment`s with their evidence URIs. Store-backed runs retain the same facts in their run records and immutable revisions. An assessment's `evaluatedRevision` must equal the recorded `artifactRevision` it judged, and a stage already marked completed must stay authorized, so record new evidence as a further assessment rather than editing a passed one.
 - A historical illustrative trace with missing evidence, such as wish-0001, cannot establish acceptance even if its retained status says `delivered`. Identify its missing evidence in the trace and review record. New passed assessments must name retained, re-openable evidence.
 - Present a wish as a journey by binding `ref part` lifelines to the real participants (`xdesign.controller`, `xdesign.<selectedFlow>.<stage>`) and anchoring `message` usages on their `entering`/`entered`, `assessing`/`assessed` and `delivered` event occurrences.
 - Use English for all model names, descriptions, and comments.

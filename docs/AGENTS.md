@@ -26,7 +26,8 @@ named, identified, linked, and verified. It is a rules file, not a published pag
 - File names are lowercase kebab-case and semantic. Do not use numeric prefixes or
   underscores. `index.md` is only for a genuine class or layer landing page.
 - API design keeps one page per API under `design/api/core/`, `design/api/simple-flow/`,
-  or `design/api/wish-verify/`. Each page retains its existing `U` anchor and states the
+  `design/api/wish-verify/`, or `design/api/storage/`. Each page retains its existing
+  or newly allocated globally unique `U` anchor and states the
   design contract, model realization or declared language-side rationale, and implementation
   projection pointer.
 

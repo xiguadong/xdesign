@@ -62,4 +62,12 @@ package XDesignTraceability {
        documents carry — which the documentation review judges. */
     satisfy stageCliUsesUniformInteraction by XDesignWorkflow::StageCli;
     satisfy stageCliPreservesRunIntegrity by XDesignWorkflow::LocalStageCliRuntime;
+
+    satisfy operationalRecordsHaveDurableAuthority by XDesignStorage::ProjectStore;
+    satisfy wishHistoryIsRevisioned by XDesignStorage::ItemRevision;
+    satisfy materialsAreContentAddressed by XDesignStorage::Material;
+    satisfy storageSaveIsAtomicAndIdempotent by XDesignStorage::SaveOperation;
+    satisfy workingCacheIsRecoverable by XDesignStorage::CheckoutOperation;
+    satisfy wishStatusProjectsFlowExecution by XDesignStorage::WishProjection;
+    satisfy storageInputAndIntegrityAreChecked by XDesignStorage::DoctorOperation;
 }

@@ -271,7 +271,7 @@ package XDesignWorkflow {
 
         part redefines traces : Trace [0..*] {
             doc /* Per-wish execution state, activity history and references to
-               independent traceability models. */
+               legacy independent SysML traces or store-backed operational revisions. */
         }
 
         part requester : WishRequester;
@@ -386,33 +386,37 @@ package XDesignWorkflow {
 
     part def LocalStageCliRuntime :> StageCli {
         @XDesignCommon::DocSection { document = "docs/design/stage-cli.md"; section = "D85"; }
-        doc /* Local flat-flow realization of StageCli. Explicit init registers an
-           existing independent wish model and freezes the selected built-in plan
-           and companion work definitions under cache/xdesign/WISH_ID. Each next
-           or check restores and validates its run. next creates no files. check
-           holds an exclusive per-wish lock, rejects stale result envelopes before
-           mutation, records only actual digest changes, assesses and advances with
-           the existing core engine, and returns the assessed visit separately from
-           successor work. The local registry binds plan and work hashes; the result
-           token binds registry, plan, work and current record bytes. A supplied
-           semantic judgment additionally binds the collected artifact snapshot.
-           Unsupported or uninitialized nested flows are rejected. This is not a
-           database, identity authentication, or final human acceptance service. */
-        attribute storageRoot : String = "cache/xdesign";
+        doc /* Local flat-flow realization of StageCli. New registrations import a
+           wish source into XDesignStorage and materialize its working copy under
+           cache/wishes. Frozen plans, work definitions, run records and checker
+           exchanges are working copies of stored revision materials. Readers use
+           immutable stored heads; check holds a per-wish writer lock, rejects stale
+           envelopes, records, assesses and advances through the existing core engine,
+           then commits the complete stage revision and operation receipt together.
+           Failed gates retain blocked facts. Legacy runs registered before this
+           boundary remain on the cache backend and are not implicitly migrated.
+           Unsupported nested flows, identity authentication and final human
+           acceptance remain outside this local runtime. */
+        attribute storageRoot : String = ".xdesign";
+        attribute workingRoot : String = "cache";
         attribute schemaVersion : Integer = 1;
         attribute supportedFlows : String [2] = ("simple-flow", "wish-verify");
         perform action initialize {
-            doc /* Require an existing wish model, select a supported flow,
-               create a new state directory exclusively, freeze plan and work,
-               create initial visits and publish registration last. Refuse an
-               existing registration; never overwrite an earlier run. */
+            doc /* Import an existing SysML wish source, defaulting to the legacy
+               mbse/wishes path or accepting --wish FILE. Create the store item and
+               initial revision exclusively, freeze plan and work, materialize the
+               wish working source, and publish registration last. */
         }
         perform action restore {
-            doc /* Read and validate record identity, plan and work digests,
-               visit shape, replayed activity revisions and assessment authority.
-               Restore reads no live artifact bytes as an authorization decision:
-               next can expose work after edits, and check rehashes the workspace.
-               Only structurally authorized completed records can report completion. */
+            doc /* Read the selected stored head and validate record identity, plan
+               and work digests, replayed activity revisions, assessment authority
+               and completed-stage authorization. Regenerate missing cache copies
+               without overwriting uncommitted workspace edits. */
+        }
+        perform action saveRevision {
+            doc /* Commit the registry, plan, work, run, wish source, checker input
+               and report copies, current artifacts, evidence and response as one
+               expected-head operation after the engine has produced the stage result. */
         }
     }
 }

@@ -219,4 +219,23 @@ package XDesignVerification {
             verify requirement integrity :> XDesignRequirements::stageCliPreservesRunIntegrity;
         }
     }
+
+    verification def StorageVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D87"; }
+        doc /* Planned storage verification, not an executed result. Exercise format
+           refusal, generic revision queries, content integrity, exact-operation retry,
+           competing writers, injected crash boundaries, doctor findings, both flat
+           flows, flow-derived status, cache-loss recovery and checkout/replay.
+           STORE-01 through STORE-10 in the storage plan name the observable cases. */
+        subject store : XDesignStorage::ProjectStore;
+        objective storageBehavior {
+            verify requirement authority :> XDesignRequirements::operationalRecordsHaveDurableAuthority;
+            verify requirement revisions :> XDesignRequirements::wishHistoryIsRevisioned;
+            verify requirement materials :> XDesignRequirements::materialsAreContentAddressed;
+            verify requirement atomicSave :> XDesignRequirements::storageSaveIsAtomicAndIdempotent;
+            verify requirement cacheRecovery :> XDesignRequirements::workingCacheIsRecoverable;
+            verify requirement statusProjection :> XDesignRequirements::wishStatusProjectsFlowExecution;
+            verify requirement integrity :> XDesignRequirements::storageInputAndIntegrityAreChecked;
+        }
+    }
 }

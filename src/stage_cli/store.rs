@@ -9,7 +9,7 @@ use xdesign::core::{sha256_bytes, valid_digest, RsFlowPlan};
 use xdesign::simple_flow::{designed_simple_flow_plan, validate_designed_plan};
 use xdesign::wish_verify::{validate_wish_verify_plan, wish_verify_flow_plan};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct Registry {
     pub schema_version: u32,
@@ -24,11 +24,29 @@ pub struct Registry {
     pub run_record_uri: String,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub enum Backend {
+    Legacy,
+    Persistent,
+}
+
+#[derive(Clone)]
+pub struct StoredMaterial {
+    pub uri: String,
+    pub role: String,
+    pub sha256: String,
+}
+
+#[derive(Clone)]
 pub struct Stored {
     pub registry: Registry,
     pub plan: RsFlowPlan,
     pub work: WorkDefinition,
     pub token: String,
+    pub restore_record_uri: String,
+    pub backend: Backend,
+    pub store_revision: Option<u64>,
+    pub materials: Vec<StoredMaterial>,
 }
 
 pub fn wish_id(id: &str) -> Result<(), String> {
@@ -140,7 +158,44 @@ pub fn write_new(uri: &str, bytes: &[u8]) -> Result<(), String> {
         .create_new(true)
         .open(uri)
         .map_err(|e| format!("cannot create {uri}: {e}"))?;
-    file.write_all(bytes).map_err(|e| e.to_string())
+    file.write_all(bytes).map_err(|e| format!("cannot write {uri}: {e}"))
+}
+
+/// Atomically replace a state file with new bytes: write a sibling temporary,
+/// sync it, rename over the target, then sync the parent directory.
+pub fn replace_state(uri: &str, bytes: &[u8]) -> Result<(), String> {
+    state_path(uri)?;
+    let temporary = format!("{uri}.{}.tmp", uuid::Uuid::new_v4());
+    if let Some(parent) = Path::new(uri).parent().filter(|path| !path.as_os_str().is_empty()) {
+        fs::create_dir_all(parent).map_err(|e| format!("cannot create parent for {uri}: {e}"))?;
+    }
+    {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&temporary)
+            .map_err(|e| format!("cannot create {temporary}: {e}"))?;
+        file.write_all(bytes)
+            .and_then(|_| file.sync_all())
+            .map_err(|e| format!("cannot write {temporary}: {e}"))?;
+    }
+    fs::rename(&temporary, uri).map_err(|e| format!("cannot replace {uri}: {e}"))?;
+    if let Some(parent) = Path::new(uri).parent().filter(|path| !path.as_os_str().is_empty()) {
+        if let Ok(directory) = fs::File::open(parent) {
+            let _ = directory.sync_all();
+        }
+    }
+    Ok(())
+}
+
+/// Remove a state file if present; absent targets are not an error.
+pub fn remove_state(uri: &str) -> Result<(), String> {
+    state_path(uri)?;
+    match fs::remove_file(uri) {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(error) => Err(format!("cannot remove {uri}: {error}")),
+    }
 }
 
 pub fn blueprint(flow: &str) -> Result<RsFlowPlan, String> {
@@ -151,8 +206,55 @@ pub fn blueprint(flow: &str) -> Result<RsFlowPlan, String> {
     }
 }
 
-pub fn load(id: &str) -> Result<Stored, String> {
+pub fn state_token(parts: &[&[u8]]) -> String {
+    let mut identity = Vec::new();
+    for bytes in parts {
+        identity.extend_from_slice(&(bytes.len() as u64).to_be_bytes());
+        identity.extend_from_slice(bytes);
+    }
+    sha256_bytes(&identity)
+}
+
+pub fn parse_plan(registry: &Registry, plan_bytes: &[u8]) -> Result<RsFlowPlan, String> {
+    if sha256_bytes(plan_bytes) != registry.plan_sha256 {
+        return Err("frozen plan definition changed".into());
+    }
+    let mut plan = blueprint(&registry.flow_id)?;
+    plan.plan_uri = registry.plan_uri.clone();
+    plan.plan_sha256 = registry.plan_sha256.clone();
+    plan.validate()
+        .map_err(|error| format!("invalid frozen plan: {error:?}"))?;
+    match registry.flow_id.as_str() {
+        "simple-flow" => validate_designed_plan(&plan),
+        _ => validate_wish_verify_plan(&plan),
+    }
+    .map_err(|error| format!("invalid builtin plan: {error:?}"))?;
+    Ok(plan)
+}
+
+pub fn is_persistent(id: &str) -> Result<bool, String> {
     wish_id(id)?;
+    super::persistent::item_exists(id)
+}
+
+pub fn load(id: &str) -> Result<Stored, String> {
+    load_with_mode(id, super::persistent::LoadMode::Reader)
+}
+
+pub fn load_for_writer(id: &str) -> Result<Stored, String> {
+    load_with_mode(id, super::persistent::LoadMode::Writer)
+}
+
+fn load_with_mode(id: &str, mode: super::persistent::LoadMode) -> Result<Stored, String> {
+    wish_id(id)?;
+    if is_persistent(id)? {
+        super::persistent::load(id, mode)
+    } else {
+        load_legacy(id)
+    }
+}
+
+fn load_legacy(id: &str) -> Result<Stored, String> {
     let dir = directory(id);
     let registry_uri = format!("{dir}/registry.json");
     state_path(&registry_uri)?;
@@ -187,29 +289,20 @@ pub fn load(id: &str) -> Result<Stored, String> {
     {
         return Err("frozen plan or work definition changed".into());
     }
-    let mut plan = blueprint(&registry.flow_id)?;
-    plan.plan_uri = registry.plan_uri.clone();
-    plan.plan_sha256 = registry.plan_sha256.clone();
-    plan.validate()
-        .map_err(|error| format!("invalid frozen plan: {error:?}"))?;
-    match registry.flow_id.as_str() {
-        "simple-flow" => validate_designed_plan(&plan),
-        _ => validate_wish_verify_plan(&plan),
-    }
-    .map_err(|error| format!("invalid builtin plan: {error:?}"))?;
+    let plan = parse_plan(&registry, &plan_bytes)?;
     let work: WorkDefinition =
         serde_json::from_slice(&work_bytes).map_err(|e| format!("invalid work definition: {e}"))?;
     work.validate(&registry.flow_id, &plan, &registry.wish_model_uri)?;
-    let mut identity = Vec::new();
-    for bytes in [&registry_bytes, &plan_bytes, &work_bytes, &run_bytes] {
-        identity.extend_from_slice(&(bytes.len() as u64).to_be_bytes());
-        identity.extend_from_slice(bytes);
-    }
+    let token = state_token(&[&registry_bytes, &plan_bytes, &work_bytes, &run_bytes]);
     Ok(Stored {
+        restore_record_uri: registry.run_record_uri.clone(),
         registry,
         plan,
         work,
-        token: sha256_bytes(&identity),
+        token,
+        backend: Backend::Legacy,
+        store_revision: None,
+        materials: vec![],
     })
 }
 
