@@ -23,8 +23,8 @@ package, timeline, and swimlane diagrams together on one page.
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
 | How the design is verified and accepted | [verification/index.md](verification/index.md) |
-| What currently runs, what is open, and what evidence exists | `xdesign store get record-status`; frozen 2026-10-25 summary in [records/status.md](records/status.md) |
-| Plans, reviews, executions, and wish history | `xdesign store list --kind record` for maintained records; frozen history in [records/index.md](records/index.md) |
+| What currently runs, what is open, and what evidence exists | `python3 tools/records.py show record-status`; frozen 2026-10-25 summary in [records/status.md](records/status.md) |
+| Plans, reviews, executions, and wish history | `python3 tools/records.py list` for maintained records; frozen history in [records/index.md](records/index.md) |
 | How to name, anchor, cite, and figure a document | [AGENTS.md](AGENTS.md) |
 
 <a id="a08"></a>
@@ -32,7 +32,8 @@ package, timeline, and swimlane diagrams together on one page.
 ## Reading paths
 
 Start with this page, then follow the class page for the task. Use the linked section
-when a rule matters, and use the store `record-status` item when capability or open work
+when a rule matters, and use the store `record-status` item
+(`python3 tools/records.py show record-status`) when capability or open work
 matters; the frozen 2026-10-25 page remains as historical evidence. Page order is not the
 document set.
 
@@ -60,8 +61,10 @@ The selectable flows and their gates are described in [flow execution](design/fl
 their designs are in [SimpleFlow](design/flows/simple-flow/index.md) and
 [WishVerifyFlow](design/flows/wish-verify/index.md). Maintained plans, reviews,
 executions, status, and wish-history updates are `record` items in the local `.xdesign`
-store (conventions in the [storage design](design/storage.md#d86)); [records](records/index.md)
-is their frozen historical archive, and this entry does not repeat either one's status.
+store (conventions in the [storage design](design/storage.md#d86));
+`python3 tools/records.py list` and `show <item>` read them compactly;
+[records](records/index.md) is their frozen historical archive, and this entry does not
+repeat either one's status.
 
 <a id="a11"></a>
 
@@ -86,8 +89,9 @@ interfaces and meaning of those annotations are defined in
 
 ## Status and evidence
 
-Current capability status is maintained once in the store `record-status` item; the
-frozen [records/status.md](records/status.md) is the 2026-10-25 historical snapshot.
+Current capability status is maintained once in the store `record-status` item
+(`python3 tools/records.py show record-status`); the frozen
+[records/status.md](records/status.md) is the 2026-10-25 historical snapshot.
 Historical outcomes, plans, and reviews are the frozen `records/` archive and keep their
 original dates and evidence; a document's presence does not freeze a baseline or establish
 an engineering acceptance.

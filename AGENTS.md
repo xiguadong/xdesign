@@ -27,9 +27,9 @@ Read docs/index.md for the document map. Use the matching route and read the own
 | An API design contract or source behavior | docs/design/api/index.md and the per-API page, then the owning flow implementation | cargo tests; docs audit when docs change |
 | A SysML model or model-derived figure | mbse/AGENTS.md, docs/interfaces/documentation-contract.md, docs/architecture/constraints.md | sysml parse/check; render and verify figures |
 | Documentation structure or prose | docs/AGENTS.md, docs/index.md, and the owning page | docs audit; strict docs build |
-| Plans, reviews, executions, or wish history | docs/records/index.md for the frozen archive; maintained records through `xdesign store list --kind record` and `xdesign store get <item>` (conventions in docs/design/storage.md#d86) | do not rewrite historical results; never edit docs/records; link the store record revision |
+| Plans, reviews, executions, or wish history | `python3 tools/records.py list` and `show <item>`; frozen archive at docs/records/index.md (conventions in docs/design/storage.md#d86) | do not rewrite historical results; never edit docs/records; link the store record revision |
 
-The executed slices' plans and execution records are frozen historical evidence in docs/records/plans and docs/records/executions. Maintained records for those slices are `record` items in the local `.xdesign` store: read the head with `xdesign store get <item>` and its archived Markdown with the store's `read` or `checkout`. Current design claims live in the design pages and current requirements/verification pages. The frozen Git tree remains the historical acceptance evidence; the store is the operational record, not a second Git authority.
+The executed slices' plans and execution records are frozen historical evidence in docs/records/plans and docs/records/executions. Maintained records for those slices are `record` items in the local `.xdesign` store: read a compact head with `python3 tools/records.py show <item>` and archived Markdown through the store's `read` or `checkout`. Current design claims live in the design pages and current requirements/verification pages. The frozen Git tree remains the historical acceptance evidence; the store is the operational record, not a second Git authority.
 
 ## Directory Conventions
 

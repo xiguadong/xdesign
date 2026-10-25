@@ -420,14 +420,23 @@ compact `result` object:
 ```
 
 Each change appends an immutable revision with a fresh operation ID and the current head as
-`expected_revision`. `get` returns the head revision's compact result and manifest without
-material bytes; `read` or `checkout` returns archived bytes; `history` lists revisions.
-Records are read with the ordinary store CLI:
+`expected_revision`. `get` returns the head revision's class, metadata, and operation ID
+without material bytes; `outcome` on that operation returns the compact result body; `read`
+or `checkout` returns archived bytes; `history` lists revisions. The small reader prints the
+structured part directly:
+
+```sh
+python3 tools/records.py list
+python3 tools/records.py show record-status
+python3 tools/records.py show record-plan-storage --revision 1
+```
+
+The underlying store commands remain available for archived bytes and raw envelopes:
 
 ```sh
 xdesign store list --kind record
 xdesign store get record-plan-storage
-xdesign store history record-status
+xdesign store outcome archive-record-plan-storage
 xdesign store read record-plan-storage --uri docs/records/plans/storage.md --output FILE
 ```
 
