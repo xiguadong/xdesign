@@ -1,6 +1,6 @@
 use super::{
     valid_digest, valid_relative_path, RsActivityEntry, RsArtifactDigest, RsCheckCommand,
-    RsCheckKind, RsCheckpointOutcome, RsFlowPlan, RsFlowRun, RsFlowStatus, RsJudge,
+    RsCheckKind, RsCheckpointOutcome, RsCustomRunner, RsFlowPlan, RsFlowRun, RsFlowStatus, RsJudge,
     RsJudgeAuthority, RsStageStatus, RsStageVisit,
 };
 use serde::Deserialize;
@@ -119,13 +119,25 @@ fn validate_history(visit: &RsStageVisit, plan: &RsFlowPlan) -> Result<(), Strin
         }
         match gate.kind {
             RsCheckKind::Syntactic => {
-                if assessment.judged_by != RsJudgeAuthority::Script
-                    || gate
+                // The deterministic checker records script authority named by
+                // its checker id. A CLI-bound gate additionally records agent
+                // authority named `<cli>:<model>`; nothing else may authorize
+                // a syntactic exit.
+                let script_authority = assessment.judged_by == RsJudgeAuthority::Script
+                    && gate
                         .checker
                         .as_ref()
-                        .is_none_or(|c| c.checker_id != assessment.assessor)
-                    || evidence.len() != 1
-                {
+                        .is_some_and(|c| c.checker_id == assessment.assessor);
+                let agent_authority = match gate.checker.as_ref().and_then(|c| c.custom.as_ref()) {
+                    Some(custom) if custom.runner == RsCustomRunner::Cli => {
+                        let cli = custom.cli.as_deref().unwrap_or_default();
+                        let model = custom.model.as_deref().unwrap_or_default();
+                        assessment.judged_by == RsJudgeAuthority::Agent
+                            && assessment.assessor == format!("{cli}:{model}")
+                    }
+                    _ => false,
+                };
+                if !(script_authority || agent_authority) || evidence.len() != 1 {
                     return Err(
                         "syntactic assessment has invalid checker authority or evidence".into(),
                     );

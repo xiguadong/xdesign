@@ -14,13 +14,12 @@ use xdesign::core::{
     create_run, sha256_bytes, valid_digest, RsActivityEntry, RsAdvanceOutcome, RsFlowRun,
     RsFlowStatus,
 };
-use xdesign::simple_flow::validate_designed_plan;
+use xdesign::simple_flow::{apply_check_bindings, RsCheckBindingConfig};
 use xdesign::storage::cli;
 use xdesign::storage::{
     RsItemRevision, RsMaterial, RsOperationOutcome, RsOperationReceipt, RsSaveMaterial,
     RsSaveRequest, RsStore, RsStoreError,
 };
-use xdesign::wish_verify::validate_wish_verify_plan;
 
 pub fn store_root() -> PathBuf {
     env::var_os("XDESIGN_STORE_ROOT")
@@ -238,17 +237,6 @@ fn read_named(store: &RsStore, head: &RsItemRevision, uri: &str) -> Result<Vec<u
     read_material(store, &head.item_id, head.revision, material(head, uri)?)
 }
 
-fn persistent_plan(registry: &Registry, bytes: &[u8]) -> Result<xdesign::core::RsFlowPlan, String> {
-    let plan = store::parse_plan(registry, bytes)?;
-    match registry.flow_id.as_str() {
-        "simple-flow" => validate_designed_plan(&plan),
-        "wish-verify" => validate_wish_verify_plan(&plan),
-        _ => return Err("unsupported stored flow".into()),
-    }
-    .map_err(|error| format!("invalid stored builtin plan: {error:?}"))?;
-    Ok(plan)
-}
-
 pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
     let store = open()?;
     let head = store.get(id, None).map_err(error)?;
@@ -287,7 +275,7 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
     materialize(&registry.plan_uri, &plan_bytes, Existing::Verify)?;
     materialize(&registry.work_uri, &work_bytes, Existing::Verify)?;
     materialize(&registry.wish_model_uri, &wish_bytes, Existing::Preserve)?;
-    let plan = persistent_plan(&registry, &plan_bytes)?;
+    let plan = store::parse_plan(&registry, &plan_bytes)?;
     let work: WorkDefinition = serde_json::from_slice(&work_bytes)
         .map_err(|error| format!("invalid stored work definition: {error}"))?;
     work.validate(&registry.flow_id, &plan, &registry.wish_model_uri)?;
@@ -718,11 +706,23 @@ fn finish_save(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i3
     }
 }
 
-pub fn init(id: &str, flow: &str, wish: Option<&str>) -> Result<Value, String> {
+pub fn init(
+    id: &str,
+    flow: &str,
+    wish: Option<&str>,
+    checks: Option<&str>,
+) -> Result<Value, String> {
     store::wish_id(id)?;
     let mut plan = store::blueprint(flow)?;
     if item_exists(id)? {
         return Err(format!("wish {id} is already initialized"));
+    }
+    if let Some(checks_uri) = checks {
+        let bytes = store::read_file(checks_uri)?;
+        let config: RsCheckBindingConfig = serde_json::from_slice(&bytes)
+            .map_err(|error| format!("invalid check binding JSON: {error}"))?;
+        apply_check_bindings(&mut plan, &config)
+            .map_err(|error| format!("invalid check bindings: {error}"))?;
     }
     let source = wish
         .map(str::to_owned)

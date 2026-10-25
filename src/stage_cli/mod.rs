@@ -17,20 +17,25 @@ use xdesign::core::{
 };
 use xdesign::simple_flow::RsProcessCheck;
 
-pub const HELP: &str = "Usage: xdesign init WISH_ID --flow simple-flow|wish-verify [--wish FILE]
+pub const HELP: &str =
+    "Usage: xdesign init WISH_ID --flow simple-flow|wish-verify [--wish FILE] [--checks FILE]
        xdesign next WISH_ID
        xdesign check WISH_ID [--result FILE] [--operation-id ID]
        xdesign store COMMAND [OPTIONS]
+       xdesign web [--host HOST] [--port PORT] [--open]
        xdesign --help
 
 Run from the project root. init imports mbse/wishes/WISH_ID.sysml by default.
-next returns current work without changing the stored head. check records outputs,
-evaluates the stage's gates and returns correction work, successor work or completion.
-Semantic gates require a snapshot-bound judgment in the optional result JSON;
-see docs/design/stage-cli.md for the exchange schema. New runs use .xdesign/ and
-materialize operational state in cache/. Existing cache-backed runs stay legacy.
-Exit codes: 0 work/completed, 1 blocked check, 2 invalid request or command error.
-Legacy commands: xdesign simple-flow demo ...; xdesign wish-verify demo ...";
+--checks FILE binds SimpleFlow checkpoints to the default deterministic checker, an
+agent CLI (codex or kimi with a model), or a project command script; the binding is
+frozen into the run plan. next returns current work without changing the stored head.
+check records outputs, evaluates the stage's gates and returns correction work,
+successor work or completion. Semantic gates require a snapshot-bound judgment in
+the optional result JSON; see docs/design/stage-cli.md for the exchange schema.
+New runs use .xdesign/ and materialize operational state in cache/. Existing
+cache-backed runs stay legacy. web serves the embedded operator web UI; loopback
+by default. Exit codes: 0 work/completed, 1 blocked check, 2 invalid request or
+command error. Legacy commands: xdesign simple-flow demo ...; xdesign wish-verify demo ...";
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -235,8 +240,8 @@ fn observe(id: &str) -> Result<(Stored, RsFlowRun, Value), String> {
     Err("run changed during inspection; retry next".into())
 }
 
-fn init(id: &str, flow: &str, wish: Option<&str>) -> Result<Value, String> {
-    persistent::init(id, flow, wish)
+fn init(id: &str, flow: &str, wish: Option<&str>, checks: Option<&str>) -> Result<Value, String> {
+    persistent::init(id, flow, wish, checks)
 }
 
 fn read_result_bytes(uri: Option<&str>) -> Result<Vec<u8>, String> {
@@ -463,8 +468,15 @@ pub fn dispatch(args: &[String]) -> Result<(Value, i32), String> {
         .collect::<Vec<_>>()
         .as_slice()
     {
-        ["init", id, "--flow", flow] => Ok((init(id, flow, None)?, 0)),
-        ["init", id, "--flow", flow, "--wish", uri] => Ok((init(id, flow, Some(uri))?, 0)),
+        ["init", id, "--flow", flow] => Ok((init(id, flow, None, None)?, 0)),
+        ["init", id, "--flow", flow, "--wish", uri] => Ok((init(id, flow, Some(uri), None)?, 0)),
+        ["init", id, "--flow", flow, "--checks", uri] => Ok((init(id, flow, None, Some(uri))?, 0)),
+        ["init", id, "--flow", flow, "--wish", wish, "--checks", checks] => {
+            Ok((init(id, flow, Some(wish), Some(checks))?, 0))
+        }
+        ["init", id, "--flow", flow, "--checks", checks, "--wish", wish] => {
+            Ok((init(id, flow, Some(wish), Some(checks))?, 0))
+        }
         ["next", id] => Ok((observe(id)?.2, 0)),
         ["check", id] => check(id, None, None),
         ["check", id, "--result", uri] => check(id, Some(uri), None),

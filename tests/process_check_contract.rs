@@ -262,3 +262,168 @@ with open(report_uri, 'w', encoding='utf-8') as destination:
             .holds
     );
 }
+
+#[test]
+fn command_binding_runs_the_bound_project_script_with_the_raw_report_contract() {
+    let dir = fixture_dir();
+    let wish = format!("{dir}/wish.sysml");
+    fs::write(&wish, "package Wish {}\n").unwrap();
+    let custom = format!("{dir}/custom_requirements.py");
+    fs::write(
+        &custom,
+        "import subprocess\nimport sys\nraise SystemExit(subprocess.call([sys.executable, 'tools/checks/simple_requirements.py', *sys.argv[1:]]))\n",
+    )
+    .unwrap();
+    let mut plan = designed_simple_flow_plan();
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![RsCheckBinding {
+            checkpoint_id: "simpleRequirementsAccepted".into(),
+            mode: RsCheckBindingMode::Command,
+            cli: None,
+            model: None,
+            command_uri: Some(custom.clone()),
+        }],
+    };
+    apply_check_bindings(&mut plan, &config).unwrap();
+    plan.freeze(format!("{dir}/plan.json")).unwrap();
+    let mut run = create_designed_run(
+        plan,
+        wish.clone(),
+        format!("{dir}/run.json"),
+        Box::new(RsProcessCheck {
+            report_directory: format!("{dir}/reports"),
+        }),
+        Box::new(RsSuppliedJudge {
+            authority: RsJudgeAuthority::Human,
+            identity: "test reviewer".into(),
+            outcome: RsCheckpointOutcome::Passed,
+            rationale: "Reviewed test evidence".into(),
+        }),
+    )
+    .unwrap();
+    let artifacts = [
+        "mbse/model/requirements.sysml",
+        "mbse/model/traceability.sysml",
+    ];
+    run.record_activity(RsActivityEntry {
+        description: "Record requirements inputs".into(),
+        performed_by: "test".into(),
+        occurred_at: "2026-10-20T00:00:00Z".into(),
+        artifact_uris: artifacts.iter().map(|s| (*s).into()).collect(),
+        artifacts_changed: true,
+        artifact_digests: artifacts
+            .iter()
+            .map(|uri| hash_artifact(uri).unwrap())
+            .collect(),
+        removed_artifact_uris: vec![],
+    })
+    .unwrap();
+    let checker = run.plan().checkpoints[0].checker.as_ref().unwrap();
+    assert_eq!(checker.command_uri, custom);
+    assert_eq!(
+        checker.custom,
+        Some(RsCustomChecker {
+            runner: RsCustomRunner::Process,
+            cli: None,
+            model: None,
+        })
+    );
+    let report = invoke_requirements(&run, &wish, &dir, checker).unwrap();
+    assert!(report.holds);
+    assert_eq!(report.rules.len(), 2);
+    let raw: serde_json::Value =
+        serde_json::from_slice(&fs::read(&report.report_uri).unwrap()).unwrap();
+    assert_eq!(raw["checker_id"], "simpleRequirementsCheck");
+    assert_eq!(raw["overall_verdict"], "passed");
+}
+
+fn prepared_requirements_for_plan(dir: &str, mut plan: RsFlowPlan) -> (RsFlowRun, String) {
+    let wish = format!("{dir}/wish.sysml");
+    fs::write(&wish, "package Wish {}\n").unwrap();
+    plan.freeze(format!("{dir}/plan.json")).unwrap();
+    let mut run = create_designed_run(
+        plan,
+        wish.clone(),
+        format!("{dir}/run.json"),
+        Box::new(RsProcessCheck {
+            report_directory: format!("{dir}/reports"),
+        }),
+        Box::new(RsSuppliedJudge {
+            authority: RsJudgeAuthority::Human,
+            identity: "test reviewer".into(),
+            outcome: RsCheckpointOutcome::Passed,
+            rationale: "Reviewed test evidence".into(),
+        }),
+    )
+    .unwrap();
+    let artifacts = [
+        "mbse/model/requirements.sysml",
+        "mbse/model/traceability.sysml",
+    ];
+    run.record_activity(RsActivityEntry {
+        description: "Record requirements inputs".into(),
+        performed_by: "test".into(),
+        occurred_at: "2026-10-20T00:00:00Z".into(),
+        artifact_uris: artifacts.iter().map(|s| (*s).into()).collect(),
+        artifacts_changed: true,
+        artifact_digests: artifacts
+            .iter()
+            .map(|uri| hash_artifact(uri).unwrap())
+            .collect(),
+        removed_artifact_uris: vec![],
+    })
+    .unwrap();
+    (run, wish)
+}
+
+#[cfg(unix)]
+#[test]
+fn kimi_cli_binding_uses_the_override_program_and_its_argument_shape() {
+    use std::os::unix::fs::PermissionsExt;
+    let dir = fixture_dir();
+    let stub = format!("{dir}/kimi-stub.py");
+    fs::write(
+        &stub,
+        format!(
+            "#!/usr/bin/env python3\nimport json\nimport sys\nwith open('{dir}/kimi-argv.json', 'w', encoding='utf-8') as output:\n    json.dump(sys.argv[1:], output)\nprint(json.dumps({{\"overall_verdict\": \"passed\", \"rules\": [{{\"rule_id\": \"requirements-carry-rationale\", \"verdict\": \"passed\", \"failures\": []}}, {{\"rule_id\": \"satisfy-links-resolve\", \"verdict\": \"passed\", \"failures\": []}}]}}))\n"
+        ),
+    )
+    .unwrap();
+    fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
+    let mut plan = designed_simple_flow_plan();
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![RsCheckBinding {
+            checkpoint_id: "simpleRequirementsAccepted".into(),
+            mode: RsCheckBindingMode::Cli,
+            cli: Some("kimi".into()),
+            model: Some("kimi-code/k3".into()),
+            command_uri: None,
+        }],
+    };
+    apply_check_bindings(&mut plan, &config).unwrap();
+    let (run, wish) = prepared_requirements_for_plan(&dir, plan);
+    let checker = run.plan().checkpoints[0].checker.as_ref().unwrap();
+    std::env::set_var("XDESIGN_AGENT_KIMI_BIN", &stub);
+    let result = invoke_requirements(&run, &wish, &dir, checker);
+    std::env::remove_var("XDESIGN_AGENT_KIMI_BIN");
+    let report = result.unwrap();
+    assert!(report.holds);
+    assert_eq!(report.rules.len(), 2);
+    let raw: serde_json::Value =
+        serde_json::from_slice(&fs::read(&report.report_uri).unwrap()).unwrap();
+    assert_eq!(raw["runner"]["kind"], "cli");
+    assert_eq!(raw["runner"]["cli"], "kimi");
+    assert_eq!(raw["runner"]["model"], "kimi-code/k3");
+    assert_eq!(raw["runner"]["program"], stub);
+    assert_eq!(raw["runner"]["prompt_sha256"].as_str().unwrap().len(), 64);
+    let argv: Vec<String> =
+        serde_json::from_slice(&fs::read(format!("{dir}/kimi-argv.json")).unwrap()).unwrap();
+    assert_eq!(argv.len(), 4);
+    assert_eq!(argv[0], "-m");
+    assert_eq!(argv[1], "kimi-code/k3");
+    assert_eq!(argv[2], "-p");
+    assert!(argv[3].contains("requirements-carry-rationale"));
+    assert!(argv[3].contains("read-only"));
+}

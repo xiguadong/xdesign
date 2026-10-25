@@ -734,8 +734,21 @@ fn wish_files(
         "checkpoints": plan.checkpoints,
     }))
     .unwrap();
+    wish_files_with_plan_bytes(fixture, item_id, status, current_visit, &plan_bytes)
+}
+
+/// The same wish files, but with a caller-supplied frozen plan serialization
+/// (for example one that carries custom check bindings).
+fn wish_files_with_plan_bytes(
+    fixture: &Fixture,
+    item_id: &str,
+    status: &str,
+    current_visit: usize,
+    plan_bytes: &[u8],
+) -> (Vec<RsSaveMaterial>, serde_json::Map<String, Value>) {
+    let plan: serde_json::Value = serde_json::from_slice(plan_bytes).unwrap();
     let plan_uri = "flow/plan.json";
-    fixture.write(plan_uri, &plan_bytes);
+    fixture.write(plan_uri, plan_bytes);
     let work_bytes = b"{\"work\":true}".to_vec();
     fixture.write("flow/work.json", &work_bytes);
     let wish_bytes = b"package WishExample { }".to_vec();
@@ -761,9 +774,9 @@ fn wish_files(
     let run_bytes = serde_json::to_vec_pretty(&json!({
         "run_id": run_id,
         "execution_type": "FlowRun",
-        "plan_id": "designedSimpleFlow",
+        "plan_id": plan["plan_id"].clone(),
         "plan_uri": plan_uri,
-        "plan_sha256": digest(&plan_bytes),
+        "plan_sha256": digest(plan_bytes),
         "wish_model_uri": "wish.sysml",
         "status": status,
         "current_visit": current_visit,
@@ -778,7 +791,7 @@ fn wish_files(
         "run_id": run_id,
         "wish_model_uri": "wish.sysml",
         "plan_uri": plan_uri,
-        "plan_sha256": digest(&plan_bytes),
+        "plan_sha256": digest(plan_bytes),
         "work_uri": "flow/work.json",
         "work_sha256": digest(&work_bytes),
         "run_record_uri": "flow/run.json",
@@ -789,7 +802,7 @@ fn wish_files(
         RsSaveMaterial {
             uri: plan_uri.into(),
             role: "plan".into(),
-            sha256: digest(&plan_bytes),
+            sha256: digest(plan_bytes),
             source: Some(PathBuf::from(plan_uri)),
         },
         RsSaveMaterial {
@@ -927,6 +940,76 @@ fn wish_projection_and_status_filters() {
     store.save(&fixture.project, &bad).unwrap();
     assert!(matches!(
         store.get("wish-bad", None),
+        Err(RsStoreError::Integrity(_))
+    ));
+}
+
+#[test]
+fn custom_check_binding_plans_are_projected_while_unknown_checker_members_stay_rejected() {
+    let fixture = Fixture::new();
+    let store = fixture.store();
+    let mut plan = xdesign::simple_flow::designed_simple_flow_plan();
+    let config = xdesign::simple_flow::RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![xdesign::simple_flow::RsCheckBinding {
+            checkpoint_id: "simpleRequirementsAccepted".into(),
+            mode: xdesign::simple_flow::RsCheckBindingMode::Cli,
+            cli: Some("codex".into()),
+            model: Some("gpt-6-astra".into()),
+            command_uri: None,
+        }],
+    };
+    xdesign::simple_flow::apply_check_bindings(&mut plan, &config).unwrap();
+    let plan_bytes = serde_json::to_vec_pretty(&json!({
+        "plan_id": plan.plan_id,
+        "initial_stage_id": plan.initial_stage_id,
+        "stages": plan.stages,
+        "checkpoints": plan.checkpoints,
+    }))
+    .unwrap();
+    let (materials, metadata) =
+        wish_files_with_plan_bytes(&fixture, "wish-bound", "active", 0, &plan_bytes);
+    let create = RsSaveRequest {
+        schema_version: 1,
+        operation_id: "wish-bound-save".into(),
+        item_id: "wish-bound".into(),
+        kind: "wish".into(),
+        expected_revision: 0,
+        metadata,
+        materials,
+        result: json!({"status": "saved"}),
+    };
+    store.save(&fixture.project, &create).unwrap();
+    let bound = store.get("wish-bound", None).unwrap();
+    let projection = bound.projection.expect("bound plan must project");
+    assert_eq!(projection.flow_id, "simple-flow");
+    assert_eq!(projection.status, xdesign::storage::RsWishStatus::Active);
+    assert_eq!(projection.current_stage.as_deref(), Some("requirements"));
+    let listed = store.list(Some("wish"), None).unwrap();
+    assert_eq!(listed.len(), 1);
+    assert_eq!(listed[0].item_id, "wish-bound");
+    assert!(listed[0].projection.is_some());
+
+    // An unknown member inside the checker stays a schema error: the custom
+    // runner is the only tolerated addition.
+    let mut tampered: Value = serde_json::from_slice(&plan_bytes).unwrap();
+    tampered["checkpoints"][0]["checker"]["unexpected"] = json!(true);
+    let tampered_bytes = serde_json::to_vec_pretty(&tampered).unwrap();
+    let (materials, metadata) =
+        wish_files_with_plan_bytes(&fixture, "wish-extra", "active", 0, &tampered_bytes);
+    let extra = RsSaveRequest {
+        schema_version: 1,
+        operation_id: "wish-extra-save".into(),
+        item_id: "wish-extra".into(),
+        kind: "wish".into(),
+        expected_revision: 0,
+        metadata,
+        materials,
+        result: json!({"status": "saved"}),
+    };
+    store.save(&fixture.project, &extra).unwrap();
+    assert!(matches!(
+        store.get("wish-extra", None),
         Err(RsStoreError::Integrity(_))
     ));
 }

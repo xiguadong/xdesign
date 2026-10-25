@@ -1,6 +1,6 @@
 use crate::core::{
-    sha256_bytes, valid_relative_path, RsCheckCommand, RsCheckerSpec, RsGateError, RsGateReport,
-    RsRuleReport, RsStageVisit,
+    sha256_bytes, valid_relative_path, RsCheckCommand, RsCheckerSpec, RsCustomChecker,
+    RsCustomRunner, RsGateError, RsGateReport, RsRuleReport, RsStageVisit,
 };
 use serde::Deserialize;
 use std::{
@@ -267,6 +267,10 @@ fn run_command_with_timeout_fallback(
     }
 }
 
+/// Runs one syntactic SimpleFlow checkpoint. The default and `process`
+/// runners execute a project checker script with the raw-report protocol; a
+/// `cli` binding (frozen into the plan) asks an agent CLI for the same
+/// declared rules in a single JSON verdict object and retains that verdict.
 #[derive(Clone, Debug)]
 pub struct RsProcessCheck {
     pub report_directory: String,
@@ -293,10 +297,35 @@ struct RawReport {
     input_sha256: HashMap<String, String>,
 }
 
-impl RsCheckCommand for RsProcessCheck {
-    fn run_check(
-        &self,
-        checker: &RsCheckerSpec,
+/// The shared prologue of every syntactic check: plan bytes hash and id, run
+/// record binding, the current visit identity, and the recorded artifact
+/// snapshot. Both execution paths refuse to proceed on any mismatch.
+struct Prepared {
+    plan_bytes: Vec<u8>,
+    plan_json: serde_json::Value,
+    record_bytes: Vec<u8>,
+    record: serde_json::Value,
+    visit_json: serde_json::Value,
+    visit: RsStageVisit,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Deserialize)]
+struct AgentRuleVerdict {
+    rule_id: String,
+    verdict: String,
+    #[serde(default)]
+    failures: Vec<String>,
+}
+
+#[derive(Deserialize)]
+struct AgentVerdict {
+    overall_verdict: String,
+    rules: Vec<AgentRuleVerdict>,
+}
+
+impl RsProcessCheck {
+    #[allow(clippy::too_many_arguments)]
+    fn preflight(
         plan_id: &str,
         plan_uri: &str,
         plan_sha256: &str,
@@ -305,7 +334,7 @@ impl RsCheckCommand for RsProcessCheck {
         stage: &str,
         artifact_revision: u32,
         snapshot_digest: &str,
-    ) -> Result<RsGateReport, RsGateError> {
+    ) -> Result<Prepared, RsGateError> {
         let plan_bytes = fs::read(plan_uri).map_err(|_| RsGateError::CommandFailed)?;
         if sha256_bytes(&plan_bytes) != plan_sha256 {
             return Err(RsGateError::CommandFailed);
@@ -330,7 +359,8 @@ impl RsCheckCommand for RsProcessCheck {
             .ok_or(RsGateError::CommandFailed)? as usize;
         let visit_json = record["visits"]
             .get(idx)
-            .ok_or(RsGateError::CommandFailed)?;
+            .ok_or(RsGateError::CommandFailed)?
+            .clone();
         if visit_json["stage_id"] != stage
             || visit_json["artifact_revision"] != artifact_revision
             || visit_json["artifact_snapshot_digest"] != snapshot_digest
@@ -342,9 +372,21 @@ impl RsCheckCommand for RsProcessCheck {
         if !visit.verify_artifacts() {
             return Err(RsGateError::CommandFailed);
         }
-        if !Path::new(&checker.command_uri).is_file() {
-            return Err(RsGateError::CommandFailed);
-        }
+        Ok(Prepared {
+            plan_bytes,
+            plan_json,
+            record_bytes,
+            record,
+            visit_json,
+            visit,
+        })
+    }
+
+    fn report_target(
+        &self,
+        stage: &str,
+        artifact_revision: u32,
+    ) -> Result<(String, Duration), RsGateError> {
         fs::create_dir_all(&self.report_directory).map_err(|_| RsGateError::CommandFailed)?;
         let report_uri = format!(
             "{}/{}_{}_{}.json",
@@ -353,7 +395,37 @@ impl RsCheckCommand for RsProcessCheck {
             artifact_revision,
             Uuid::new_v4()
         );
-        let timeout = checker_timeout();
+        Ok((report_uri, checker_timeout()))
+    }
+
+    /// The deterministic and `process` runner: run the project checker script
+    /// and validate its raw report exactly as before custom bindings existed.
+    #[allow(clippy::too_many_arguments)]
+    fn run_process_check(
+        &self,
+        checker: &RsCheckerSpec,
+        plan_id: &str,
+        plan_uri: &str,
+        plan_sha256: &str,
+        wish_model: &str,
+        run_record: &str,
+        stage: &str,
+        artifact_revision: u32,
+        snapshot_digest: &str,
+        prepared: Prepared,
+    ) -> Result<RsGateReport, RsGateError> {
+        let Prepared {
+            plan_json,
+            record_bytes,
+            record,
+            visit_json,
+            visit,
+            plan_bytes: _,
+        } = prepared;
+        if !Path::new(&checker.command_uri).is_file() {
+            return Err(RsGateError::CommandFailed);
+        }
+        let (report_uri, timeout) = self.report_target(stage, artifact_revision)?;
         let output = run_command_with_timeout(
             Command::new("python3")
                 .env("PYTHONDONTWRITEBYTECODE", "1")
@@ -400,7 +472,214 @@ impl RsCheckCommand for RsProcessCheck {
         if !output.success {
             return Err(RsGateError::CommandFailed);
         }
-        let raw_bytes = fs::read(&report_uri).map_err(|_| RsGateError::CommandFailed)?;
+        Self::validate_raw_report(
+            checker,
+            plan_uri,
+            plan_sha256,
+            wish_model,
+            run_record,
+            stage,
+            artifact_revision,
+            snapshot_digest,
+            &report_uri,
+            &record_bytes,
+            &record,
+            &visit_json,
+            &visit,
+            &plan_json,
+        )
+    }
+
+    /// The retained `cli` runner: ask one agent CLI for the declared rules in
+    /// read-only mode, parse exactly one verdict object, and retain both the
+    /// verdict report and the raw command logs.
+    #[allow(clippy::too_many_arguments)]
+    fn run_agent_check(
+        &self,
+        checker: &RsCheckerSpec,
+        custom: &RsCustomChecker,
+        plan_id: &str,
+        plan_uri: &str,
+        plan_sha256: &str,
+        wish_model: &str,
+        run_record: &str,
+        stage: &str,
+        artifact_revision: u32,
+        snapshot_digest: &str,
+        prepared: Prepared,
+    ) -> Result<RsGateReport, RsGateError> {
+        let Some(cli) = custom.cli.as_deref().filter(|cli| !cli.trim().is_empty()) else {
+            return Err(RsGateError::CommandFailed);
+        };
+        let Some(model) = custom
+            .model
+            .as_deref()
+            .filter(|model| !model.trim().is_empty())
+        else {
+            return Err(RsGateError::CommandFailed);
+        };
+        let (checkpoint_id, criteria) =
+            checkpoint_criteria(&prepared.plan_json, stage, &checker.checker_id)?;
+        let prompt = agent_prompt(
+            plan_id,
+            plan_uri,
+            plan_sha256,
+            wish_model,
+            run_record,
+            stage,
+            artifact_revision,
+            snapshot_digest,
+            &checkpoint_id,
+            &criteria,
+            checker,
+        );
+        let program = agent_program(cli);
+        let (report_uri, timeout) = self.report_target(stage, artifact_revision)?;
+        let mut command = Command::new(&program);
+        match cli {
+            "codex" => {
+                command.args([
+                    "exec",
+                    "--skip-git-repo-check",
+                    "--sandbox",
+                    "read-only",
+                    "-m",
+                    model,
+                    &prompt,
+                ]);
+            }
+            "kimi" => {
+                command.args(["-m", model, "-p", &prompt]);
+            }
+            _ => return Err(RsGateError::CommandFailed),
+        }
+        let output = match run_command_with_timeout(&mut command, timeout) {
+            Ok(output) => output,
+            Err(_) => {
+                let _ = fs::write(format!("{report_uri}.stdout.log"), "");
+                let _ = fs::write(
+                    format!("{report_uri}.stderr.log"),
+                    format!("agent CLI {program} could not be started"),
+                );
+                return Err(RsGateError::CommandFailed);
+            }
+        };
+        let _ = fs::write(format!("{report_uri}.stdout.log"), &output.stdout);
+        let _ = fs::write(
+            format!("{report_uri}.stderr.log"),
+            if output.timed_out {
+                format!(
+                    "agent CLI {cli} ({program}) exceeded the {timeout:?} deadline and was killed"
+                )
+                .into_bytes()
+            } else {
+                output.stderr.clone()
+            },
+        );
+        if output.timed_out {
+            return Err(RsGateError::CheckerTimeout);
+        }
+        if !output.success {
+            return Err(RsGateError::CommandFailed);
+        }
+        let verdict = parse_agent_verdict(&output.stdout)?;
+        let rules = validate_agent_verdict(&verdict, checker)?;
+        let holds = rules.iter().all(|rule| rule.verdict == "passed");
+        let input_uris = [wish_model, run_record, plan_uri];
+        let mut input_sha256 = serde_json::Map::new();
+        input_sha256.insert(
+            wish_model.to_owned(),
+            serde_json::json!(sha256_bytes(
+                &fs::read(wish_model).map_err(|_| RsGateError::CommandFailed)?
+            )),
+        );
+        input_sha256.insert(
+            run_record.to_owned(),
+            serde_json::json!(sha256_bytes(&prepared.record_bytes)),
+        );
+        input_sha256.insert(
+            plan_uri.to_owned(),
+            serde_json::json!(sha256_bytes(&prepared.plan_bytes)),
+        );
+        let report_rules: Vec<_> = rules
+            .iter()
+            .map(|rule| {
+                serde_json::json!({
+                    "rule_id": rule.rule_id,
+                    "verdict": rule.verdict,
+                    "inputs": input_uris,
+                    "observed": {
+                        "runner": format!("{cli}:{model}"),
+                        "verdict": rule.verdict,
+                        "failures": rule.failures,
+                    },
+                    "failures": rule.failures,
+                })
+            })
+            .collect();
+        let report = serde_json::json!({
+            "checker_id": checker.checker_id,
+            "stage": stage,
+            "artifact_revision": artifact_revision,
+            "snapshot_digest": snapshot_digest,
+            "report_uri": report_uri,
+            "overall_verdict": if holds { "passed" } else { "failed" },
+            "rules": report_rules,
+            "input_sha256": input_sha256,
+            "runner": {
+                "kind": "cli",
+                "cli": cli,
+                "model": model,
+                "program": program,
+                "prompt_sha256": sha256_bytes(prompt.as_bytes()),
+            },
+        });
+        let report_bytes =
+            serde_json::to_vec_pretty(&report).map_err(|_| RsGateError::CommandFailed)?;
+        fs::write(&report_uri, report_bytes).map_err(|_| RsGateError::CommandFailed)?;
+        let reported_rules = rules
+            .iter()
+            .map(|rule| RsRuleReport {
+                rule_id: rule.rule_id.clone(),
+                holds: rule.verdict == "passed",
+                diagnostic: if rule.failures.is_empty() {
+                    None
+                } else {
+                    Some(rule.failures.join("; "))
+                },
+            })
+            .collect();
+        Ok(RsGateReport {
+            holds,
+            artifact_revision,
+            artifact_snapshot_digest: snapshot_digest.to_owned(),
+            report_uri,
+            rules: reported_rules,
+        })
+    }
+
+    /// Validate the raw checker report exactly as the default contract did.
+    #[allow(clippy::too_many_arguments)]
+    fn validate_raw_report(
+        checker: &RsCheckerSpec,
+        plan_uri: &str,
+        plan_sha256: &str,
+        wish_model: &str,
+        run_record: &str,
+        stage: &str,
+        artifact_revision: u32,
+        snapshot_digest: &str,
+        report_uri: &str,
+        record_bytes: &[u8],
+        record: &serde_json::Value,
+        visit_json: &serde_json::Value,
+        visit: &RsStageVisit,
+        plan_json: &serde_json::Value,
+    ) -> Result<RsGateReport, RsGateError> {
+        let idx = record["current_visit"]
+            .as_u64()
+            .ok_or(RsGateError::CommandFailed)? as usize;
+        let raw_bytes = fs::read(report_uri).map_err(|_| RsGateError::CommandFailed)?;
         let raw: RawReport =
             serde_json::from_slice(&raw_bytes).map_err(|_| RsGateError::CommandFailed)?;
         if raw.checker_id != checker.checker_id
@@ -418,7 +697,7 @@ impl RsCheckCommand for RsProcessCheck {
                     .as_str(),
             )
             || raw.input_sha256.get(run_record).map(String::as_str)
-                != Some(sha256_bytes(&record_bytes).as_str())
+                != Some(sha256_bytes(record_bytes).as_str())
             || raw.input_sha256.get(plan_uri).map(String::as_str) != Some(plan_sha256)
         {
             return Err(RsGateError::CommandFailed);
@@ -573,8 +852,390 @@ impl RsCheckCommand for RsProcessCheck {
             holds,
             artifact_revision,
             artifact_snapshot_digest: snapshot_digest.to_owned(),
-            report_uri,
+            report_uri: report_uri.to_owned(),
             rules,
         })
+    }
+}
+
+fn checkpoint_criteria(
+    plan_json: &serde_json::Value,
+    stage: &str,
+    checker_id: &str,
+) -> Result<(String, Vec<String>), RsGateError> {
+    let gate = plan_json["checkpoints"]
+        .as_array()
+        .ok_or(RsGateError::CommandFailed)?
+        .iter()
+        .find(|gate| gate["stage_id"] == stage && gate["checker"]["checker_id"] == checker_id)
+        .ok_or(RsGateError::CommandFailed)?;
+    let checkpoint_id = gate["checkpoint_id"]
+        .as_str()
+        .ok_or(RsGateError::CommandFailed)?
+        .to_owned();
+    let criteria: Vec<String> = gate["criteria"]
+        .as_array()
+        .ok_or(RsGateError::CommandFailed)?
+        .iter()
+        .filter_map(|criterion| criterion.as_str().map(str::to_owned))
+        .collect();
+    if criteria.is_empty() {
+        return Err(RsGateError::CommandFailed);
+    }
+    Ok((checkpoint_id, criteria))
+}
+
+/// The resolved agent program: the development override when set, else the
+/// CLI name. Tests point these at stub executables and never run a real agent.
+fn agent_program(cli: &str) -> String {
+    let variable = match cli {
+        "codex" => "XDESIGN_AGENT_CODEX_BIN",
+        "kimi" => "XDESIGN_AGENT_KIMI_BIN",
+        _ => return cli.to_owned(),
+    };
+    std::env::var(variable)
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .unwrap_or_else(|| cli.to_owned())
+}
+
+/// The read-only conformance prompt: repository paths, plan identity, the
+/// run-record and artifact bindings, the checkpoint criteria read from the
+/// frozen plan, and every declared rule.
+#[allow(clippy::too_many_arguments)]
+fn agent_prompt(
+    plan_id: &str,
+    plan_uri: &str,
+    plan_sha256: &str,
+    wish_model: &str,
+    run_record: &str,
+    stage: &str,
+    artifact_revision: u32,
+    snapshot_digest: &str,
+    checkpoint_id: &str,
+    criteria: &[String],
+    checker: &RsCheckerSpec,
+) -> String {
+    let project_root = std::env::current_dir()
+        .map(|path| path.display().to_string())
+        .unwrap_or_else(|_| ".".into());
+    let mut prompt = String::new();
+    prompt.push_str(
+        "You are a read-only verification agent for the xdesign SimpleFlow stage gate.\n",
+    );
+    prompt.push_str("Review the repository and answer every declared checker rule exactly once.\n");
+    prompt.push_str(
+        "Do not modify, create, or delete any file. Do not run formatting or write commands.\n\n",
+    );
+    prompt.push_str(&format!("Project root: {project_root}\n"));
+    prompt.push_str("All paths below are project-relative unless the project root is absolute.\n");
+    prompt.push_str(&format!("Frozen plan id: {plan_id}\n"));
+    prompt.push_str(&format!("Frozen plan path: {plan_uri}\n"));
+    prompt.push_str(&format!("Frozen plan sha256: {plan_sha256}\n"));
+    prompt.push_str(&format!("Wish model: {wish_model}\n"));
+    prompt.push_str(&format!("Retained run record snapshot: {run_record}\n"));
+    prompt.push_str(&format!("Stage: {stage}\n"));
+    prompt.push_str(&format!("Artifact revision: {artifact_revision}\n"));
+    prompt.push_str(&format!("Artifact snapshot digest: {snapshot_digest}\n"));
+    prompt.push_str(&format!("Checkpoint: {checkpoint_id}\n"));
+    prompt.push_str(&format!("Checker: {}\n", checker.checker_id));
+    prompt.push_str("\nCheckpoint criteria:\n");
+    for criterion in criteria {
+        prompt.push_str(&format!("- {criterion}\n"));
+    }
+    prompt.push_str("\nDeclared rules:\n");
+    for rule in &checker.rules {
+        prompt.push_str(&format!("- rule_id: {}\n", rule.rule_id));
+        prompt.push_str(&format!("  condition: {}\n", rule.condition));
+        prompt.push_str(&format!("  reads: {}\n", rule.reads.join(", ")));
+    }
+    prompt.push_str(
+        "\nAnswer the rules against the recorded artifact revision and snapshot digest.\n",
+    );
+    prompt.push_str("The checkpoint passes only when every declared rule passes; report a rule as failed with at least one nonempty failure otherwise.\n");
+    prompt.push_str("Output exactly one JSON object and nothing else, in this shape:\n");
+    prompt.push_str(
+        "{\"overall_verdict\":\"passed|failed\",\"rules\":[{\"rule_id\":\"<declared rule id>\",\"verdict\":\"passed|failed\",\"failures\":[\"<failure detail>\"]}]}\n",
+    );
+    prompt
+}
+
+/// Parse exactly one JSON verdict object from the agent's stdout. A single
+/// object wrapped in prose or a Markdown code fence is accepted (agent CLIs
+/// often narrate); multiple or malformed objects are rejected.
+fn parse_agent_verdict(stdout: &[u8]) -> Result<AgentVerdict, RsGateError> {
+    let text = std::str::from_utf8(stdout).map_err(|_| RsGateError::CommandFailed)?;
+    let trimmed = text.trim();
+    if trimmed.is_empty() {
+        return Err(RsGateError::CommandFailed);
+    }
+    if let Ok(verdict) = serde_json::from_str::<AgentVerdict>(trimmed) {
+        return Ok(verdict);
+    }
+    let candidate = single_json_object(trimmed).ok_or(RsGateError::CommandFailed)?;
+    serde_json::from_str::<AgentVerdict>(candidate).map_err(|_| RsGateError::CommandFailed)
+}
+
+/// Return the single balanced `{...}` object in `text`. Braces before it are
+/// impossible by construction, and a brace after it means a second object.
+fn single_json_object(text: &str) -> Option<&str> {
+    let bytes = text.as_bytes();
+    let start = bytes.iter().position(|byte| *byte == b'{')?;
+    let mut depth = 0usize;
+    let mut in_string = false;
+    let mut escaped = false;
+    for (offset, byte) in bytes.iter().enumerate().skip(start) {
+        if in_string {
+            if escaped {
+                escaped = false;
+            } else if *byte == b'\\' {
+                escaped = true;
+            } else if *byte == b'"' {
+                in_string = false;
+            }
+            continue;
+        }
+        match byte {
+            b'"' => in_string = true,
+            b'{' => depth += 1,
+            b'}' => {
+                depth = depth.checked_sub(1)?;
+                if depth == 0 {
+                    let end = offset + 1;
+                    if text[end..].contains('{') {
+                        return None;
+                    }
+                    return Some(&text[start..end]);
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Validate the reported rule set against the declared rules: exact set
+/// equality, passed/failed verdicts, failed failures nonempty (and passed
+/// failures empty), and the overall verdict equal to the conjunction.
+fn validate_agent_verdict(
+    verdict: &AgentVerdict,
+    checker: &RsCheckerSpec,
+) -> Result<Vec<AgentRuleVerdict>, RsGateError> {
+    if !matches!(verdict.overall_verdict.as_str(), "passed" | "failed") {
+        return Err(RsGateError::CommandFailed);
+    }
+    let mut reported: HashMap<&str, &AgentRuleVerdict> = HashMap::new();
+    for rule in &verdict.rules {
+        if reported.insert(rule.rule_id.as_str(), rule).is_some() {
+            return Err(RsGateError::CommandFailed);
+        }
+    }
+    if reported.len() != checker.rules.len() {
+        return Err(RsGateError::CommandFailed);
+    }
+    let mut ordered = Vec::new();
+    for declared in &checker.rules {
+        let Some(rule) = reported.get(declared.rule_id.as_str()).copied() else {
+            return Err(RsGateError::CommandFailed);
+        };
+        if !matches!(rule.verdict.as_str(), "passed" | "failed")
+            || rule
+                .failures
+                .iter()
+                .any(|failure| failure.trim().is_empty())
+            || (rule.verdict == "passed") != rule.failures.is_empty()
+        {
+            return Err(RsGateError::CommandFailed);
+        }
+        ordered.push(rule.clone());
+    }
+    let holds = ordered.iter().all(|rule| rule.verdict == "passed");
+    if holds != (verdict.overall_verdict == "passed") {
+        return Err(RsGateError::CommandFailed);
+    }
+    Ok(ordered)
+}
+
+impl RsCheckCommand for RsProcessCheck {
+    #[allow(clippy::too_many_arguments)]
+    fn run_check(
+        &self,
+        checker: &RsCheckerSpec,
+        plan_id: &str,
+        plan_uri: &str,
+        plan_sha256: &str,
+        wish_model: &str,
+        run_record: &str,
+        stage: &str,
+        artifact_revision: u32,
+        snapshot_digest: &str,
+    ) -> Result<RsGateReport, RsGateError> {
+        let prepared = Self::preflight(
+            plan_id,
+            plan_uri,
+            plan_sha256,
+            wish_model,
+            run_record,
+            stage,
+            artifact_revision,
+            snapshot_digest,
+        )?;
+        if let Some(custom) = checker
+            .custom
+            .as_ref()
+            .filter(|custom| custom.runner == RsCustomRunner::Cli)
+        {
+            self.run_agent_check(
+                checker,
+                custom,
+                plan_id,
+                plan_uri,
+                plan_sha256,
+                wish_model,
+                run_record,
+                stage,
+                artifact_revision,
+                snapshot_digest,
+                prepared,
+            )
+        } else {
+            self.run_process_check(
+                checker,
+                plan_id,
+                plan_uri,
+                plan_sha256,
+                wish_model,
+                run_record,
+                stage,
+                artifact_revision,
+                snapshot_digest,
+                prepared,
+            )
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::simple_flow::designed_simple_flow_plan;
+
+    fn requirements_checker() -> RsCheckerSpec {
+        designed_simple_flow_plan().checkpoints[0]
+            .checker
+            .clone()
+            .unwrap()
+    }
+
+    fn verdict_object(overall: &str, rules: &[(&str, &str, &[&str])]) -> Vec<u8> {
+        let rules: Vec<serde_json::Value> = rules
+            .iter()
+            .map(|(rule_id, verdict, failures)| {
+                serde_json::json!({
+                    "rule_id": rule_id,
+                    "verdict": verdict,
+                    "failures": failures,
+                })
+            })
+            .collect();
+        serde_json::to_vec(&serde_json::json!({
+            "overall_verdict": overall,
+            "rules": rules,
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn agent_verdict_accepts_a_complete_passed_object() {
+        let checker = requirements_checker();
+        let stdout = verdict_object(
+            "passed",
+            &[
+                ("requirements-carry-rationale", "passed", &[]),
+                ("satisfy-links-resolve", "passed", &[]),
+            ],
+        );
+        let verdict = parse_agent_verdict(&stdout).unwrap();
+        let rules = validate_agent_verdict(&verdict, &checker).unwrap();
+        assert_eq!(
+            rules
+                .iter()
+                .map(|rule| rule.rule_id.as_str())
+                .collect::<Vec<_>>(),
+            vec!["requirements-carry-rationale", "satisfy-links-resolve"]
+        );
+        assert!(rules.iter().all(|rule| rule.verdict == "passed"));
+    }
+
+    #[test]
+    fn agent_verdict_tolerates_fenced_or_prefixed_output() {
+        let checker = requirements_checker();
+        let body = String::from_utf8(verdict_object(
+            "failed",
+            &[
+                ("requirements-carry-rationale", "failed", &["no rationale"]),
+                ("satisfy-links-resolve", "passed", &[]),
+            ],
+        ))
+        .unwrap();
+        let stdout = format!("Here is my read-only verdict:\n```json\n{body}\n```\nDone.");
+        let verdict = parse_agent_verdict(stdout.as_bytes()).unwrap();
+        let rules = validate_agent_verdict(&verdict, &checker).unwrap();
+        assert_eq!(rules[0].verdict, "failed");
+        assert_eq!(rules[0].failures, vec!["no rationale"]);
+        assert_eq!(verdict.overall_verdict, "failed");
+    }
+
+    #[test]
+    fn agent_verdict_rejects_missing_or_extra_rules() {
+        let checker = requirements_checker();
+        let missing = verdict_object("passed", &[("requirements-carry-rationale", "passed", &[])]);
+        let verdict = parse_agent_verdict(&missing).unwrap();
+        assert_eq!(
+            validate_agent_verdict(&verdict, &checker),
+            Err(RsGateError::CommandFailed)
+        );
+        let extra = verdict_object(
+            "passed",
+            &[
+                ("requirements-carry-rationale", "passed", &[]),
+                ("satisfy-links-resolve", "passed", &[]),
+                ("not-a-declared-rule", "passed", &[]),
+            ],
+        );
+        let verdict = parse_agent_verdict(&extra).unwrap();
+        assert_eq!(
+            validate_agent_verdict(&verdict, &checker),
+            Err(RsGateError::CommandFailed)
+        );
+    }
+
+    #[test]
+    fn agent_verdict_rejects_inconsistent_overall_and_failures() {
+        let checker = requirements_checker();
+        let inconsistent = verdict_object(
+            "passed",
+            &[
+                ("requirements-carry-rationale", "failed", &["missing"]),
+                ("satisfy-links-resolve", "passed", &[]),
+            ],
+        );
+        let verdict = parse_agent_verdict(&inconsistent).unwrap();
+        assert_eq!(
+            validate_agent_verdict(&verdict, &checker),
+            Err(RsGateError::CommandFailed)
+        );
+        let failed_without_failure = verdict_object(
+            "failed",
+            &[
+                ("requirements-carry-rationale", "failed", &[]),
+                ("satisfy-links-resolve", "passed", &[]),
+            ],
+        );
+        let verdict = parse_agent_verdict(&failed_without_failure).unwrap();
+        assert_eq!(
+            validate_agent_verdict(&verdict, &checker),
+            Err(RsGateError::CommandFailed)
+        );
     }
 }

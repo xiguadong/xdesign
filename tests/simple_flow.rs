@@ -681,3 +681,225 @@ fn failed_transition_write_rolls_back_to_blocked_visit() {
     assert_eq!(run.visits()[1].status(), RsStageStatus::Pending);
     assert!(run.last_error().is_some());
 }
+
+fn binding(
+    checkpoint_id: &str,
+    mode: RsCheckBindingMode,
+    cli: Option<&str>,
+    model: Option<&str>,
+    command_uri: Option<&str>,
+) -> RsCheckBinding {
+    RsCheckBinding {
+        checkpoint_id: checkpoint_id.into(),
+        mode,
+        cli: cli.map(str::to_owned),
+        model: model.map(str::to_owned),
+        command_uri: command_uri.map(str::to_owned),
+    }
+}
+
+#[test]
+fn default_plan_serialization_and_validation_are_unchanged() {
+    let dir = test_dir();
+    let mut plan = designed_simple_flow_plan();
+    plan.freeze(format!("{dir}/default-plan.json")).unwrap();
+    let bytes = fs::read(&plan.plan_uri).unwrap();
+    let text = std::str::from_utf8(&bytes).unwrap();
+    assert!(
+        !text.contains("\"custom\""),
+        "default plan bytes gained a custom key: {text}"
+    );
+    let decoded: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
+    for checkpoint in decoded["checkpoints"].as_array().unwrap() {
+        let Some(checker) = checkpoint["checker"].as_object() else {
+            continue;
+        };
+        let mut keys: Vec<_> = checker.keys().map(String::as_str).collect();
+        keys.sort();
+        assert_eq!(
+            keys,
+            vec!["checker_id", "command_uri", "establishes", "rules"]
+        );
+    }
+    assert!(plan
+        .checkpoints
+        .iter()
+        .filter_map(|gate| gate.checker.as_ref())
+        .all(|checker| checker.custom.is_none()));
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+    let reloaded = RsFlowPlan::load_frozen(&plan.plan_uri, &plan.plan_sha256).unwrap();
+    assert_eq!(reloaded, plan);
+    assert!(!validate_designed_plan(&reloaded).is_err());
+}
+
+#[test]
+fn designed_plan_accepts_cli_and_command_bindings_and_rejects_invalid_ones() {
+    let dir = test_dir();
+    let mut plan = designed_simple_flow_plan();
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleRequirementsAccepted",
+            RsCheckBindingMode::Cli,
+            Some("codex"),
+            Some("gpt-6-astra"),
+            None,
+        )],
+    };
+    apply_check_bindings(&mut plan, &config).unwrap();
+    plan.freeze(format!("{dir}/cli-plan.json")).unwrap();
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+    let checker = plan.checkpoints[0].checker.as_ref().unwrap();
+    assert_eq!(
+        checker.custom,
+        Some(RsCustomChecker {
+            runner: RsCustomRunner::Cli,
+            cli: Some("codex".into()),
+            model: Some("gpt-6-astra".into()),
+        })
+    );
+    assert_eq!(
+        checker.command_uri, "tools/checks/simple_requirements.py",
+        "a cli binding must keep the default command URI"
+    );
+    let frozen = fs::read(&plan.plan_uri).unwrap();
+    let frozen: serde_json::Value = serde_json::from_slice(&frozen).unwrap();
+    assert_eq!(
+        frozen["checkpoints"][0]["checker"]["custom"],
+        serde_json::json!({"runner": "cli", "cli": "codex", "model": "gpt-6-astra"})
+    );
+    assert!(frozen["checkpoints"][1]["checker"].get("custom").is_none());
+
+    // Unknown CLI and empty model are invalid checker bindings.
+    let mut p = plan.clone();
+    p.checkpoints[0]
+        .checker
+        .as_mut()
+        .unwrap()
+        .custom
+        .as_mut()
+        .unwrap()
+        .cli = Some("other".into());
+    assert_eq!(validate_designed_plan(&p), Err(RsPlanError::InvalidChecker));
+    let mut p = plan.clone();
+    p.checkpoints[0]
+        .checker
+        .as_mut()
+        .unwrap()
+        .custom
+        .as_mut()
+        .unwrap()
+        .model = Some("  ".into());
+    assert_eq!(validate_designed_plan(&p), Err(RsPlanError::InvalidChecker));
+    // A cli binding may not move the covered default command URI.
+    let mut p = plan.clone();
+    p.checkpoints[0].checker.as_mut().unwrap().command_uri = "tools/checks/other.py".into();
+    assert_eq!(validate_designed_plan(&p), Err(RsPlanError::InvalidChecker));
+    // Tampered rules on a custom binding are still rejected.
+    let mut p = plan.clone();
+    p.checkpoints[0].checker.as_mut().unwrap().rules[0].condition = "always true".into();
+    assert_eq!(
+        validate_designed_plan(&p),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
+    let mut p = plan.clone();
+    p.checkpoints[0].checker.as_mut().unwrap().rules[0].rule_id = "forged-rule".into();
+    assert_eq!(validate_designed_plan(&p), Err(RsPlanError::InvalidChecker));
+
+    // A command binding swaps the command URI and records the process runner.
+    let script = fixture(&dir, "custom_requirements.py", "print('{}')\n");
+    let mut plan = designed_simple_flow_plan();
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleRequirementsAccepted",
+            RsCheckBindingMode::Command,
+            None,
+            None,
+            Some(&script),
+        )],
+    };
+    apply_check_bindings(&mut plan, &config).unwrap();
+    plan.freeze(format!("{dir}/command-plan.json")).unwrap();
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+    let checker = plan.checkpoints[0].checker.as_ref().unwrap();
+    assert_eq!(checker.command_uri, script);
+    assert_eq!(
+        checker.custom,
+        Some(RsCustomChecker {
+            runner: RsCustomRunner::Process,
+            cli: None,
+            model: None,
+        })
+    );
+
+    // Unknown checkpoint ids (including the semantic gate) and missing command
+    // files are rejected before a plan is frozen.
+    let mut plan = designed_simple_flow_plan();
+    for bad in [
+        binding(
+            "verificationAccepted",
+            RsCheckBindingMode::Default,
+            None,
+            None,
+            None,
+        ),
+        binding(
+            "simpleUnknownAccepted",
+            RsCheckBindingMode::Default,
+            None,
+            None,
+            None,
+        ),
+    ] {
+        let config = RsCheckBindingConfig {
+            schema_version: 1,
+            checks: vec![bad.clone()],
+        };
+        let error = apply_check_bindings(&mut plan, &config).unwrap_err();
+        assert!(
+            error.contains("unknown checkpoint in check bindings"),
+            "{error}"
+        );
+    }
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleRequirementsAccepted",
+            RsCheckBindingMode::Command,
+            None,
+            None,
+            Some("cache/implementation/missing-checker.py"),
+        )],
+    };
+    assert!(apply_check_bindings(&mut plan, &config)
+        .unwrap_err()
+        .contains("command mode requires"));
+    let duplicate = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![
+            binding(
+                "simpleRequirementsAccepted",
+                RsCheckBindingMode::Default,
+                None,
+                None,
+                None,
+            ),
+            binding(
+                "simpleRequirementsAccepted",
+                RsCheckBindingMode::Cli,
+                Some("kimi"),
+                Some("model"),
+                None,
+            ),
+        ],
+    };
+    assert!(apply_check_bindings(&mut plan, &duplicate)
+        .unwrap_err()
+        .contains("duplicate check binding"));
+    let wrong_schema = RsCheckBindingConfig {
+        schema_version: 2,
+        checks: vec![],
+    };
+    assert!(apply_check_bindings(&mut plan, &wrong_schema).is_err());
+}

@@ -18,12 +18,39 @@ pub struct RsCheckerRuleSpec {
     pub reads: Vec<String>,
 }
 
+/// How a checkpoint's custom binding executes: either the project's checker
+/// script (the default contract) or an agent CLI that answers the declared
+/// rules directly.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum RsCustomRunner {
+    Process,
+    Cli,
+}
+
+/// The non-default execution binding frozen into a plan. It never redefines
+/// the declared rules or the default command URI; it only chooses who
+/// executes them.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RsCustomChecker {
+    pub runner: RsCustomRunner,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cli: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub model: Option<String>,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsCheckerSpec {
     pub checker_id: String,
     pub command_uri: String,
     pub establishes: Vec<RsConformanceKind>,
     pub rules: Vec<RsCheckerRuleSpec>,
+    /// Absent for the deterministic default binding, so default plan bytes
+    /// stay exactly as before custom bindings were introduced.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom: Option<RsCustomChecker>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -99,6 +126,30 @@ impl RsFlowPlan {
         self.validate()
     }
 
+    /// Read and verify a frozen plan back from its retained bytes, then
+    /// structurally validate it. Flow layers add their own conformance rules.
+    pub fn load_frozen(plan_uri: &str, plan_sha256: &str) -> Result<RsFlowPlan, RsPlanError> {
+        if !valid_relative_path(plan_uri) || !valid_digest(plan_sha256) {
+            return Err(RsPlanError::InvalidPlanFile);
+        }
+        let bytes = fs::read(plan_uri).map_err(|_| RsPlanError::InvalidPlanFile)?;
+        if sha256_bytes(&bytes) != plan_sha256 {
+            return Err(RsPlanError::InvalidPlanFile);
+        }
+        let decoded: FrozenPlan =
+            serde_json::from_slice(&bytes).map_err(|_| RsPlanError::InvalidPlanFile)?;
+        let plan = Self {
+            plan_id: decoded.plan_id,
+            plan_uri: plan_uri.to_owned(),
+            plan_sha256: plan_sha256.to_owned(),
+            initial_stage_id: decoded.initial_stage_id,
+            stages: decoded.stages,
+            checkpoints: decoded.checkpoints,
+        };
+        plan.validate()?;
+        Ok(plan)
+    }
+
     /// Structural validation only: a flow layer adds its own conformance rules.
     pub fn validate(&self) -> Result<(), RsPlanError> {
         let mut stage_ids = HashSet::new();
@@ -161,6 +212,29 @@ impl RsFlowPlan {
                         || rule.reads.iter().any(|x| x.trim().is_empty())
                 }) {
                     return Err(RsPlanError::InvalidChecker);
+                }
+                match checker.custom.as_ref() {
+                    None => {}
+                    Some(custom) => match custom.runner {
+                        RsCustomRunner::Cli => {
+                            if custom
+                                .cli
+                                .as_deref()
+                                .is_none_or(|cli| cli.trim().is_empty())
+                                || custom
+                                    .model
+                                    .as_deref()
+                                    .is_none_or(|model| model.trim().is_empty())
+                            {
+                                return Err(RsPlanError::InvalidChecker);
+                            }
+                        }
+                        RsCustomRunner::Process => {
+                            if custom.cli.is_some() || custom.model.is_some() {
+                                return Err(RsPlanError::InvalidChecker);
+                            }
+                        }
+                    },
                 }
             }
             if !gate_ids.insert(gate.checkpoint_id.as_str()) || gate.checkpoint_id.is_empty() {

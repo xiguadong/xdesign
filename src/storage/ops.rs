@@ -11,7 +11,7 @@ use super::{
     RsStoreError, RsWishProjection, RsWishStatus, MAX_JSON_BYTES, MAX_JSON_DEPTH,
     MAX_MATERIAL_BYTES, MAX_MATERIAL_URI_BYTES, RESPONSE_BYTES_MARGIN, RESPONSE_DEPTH_MARGIN,
 };
-use crate::core::{RsCheckKind, RsConformanceKind, RsFlowStatus, RsStageVisit};
+use crate::core::{RsCheckKind, RsConformanceKind, RsCustomChecker, RsFlowStatus, RsStageVisit};
 use rusqlite::{Connection, OptionalExtension};
 use serde::Deserialize;
 use serde_json::{Map, Value};
@@ -1380,6 +1380,13 @@ struct PlanChecker {
     command_uri: String,
     establishes: Vec<RsConformanceKind>,
     rules: Vec<PlanRule>,
+    /// Optional custom execution binding frozen into the plan. The projection
+    /// is read-only and does not interpret it, but it must tolerate the
+    /// member so bindings-bearing plans stay listable and retrievable. The
+    /// core type keeps one schema source (and rejects unknown members).
+    #[serde(default)]
+    #[allow(dead_code)]
+    custom: Option<RsCustomChecker>,
 }
 
 #[allow(dead_code)]

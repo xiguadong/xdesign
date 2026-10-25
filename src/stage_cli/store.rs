@@ -222,20 +222,21 @@ pub fn state_token(parts: &[&[u8]]) -> String {
     sha256_bytes(&identity)
 }
 
+/// Reconstruct a stored plan from its frozen bytes. The frozen serialization is
+/// authoritative: rebuilding the builtin blueprint would silently drop a frozen
+/// custom check binding. Legacy cache-backed plans load through the same path.
 pub fn parse_plan(registry: &Registry, plan_bytes: &[u8]) -> Result<RsFlowPlan, String> {
     if sha256_bytes(plan_bytes) != registry.plan_sha256 {
         return Err("frozen plan definition changed".into());
     }
-    let mut plan = blueprint(&registry.flow_id)?;
-    plan.plan_uri = registry.plan_uri.clone();
-    plan.plan_sha256 = registry.plan_sha256.clone();
-    plan.validate()
+    let plan = RsFlowPlan::load_frozen(&registry.plan_uri, &registry.plan_sha256)
         .map_err(|error| format!("invalid frozen plan: {error:?}"))?;
     match registry.flow_id.as_str() {
         "simple-flow" => validate_designed_plan(&plan),
-        _ => validate_wish_verify_plan(&plan),
+        "wish-verify" => validate_wish_verify_plan(&plan),
+        _ => return Err("unsupported stored flow".into()),
     }
-    .map_err(|error| format!("invalid builtin plan: {error:?}"))?;
+    .map_err(|error| format!("invalid flow plan: {error:?}"))?;
     Ok(plan)
 }
 

@@ -7,6 +7,7 @@ use std::{
     time::SystemTime,
 };
 use xdesign::core::{sha256_bytes, snapshot_digest, RsArtifactDigest};
+use xdesign::simple_flow::designed_simple_flow_plan;
 
 struct Project {
     root: PathBuf,
@@ -76,6 +77,33 @@ impl Project {
             .args(args)
             .output()
             .unwrap()
+    }
+    fn call_env(&self, args: &[&str], env: &[(&str, &str)]) -> Output {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_xdesign"));
+        command
+            .current_dir(&self.root)
+            .env_remove("XDESIGN_STORE_ROOT")
+            .args(args);
+        for (key, value) in env {
+            command.env(key, value);
+        }
+        command.output().unwrap()
+    }
+    fn json_env(&self, args: &[&str], code: i32, env: &[(&str, &str)]) -> Value {
+        let output = self.call_env(args, env);
+        assert_eq!(
+            output.status.code(),
+            Some(code),
+            "args={args:?}, stderr={}, stdout={}",
+            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stdout)
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        serde_json::from_slice(&output.stdout).unwrap()
     }
     fn json(&self, args: &[&str], code: i32) -> Value {
         let output = self.call(args);
@@ -562,4 +590,230 @@ fn simultaneous_check_processes_cannot_overwrite_each_other() {
         .root
         .join("cache/xdesign/wish-test/write.lock")
         .exists());
+}
+
+#[cfg(unix)]
+#[test]
+fn init_checks_binds_an_agent_cli_and_the_frozen_plan_reloads_for_next() {
+    use std::os::unix::fs::PermissionsExt;
+    let project = Project::simple(false);
+    let stub = project.root.join("cache/agent-stub.py");
+    fs::create_dir_all(stub.parent().unwrap()).unwrap();
+    fs::write(
+        &stub,
+        "#!/usr/bin/env python3\nimport json\nimport sys\nwith open('cache/agent-codex-argv.json', 'w', encoding='utf-8') as output:\n    json.dump(sys.argv[1:], output)\nprint(json.dumps({\"overall_verdict\": \"passed\", \"rules\": [{\"rule_id\": \"requirements-carry-rationale\", \"verdict\": \"passed\", \"failures\": []}, {\"rule_id\": \"satisfy-links-resolve\", \"verdict\": \"passed\", \"failures\": []}]}))\n",
+    )
+    .unwrap();
+    fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
+    let stub = stub.to_string_lossy().into_owned();
+    project.write(
+        "checks.json",
+        br#"{"schema_version":1,"checks":[{"checkpoint_id":"simpleRequirementsAccepted","mode":"cli","cli":"codex","model":"gpt-test-model"}]}"#,
+    );
+    // The exact order the web backend uses.
+    let initialized = project.json(
+        &[
+            "init",
+            "wish-test",
+            "--flow",
+            "simple-flow",
+            "--wish",
+            "mbse/wishes/wish-test.sysml",
+            "--checks",
+            "checks.json",
+        ],
+        0,
+    );
+    assert_eq!(initialized["flow_id"], "simple-flow");
+    let plan: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/plan.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(plan["plan_id"], "designedSimpleFlow");
+    assert_eq!(
+        plan["checkpoints"][0]["checker"]["custom"],
+        json!({"runner": "cli", "cli": "codex", "model": "gpt-test-model"})
+    );
+    assert_eq!(
+        plan["checkpoints"][0]["checker"]["command_uri"],
+        "tools/checks/simple_requirements.py"
+    );
+    assert!(plan["checkpoints"][1]["checker"].get("custom").is_none());
+
+    let checked = project.json_env(
+        &["check", "wish-test"],
+        0,
+        &[("XDESIGN_AGENT_CODEX_BIN", stub.as_str())],
+    );
+    let assessment = &checked["assessed"]["assessments"][0];
+    assert_eq!(assessment["checkpoint_id"], "simpleRequirementsAccepted");
+    assert_eq!(assessment["outcome"], "passed");
+    assert_eq!(assessment["judged_by"], "agent");
+    assert_eq!(assessment["assessor"], "codex:gpt-test-model");
+    assert_eq!(checked["advance"], "enter_next_stage");
+    assert_eq!(checked["work"]["stage_id"], "design");
+    let report_uri = assessment["evidence_uris"][0].as_str().unwrap();
+    let report: Value =
+        serde_json::from_slice(&fs::read(project.root.join(report_uri)).unwrap()).unwrap();
+    assert_eq!(report["overall_verdict"], "passed");
+    assert_eq!(report["rules"].as_array().unwrap().len(), 2);
+    assert_eq!(report["runner"]["kind"], "cli");
+    assert_eq!(report["runner"]["cli"], "codex");
+    assert_eq!(report["runner"]["model"], "gpt-test-model");
+    assert_eq!(report["runner"]["program"], stub.as_str());
+    assert_eq!(
+        report["runner"]["prompt_sha256"].as_str().unwrap().len(),
+        64
+    );
+    let argv: Vec<String> = serde_json::from_slice(
+        &fs::read(project.root.join("cache/agent-codex-argv.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(argv.len(), 7);
+    assert_eq!(
+        &argv[..6],
+        &[
+            "exec",
+            "--skip-git-repo-check",
+            "--sandbox",
+            "read-only",
+            "-m",
+            "gpt-test-model"
+        ]
+    );
+    assert!(argv[6].contains("requirements-carry-rationale"));
+    assert!(argv[6].contains("read-only"));
+    assert!(project
+        .root
+        .join(format!("{report_uri}.stdout.log"))
+        .is_file());
+    assert!(project
+        .root
+        .join(format!("{report_uri}.stderr.log"))
+        .is_file());
+
+    // next reloads the frozen plan from the store, re-validates the agent
+    // assessment, and advances to the successor stage.
+    let next = project.next();
+    assert_eq!(next["work"]["stage_id"], "design");
+
+    // A run without --checks freezes the unchanged default plan and keeps the
+    // deterministic script authority.
+    project.write("mbse/wishes/wish-plain.sysml", b"package PlainWish {}\n");
+    project.json(&["init", "wish-plain", "--flow", "simple-flow"], 0);
+    let expected_dir = format!("cache/implementation/rust-tests/{}", uuid::Uuid::new_v4());
+    fs::create_dir_all(&expected_dir).unwrap();
+    let mut expected = designed_simple_flow_plan();
+    expected
+        .freeze(format!("{expected_dir}/plan.json"))
+        .unwrap();
+    let expected_bytes = fs::read(format!("{expected_dir}/plan.json")).unwrap();
+    let frozen = fs::read(project.root.join("cache/xdesign/wish-plain/plan.json")).unwrap();
+    assert_eq!(
+        frozen, expected_bytes,
+        "a run without --checks must freeze the unchanged default plan"
+    );
+    assert!(!String::from_utf8_lossy(&frozen).contains("\"custom\""));
+    let plain = project.json(&["check", "wish-plain"], 0);
+    assert_eq!(plain["assessed"]["assessments"][0]["judged_by"], "script");
+    assert_eq!(
+        plain["assessed"]["assessments"][0]["assessor"],
+        "simpleRequirementsCheck"
+    );
+
+    // Every --checks argument combination reaches the binding reader, and an
+    // invalid binding config is rejected with a clear message.
+    for args in [
+        vec![
+            "init",
+            "wish-combo-1",
+            "--flow",
+            "simple-flow",
+            "--checks",
+            "missing-bindings.json",
+        ],
+        vec![
+            "init",
+            "wish-combo-2",
+            "--flow",
+            "simple-flow",
+            "--wish",
+            "mbse/wishes/wish-test.sysml",
+            "--checks",
+            "missing-bindings.json",
+        ],
+        vec![
+            "init",
+            "wish-combo-3",
+            "--flow",
+            "simple-flow",
+            "--checks",
+            "missing-bindings.json",
+            "--wish",
+            "mbse/wishes/wish-test.sysml",
+        ],
+    ] {
+        let error = project.error(&args);
+        assert!(error.contains("missing-bindings.json"), "{error}");
+    }
+    project.write(
+        "bad-checks.json",
+        br#"{"schema_version":1,"checks":[{"checkpoint_id":"verificationAccepted","mode":"default"}]}"#,
+    );
+    let error = project.error(&[
+        "init",
+        "wish-combo-4",
+        "--flow",
+        "simple-flow",
+        "--checks",
+        "bad-checks.json",
+    ]);
+    assert!(
+        error.contains("unknown checkpoint in check bindings"),
+        "{error}"
+    );
+    assert!(!project.root.join("cache/xdesign/wish-combo-4").exists());
+}
+
+#[test]
+fn init_checks_binds_a_custom_command_script_and_check_uses_it() {
+    let project = Project::simple(false);
+    project.write(
+        "cache/custom_requirements.py",
+        b"import subprocess\nimport sys\nraise SystemExit(subprocess.call([sys.executable, 'tools/checks/simple_requirements.py', *sys.argv[1:]]))\n",
+    );
+    project.write(
+        "command-checks.json",
+        br#"{"schema_version":1,"checks":[{"checkpoint_id":"simpleRequirementsAccepted","mode":"command","command_uri":"cache/custom_requirements.py"}]}"#,
+    );
+    project.json(
+        &[
+            "init",
+            "wish-test",
+            "--flow",
+            "simple-flow",
+            "--checks",
+            "command-checks.json",
+        ],
+        0,
+    );
+    let plan: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/plan.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        plan["checkpoints"][0]["checker"]["custom"],
+        json!({"runner": "process"})
+    );
+    assert_eq!(
+        plan["checkpoints"][0]["checker"]["command_uri"],
+        "cache/custom_requirements.py"
+    );
+    let checked = project.json(&["check", "wish-test"], 0);
+    let assessment = &checked["assessed"]["assessments"][0];
+    assert_eq!(assessment["outcome"], "passed");
+    assert_eq!(assessment["judged_by"], "script");
+    assert_eq!(assessment["assessor"], "simpleRequirementsCheck");
+    assert_eq!(checked["work"]["stage_id"], "design");
+    assert_eq!(project.next()["work"]["stage_id"], "design");
 }

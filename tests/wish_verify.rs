@@ -1,6 +1,9 @@
 use std::{collections::VecDeque, fs, path::Path, sync::Mutex};
 use uuid::Uuid;
 use xdesign::core::*;
+use xdesign::simple_flow::{
+    apply_check_bindings, RsCheckBinding, RsCheckBindingConfig, RsCheckBindingMode,
+};
 use xdesign::wish_verify::*;
 
 fn test_dir() -> String {
@@ -108,6 +111,7 @@ fn sneaky_checker() -> RsCheckerSpec {
             condition: "Always true.".into(),
             reads: vec!["Cargo.toml".into()],
         }],
+        custom: None,
     }
 }
 
@@ -456,4 +460,75 @@ fn unused_check_stub_fails_any_invocation() {
             .run_check(&checker, "plan", "uri", "sha", "wish", "record", "wish", 0, "digest"),
         Err(RsGateError::CommandFailed)
     );
+}
+
+#[test]
+fn custom_check_bindings_are_rejected_for_wish_verify() {
+    fn binding(
+        checkpoint_id: &str,
+        mode: RsCheckBindingMode,
+        cli: Option<&str>,
+        model: Option<&str>,
+        command_uri: Option<&str>,
+    ) -> RsCheckBinding {
+        RsCheckBinding {
+            checkpoint_id: checkpoint_id.into(),
+            mode,
+            cli: cli.map(str::to_owned),
+            model: model.map(str::to_owned),
+            command_uri: command_uri.map(str::to_owned),
+        }
+    }
+    let mut plan = wish_verify_flow_plan();
+    let non_default = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleRequirementsAccepted",
+            RsCheckBindingMode::Cli,
+            Some("codex"),
+            Some("gpt-6-astra"),
+            None,
+        )],
+    };
+    assert_eq!(
+        apply_check_bindings(&mut plan, &non_default),
+        Err("custom checks are supported for simple-flow only".to_string())
+    );
+    let command = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleDesignAccepted",
+            RsCheckBindingMode::Command,
+            None,
+            None,
+            Some("tools/checks/simple_requirements.py"),
+        )],
+    };
+    assert_eq!(
+        apply_check_bindings(&mut plan, &command),
+        Err("custom checks are supported for simple-flow only".to_string())
+    );
+    // Default bindings are a no-op even on the all-semantic flow, and an empty
+    // binding list is accepted.
+    let defaults = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![binding(
+            "simpleRequirementsAccepted",
+            RsCheckBindingMode::Default,
+            None,
+            None,
+            None,
+        )],
+    };
+    apply_check_bindings(&mut plan, &defaults).unwrap();
+    apply_check_bindings(
+        &mut plan,
+        &RsCheckBindingConfig {
+            schema_version: 1,
+            checks: vec![],
+        },
+    )
+    .unwrap();
+    assert!(plan.checkpoints.iter().all(|gate| gate.checker.is_none()));
+    assert_eq!(validate_wish_verify_plan(&plan), Ok(()));
 }
