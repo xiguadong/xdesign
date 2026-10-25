@@ -23,8 +23,8 @@ package, timeline, and swimlane diagrams together on one page.
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
 | How the design is verified and accepted | [verification/index.md](verification/index.md) |
-| What currently runs, what is open, and what evidence exists | [records/status.md](records/status.md) |
-| Plans, reviews, executions, and wish history | [records/index.md](records/index.md) |
+| What currently runs, what is open, and what evidence exists | `xdesign store get record-status`; frozen 2026-10-25 summary in [records/status.md](records/status.md) |
+| Plans, reviews, executions, and wish history | `xdesign store list --kind record` for maintained records; frozen history in [records/index.md](records/index.md) |
 | How to name, anchor, cite, and figure a document | [AGENTS.md](AGENTS.md) |
 
 <a id="a08"></a>
@@ -32,8 +32,9 @@ package, timeline, and swimlane diagrams together on one page.
 ## Reading paths
 
 Start with this page, then follow the class page for the task. Use the linked section
-when a rule matters, and use [current status](records/status.md) when capability or open
-work matters. Page order is not the document set.
+when a rule matters, and use the store `record-status` item when capability or open work
+matters; the frozen 2026-10-25 page remains as historical evidence. Page order is not the
+document set.
 
 <a id="a09"></a>
 
@@ -46,7 +47,7 @@ work matters. Page order is not the document set.
 | Detailed design | `design/` | module behavior, gates, revisions, evidence, and API design |
 | Interface control | `interfaces/` | ICD, command line, and record data contracts |
 | Verification design | `verification/` | methods, cases, criteria, acceptance boundaries, trace |
-| Records | `records/` | plans, reviews, executions, evidence summaries, status, wish history |
+| Records | `.xdesign` record items; `records/` frozen archive | maintained plans, reviews, executions, status, wish history; the frozen archive holds their history and acceptance evidence |
 
 `AGENTS.md` is the authoring and naming rules file and is not part of the published
 reading set.
@@ -57,8 +58,10 @@ reading set.
 
 The selectable flows and their gates are described in [flow execution](design/flow.md#f03);
 their designs are in [SimpleFlow](design/flows/simple-flow/index.md) and
-[WishVerifyFlow](design/flows/wish-verify/index.md). Plans, reviews, executions, and wish
-history are in [records](records/index.md); this entry does not repeat their status.
+[WishVerifyFlow](design/flows/wish-verify/index.md). Maintained plans, reviews,
+executions, status, and wish-history updates are `record` items in the local `.xdesign`
+store (conventions in the [storage design](design/storage.md#d86)); [records](records/index.md)
+is their frozen historical archive, and this entry does not repeat either one's status.
 
 <a id="a11"></a>
 
@@ -78,11 +81,13 @@ interfaces and meaning of those annotations are defined in
 | `mbse/model/uml.sysml` | `design/api/` and the module designs |
 | `mbse/model/storage.sysml` | `design/storage.md`, `interfaces/store-format.md`, `design/api/storage/` |
 | `mbse/model/common.sysml` | `design/evidence-and-revisions.md`, `interfaces/documentation-contract.md` |
-| `mbse/wishes/wish-*.sysml` | `records/wishes/wish-history.md` (legacy/bootstrap traces) |
+| `mbse/wishes/wish-*.sysml` | `records/wishes/wish-history.md` (frozen legacy/bootstrap traces) |
 | `.xdesign/` item revisions and materials | `design/storage.md`, `interfaces/store-format.md`; local operational facts, not authored documentation |
 
 ## Status and evidence
 
-Current capability status is maintained once in `records/status.md`. Historical
-outcomes, plans, and reviews live in `records/` and keep their original dates and evidence;
-a document's presence does not freeze a baseline or establish an engineering acceptance.
+Current capability status is maintained once in the store `record-status` item; the
+frozen [records/status.md](records/status.md) is the 2026-10-25 historical snapshot.
+Historical outcomes, plans, and reviews are the frozen `records/` archive and keep their
+original dates and evidence; a document's presence does not freeze a baseline or establish
+an engineering acceptance.

@@ -1,7 +1,16 @@
 # Project records
 
-> Status: first executable SimpleFlow slice recorded. This directory records
-> decisions and acceptance work; it does not itself authorize a wish.
+> **Frozen historical archive — 2026-10-25.** This directory is no longer maintained: the
+> requester retired it because reading and rewriting it consumed disproportionate agent
+> context. The tree remains in Git unchanged as historical and acceptance evidence (for
+> example [P40](reviews/storage-challenge.md#p40) and [P44](plans/storage.md#p44)); do not
+> add or edit files here.
+>
+> Maintained plans, reviews, executions, current status, and wish-history updates are
+> immutable `record` items in the local `.xdesign` store: `xdesign store list --kind record`
+> and `xdesign store get <item>`. The item conventions and archive mapping are in the
+> [storage design](../design/storage.md#d86). The historical reading order below still
+> applies to this frozen snapshot.
 
 <a id="p01"></a>
 

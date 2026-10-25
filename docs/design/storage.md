@@ -397,3 +397,44 @@ model syntax/reference rules, not this protocol's engineering acceptance.
 [Verification requirements](../verification/requirements.md#r11) states the test,
 fault-injection, demonstration, and inspection obligations; the [execution record](../records/plans/storage.md#p39)
 retains their actual evidence and limits, separate from final human acceptance.
+
+### 1.8 Project records as operational store items
+
+On 2026-10-25 the requester retired `docs/records/` as a maintained tree because reading
+and rewriting it consumed disproportionate agent context. The Git copy is frozen as
+historical and acceptance evidence; maintained plans, reviews, executions, current status,
+and wish-history updates are immutable `record` items in the project's local `.xdesign`
+store.
+
+A record item uses `kind = "record"` and an item ID of the form
+`record-<class>-<slug>`, where the class is `plan`, `review`, `execution`, `status`,
+`wish-history`, or `index`. Metadata carries `record_class`, `source_path`, and either
+`archived_from_commit` for a frozen Git copy or no archive fields for a store-only record.
+An archived revision mirrors the Git Markdown bytes as a material of role `record` and any
+page figure as a material of role `figure`; a live record revision may instead carry only a
+compact `result` object:
+
+```json
+{"record_class": "review", "title": "...", "status": "accepted", "date": "YYYY-MM-DD",
+ "summary": ["..."], "decisions": ["..."], "evidence": ["..."], "limits": ["..."]}
+```
+
+Each change appends an immutable revision with a fresh operation ID and the current head as
+`expected_revision`. `get` returns the head revision's compact result and manifest without
+material bytes; `read` or `checkout` returns archived bytes; `history` lists revisions.
+Records are read with the ordinary store CLI:
+
+```sh
+xdesign store list --kind record
+xdesign store get record-plan-storage
+xdesign store history record-status
+xdesign store read record-plan-storage --uri docs/records/plans/storage.md --output FILE
+```
+
+The archive is a local mirror, not a second authority: `.xdesign` is gitignored and
+identity-bound, so losing the store loses the archive. The frozen Git tree remains the
+retained acceptance evidence for the delivered slices
+([P40](../records/reviews/storage-challenge.md#p40),
+[P44](../records/plans/storage.md#p44)). A later decision that accepts a new baseline
+retains a Git-tracked evidence summary before the store record is cited as current
+([D30](../interfaces/documentation-contract.md#d30)).

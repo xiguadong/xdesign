@@ -146,17 +146,17 @@ nav:
     - "Verification case design": verification/design.md
     - "Review criteria": verification/review-criteria.md
     - "Acceptance": verification/acceptance.md
-  - "Records":
+  - "Records (frozen archive)":
     - "Project records": records/index.md
-    - "Current status": records/status.md
-    - "Plans":
+    - "Current status (frozen 2026-10-25)": records/status.md
+    - "Frozen plans":
       - "SimpleFlow implementation plan": records/plans/simple-flow.md
       - "SimpleFlow implementation file plan and verification cases": records/plans/simple-flow-file-plan.md
       - "API layering restructure plan": records/plans/api-layering.md
       - "WishVerifyFlow implementation plan": records/plans/wish-verify.md
       - "Stage CLI implementation plan": records/plans/stage-cli.md
       - "Storage redesign and implementation plan": records/plans/storage.md
-    - "Reviews":
+    - "Frozen reviews":
       - "Design review synthesis": records/reviews/initial-synthesis.md
       - "SimpleFlow review fixes and follow-up verification": records/reviews/simple-flow-fixes.md
       - "Cross-layer review reconciliation": records/reviews/cross-layer-reconciliation.md
@@ -164,10 +164,10 @@ nav:
       - "Architecture baseline review": records/reviews/architecture-baseline.md
       - "Storage acceptance-challenge review fixes": records/reviews/storage-challenge.md
       - "Storage acceptance-challenge round-2 review fixes": records/reviews/storage-challenge-round2.md
-    - "Executions":
+    - "Frozen executions":
       - "SimpleFlow execution record": records/executions/simple-flow.md
       - "Wish journeys": records/executions/wish-journeys.md
-    - "Wishes":
+    - "Frozen wishes":
       - "Review and wish status": records/wishes/wish-history.md
 
 theme:

@@ -7,14 +7,18 @@ named, identified, linked, and verified. It is a rules file, not a published pag
 
 - Requirements live in `requirements/`; architecture in `architecture/`; module and API
   design in `design/`; cross-boundary contracts in `interfaces/`; verification design in
-  `verification/`; plans, reviews, executions, status, and wish history in `records/`.
+  `verification/`. Maintained plans, reviews, executions, status, and wish history are
+  immutable `record` items in the local `.xdesign` store; `records/` is their frozen
+  historical Git archive (frozen 2026-10-25) and must not be edited.
 - A design page states the design claim and links to the model element, source, verification
   case, or record that supports it. It does not copy signatures, record results, or repeat
   another page's status table.
 - `verification/` is verification design only. Executed results, evidence summaries, and
-  completion records belong in `records/` and are not rewritten as design claims.
+  completion records belong in the store record (or in the frozen archive for pre-freeze
+  history) and are not rewritten as design claims.
 - Historical records keep their dates, command results, findings, and evidence pointers.
-  Moving or linking a record does not create a new assessment.
+  Moving or linking a record does not create a new assessment. Do not edit a frozen record;
+  append a new store record revision instead.
 
 ## Paths and filenames
 

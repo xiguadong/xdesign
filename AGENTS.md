@@ -23,13 +23,13 @@ Read docs/index.md for the document map. Use the matching route and read the own
 | Architecture, composition, lifecycle, or constraints | docs/architecture/index.md and the owning system page | compiler checks; docs build |
 | Flow model, run lifecycle, gates, evidence, or adapters | docs/design/flow.md, lifecycle.md, evidence-and-revisions.md, adapters.md | compiler checks; cargo tests; docs audit |
 | SimpleFlow or WishVerifyFlow definition, implementation, or views | docs/design/flows/<flow>/index.md, then definition.md, implementation.md, views.md | compiler checks; cargo tests; design checker; docs build |
-| Operational storage, revisions, materials, receipts, or recovery | docs/design/storage.md, docs/interfaces/store-format.md, and docs/records/plans/storage.md | cargo tests; storage fault/recovery cases; docs audit |
+| Operational storage, revisions, materials, receipts, or recovery | docs/design/storage.md, docs/interfaces/store-format.md, and the frozen storage plan (docs/records/plans/storage.md) or store record `record-plan-storage` | cargo tests; storage fault/recovery cases; docs audit |
 | An API design contract or source behavior | docs/design/api/index.md and the per-API page, then the owning flow implementation | cargo tests; docs audit when docs change |
 | A SysML model or model-derived figure | mbse/AGENTS.md, docs/interfaces/documentation-contract.md, docs/architecture/constraints.md | sysml parse/check; render and verify figures |
 | Documentation structure or prose | docs/AGENTS.md, docs/index.md, and the owning page | docs audit; strict docs build |
-| Plans, reviews, executions, or wish history | docs/records/index.md and the relevant record | do not rewrite historical results; link current records |
+| Plans, reviews, executions, or wish history | docs/records/index.md for the frozen archive; maintained records through `xdesign store list --kind record` and `xdesign store get <item>` (conventions in docs/design/storage.md#d86) | do not rewrite historical results; never edit docs/records; link the store record revision |
 
-Plans for the executed slices are in docs/records/plans. They record the verified sequence and acceptance evidence; current design claims live in the design pages and current requirements/verification pages.
+The executed slices' plans and execution records are frozen historical evidence in docs/records/plans and docs/records/executions. Maintained records for those slices are `record` items in the local `.xdesign` store: read the head with `xdesign store get <item>` and its archived Markdown with the store's `read` or `checkout`. Current design claims live in the design pages and current requirements/verification pages. The frozen Git tree remains the historical acceptance evidence; the store is the operational record, not a second Git authority.
 
 ## Directory Conventions
 
@@ -39,15 +39,15 @@ Plans for the executed slices are in docs/records/plans. They record the verifie
 | src/ | Application source code. |
 | tools/ | Scripts and development utilities. |
 | docs/ | Authored documentation: requirements, architecture, design (common pages plus flow-specific pages and one document per API), interfaces, verification design, and records. Entry: docs/index.md; rules: docs/AGENTS.md. |
-| docs/records/ | Plans, reviews, execution records, evidence summaries, current status, and legacy/bootstrap wish history. |
-| .xdesign/ | Durable local operational store: new wish/run revisions, content-addressed materials, evidence, and receipts. Ignored by Git; not a development environment or temporary cache. |
+| docs/records/ | Frozen historical archive (2026-10-25): plans, reviews, execution records, evidence summaries, current status, and legacy/bootstrap wish history retained in Git as acceptance evidence. Do not edit; maintained records are `.xdesign` record items. |
+| .xdesign/ | Durable local operational store: new wish/run revisions, project record revisions, content-addressed materials, evidence, and receipts. Ignored by Git; not a development environment or temporary cache. |
 | cache/ | Temporary data, local project environments, regenerable working material, and temporary files. |
 
 Store all local project environments, including development and test environments, under cache/. Configure tools to place all caches, temporary data, and temporary files there as well. The entire cache/ directory is excluded from version control. Durable operational bytes belong in .xdesign/, whose default location can be overridden with XDESIGN_STORE_ROOT.
 
 ## Executable Flow Slices
 
-The SimpleFlow plan is docs/records/plans/simple-flow.md; the executable two-stage WishVerifyFlow plan is docs/records/plans/wish-verify.md; the storage redesign is docs/records/plans/storage.md. Their verification design is in docs/verification/design.md, and their executed results are in docs/records/executions/ and the plan records. Read the plan's review basis, source-file plan, verification cases, and acceptance boundary before changing the corresponding flow's model, API, checker commands, storage, or run code. Keep the plan and its linked design/verification documents current when a decision, source path, or verification result changes.
+The SimpleFlow plan is docs/records/plans/simple-flow.md; the executable two-stage WishVerifyFlow plan is docs/records/plans/wish-verify.md; the storage redesign is docs/records/plans/storage.md. Those pages and docs/records/executions/ are frozen historical evidence for the executed slices. Their verification design is in docs/verification/design.md. Read the frozen plan's review basis, source-file plan, verification cases, and acceptance boundary, and the corresponding `.xdesign` store record for current decisions, before changing the flow's model, API, checker commands, storage, or run code. Keep the current store record and the linked design/verification pages current when a decision, source path, or verification result changes; never edit the frozen tree.
 
 The gated four-stage SimpleFlow and the gated two-stage wish-verify flow are the executed slices. Do not describe them as a complete V-model workflow: the default V-model gate commands, generic controller integration, whole-store backup/migration, and project-level acceptance have separate obligations. A declared verification case or a passing SysML compiler check is not an executed engineering result; retain command logs and evidence under cache/ and state exactly what was tested.
 
