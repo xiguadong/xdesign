@@ -1724,3 +1724,91 @@ fn revision_manifest_must_match_producing_request() {
         .iter()
         .any(|finding| { finding.kind == xdesign::storage::RsDoctorFindingKind::InvalidRecord }));
 }
+
+/// Quote characters are legal manifest URI content but serialize to two bytes
+/// each, nearly doubling a URI inside every JSON envelope. A request can stay
+/// below the 16 MiB raw-request cap while its escaped manifest echo would
+/// exceed the envelope, so the reservation must budget the serialized length:
+/// the oversized construction is rejected before reservation, and a smaller
+/// one still commits and stays reportable through `get`.
+#[test]
+fn escaped_uri_manifest_is_budgeted_by_the_envelope_reservation() {
+    let fixture = Fixture::new();
+    let store = fixture.store();
+    fixture.write("q.bin", b"envelope probe bytes");
+    let quote_uri = |index: usize| {
+        // Four segments of at most 220 bytes: 883 raw bytes serialize to 1759.
+        let mut uri = format!("{index:04x}");
+        uri.push_str(&"\"".repeat(216));
+        for _ in 0..3 {
+            uri.push('/');
+            uri.push_str(&"\"".repeat(220));
+        }
+        uri
+    };
+    let materials = |count: usize| {
+        (0..count)
+            .map(|index| RsSaveMaterial {
+                uri: quote_uri(index),
+                role: "artifact".into(),
+                sha256: digest(b"envelope probe bytes"),
+                source: Some(PathBuf::from("q.bin")),
+            })
+            .collect::<Vec<_>>()
+    };
+
+    let oversized = fixture.request("n1-envelope-reject", "n1-item", 0, materials(8800));
+    match store.save(&fixture.project, &oversized) {
+        Err(RsStoreError::InvalidInput(message)) => {
+            assert!(message.contains("envelope"), "{message}")
+        }
+        other => panic!("expected invalid_input, got {other:?}"),
+    }
+    assert!(matches!(
+        store.outcome("n1-envelope-reject"),
+        Err(RsStoreError::NotFound(_))
+    ));
+
+    let fitting = fixture.request("n1-envelope-fit", "n1-item", 0, materials(8000));
+    let receipt = store.save(&fixture.project, &fitting).unwrap();
+    assert_eq!(receipt.outcome, RsOperationOutcome::Committed);
+    assert_eq!(receipt.revision, Some(1));
+    assert_eq!(store.get("n1-item", None).unwrap().materials.len(), 8000);
+}
+
+/// New reservations must stay materializable on the smallest supported
+/// filesystem: a URI beyond the 900-byte budget is rejected before reservation
+/// even though the general URI rule accepts it, because checkout could never
+/// realize it under a 1024-byte PATH_MAX.
+#[test]
+fn new_reservations_reject_uris_beyond_the_materialization_budget() {
+    let fixture = Fixture::new();
+    let store = fixture.store();
+    fixture.write("budget.bin", b"budget bytes");
+    let long_uri = (0..5)
+        .map(|_| "b".repeat(181))
+        .collect::<Vec<_>>()
+        .join("/");
+    assert_eq!(long_uri.len(), 909);
+    let request = fixture.request(
+        "n5-budget",
+        "n5-item",
+        0,
+        vec![RsSaveMaterial {
+            uri: long_uri,
+            role: "artifact".into(),
+            sha256: digest(b"budget bytes"),
+            source: Some(PathBuf::from("budget.bin")),
+        }],
+    );
+    match store.save(&fixture.project, &request) {
+        Err(RsStoreError::InvalidInput(message)) => {
+            assert!(message.contains("materialization"), "{message}")
+        }
+        other => panic!("expected invalid_input, got {other:?}"),
+    }
+    assert!(matches!(
+        store.outcome("n5-budget"),
+        Err(RsStoreError::NotFound(_))
+    ));
+}

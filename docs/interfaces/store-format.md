@@ -44,8 +44,16 @@ a format to make it openable.
   store.db-shm                 # SQLite sidecar when present
   blobs/sha256/ab/cdef...      # first 2 / remaining 62 digest characters
   staging/<operation-id>/      # transient, never authoritative bytes
-  locks/items/<item-id>.lock   # transient stage-writer exclusion
+  locks/items/<item-id>.lock   # transient stage-writer exclusion; dead-owner residue is a doctor finding
 ```
+
+A closed allowlist of OS-generated root entries — exactly `.DS_Store` — may be present:
+the store never reads or writes those entries, they are not doctor findings, and they do
+not make a root nonempty for `init`. Every other entry is foreign content that refuses
+`open`. A stage-writer lock whose recorded process is no longer running is crash residue:
+doctor reports it as a `stale_lock` finding (best effort — a reused pid can mask residue),
+and removing the named lock file is the supported operator recovery; doctor never removes
+it itself.
 
 `format.json` is strict JSON with exactly:
 
@@ -174,9 +182,16 @@ unrelated published or orphan blob is never adopted as a source-less material.
   refused, and a store never ingests its own root under any spelling.
 - A save must reserve room for its own receipt before reservation: the `result` and
   `metadata` nesting and serialized sizes, plus the manifest echo, must leave a fixed
-  margin below the envelope limits (6 nesting levels and 2048 bytes in schema version 1),
+  margin below the envelope limits (6 nesting levels and 2048 bytes in schema version 1).
+  Manifest entries are budgeted at their JSON-escaped serialized length — quote-heavy URIs
+  nearly double when the encoder escapes them —
   so a committed operation always has a receipt the CLI can return and the
   `response_too_large` envelope error is never the only report of committed work.
+- Every material URI in a **new** reservation must be at most 900 UTF-8 bytes in total:
+  the smallest supported `PATH_MAX` is 1024 and checkout destinations add ancestry of
+  their own, so a longer URI could commit yet never materialize. The budget gates new
+  reservations only; operations already reserved under schema 1 keep their original
+  validation and remain retryable and readable.
 - `expected_revision` and all revisions fit the nonnegative SQLite/JSON integer contract;
   the next revision must also fit. `expected_revision = 0` creates. One material is at most
   **256 MiB** (268,435,456 bytes); a 256 MiB-plus-one read proves excess rather than
@@ -299,6 +314,7 @@ xdesign store init [--root PATH]
 xdesign store info [--root PATH]
 xdesign store save --request FILE [--project-root PATH] [--root PATH]
 xdesign store outcome OPERATION_ID [--root PATH]
+xdesign store request OPERATION_ID --output FILE [--root PATH]
 xdesign store list [--kind KIND] [--status received|active|blocked|delivered] [--root PATH]
 xdesign store get ITEM_ID [--revision N] [--root PATH]
 xdesign store history ITEM_ID [--root PATH]
@@ -319,6 +335,12 @@ xdesign store doctor [--verify-bytes] [--root PATH]
 - `outcome`, `list`, `get`, and `history` return committed records/receipts in one read
   snapshot. `outcome` may explicitly return a pending receipt. `get/history` return full
   manifests; list returns heads only. No query silently truncates.
+- `request` writes the exact retained request bytes of `OPERATION_ID` to a previously
+  absent `FILE` under the same destination rules as `read` (all ancestors existing
+  non-symlink directories, no overwrite, outside the store). The envelope reports the
+  request digest, byte length, receipt state, and output path. It is the recovery input
+  for `unknown_outcome` and pending operations when the original request file is gone:
+  feeding the recovered file to `save --request FILE` is the exact retry.
 - `read` verifies bytes before atomically creating the previously absent `FILE`; stdout is
   reserved for the JSON envelope, never mixed with binary content. The envelope reports
   URI, digest, length, revision, and output path. With `--revision N` the reported

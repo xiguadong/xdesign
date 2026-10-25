@@ -24,7 +24,7 @@ Complete a read-only integrity inspection and report every finding without repai
 - `verify_bytes = false` checks format and schema, live root/database identity,
   owner/permissions and path types, item/head/revision continuity, operation/receipt rules,
   complete manifests and blob references, pending operations, orphan final blobs, staging
-  residue, and blob presence/recorded length.
+  residue, dead-owner stage-writer locks, and blob presence/recorded length.
 - `verify_bytes = true` additionally streams every published blob through EOF and verifies
   recorded length and SHA-256. A length mismatch can be `MissingBlob` for absent/truncated
   content or `AlteredBlob` for changed content; the finding detail states the observed
@@ -41,13 +41,15 @@ defects remain findings rather than aborting a scan that can safely continue.
 
 Doctor never updates, deletes, repairs, adopts, migrates, or cleans anything. It does not
 finalize pending operations, remove staging/orphans, rewrite records, or make altered bytes
-trusted. The report is observation output only.
+trusted. It reports a stage-writer lock whose recorded process is no longer running as a
+`StaleLock` finding without removing it, so clearing that crash residue remains an operator
+action. The report is observation output only.
 
 **Errors**
 
 `Io`/`Database` reports local inspection failure; `UnsafePath` reports that a live path cannot
-be inspected safely. Format, identity, record, permission, pending, orphan, staging, and byte
-defects use [`RsDoctorFindingKind`](rs-doctor-finding-kind.md#u95) when the inspection can
+be inspected safely. Format, identity, record, permission, pending, orphan, staging, lock, and
+byte defects use [`RsDoctorFindingKind`](rs-doctor-finding-kind.md#u95) when the inspection can
 complete. Any finding maps to store CLI exit 5 in
 [I14](../../../interfaces/store-format.md#i14).
 
@@ -61,7 +63,8 @@ remains a separate successful query with explicit pending data.
 1. Revalidate safe access and inspect format/schema, live and recorded identity, ownership,
    permissions, and path types.
 2. Inspect item/head/revision continuity, operations/receipts, complete manifests, blob
-   references, pending operations, orphan final blobs, and staging residue.
+   references, pending operations, orphan final blobs, staging residue, and dead-owner
+   stage-writer locks.
 3. Check blob presence and recorded lengths; when requested, stream and hash every published
    blob through EOF.
 4. Accumulate every safely discoverable finding, return the completed report, and perform no

@@ -22,6 +22,15 @@ pub(crate) const APPLICATION_ID: i64 = 0x58445331;
 pub(crate) const MAX_JSON_BYTES: usize = 16 * 1024 * 1024;
 pub(crate) const MAX_JSON_DEPTH: usize = 64;
 pub(crate) const MAX_MATERIAL_BYTES: u64 = 256 * 1024 * 1024;
+// A material URI becomes a real path component chain when a revision is
+// checked out. The smallest supported PATH_MAX is 1024 bytes and checkout
+// destinations add ancestry of their own, so new reservations cap every
+// material URI at 900 UTF-8 bytes. The budget gates new reservations only:
+// it must not enter `validate_request`, because stored requests are
+// revalidated by that function on every read and a later-added rule there
+// would make every already-reserved longer-URI operation unreadable and
+// unretryable.
+pub(crate) const MAX_MATERIAL_URI_BYTES: usize = 900;
 // Receipts and revision echoes re-emit request JSON inside command envelopes.
 // Saves reserve this much nesting and byte capacity up front so an accepted
 // request can never commit a receipt the CLI is then unable to return.
@@ -130,6 +139,7 @@ pub enum RsDoctorFindingKind {
     MissingBlob,
     AlteredBlob,
     StagingArtifact,
+    StaleLock,
     InvalidRecord,
     FormatDefect,
     IdentityMismatch,

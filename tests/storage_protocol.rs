@@ -366,10 +366,10 @@ fn unrelated_orphan_cannot_be_adopted_without_a_source() {
 }
 
 /// Construct the exact on-disk state of a process that crashed after
-/// `publish_blobs` returned but before `finalize_operation` committed: a
+/// `publish_blob` returned but before `finalize_operation` committed: a
 /// pending operation row, its pending blob reservations, an attempt-staged
 /// digest file, and the hard-linked published blob. This is the same layout
-/// `blobs::publish_blobs` produces (staging/<operation_id>/<attempt>/<digest>),
+/// `blobs::publish_blob` produces (staging/<operation_id>/<attempt>/<digest>),
 /// which is the attribution evidence used for recovery.
 fn simulate_crash_after_publish(
     fixture: &Fixture,
@@ -494,6 +494,74 @@ fn pending_own_publication_recovers_after_source_loss() {
     assert_eq!(
         store
             .read_material("carried-item", Some(1), "carried.txt")
+            .unwrap(),
+        bytes
+    );
+}
+
+/// The materialization budget gates new reservations only. This operation is
+/// reserved directly with a 4095-byte material URI — the state a schema-1
+/// reservation made before the budget existed would leave behind — and its
+/// exact retry must resume, read its source, publish, and commit rather than
+/// being rejected by the newer rule.
+#[test]
+fn already_reserved_long_uri_operation_still_resumes_and_commits() {
+    let fixture = Fixture::new();
+    let store = fixture.store();
+    let bytes = b"long-uri recovery bytes";
+    let long_uri = (0..16)
+        .map(|_| "l".repeat(255))
+        .collect::<Vec<_>>()
+        .join("/");
+    assert_eq!(long_uri.len(), 4095);
+    let request = fixture.request(
+        "n5-prebudget-pending",
+        "n5-legacy-item",
+        0,
+        vec![RsSaveMaterial {
+            uri: long_uri.clone(),
+            role: "artifact".into(),
+            sha256: digest(bytes),
+            source: Some(PathBuf::from("long.bin")),
+        }],
+    );
+    let raw = serde_json::to_vec(&request).unwrap();
+    fixture.write("long.bin", bytes);
+    let result_json = String::from_utf8(serde_json::to_vec(&request.result).unwrap()).unwrap();
+    let connection = rusqlite::Connection::open(fixture.root.join("store.db")).unwrap();
+    connection
+        .execute(
+            "INSERT INTO operations
+             (operation_id, request_bytes, request_sha256, outcome, item_id,
+              expected_revision, revision, result_json)
+             VALUES (?1, ?2, ?3, 'pending', ?4, 0, NULL, ?5)",
+            rusqlite::params![
+                request.operation_id,
+                raw,
+                digest(&raw),
+                request.item_id,
+                result_json,
+            ],
+        )
+        .unwrap();
+    connection
+        .execute(
+            "INSERT INTO pending_blobs (operation_id, sha256) VALUES (?1, ?2)",
+            rusqlite::params![request.operation_id, request.materials[0].sha256],
+        )
+        .unwrap();
+    drop(connection);
+    assert_eq!(
+        store.outcome("n5-prebudget-pending").unwrap().outcome,
+        RsOperationOutcome::Pending
+    );
+
+    let receipt = store.save_bytes(&fixture.project, &raw).unwrap();
+    assert_eq!(receipt.outcome, RsOperationOutcome::Committed);
+    assert_eq!(receipt.revision, Some(1));
+    assert_eq!(
+        store
+            .read_material("n5-legacy-item", Some(1), &long_uri)
             .unwrap(),
         bytes
     );

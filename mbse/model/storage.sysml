@@ -200,12 +200,17 @@ package XDesignStorage {
                Manifest names must be materializable: no name is both file and directory,
                and distinct URI and implied-directory names stay distinct under
                host-independent Unicode canonical decomposition (NFD) plus case folding.
-               Open numbers are accepted only when the stored representation is an exact
+               A new reservation additionally caps every material URI at 900 UTF-8 bytes
+               so checkout can materialize it under the smallest supported PATH_MAX;
+               operations already reserved before this budget keep their original
+               validation and remain retryable. Open numbers are accepted only when the
+               stored representation is an exact
                decode/re-encode fixed point under the single pinned numeric parser and
                serializer; overflowing integers, non-canonical decimals, and unsupported
-               extreme exponent ranges are rejected without rounding or panic. Results
-               and metadata must reserve room for the response envelope. The exact
-               request bytes determine requestSha256. */
+               extreme exponent ranges are rejected without rounding or panic. Results,
+               metadata, and the manifest echo must reserve room for the response
+               envelope; manifest entries are budgeted at their JSON-escaped serialized
+               length. The exact request bytes determine requestSha256. */
         }
         then action inspectReceipt {
             @XDesignCommon::DiagramPresentation { label = "Inspect receipt"; }
@@ -232,23 +237,30 @@ package XDesignStorage {
         then action readSources {
             @XDesignCommon::DiagramPresentation { label = "Reuse published, read sources"; }
             doc /* Resolve the project root and source paths only after reservation. Reuse
-               and digest-verify content backed by a committed blob row or this operation's
-               own earlier publication before reading any source, so a pending recovery
+               and digest-verify, through a bounded streaming length-and-digest pass,
+               content backed by a committed blob row or this operation's own earlier publication
+               before reading any source, so a pending recovery
                completes even after its transient sources are gone; an unrelated published
                or orphan blob is never adopted for an omitted source. Only then read
                remaining regular files through safe project-relative paths with the 256
-               MiB per-material cap, requiring byte-for-byte digest matches. A source is
-               never inside the store root under any case or symlink alias. */
+               MiB per-material cap, reading each new source through one reused
+               material-sized buffer and requiring byte-for-byte digest matches. A source
+               is never inside the store root under any case or symlink alias. */
         }
         then action publishBlobs {
             @XDesignCommon::DiagramPresentation { label = "Publish blobs"; }
-            doc /* Stage, fsync and publish every required blob with no-replace semantics,
-               then fsync containing directories. Identical committed bytes deduplicate;
-               missing or altered final bytes are never trusted. */
+            doc /* Resolve, verify, and publish one material at a time in manifest order
+               so the save working set is bounded by the largest single material rather
+               than the manifest total; aliased materials publish one digest once per
+               attempt. Stage, fsync and publish every required blob with no-replace
+               semantics, then fsync containing directories. Identical committed bytes
+               deduplicate; missing or altered final bytes are never trusted. */
         }
         then action commitTransaction {
             @XDesignCommon::DiagramPresentation { label = "Commit or conflict"; }
-            doc /* BEGIN IMMEDIATE; recheck operation identity and expected head. Commit
+            doc /* BEGIN IMMEDIATE; recheck operation identity and expected head.
+               Re-verify every referenced published blob through a bounded streaming
+               length-and-digest pass while the write lock is held. Commit
                item creation when needed, revision, complete manifest, blob references,
                committed receipt and head advance together, or commit only a durable
                conflict receipt. No revision row may reference an unpublished blob. */
@@ -306,6 +318,7 @@ package XDesignStorage {
         enum missingBlob;
         enum alteredBlob;
         enum stagingArtifact;
+        enum staleLock;
         enum invalidRecord;
         enum formatDefect;
         enum identityMismatch;
@@ -330,9 +343,10 @@ package XDesignStorage {
     action def DoctorOperation {
         @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D86"; }
         doc /* Inspect format and filesystem identity, owner permissions, record and
-           manifest references, orphan blobs, pending operations and staging residue.
-           Optionally hash every published blob through end of file. Never repair, delete,
-           migrate, or convert findings into a clean result. */
+           manifest references, orphan blobs, pending operations, staging residue, and
+           dead-owner stage-writer locks. Optionally hash every published blob through
+           end of file. Never repair, delete, migrate, or convert findings into a clean
+           result. */
         in attribute verifyBytes : Boolean;
         out item report : DoctorReport;
 
@@ -346,8 +360,9 @@ package XDesignStorage {
                SHA-256 through end of file; otherwise check presence and recorded length. */
         }
         then action reportFindings {
-            doc /* Return every discovered finding, including orphan and staging state;
-               perform no cleanup or implicit repair. */
+            doc /* Return every discovered finding, including orphan, staging and
+               stale-lock state; perform no cleanup or implicit repair. Removing a named
+               stale lock stays an operator action. */
         }
         first start then inspectRecords;
         succession recordsInspected first inspectRecords then inspectBytes;

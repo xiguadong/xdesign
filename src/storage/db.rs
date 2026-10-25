@@ -38,6 +38,11 @@ const ROOT_ENTRIES: [&str; 7] = [
     "staging",
     "locks",
 ];
+// macOS Finder writes .DS_Store into directories it browses. Entries in this
+// closed allowlist are inert to every store semantic, are never read or
+// written by the store, and keep a browsed store openable; any other name
+// remains foreign content refused at open.
+const IGNORED_ROOT_ENTRIES: [&str; 1] = [".DS_Store"];
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -224,8 +229,19 @@ pub(crate) fn init(root: &Path) -> Result<RsStore, RsStoreError> {
                     "store root is not a directory".into(),
                 ));
             }
-            let mut entries = fs::read_dir(root).map_err(io_error)?;
-            if entries.next().transpose().map_err(io_error)?.is_some() {
+            // Only entries outside the closed OS-generated allowlist make the
+            // root nonempty for creation purposes; a browsed empty directory
+            // stays a safe empty root.
+            let foreign = fs::read_dir(root)
+                .map_err(io_error)?
+                .filter_map(|entry| entry.ok())
+                .any(|entry| {
+                    entry
+                        .file_name()
+                        .to_str()
+                        .is_some_and(|name| !IGNORED_ROOT_ENTRIES.contains(&name))
+                });
+            if foreign {
                 return open(root);
             }
         }
@@ -436,7 +452,7 @@ fn check_root_entries(root: &Path) -> Result<(), RsStoreError> {
         let name = name.to_str().ok_or_else(|| {
             RsStoreError::UnsupportedFormat("store root contains a non-UTF-8 entry".into())
         })?;
-        if !ROOT_ENTRIES.contains(&name) {
+        if !ROOT_ENTRIES.contains(&name) && !IGNORED_ROOT_ENTRIES.contains(&name) {
             return Err(RsStoreError::UnsupportedFormat(format!(
                 "store root contains foreign content: {name}"
             )));

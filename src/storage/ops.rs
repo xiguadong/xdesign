@@ -1,14 +1,15 @@
 use super::{
     blobs::{
         self, blob_path, canonical_existing, canonical_for_creation, cleanup_operation_staging,
-        published_by_attempt, read_published, read_published_any, read_source, verify_published,
+        published_by_attempt, read_published, read_source, verify_published,
+        verify_published_length,
     },
     compact_json, database_error, from_i64, io_error, json_depth, manifest_entry_collision, sha256,
     strict_json, to_i64, valid_digest, valid_id, valid_revision, valid_token, valid_uri,
     RsCheckoutReport, RsDoctorFinding, RsDoctorFindingKind, RsDoctorReport, RsItemRevision,
     RsItemSummary, RsMaterial, RsOperationOutcome, RsOperationReceipt, RsSaveRequest, RsStore,
     RsStoreError, RsWishProjection, RsWishStatus, MAX_JSON_BYTES, MAX_JSON_DEPTH,
-    MAX_MATERIAL_BYTES, RESPONSE_BYTES_MARGIN, RESPONSE_DEPTH_MARGIN,
+    MAX_MATERIAL_BYTES, MAX_MATERIAL_URI_BYTES, RESPONSE_BYTES_MARGIN, RESPONSE_DEPTH_MARGIN,
 };
 use crate::core::{RsCheckKind, RsConformanceKind, RsFlowStatus, RsStageVisit};
 use rusqlite::{Connection, OptionalExtension};
@@ -310,10 +311,53 @@ fn validate_request(request: &RsSaveRequest) -> Result<(), RsStoreError> {
     Ok(())
 }
 
+/// Filesystem materialization budget for new reservations. `valid_uri`
+/// accepts 4096-byte URIs, but the smallest supported `PATH_MAX` is 1024, so
+/// such a manifest could commit and then fail every checkout with
+/// `ENAMETOOLONG`; a new reservation therefore requires every material URI to
+/// stay at or below [`MAX_MATERIAL_URI_BYTES`]. This deliberately does NOT
+/// live in [`validate_request`]: stored requests are revalidated through that
+/// function on every read, and a later-added rule there would make every
+/// already-reserved longer-URI operation unreadable and unretryable. The gate
+/// runs only when no operation row exists yet, so exact retries and pending
+/// resumes of already-reserved operations keep working.
+fn validate_materializable(request: &RsSaveRequest) -> Result<(), RsStoreError> {
+    for material in &request.materials {
+        if material.uri.len() > MAX_MATERIAL_URI_BYTES {
+            return Err(RsStoreError::InvalidInput(format!(
+                "material URI exceeds the {MAX_MATERIAL_URI_BYTES}-byte filesystem \
+                 materialization budget: {}",
+                material.uri
+            )));
+        }
+    }
+    Ok(())
+}
+
+/// Serialized length of `value` as a JSON string literal, counting the two
+/// surrounding quotes. The pinned `serde_json` encoder emits `"` and `\` as
+/// two-byte escapes and other control characters as six-byte `\u` escapes;
+/// URI validation already rejects backslashes and control characters, but
+/// quotes are legal segment content and nearly double a URI's serialized
+/// form, so the envelope reservation must budget this length, not
+/// `str::len`.
+fn json_string_serialized_len(value: &str) -> usize {
+    value
+        .chars()
+        .map(|character| match character {
+            '"' | '\\' | '\u{08}' | '\u{0c}' | '\n' | '\r' | '\t' => 2,
+            control if (control as u32) < 0x20 => 6,
+            _ => character.len_utf8(),
+        })
+        .sum::<usize>()
+        + 2
+}
+
 /// Receipts and revision echoes re-emit request JSON inside bounded command
 /// envelopes. A request that leaves no room for those wrappers is rejected
 /// before reservation, so a committed operation always has a reportable
-/// receipt.
+/// receipt. Manifest entries are budgeted at their JSON-escaped serialized
+/// size, because that is what the revision echo actually contains.
 fn reserve_response_capacity(request: &RsSaveRequest) -> Result<(), RsStoreError> {
     let metadata_value = Value::Object(request.metadata.clone());
     if json_depth(&request.result) + RESPONSE_DEPTH_MARGIN > MAX_JSON_DEPTH
@@ -329,7 +373,12 @@ fn reserve_response_capacity(request: &RsSaveRequest) -> Result<(), RsStoreError
     let manifest_bytes: usize = request
         .materials
         .iter()
-        .map(|material| material.uri.len() + material.role.len() + material.sha256.len() + 96)
+        .map(|material| {
+            json_string_serialized_len(&material.uri)
+                + material.role.len()
+                + material.sha256.len()
+                + 96
+        })
         .sum();
     let receipt_bytes = 256 + result_bytes;
     let revision_bytes = 384 + metadata_bytes + manifest_bytes;
@@ -573,14 +622,22 @@ struct Prepared {
     byte_length: u64,
 }
 
+/// Resolves, verifies, and — for new content — publishes each material of the
+/// request as one unit, in manifest order, before the next material is read.
+/// Committed blobs and this operation's own earlier publications are verified
+/// with bounded streaming passes; a new source is read through one reused
+/// material-sized buffer, digest-checked, and published immediately, so the
+/// save working set is the largest single material plus fixed bookkeeping,
+/// independent of the manifest size and of repeated allocation churn.
 fn prepare_materials(
     store: &RsStore,
     project_root: &Path,
     request: &RsSaveRequest,
-) -> Result<(Vec<Prepared>, Vec<(String, Vec<u8>)>), RsStoreError> {
+    publication: &mut Option<blobs::Publication>,
+) -> Result<Vec<Prepared>, RsStoreError> {
     let mut prepared = Vec::new();
-    let mut to_publish = Vec::new();
-    let mut new_digests = BTreeSet::new();
+    let mut published_digests = BTreeSet::new();
+    let mut source_bytes = Vec::new();
     for material in &request.materials {
         // Published content is reused without consulting a source only when it
         // is attributable: either a committed blob row already records the
@@ -588,41 +645,38 @@ fn prepare_materials(
         // An unrelated operation's failed publication leaves an orphan blob
         // with no committed row and no attribution here, so source omission is
         // refused rather than adopting another operation's leftover.
-        let committed_length = blob_length(&store.conn, &material.sha256)?;
-        let byte_length = if let Some(length) = committed_length {
-            let bytes = read_published_any(&store.root, &material.sha256)
+        let byte_length = if let Some(length) = blob_length(&store.conn, &material.sha256)? {
+            verify_published(&store.root, &material.sha256, length)
                 .map_err(|error| with_operation(error, &request.operation_id))?;
-            if bytes.len() as u64 != length {
-                return Err(RsStoreError::Integrity(format!(
-                    "committed blob length differs for {}: expected {length}, read {}",
-                    material.sha256,
-                    bytes.len()
-                )));
-            }
-            bytes.len() as u64
+            length
         } else if published_by_attempt(&store.root, &request.operation_id, &material.sha256)? {
-            let bytes = read_published_any(&store.root, &material.sha256)
-                .map_err(|error| with_operation(error, &request.operation_id))?;
-            bytes.len() as u64
+            verify_published_length(&store.root, &material.sha256)
+                .map_err(|error| with_operation(error, &request.operation_id))?
         } else if let Some(source) = &material.source {
             let source = source.to_str().ok_or_else(|| {
                 RsStoreError::InvalidInput("source path is not strict UTF-8".into())
             })?;
-            let bytes = read_source(project_root, source)
+            let length = read_source(project_root, source, &mut source_bytes)
                 .map_err(|error| with_operation(error, &request.operation_id))?;
-            if sha256(&bytes) != material.sha256 {
+            if sha256(&source_bytes) != material.sha256 {
                 return Err(RsStoreError::InvalidInput(format!(
                     "source bytes do not match declared SHA-256: {}",
                     material.uri
                 )));
             }
-            if new_digests.insert(material.sha256.clone()) {
-                let length = bytes.len() as u64;
-                to_publish.push((material.sha256.clone(), bytes));
-                length
-            } else {
-                bytes.len() as u64
+            // Aliased materials share one digest; it is staged and published
+            // once per attempt, and later aliases reuse that publication.
+            if published_digests.insert(material.sha256.clone()) {
+                blobs::publish_blob(
+                    &store.root,
+                    &request.operation_id,
+                    publication,
+                    &material.sha256,
+                    &source_bytes,
+                )
+                .map_err(|_| unknown(&request.operation_id))?;
             }
+            length
         } else {
             return Err(RsStoreError::NotFound(format!(
                 "carried digest has never been committed: {}",
@@ -642,8 +696,7 @@ fn prepare_materials(
         });
     }
     prepared.sort_by(|left, right| left.uri.cmp(&right.uri));
-    to_publish.sort_by(|left, right| left.0.cmp(&right.0));
-    Ok((prepared, to_publish))
+    Ok(prepared)
 }
 
 fn item_row(conn: &Connection, item_id: &str) -> Result<Option<(String, u64)>, RsStoreError> {
@@ -699,8 +752,11 @@ fn finalize_operation(
             [&request.operation_id],
         )?;
     } else {
+        // Every referenced blob is re-verified inside the write transaction
+        // through bounded streaming passes: digest and length through end of
+        // file, with no material-sized buffering while the write lock is held.
         for material in prepared {
-            read_published(&store.root, &material.sha256, material.byte_length)
+            verify_published(&store.root, &material.sha256, material.byte_length)
                 .map_err(|_| unknown(&request.operation_id))?;
         }
         if current.is_none() {
@@ -813,14 +869,18 @@ impl RsStore {
         // retry of a committed operation must replay even when the original
         // project root or source paths no longer exist. A new or pending
         // operation still re-validates its project tree and reserves below.
-        if let Some(reservation) = inspect_operation(self, &request, raw)? {
-            if let Reservation::Terminal(receipt) = reservation {
+        match inspect_operation(self, &request, raw)? {
+            Some(Reservation::Terminal(receipt)) => {
                 // The receipt is durable; recovery staging for this operation
                 // is no longer authoritative. Cleanup stays best effort so a
                 // transient filesystem problem cannot hide a committed receipt.
                 let _ = cleanup_operation_staging(&self.root, &request.operation_id);
                 return Ok(receipt);
             }
+            // An already-reserved request keeps the validation it was reserved
+            // under: the materialization budget gates new reservations only.
+            Some(Reservation::Pending) => {}
+            None => validate_materializable(&request)?,
         }
         let project_root = canonical_existing(project_root)?;
         if !project_root.is_dir() {
@@ -852,10 +912,12 @@ impl RsStore {
             Reservation::Pending => {}
         }
         fault_after_reservation(&request.operation_id)?;
-        let (prepared, to_publish) = prepare_materials(self, &project_root, &request)
+        // Each material is resolved, verified, and published as one unit; the
+        // publication handle is released only after a terminal receipt, so any
+        // earlier failure leaves the attribution evidence intact.
+        let mut publication = None;
+        let prepared = prepare_materials(self, &project_root, &request, &mut publication)
             .map_err(|error| with_operation(error, &request.operation_id))?;
-        let publication = blobs::publish_blobs(&self.root, &request.operation_id, &to_publish)
-            .map_err(|_| unknown(&request.operation_id))?;
         fault_after_publish(&request.operation_id)?;
         // Publication staging is retained until a terminal receipt is durable:
         // a failed or unknown finalize must leave the attribution evidence that
@@ -2104,6 +2166,87 @@ fn inspect_staging(
     Ok(())
 }
 
+/// Transient per-wish writer locks live under `locks/items/`. A lock whose
+/// recorded owner is no longer running is crash residue that blocks every
+/// future `check` of that wish until an operator removes it, so doctor must
+/// surface it. A lock whose recorded process is still alive is normal
+/// concurrent operation and is not a finding; the liveness check is best
+/// effort — a reused pid can mask residue, which is why removal stays an
+/// operator action rather than an automatic repair.
+fn inspect_locks(root: &Path, findings: &mut Vec<RsDoctorFinding>) -> Result<(), RsStoreError> {
+    let items = root.join("locks/items");
+    let entries = match fs::read_dir(&items) {
+        Ok(entries) => entries,
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(()),
+        Err(error) => return Err(io_error(error)),
+    };
+    for entry in entries {
+        let entry = entry.map_err(io_error)?;
+        let path = entry.path();
+        let subject = relative_display(root, &path);
+        let metadata = fs::symlink_metadata(&path).map_err(io_error)?;
+        if metadata.file_type().is_symlink() {
+            push_finding(
+                findings,
+                RsDoctorFindingKind::IdentityMismatch,
+                subject,
+                "writer lock path is a symbolic link",
+            );
+            continue;
+        }
+        if !metadata.is_file() {
+            push_finding(
+                findings,
+                RsDoctorFindingKind::FormatDefect,
+                subject,
+                "writer lock path is not a regular file",
+            );
+            continue;
+        }
+        if let Err(error) = blobs::store_file(&path, 0o600) {
+            push_finding(
+                findings,
+                RsDoctorFindingKind::PermissionDefect,
+                &subject,
+                error.to_string(),
+            );
+        }
+        let contents = fs::read(&path).map_err(io_error)?;
+        let text = String::from_utf8_lossy(&contents);
+        let recorded = text
+            .split_whitespace()
+            .find_map(|token| token.strip_prefix("pid="))
+            .and_then(|pid| pid.parse::<i32>().ok());
+        let stale = match recorded {
+            #[cfg(unix)]
+            Some(pid) if pid > 0 => {
+                let signaled = unsafe { libc::kill(pid, 0) } == 0;
+                let exists =
+                    signaled || std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM);
+                !exists
+            }
+            _ => true,
+        };
+        if stale {
+            push_finding(
+                findings,
+                RsDoctorFindingKind::StaleLock,
+                subject,
+                match recorded {
+                    Some(pid) => format!(
+                        "stage-writer lock records pid {pid}, which is not running; \
+                         removing the named lock file is the supported operator recovery"
+                    ),
+                    None => "stage-writer lock has no readable recorded owner; \
+                         removing the named lock file is the supported operator recovery"
+                        .to_owned(),
+                },
+            );
+        }
+    }
+    Ok(())
+}
+
 fn inspect_root(
     root: &Path,
     verify_bytes: bool,
@@ -2174,6 +2317,9 @@ fn inspect_root(
         "blobs",
         "staging",
         "locks",
+        // The closed OS-generated allowlist shared with open/init: inert to
+        // every store semantic, never read or written, and not a finding.
+        ".DS_Store",
     ];
     match fs::read_dir(root) {
         Ok(entries) => {
@@ -2395,6 +2541,7 @@ fn inspect_root(
         )?;
     }
     inspect_staging(root, &root.join("staging"), &mut findings)?;
+    inspect_locks(root, &mut findings)?;
     Ok(RsDoctorReport {
         verify_bytes,
         findings,
@@ -2549,9 +2696,9 @@ mod tests {
         let request = fixture.request();
         let raw = serde_json::to_vec_pretty(&request).unwrap();
         reserve(&store, &request, &raw).unwrap();
-        let (prepared, to_publish) = prepare_materials(&store, &fixture.project, &request).unwrap();
-        let publication =
-            blobs::publish_blobs(&store.root, &request.operation_id, &to_publish).unwrap();
+        let mut publication = None;
+        let prepared =
+            prepare_materials(&store, &fixture.project, &request, &mut publication).unwrap();
         blobs::cleanup_publication(publication).unwrap();
         let digest = &request.materials[0].sha256;
         fs::remove_file(blob_path(&store.root, digest).unwrap()).unwrap();

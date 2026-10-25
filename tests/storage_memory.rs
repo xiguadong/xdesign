@@ -1,9 +1,11 @@
 //! S7b peak-heap regression: checkout must verify and materialize blobs with
 //! bounded streaming buffers instead of expanding the whole manifest in memory.
+//! The N2 regression below holds the save path to the same bound: publishing
+//! per material instead of buffering the whole new-material set.
 //!
 //! The review measured roughly 73 MB RSS for 64 aliases of one 1 MiB blob
-//! while the request itself was only ~9 KiB. This target runs a single test
-//! with a counting global allocator so the checkout peak is attributable per
+//! while the request itself was only ~9 KiB. This target runs each test with
+//! a counting global allocator so the peak is attributable per
 //! integration-test process; verification of the written bytes happens only
 //! after the measurement window closes.
 
@@ -151,5 +153,65 @@ fn checkout_peak_heap_stays_bounded_for_many_aliases() {
         let written = fs::read(destination.join(format!("alias-{index:02}.bin"))).unwrap();
         assert_eq!(written.len(), BLOB_BYTES, "alias {index} is truncated");
         assert_eq!(written, content, "alias {index} is not byte-correct");
+    }
+}
+
+/// N2 peak-heap regression: saving many distinct new materials must publish
+/// each one as it is read instead of accumulating every material's bytes
+/// before publication. The pre-fix implementation buffered all new bytes in
+/// one vector, so a 32 x 1 MiB save peaked above 32 MiB of heap.
+#[test]
+fn save_peak_heap_stays_bounded_for_many_new_materials() {
+    let base = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("cache/implementation/storage-memory-tests")
+        .join(uuid::Uuid::new_v4().to_string());
+    let project = base.join("project");
+    fs::create_dir_all(&project).unwrap();
+    let root = base.join("store");
+    let store = RsStore::init(&root).unwrap();
+
+    const NEW_MATERIALS: usize = 32;
+    let content = |index: usize| {
+        (0..BLOB_BYTES)
+            .map(|byte| ((index.wrapping_mul(37) + byte) % 251) as u8)
+            .collect::<Vec<u8>>()
+    };
+    let materials: Vec<_> = (0..NEW_MATERIALS)
+        .map(|index| {
+            let bytes = content(index);
+            let uri = format!("new-{index:02}.bin");
+            fs::write(project.join(&uri), &bytes).unwrap();
+            RsSaveMaterial {
+                uri,
+                role: "artifact".into(),
+                sha256: digest(&bytes),
+                source: Some(PathBuf::from(format!("new-{index:02}.bin"))),
+            }
+        })
+        .collect();
+    let create = request("memory-save-create", 0, materials);
+
+    let baseline = reset_peak();
+    let receipt = store.save(&project, &create).unwrap();
+    let measured_peak = peak();
+    let growth = measured_peak.saturating_sub(baseline);
+    assert_eq!(receipt.outcome, RsOperationOutcome::Committed);
+    assert_eq!(receipt.revision, Some(1));
+    eprintln!(
+        "save peak heap growth: {growth} bytes over baseline {baseline} \
+         ({NEW_MATERIALS} new materials of {BLOB_BYTES} bytes)"
+    );
+    assert!(
+        growth < 16 * 1024 * 1024,
+        "save grew peak heap by {growth} bytes (baseline {baseline}, peak {measured_peak}); \
+         the pre-fix implementation buffered roughly {NEW_MATERIALS} MiB of new material bytes"
+    );
+
+    // Byte correctness is verified outside the measurement window.
+    for index in 0..NEW_MATERIALS {
+        let read = store
+            .read_material("memory-item", Some(1), &format!("new-{index:02}.bin"))
+            .unwrap();
+        assert_eq!(read, content(index), "material {index} is not byte-correct");
     }
 }

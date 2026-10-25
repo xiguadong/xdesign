@@ -289,7 +289,16 @@ pub(crate) fn read_store_file(path: &Path, mode: u32) -> Result<Vec<u8>, RsStore
     Ok(bytes)
 }
 
-pub(crate) fn read_source(root: &Path, source: &str) -> Result<Vec<u8>, RsStoreError> {
+/// Read one project-relative source through end of file into `buffer` and
+/// return its length. The caller reuses one buffer across a save manifest, so
+/// source reading holds one material-sized allocation instead of one allocation
+/// per material; this keeps the save working set bounded where repeated
+/// multi-megabyte allocations would otherwise accumulate allocator retention.
+pub(crate) fn read_source(
+    root: &Path,
+    source: &str,
+    buffer: &mut Vec<u8>,
+) -> Result<u64, RsStoreError> {
     if !valid_uri(source) {
         return Err(RsStoreError::UnsafePath(format!(
             "invalid project-relative source path: {source}"
@@ -322,16 +331,16 @@ pub(crate) fn read_source(root: &Path, source: &str) -> Result<Vec<u8>, RsStoreE
         }
     }
     let file = open_no_follow(&path, None, false)?;
-    let mut bytes = Vec::new();
+    buffer.clear();
     file.take(MAX_MATERIAL_BYTES + 1)
-        .read_to_end(&mut bytes)
+        .read_to_end(buffer)
         .map_err(io_error)?;
-    if bytes.len() as u64 > MAX_MATERIAL_BYTES {
+    if buffer.len() as u64 > MAX_MATERIAL_BYTES {
         return Err(RsStoreError::InvalidInput(format!(
             "source exceeds 256 MiB: {source}"
         )));
     }
-    Ok(bytes)
+    Ok(buffer.len() as u64)
 }
 
 pub(crate) fn blob_path(root: &Path, digest: &str) -> Result<PathBuf, RsStoreError> {
@@ -351,13 +360,18 @@ pub(crate) fn read_published(
     digest: &str,
     expected_length: u64,
 ) -> Result<Vec<u8>, RsStoreError> {
-    read_published_checked(root, digest, Some(expected_length))
-}
-
-/// Reads and digest-verifies a published blob whose committed length is not
-/// yet known, for example a blob published by a pending attempt.
-pub(crate) fn read_published_any(root: &Path, digest: &str) -> Result<Vec<u8>, RsStoreError> {
-    read_published_checked(root, digest, None)
+    if expected_length > MAX_MATERIAL_BYTES {
+        return Err(RsStoreError::Integrity(
+            "stored material length exceeds 256 MiB".into(),
+        ));
+    }
+    let file = open_published(root, digest)?;
+    let mut bytes = Vec::with_capacity(expected_length.min(1 << 20) as usize);
+    stream_published(file, digest, Some(expected_length), |chunk| {
+        bytes.extend_from_slice(chunk);
+        Ok(())
+    })?;
+    Ok(bytes)
 }
 
 /// Opens a published blob after the strict store path, ownership, type, and
@@ -443,23 +457,19 @@ pub(crate) fn verify_published(
     stream_published(file, digest, Some(expected_length), |_| Ok(()))
 }
 
-fn read_published_checked(
-    root: &Path,
-    digest: &str,
-    expected_length: Option<u64>,
-) -> Result<Vec<u8>, RsStoreError> {
-    if expected_length.is_some_and(|length| length > MAX_MATERIAL_BYTES) {
-        return Err(RsStoreError::Integrity(
-            "stored material length exceeds 256 MiB".into(),
-        ));
-    }
+/// Verifies a published blob whose committed length is not yet known — for
+/// example a blob published by an earlier attempt of a pending operation —
+/// and returns the verified length. Like [`verify_published`] this streams
+/// through one bounded buffer, so the caller learns the digest-verified
+/// length without buffering the bytes.
+pub(crate) fn verify_published_length(root: &Path, digest: &str) -> Result<u64, RsStoreError> {
     let file = open_published(root, digest)?;
-    let mut bytes = Vec::with_capacity(expected_length.unwrap_or(0).min(1 << 20) as usize);
-    stream_published(file, digest, expected_length, |chunk| {
-        bytes.extend_from_slice(chunk);
+    let mut length = 0_u64;
+    stream_published(file, digest, None, |chunk| {
+        length += chunk.len() as u64;
         Ok(())
     })?;
-    Ok(bytes)
+    Ok(length)
 }
 
 /// Resolves the store-controlled staging directory for one operation, or
@@ -627,71 +637,95 @@ pub(crate) fn cleanup_operation_staging(
     Ok(())
 }
 
+/// Recovery evidence for the blobs one save attempt published: the staged
+/// digest files live under `staging/<operation-id>/<attempt>/`, which is the
+/// attribution layout [`published_by_attempt`] recovers after a crash.
 pub(crate) struct Publication {
     operation_directory: PathBuf,
     attempt_directory: PathBuf,
     files: Vec<PathBuf>,
 }
 
-pub(crate) fn publish_blobs(
+/// Stages and publishes the bytes of one material for `operation_id`.
+///
+/// Publication is incremental so a save never holds more than the material it
+/// is currently publishing: the per-operation staging directory and one fresh
+/// attempt directory are created lazily on the first published blob (a save
+/// whose materials are all carried from committed blobs leaves no staging at
+/// all), and each call stages `bytes` under
+/// `staging/<operation-id>/<attempt>/<digest>`, flushes them durably, and
+/// links them at their digest-derived path with atomic no-replace semantics.
+/// A crash between calls therefore leaves exactly the attribution evidence
+/// `published_by_attempt` uses; the caller drops each material's bytes before
+/// reading the next one.
+pub(crate) fn publish_blob(
     root: &Path,
     operation_id: &str,
-    blobs: &[(String, Vec<u8>)],
-) -> Result<Option<Publication>, RsStoreError> {
-    if blobs.is_empty() {
-        return Ok(None);
+    publication: &mut Option<Publication>,
+    digest: &str,
+    bytes: &[u8],
+) -> Result<(), RsStoreError> {
+    if sha256(bytes) != *digest || bytes.len() as u64 > MAX_MATERIAL_BYTES {
+        return Err(RsStoreError::Integrity(
+            "attempted to publish bytes under a different digest".into(),
+        ));
     }
-    let staging = root.join("staging");
-    create_store_dir(&staging)?;
-    let operation_directory = staging.join(operation_id);
-    create_store_dir(&operation_directory)?;
-    let attempt_directory = operation_directory.join(uuid::Uuid::new_v4().to_string());
-    create_store_dir(&attempt_directory)?;
-    let mut publication = Publication {
-        operation_directory,
-        attempt_directory: attempt_directory.clone(),
-        files: Vec::new(),
-    };
-    for (digest, bytes) in blobs {
-        if sha256(bytes) != *digest || bytes.len() as u64 > MAX_MATERIAL_BYTES {
+    if publication.is_none() {
+        let staging = root.join("staging");
+        create_store_dir(&staging)?;
+        let operation_directory = staging.join(operation_id);
+        create_store_dir(&operation_directory)?;
+        let attempt_directory = operation_directory.join(uuid::Uuid::new_v4().to_string());
+        create_store_dir(&attempt_directory)?;
+        *publication = Some(Publication {
+            operation_directory,
+            attempt_directory: attempt_directory.clone(),
+            files: Vec::new(),
+        });
+    }
+    let publication = match publication {
+        Some(publication) => publication,
+        None => {
             return Err(RsStoreError::Integrity(
-                "attempted to publish bytes under a different digest".into(),
-            ));
+                "publication state was not initialized".into(),
+            ))
         }
-        let stage = attempt_directory.join(digest);
-        let mut options = OpenOptions::new();
-        options.write(true).create_new(true);
-        #[cfg(unix)]
-        options.mode(0o600).custom_flags(O_NOFOLLOW);
-        let mut file = options.open(&stage).map_err(io_error)?;
-        #[cfg(unix)]
-        fs::set_permissions(&stage, fs::Permissions::from_mode(0o600)).map_err(io_error)?;
-        file.write_all(bytes).map_err(io_error)?;
-        sync_durable(&file).map_err(io_error)?;
-        drop(file);
-        #[cfg(unix)]
-        fs::set_permissions(&stage, fs::Permissions::from_mode(0o400)).map_err(io_error)?;
-        publication.files.push(stage.clone());
-        fsync_dir(&attempt_directory)?;
+    };
+    let stage = publication.attempt_directory.join(digest);
+    let mut options = OpenOptions::new();
+    options.write(true).create_new(true);
+    #[cfg(unix)]
+    options.mode(0o600).custom_flags(O_NOFOLLOW);
+    let mut file = options.open(&stage).map_err(io_error)?;
+    #[cfg(unix)]
+    fs::set_permissions(&stage, fs::Permissions::from_mode(0o600)).map_err(io_error)?;
+    file.write_all(bytes).map_err(io_error)?;
+    sync_durable(&file).map_err(io_error)?;
+    drop(file);
+    #[cfg(unix)]
+    fs::set_permissions(&stage, fs::Permissions::from_mode(0o400)).map_err(io_error)?;
+    publication.files.push(stage.clone());
+    fsync_dir(&publication.attempt_directory)?;
 
-        let final_path = blob_path(root, digest)?;
-        let sha256_directory = root.join("blobs/sha256");
-        create_store_dir(&sha256_directory)?;
-        let prefix = final_path
-            .parent()
-            .ok_or_else(|| RsStoreError::Integrity("blob path has no parent".into()))?;
-        create_store_dir(prefix)?;
-        match fs::hard_link(&stage, &final_path) {
-            Ok(()) => {}
-            Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
-                read_published(root, digest, bytes.len() as u64)?;
-            }
-            Err(error) => return Err(io_error(error)),
+    let final_path = blob_path(root, digest)?;
+    let sha256_directory = root.join("blobs/sha256");
+    create_store_dir(&sha256_directory)?;
+    let prefix = final_path
+        .parent()
+        .ok_or_else(|| RsStoreError::Integrity("blob path has no parent".into()))?;
+    create_store_dir(prefix)?;
+    match fs::hard_link(&stage, &final_path) {
+        Ok(()) => {}
+        // An existing final file is deduplicated only after it verifies
+        // through end of file; streaming keeps this check bounded too.
+        Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+            verify_published(root, digest, bytes.len() as u64)?;
         }
-        store_file(&final_path, 0o400)?;
-        fsync_dir(prefix)?;
+        Err(error) => return Err(io_error(error)),
     }
-    Ok(Some(publication))
+    store_file(&final_path, 0o400)?;
+    fsync_dir(prefix)?;
+    Ok(())
 }
 
 pub(crate) fn cleanup_publication(publication: Option<Publication>) -> Result<(), RsStoreError> {

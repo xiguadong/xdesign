@@ -23,7 +23,9 @@ store.
 **Parameters**
 
 `root` is an absent path, a safe empty directory, or an existing valid version-1 store on a
-supported local POSIX filesystem. Any other nonempty content is refused. The effective user
+supported local POSIX filesystem. Any other nonempty content is refused; a closed allowlist of
+exactly the OS-generated root entry `.DS_Store` is tolerated because it is inert to every store
+semantic, is never read or written, and is not a doctor finding. The effective user
 must own every store-controlled object. The function receives the path directly and does not
 resolve `XDESIGN_STORE_ROOT` itself.
 
@@ -52,7 +54,8 @@ removed; residue is not adopted by a later `init` and requires explicit operator
 
 1. Validate the root and parent without following store-controlled symlinks.
 2. If a complete valid store exists, return it through the open validation path with unchanged
-   identity; otherwise require an absent or safe empty root.
+   identity; otherwise require an absent or safe empty root, where a root holding only the
+   allowlisted OS-generated entry counts as empty.
 3. Create owner-only staging structures; write and flush `format.json`.
 4. Create SQLite with `XDS1` application ID, `user_version = 1`, WAL, foreign keys, and full
    synchronization; record root/database identity and `store_id`.

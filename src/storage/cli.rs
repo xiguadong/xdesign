@@ -13,6 +13,7 @@ const HELP: &str = "Usage: xdesign store init [--root PATH]
        xdesign store info [--root PATH]
        xdesign store save --request FILE [--project-root PATH] [--root PATH]
        xdesign store outcome OPERATION_ID [--root PATH]
+       xdesign store request OPERATION_ID --output FILE [--root PATH]
        xdesign store list [--kind KIND] [--status STATUS] [--root PATH]
        xdesign store get ITEM_ID [--revision N] [--root PATH]
        xdesign store history ITEM_ID [--root PATH]
@@ -125,7 +126,7 @@ fn parse(arguments: &[String]) -> Result<Arguments, Failure> {
     };
     let positional_count = match command.as_str() {
         "init" | "info" | "save" | "list" | "doctor" => 0,
-        "outcome" | "get" | "history" | "read" | "checkout" => 1,
+        "outcome" | "request" | "get" | "history" | "read" | "checkout" => 1,
         _ => {
             return Err(Failure::invalid(format!(
                 "unknown store command: {command}"
@@ -136,6 +137,7 @@ fn parse(arguments: &[String]) -> Result<Arguments, Failure> {
         "init" | "info" => ["root"].into(),
         "save" => ["root", "project-root", "request"].into(),
         "outcome" | "history" => ["root"].into(),
+        "request" => ["root", "out"].into(),
         "list" => ["root", "kind", "status"].into(),
         "get" => ["root", "revision"].into(),
         "read" => ["root", "revision", "uri", "out"].into(),
@@ -194,6 +196,7 @@ fn parse(arguments: &[String]) -> Result<Arguments, Failure> {
     for required in match command.as_str() {
         "save" => &["request"][..],
         "read" => &["uri", "out"][..],
+        "request" => &["out"][..],
         "checkout" => &["to"][..],
         _ => &[][..],
     } {
@@ -360,6 +363,45 @@ fn execute(arguments: Arguments) -> Result<Value, Failure> {
                 .outcome(&arguments.positional[0])
                 .map_err(|error| Failure::from_error(error, false))?;
             Ok(json!({"receipt": receipt}))
+        }
+        // The exact retained request bytes are the recovery input an unknown
+        // outcome needs: `save` requires byte-identical retry input, and the
+        // original request file may be gone after a crash. Output follows the
+        // same no-replace, all-ancestor, outside-the-store rules as `read`.
+        "request" => {
+            let store = RsStore::open(&root).map_err(|error| Failure::from_error(error, false))?;
+            let operation_id = arguments.positional[0].clone();
+            let raw = ops::request_bytes(&store, &operation_id)
+                .map_err(|error| Failure::from_error(error, false))?
+                .ok_or_else(|| {
+                    Failure::from_error(
+                        RsStoreError::NotFound(format!("operation not found: {operation_id}")),
+                        false,
+                    )
+                })?;
+            let receipt = store
+                .outcome(&operation_id)
+                .map_err(|error| Failure::from_error(error, false))?;
+            let output = Path::new(&arguments.options["out"]);
+            let canonical = super::blobs::canonical_for_creation(output)
+                .map_err(|error| Failure::from_error(error, false))?;
+            if canonical.starts_with(&store.root) {
+                return Err(Failure::from_error(
+                    RsStoreError::UnsafePath(
+                        "request output cannot be created inside the store".into(),
+                    ),
+                    false,
+                ));
+            }
+            let output = super::blobs::write_new_external(output, &raw)
+                .map_err(|error| Failure::from_error(error, false))?;
+            Ok(json!({
+                "operation_id": operation_id,
+                "request_sha256": receipt.request_sha256,
+                "receipt_state": receipt.outcome,
+                "byte_length": raw.len(),
+                "output": output,
+            }))
         }
         "list" => {
             let store = RsStore::open(&root).map_err(|error| Failure::from_error(error, false))?;

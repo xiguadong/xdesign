@@ -23,7 +23,10 @@ repair, adoption, fallback, downgrade, or migration.
 
 `root` names an existing valid store on a supported local POSIX filesystem. The path is
 explicit; this function does not read the environment or choose `.xdesign` on its own. All
-store-controlled objects must satisfy ownership, permission, type, and containment rules.
+store-controlled objects must satisfy ownership, permission, type, and containment rules. A
+closed allowlist of exactly the OS-generated root entry `.DS_Store` is tolerated: it is inert to
+every store semantic and is not a doctor finding, while any other foreign root entry refuses
+`open`.
 
 **Returns and persistence**
 

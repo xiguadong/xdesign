@@ -60,7 +60,8 @@ nested or arbitrary user-defined flows; and Windows-specific filesystem guarante
 
 The default root is `<project>/.xdesign/`; `XDESIGN_STORE_ROOT` and the explicit CLI root
 option select another local root. `open` never creates a store. `init` opens a valid existing
-store without changing its identity and otherwise requires an absent or safe empty root;
+store without changing its identity and otherwise requires an absent or safe empty root, where
+a root holding only the allowlisted OS-generated entry counts as empty;
 it never adopts nonempty foreign content. Version 1 uses SQLite for records and queries and
 SHA-256-addressed files for exact material bytes. The layout, identity fields, and table
 invariants are specified in [I12](../interfaces/store-format.md#i12).
@@ -75,7 +76,10 @@ Existing files must belong to the effective user and have no group/other access.
 database device/inode pairs are captured at initialization/open and checked again before
 each public operation and before commit. A replaced root, replaced database, symlink in a
 store-controlled path, non-regular file, or owner/permission mismatch is an integrity
-refusal, not a cue to repair or migrate.
+refusal, not a cue to repair or migrate. A closed allowlist of OS-generated root entries —
+exactly `.DS_Store` — is tolerated because such entries are inert to every store semantic:
+the store never reads or writes them, and they are not doctor findings. Any other foreign
+root entry still refuses `open`.
 
 **Recovery boundary (operational disclosure).** The recorded identity makes a store
 permanently bound to one directory on one filesystem: a moved or restored-from-copy root,
@@ -142,14 +146,20 @@ the two documents are semantically equivalent JSON.
    every implied directory entry is compared under host-independent Unicode canonical
    decomposition (NFD) and Unicode case folding — a conservative superset of simple case
    folding. Two distinct names whose canonical decomposed, case-folded forms collide
-   are rejected during save validation. The same equivalence check is repeated when
+   are rejected during save validation. Every material URI in a **new** reservation must
+   also stay at or below 900 UTF-8 bytes, which leaves headroom under the smallest
+   supported `PATH_MAX` (1024) for the checkout destination; requests reserved before
+   this budget keep their original validation and remain retryable. The same equivalence
+   check is repeated when
    checkout materializes a selected manifest, so a stored manifest that cannot be
    materialized fails explicitly rather than partially overwriting through a case- or
    normalization-insensitive alias. The ASCII case and file-versus-directory prefix rules
    are unchanged. Numbers that cannot be stored exactly (see §1.2) are rejected. The
    request must also leave room for the response envelope: results and metadata whose
    nesting or serialized size would make the receipt or revision echo exceed the versioned
-   JSON envelope limits are rejected here, so a committed operation always has a reportable
+   JSON envelope limits are rejected here — manifest entries are budgeted at their
+   JSON-escaped serialized length, because quote-heavy URIs nearly double when encoded —
+   so a committed operation always has a reportable
    receipt. `expected_revision = 0` means create; positive values mean append at exactly
    that head.
 2. **Inspect or reserve the exact operation.** Compare the exact request bytes and digest
@@ -162,8 +172,9 @@ the two documents are semantically equivalent JSON.
 3. **Resolve the project root, reuse published bytes first, then read declared sources.**
    Only after reservation does the store canonicalize the supplied project root and resolve
    declared source paths. For each material, content backed by a committed blob row, or
-   verifiably published by an earlier attempt of this same operation, is read back from the
-   store and digest-verified, and no transient source is required: a pending recovery
+   verifiably published by an earlier attempt of this same operation, is verified through
+   the store by a bounded streaming digest-and-length pass, and no transient source is
+   required: a pending recovery
    completes from its published blobs even if the original sources are gone. A digest that
    exists only as an unrelated published or orphan blob is never adopted by source
    omission. Only when no committed or same-operation blob exists does the material's
@@ -171,9 +182,13 @@ the two documents are semantically equivalent JSON.
    byte, and compared by length and SHA-256 through end of file. A missing source with no
    stored blob is refused; it never waives integrity checks. The request still restates
    every URI and digest in the new complete manifest.
-4. **Publish before row commit.** Write each new blob under `staging/<operation-id>/`,
+4. **Publish before row commit, one material at a time.** Each material is resolved,
+   verified, and published as one unit before the next material is read, so the save
+   working set is bounded by the largest single material rather than the manifest total.
+   Write each new blob under `staging/<operation-id>/`,
    flush file contents, and publish it at its digest-derived path with atomic no-replace
-   semantics, then `fsync` the containing directories. Existing final files are verified
+   semantics, then `fsync` the containing directories. Aliased materials publish one
+   digest once per attempt. Existing final files are verified
    through end of file before deduplication. Publication never overwrites a different or
    truncated blob. Blob rows are not made visible to committed revisions yet.
 5. **Commit or conflict.** Start `BEGIN IMMEDIATE`, recheck the operation and exact request,
@@ -187,6 +202,8 @@ the two documents are semantically equivalent JSON.
    read back and return the stored receipt. A failure after publication but before a
    confirmed commit, or after commit but before a confirmed response, is `unknown_outcome`
    with the operation ID. Call `outcome` or retry the exact request; never use a fresh ID.
+   The exact retained request bytes can be recovered with
+   `store request OPERATION_ID --output FILE` when the original request file is gone.
    A committed response reports commit state, not the absence of later doctor findings.
    Publication cleanup of a pending operation's own staging and diagnostic residue is
    ordered after a confirmed terminal commit, so recovery attribution of that operation's
@@ -255,8 +272,13 @@ entry, so checkout peak memory is independent of manifest size and alias count.
 [U84](api/storage/rs-store-checkout.md#u84) gives the caller contracts.
 
 `doctor(verify_bytes)` is read-only. It reports invalid records and continuity, pending
-operations, orphan blobs, missing blobs, staging residue, root/database identity defects,
-and permission defects. Without byte verification it checks presence and recorded lengths;
+operations, orphan blobs, missing blobs, staging residue, stale stage-writer locks,
+root/database identity defects,
+and permission defects. A lock under `locks/items/` whose recorded process is no longer
+running is crash residue and a `stale_lock` finding; a live-pid lock is normal concurrent
+operation and is not reported. The liveness check is best effort — a reused pid can mask
+residue — which is why removing the named lock file stays an operator action. Without byte
+verification it checks presence and recorded lengths;
 with `verify_bytes = true` it also hashes every published blob through end of file and
 reports altered content. Missing or altered bytes make reads/checkouts fail rather than
 returning trusted content. Doctor never cleans, deletes, repairs, adopts, or migrates. Its
@@ -264,11 +286,15 @@ CLI result is nonzero when any finding exists; a pending receipt queried directl
 an explicit pending result, not a silent committed success.
 
 **Scaling limit.** Verification cost is deliberately recompute-over-cache: every finalize
-re-reads and re-hashes each referenced blob, every `get`/`history`/`list` re-parses and
+re-verifies each referenced blob with a bounded streaming pass, every
+`get`/`history`/`list` re-parses and
 cross-validates the full producing request chain, and reads re-verify SHA-256 through end
-of file. Checkout bounds its own working set: verification and materialization stream
-through fixed-size buffers and reuse one verified blob for all of its URIs, so peak memory
-does not grow with manifest entry count or alias count. At the current scale (hundreds of
+of file. Save and checkout both bound their working sets: each save resolves, verifies,
+and publishes one material at a time, and checkout streams
+verification and materialization through fixed-size buffers and reuses one verified blob
+for all of its URIs, so peak memory in both paths
+does not grow with manifest entry count or alias count beyond the largest single material.
+At the current scale (hundreds of
 materials) this is negligible; as a stated limit, per-operation cost still grows linearly
 with manifest and history size, and no performance target is assigned in this slice.
 
@@ -292,7 +318,10 @@ stored revision silently moves a legacy run to the new backend.
   return work from stored materials; missing workspace inputs remain explicit collection
   diagnostics rather than fabricated candidate digests.
 - **Writer and restore.** `check` takes an exclusive per-wish writer lock under the store's
-  transient lock area, reopens the head, and rejects stale result/state tokens. It restores
+  transient lock area, reopens the head, and rejects stale result/state tokens. A lock left
+  by a crashed process has no automatic takeover: doctor reports it as a `stale_lock`
+  finding with a best-effort process-liveness hint, and removing the named lock file is the
+  supported operator recovery. It restores
   missing regenerable operational files by digest with no-replace writes. The on-disk run
   record is a **projection of the committed head**: readers and writers repair it from the
   store's bytes whenever it differs, because a crash between commit and publication, or an

@@ -1065,7 +1065,9 @@ package XDesignRustUml {
     action def RsStoreInit {
         @XDesignCommon::DocSection { document = "docs/design/api/storage/rs-store-init.md"; section = "U98"; }
         doc /* Initialize a version-one store at an absent or safe empty root, or
-           reopen a valid store with unchanged identity and no record effect. */
+           reopen a valid store with unchanged identity and no record effect. A root
+           holding only the closed OS-generated allowlist entry (.DS_Store) counts as
+           empty; any other foreign entry is refused. */
         in attribute rootUri : String;
         out part store : RsStore;
     }
@@ -1137,6 +1139,7 @@ package XDesignRustUml {
         enum missingBlob;
         enum alteredBlob;
         enum stagingArtifact;
+        enum staleLock;
         enum invalidRecord;
         enum formatDefect;
         enum identityMismatch;

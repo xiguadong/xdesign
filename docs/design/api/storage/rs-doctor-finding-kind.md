@@ -15,6 +15,7 @@ pub enum RsDoctorFindingKind {
     MissingBlob,
     AlteredBlob,
     StagingArtifact,
+    StaleLock,
     InvalidRecord,
     FormatDefect,
     IdentityMismatch,
@@ -35,6 +36,7 @@ lower camel case in SysML.
 | `MissingBlob` | Required content is absent or truncated; a length mismatch may select this category when the detail says truncated. |
 | `AlteredBlob` | Published content differs from its recorded length/digest identity. |
 | `StagingArtifact` | Transient staging residue remains; it is not authoritative published material. |
+| `StaleLock` | A stage-writer lock under `locks/items/` records a process that is no longer running (or has no readable owner). A lock whose recorded process is alive is normal concurrency and is not reported; the liveness check is best effort, and removing the named lock file stays an operator action. |
 | `InvalidRecord` | Item/head/revision continuity, operation/receipt, manifest, reference, or projection records are defective. |
 | `FormatDefect` | Root marker, request/record format, application ID, or schema format is foreign, truncated, or unsupported. |
 | `IdentityMismatch` | Live or recorded root/database/store identity values disagree. |

@@ -29,7 +29,11 @@ records wish-0011's SimpleFlow route for durable operational storage, its accept
 cases, executed evidence, and remaining limits. The
 [storage acceptance-challenge review fixes](reviews/storage-challenge.md#p40) record the
 nine reproduced defects, their dispositions, the recovery-boundary decision, and the
-executed re-verification.
+executed re-verification. The
+[storage acceptance-challenge round-2 review fixes](reviews/storage-challenge-round2.md#p42)
+record the six further reproduced defects, the envelope-budget, bounded save working-set,
+lock-visibility, root-allowlist, materializability, and request-recovery decisions, and
+the executed re-verification.
 The [SimpleFlow file plan and verification cases](plans/simple-flow-file-plan.md#d53)
 record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,

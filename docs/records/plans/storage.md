@@ -1,6 +1,6 @@
 # Storage redesign and implementation plan
 
-> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; the 2026-10-25 acceptance-challenge review findings were fixed and re-verified; final human acceptance pending.
+> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; the two 2026-10-25 acceptance-challenge review rounds' findings were fixed and re-verified; final human acceptance pending.
 > Wish: `wish-0011`, selecting `xdesign.designedSimpleFlow`.
 > Scope: durable local operational storage and integration with the two existing flat flows.
 
@@ -391,3 +391,51 @@ about 2040 ms baseline. Logs are under `cache/lead-probes/final/` and
 `cache/lead-probes/after/`. Limits remain: no physical power-loss certification, the
 non-Unix checker fallback is uncompiled here, staging cleanup is best effort, 26
 unevaluated constraint bodies remain, and final human acceptance is pending.
+
+### Round-2 challenge-review fixes: envelope budgeting, save working set, lock visibility, browsable roots, materializability, and request recovery
+
+A second acceptance-challenge review of the same fix branch (`ecc1580` plus its working
+tree; evidence `cache/storage-challenge2-20261025/review.md`) re-read the nine round-1
+fixes, found them sound with the suite passing, and reproduced six further defects. All six
+were reproduced against the reviewed tree, then fixed with permanent regressions; the
+finding dispositions, round-2 design decisions, and executed re-verification are
+[review P42](../reviews/storage-challenge-round2.md#p42) and [P43](../reviews/storage-challenge-round2.md#p43).
+
+1. **Escaped response envelope (N1).** The reservation now budgets each manifest entry at
+   its JSON-escaped serialized length, so a quote-heavy manifest cannot commit a revision
+   whose revision echo no CLI command can return.
+2. **Bounded save working set (N2).** Save resolves, verifies, and publishes one material at
+   a time through one reused material-sized source buffer, and finalize re-verifies with the
+   bounded streaming pass while the write lock is held; the review's 96 MiB manifest save
+   dropped from 113,491,968 to at most 12,271,616 bytes RSS.
+3. **Visible stale writer locks (N3).** Doctor inspects `locks/items/` and reports a
+   `stale_lock` finding when the recorded process is no longer running; live locks remain
+   normal concurrency, diagnosis stays read-only, and removing the named lock file remains
+   the operator recovery.
+4. **Browsable macOS store roots (N4).** A closed allowlist tolerates exactly the
+   OS-generated `.DS_Store` root entry at `init`, `open`, and `doctor`; every other foreign
+   root entry still refuses the store.
+5. **Materializable URI length (N5).** New reservations cap each material URI at 900 UTF-8
+   bytes so checkout can materialize it under the smallest supported `PATH_MAX`; operations
+   reserved under the original validation remain readable and retryable.
+6. **Retained-request recovery (N6).** `xdesign store request OPERATION_ID --output FILE`
+   writes the exact retained request bytes under the `read` destination rules, giving direct
+   CLI callers the pending-operation recovery the design already promised.
+
+Executed on the round-2 fix tree: `cargo test --offline --locked` 129 passed / 0 failed
+across 14 targets plus doc-tests (storage 29, storage CLI 13, storage memory 2, storage
+protocol 5, storage paths 3, plus the pre-existing suites); 22 SimpleFlow Python tests
+pass; the renderer suite retains its same two pre-existing failures; SysML parse had no
+errors, model-only and full checks had 0 violations, 22,641/22,641 references resolved,
+129 held rules, and 26 pre-existing unevaluated constraint bodies; documentation audit was
+clean; the strict site build passed; all 58 figures rendered and 9/9 primary figure checks
+passed. The six probes now show: rejected escaped manifest with no operation (baseline
+committed then failed `get`/`history`); 96 MiB save at most 12,271,616 bytes RSS; dead-pid
+lock reported and live-pid lock clean; `.DS_Store` root openable while another foreign entry
+still refuses; 1,023-byte URI rejected before reservation (baseline committed it); and
+retained request bytes recovered byte-identically with the documented refusals. Logs are
+under `cache/storage-challenge2-20261025/final/`. Limits remain: no physical power-loss
+certification, the non-Unix checker fallback is uncompiled here, staging cleanup is best
+effort, stale-lock liveness is best effort, the 900-byte budget gates new reservations
+only, 26 unevaluated constraint bodies remain, the two pre-existing renderer failures
+remain, and final human acceptance is pending.

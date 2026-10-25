@@ -1123,3 +1123,174 @@ fn committed_wish_verify_check_replays_from_committed_materials_after_cache_dele
     assert_eq!(next["work"]["stage_id"], "verify");
     assert_eq!(fs::read(project.root.join(run_uri)).unwrap(), committed_run);
 }
+
+/// N3: crash residue under `locks/items/` must be a doctor finding — it blocks
+/// every future `check` of that wish — while a lock whose recorded process is
+/// still alive is normal concurrent operation and stays unreported.
+#[test]
+fn stale_writer_lock_is_a_doctor_finding_while_live_locks_are_not() {
+    let project = Project::new();
+    project.store(&["store", "init"], 0);
+    let locks = project.root.join(".xdesign/locks/items");
+    // 999998 exceeds the platform pid range, so it can never be running.
+    fs::write(
+        locks.join("wish-stale.lock"),
+        b"pid=999998 token=8b4e0e90-1111-4111-8111-111111111111\n",
+    )
+    .unwrap();
+    fs::write(
+        locks.join("wish-live.lock"),
+        format!(
+            "pid={} token=8b4e0e90-2222-4222-8222-222222222222\n",
+            std::process::id()
+        )
+        .as_bytes(),
+    )
+    .unwrap();
+    // `Lock::acquire` creates writer locks as owner-only files.
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        for name in ["wish-stale.lock", "wish-live.lock"] {
+            fs::set_permissions(locks.join(name), fs::Permissions::from_mode(0o600)).unwrap();
+        }
+    }
+
+    let report = project.store(&["store", "doctor"], 5);
+    let findings = report["data"]["report"]["findings"].as_array().unwrap();
+    let stale = findings
+        .iter()
+        .find(|finding| finding["kind"] == "stale_lock")
+        .expect("the dead-pid lock must be reported");
+    assert_eq!(stale["subject_uri"], "locks/items/wish-stale.lock");
+    assert!(
+        findings
+            .iter()
+            .all(|finding| finding["subject_uri"] != "locks/items/wish-live.lock"),
+        "a live-pid lock is not a finding: {findings:?}"
+    );
+
+    // Removing the named file is the documented operator recovery, and doctor
+    // is clean again afterwards.
+    fs::remove_file(locks.join("wish-stale.lock")).unwrap();
+    let clean = project.store(&["store", "doctor"], 0);
+    assert_eq!(
+        clean["data"]["report"]["findings"]
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+}
+
+/// N4: the closed OS-generated allowlist keeps a browsed store openable — a
+/// `.DS_Store` in the root changes no command result and is not a finding —
+/// while any other foreign entry still refuses `open`.
+#[test]
+fn ds_store_in_the_store_root_is_tolerated_and_other_entries_stay_foreign() {
+    let project = Project::new();
+    project.store(&["store", "init"], 0);
+    fs::write(project.root.join(".xdesign/.DS_Store"), b"").unwrap();
+    project.store(&["store", "info"], 0);
+    let clean = project.store(&["store", "doctor"], 0);
+    assert_eq!(
+        clean["data"]["report"]["findings"]
+            .as_array()
+            .unwrap()
+            .len(),
+        0
+    );
+
+    fs::write(project.root.join(".xdesign/README.txt"), b"foreign").unwrap();
+    let refused = project.store(&["store", "info"], 5);
+    assert_eq!(refused["error"]["code"], "unsupported_format");
+    fs::remove_file(project.root.join(".xdesign/README.txt")).unwrap();
+    project.store(&["store", "info"], 0);
+
+    // A directory that only an OS browsed remains a safe empty root for init.
+    let browsed = project.root.join("browsed-store");
+    fs::create_dir_all(&browsed).unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(&browsed, fs::Permissions::from_mode(0o700)).unwrap();
+    }
+    fs::write(browsed.join(".DS_Store"), b"").unwrap();
+    let initialized = project.store(&["store", "init", "--root", "browsed-store"], 0);
+    assert!(initialized["data"]["store_id"].is_string());
+}
+
+/// N6: `store request` recovers the exact retained bytes of a pending
+/// operation, so the documented "retry the exact request" recovery works even
+/// when the original request file is gone.
+#[test]
+fn store_request_recovers_exact_pending_bytes_for_a_retry() {
+    let project = Project::new();
+    project.store(&["store", "init"], 0);
+    let bytes = b"late-arriving material";
+    let request = format!(
+        "{{\"schema_version\":1,\"operation_id\":\"late-op\",\"item_id\":\"late-item\",\
+         \"kind\":\"artifact\",\"expected_revision\":0,\"metadata\":{{}},\
+         \"materials\":[{{\"uri\":\"late.bin\",\"role\":\"artifact\",\"sha256\":\"{}\",\
+         \"source\":\"late.bin\"}}],\"result\":{{\"probe\":true}}}}",
+        sha256_bytes(bytes)
+    );
+    project.write("late-request.json", request.as_bytes());
+    // The source does not exist yet: the reservation succeeds and the save
+    // fails not_found while the operation stays pending.
+    let failed = project.store(
+        &[
+            "store",
+            "save",
+            "--request",
+            "late-request.json",
+            "--project-root",
+            ".",
+        ],
+        3,
+    );
+    assert_eq!(failed["error"]["receipt_state"], "pending");
+    assert_eq!(
+        project.store(&["store", "outcome", "late-op"], 0)["data"]["receipt"]["outcome"],
+        "pending"
+    );
+
+    let recovered = project.store(
+        &[
+            "store",
+            "request",
+            "late-op",
+            "--output",
+            "recovered-request.json",
+        ],
+        0,
+    );
+    assert_eq!(recovered["data"]["receipt_state"], "pending");
+    assert_eq!(
+        recovered["data"]["request_sha256"],
+        sha256_bytes(request.as_bytes())
+    );
+    assert_eq!(
+        fs::read(project.root.join("recovered-request.json")).unwrap(),
+        request.as_bytes(),
+        "the recovered file must be byte-identical to the original request"
+    );
+
+    project.write("late.bin", bytes);
+    let saved = project.store(
+        &[
+            "store",
+            "save",
+            "--request",
+            "recovered-request.json",
+            "--project-root",
+            ".",
+        ],
+        0,
+    );
+    assert_eq!(saved["data"]["receipt"]["outcome"], "committed");
+    assert_eq!(
+        project.store(&["store", "get", "late-item"], 0)["data"]["revision"]["revision"],
+        1
+    );
+}
