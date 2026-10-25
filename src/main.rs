@@ -274,6 +274,15 @@ fn main() {
         println!("{}", stage_cli::HELP);
         return;
     }
+    if args.get(1).map(String::as_str) == Some("web") {
+        match xdesign::web::serve(&args[2..]) {
+            Ok(()) => return,
+            Err(error) => {
+                eprintln!("xdesign web: {error}");
+                std::process::exit(2);
+            }
+        }
+    }
     if args.get(1).map(String::as_str) == Some("store") {
         let (reply, code) = xdesign::storage::cli::dispatch(&args[2..]);
         let rendered = serde_json::to_string_pretty(&reply).expect("JSON store response");

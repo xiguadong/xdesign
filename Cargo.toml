@@ -2,6 +2,10 @@
 name = "xdesign"
 version = "0.1.0"
 edition = "2021"
+# The operator web UI source and assets live under `web/`. The build script
+# embeds `web/assets/` so the released executable stays self-contained and the
+# web program ships with the product without a Node.js or static-server runtime.
+build = "web/server/build.rs"
 
 [dependencies]
 serde = { version = "=1.0.229", features = ["derive"] }
