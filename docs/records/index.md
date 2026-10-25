@@ -33,7 +33,8 @@ executed re-verification. The
 [storage acceptance-challenge round-2 review fixes](reviews/storage-challenge-round2.md#p42)
 record the six further reproduced defects, the envelope-budget, bounded save working-set,
 lock-visibility, root-allowlist, materializability, and request-recovery decisions, and
-the executed re-verification.
+the executed re-verification; the requester's final human acceptance is recorded in the
+[storage plan](plans/storage.md#p44).
 The [SimpleFlow file plan and verification cases](plans/simple-flow-file-plan.md#d53)
 record source ownership and planned acceptance in this project-management area. The project SysML model and per-wish models remain
 authoritative for structure and recorded history; these pages define the work sequence,

@@ -65,8 +65,11 @@ never touched the project's `.xdesign/`.
 | `python3 tools/verify_diagrams.py --node-modules <cache>/diagram-tooling/node/node_modules` | 9/9 primary figure checks PASS; the changed definitions figure was inspected at overview scale and in two focused crops, with the new variants between `stagingArtifact` and `invalidRecord` and no overlap or notation regression. |
 | `cargo fmt --check`; `git diff --check` | Both clean. |
 
-**Limits.** These are local executed checks, not physical power-loss certification, a
-frozen compatibility baseline, or final human acceptance. The non-Unix checker fallback is
+**Limits.** These are local executed checks, not physical power-loss certification or a
+frozen compatibility baseline; final human acceptance is a separate requester decision, and
+the requester confirmed acceptance of the storage slice on 2026-10-25
+([P44](../plans/storage.md#p44)) without extending these limits. The non-Unix checker
+fallback is
 `cfg`-gated and was not compiled on this host. Staging cleanup after a terminal receipt is
 best effort, so a cleanup failure leaves doctor-visible residue rather than hiding a
 receipt; concurrent retries can still race staging cleanup against an in-flight

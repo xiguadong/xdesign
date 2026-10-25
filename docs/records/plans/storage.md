@@ -1,6 +1,6 @@
 # Storage redesign and implementation plan
 
-> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; the two 2026-10-25 acceptance-challenge review rounds' findings were fixed and re-verified; final human acceptance pending.
+> Registered: 2026-10-24. Status: final durable SimpleFlow technical run completed at store revision 5 in `.xdesign-final`; the two 2026-10-25 acceptance-challenge review rounds' findings were fixed and re-verified; the requester confirmed final human acceptance on 2026-10-25 ([P44](#p44)).
 > Wish: `wish-0011`, selecting `xdesign.designedSimpleFlow`.
 > Scope: durable local operational storage and integration with the two existing flat flows.
 
@@ -193,7 +193,8 @@ power-loss certification. Expected pending/orphan findings in isolated fixtures 
 clean-store results. Compiler unevaluated rules remain unevaluated. Whole-store
 backup/snapshot/baseline, deletion/GC, automatic migration, remote service,
 authentication, encryption, nested/arbitrary flows, model-claim audit and Windows-specific
-guarantees remain outside scope. Final human acceptance is pending.
+guarantees remain outside scope. Final human acceptance was confirmed by the requester on
+2026-10-25 ([P44](#p44)); it does not extend these boundaries.
 
 ### Final durable acceptance after evidence corrections
 
@@ -389,8 +390,9 @@ retries returning the identical committed receipt; unrelated-orphan adoption ref
 checkout 6,029,312 vs 73,039,872 baseline bytes RSS; and checker deadlines 150-151 ms vs
 about 2040 ms baseline. Logs are under `cache/lead-probes/final/` and
 `cache/lead-probes/after/`. Limits remain: no physical power-loss certification, the
-non-Unix checker fallback is uncompiled here, staging cleanup is best effort, 26
-unevaluated constraint bodies remain, and final human acceptance is pending.
+non-Unix checker fallback is uncompiled here, staging cleanup is best effort, and 26
+unevaluated constraint bodies remain; final human acceptance was confirmed later on
+2026-10-25 ([P44](#p44)).
 
 ### Round-2 challenge-review fixes: envelope budgeting, save working set, lock visibility, browsable roots, materializability, and request recovery
 
@@ -438,4 +440,20 @@ under `cache/storage-challenge2-20261025/final/`. Limits remain: no physical pow
 certification, the non-Unix checker fallback is uncompiled here, staging cleanup is best
 effort, stale-lock liveness is best effort, the 900-byte budget gates new reservations
 only, 26 unevaluated constraint bodies remain, the two pre-existing renderer failures
-remain, and final human acceptance is pending.
+remain. Final human acceptance was confirmed by the requester on 2026-10-25 ([P44](#p44)).
+
+<a id="p44"></a>
+
+## Final human acceptance
+
+The requester confirmed final human acceptance of the delivered storage slice on
+2026-10-25, after the round-2 challenge-review fixes were re-verified
+([P42](../reviews/storage-challenge-round2.md#p42),
+[P43](../reviews/storage-challenge-round2.md#p43)) and merged. The acceptance covers the
+local item-and-revision store, verified queries, material reads, checkout, doctor findings,
+exact-operation recovery, and the two store-backed flow demonstrations, within the limits
+this plan discloses. It does not add whole-store backup, restore/rebind, migration,
+deletion/GC, remote operation, authentication, encryption, nested or arbitrary flows, or
+Windows-specific guarantees, and it does not change the recovery-boundary decision in
+[P40](../reviews/storage-challenge.md#p40): Git-tracked records, not the store alone, retain
+the acceptance evidence. Follow-on storage scope remains a separate decision and acceptance.

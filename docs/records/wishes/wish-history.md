@@ -565,9 +565,12 @@ violations, 129 held and 26 unevaluated rules. The 69-test renderer suite retain
 pre-existing failures (`5 != 6` requirements edges and `9 != 6` state guards); the failing
 source, tests, and affected figures remain unchanged from `HEAD`, and the suite is not green.
 
-The delivered projection and agent semantic pass are technical completion, **not final human
-acceptance**. Physical power-loss certification, whole-store backup/snapshot/baseline,
-deletion/GC, automatic migration, remote service, authentication, encryption, nested or
-arbitrary flows, model-claim audit, and Windows-specific guarantees remain outside this slice.
-The bootstrap SysML trace preserves the legacy development history and points to the final
-store item; the final store-backed run is not duplicated into a second Git trace.
+The delivered projection and agent semantic pass are technical completion. The requester
+confirmed final human acceptance of the slice on 2026-10-25
+([P44](../plans/storage.md#p44)); that acceptance covers only the disclosed limits and does
+not deliver the open follow-on scope. Physical power-loss certification, whole-store
+backup/snapshot/baseline, deletion/GC, automatic migration, remote service, authentication,
+encryption, nested or arbitrary flows, model-claim audit, and Windows-specific guarantees
+remain outside this slice. The bootstrap SysML trace preserves the legacy development
+history and points to the final store item; the final store-backed run is not duplicated
+into a second Git trace.
