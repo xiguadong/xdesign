@@ -3016,11 +3016,12 @@ h1.h1 {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-width: 148px;
+  min-width: 166px;
   gap: 10px;
 }
 .board__stage {
-  flex: 1;
+  flex: none;
+  min-height: 66px;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -3050,6 +3051,10 @@ h1.h1 {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
+  white-space: nowrap;
+}
+.board__stage[data-state="current"] .board__stage-top {
+  padding-right: 12px;
 }
 .board__stage-num {
   font-family: var(--font-mono);
@@ -3095,7 +3100,7 @@ h1.h1 {
 }
 .board__connector {
   flex: none;
-  width: 26px;
+  width: 24px;
   margin-top: 30px;
   display: grid;
   place-items: center;
@@ -4792,13 +4797,16 @@ h1.h1 {
   }
   .board__stages {
     flex-direction: column;
+    align-items: stretch;
     gap: 10px;
     overflow: visible;
   }
   .board__col {
     min-width: 0;
+    flex: none;
   }
   .board__connector {
+    align-self: center;
     width: auto;
     height: 16px;
     margin-top: 0;
@@ -4925,13 +4933,15 @@ h1.h1 {
    ====================================================================== */
 
 /* ---------- check-card control grid (SPEC 9.6.1) ---------------------- */
+.check-card,
+.semantic-card {
+  container-type: inline-size;
+}
 .check-card__body {
   display: grid;
   grid-template-columns:
-    minmax(250px, 1.28fr)
-    minmax(132px, 0.78fr)
-    minmax(168px, 0.95fr)
-    minmax(150px, 0.85fr);
+    minmax(320px, 1.4fr)
+    repeat(3, minmax(0, 1fr));
   gap: 12px 14px;
   align-items: start;
   padding: 0 15px 14px 53px;
@@ -4974,12 +4984,16 @@ h1.h1 {
 }
 .check-card__hint {
   min-height: 14px;
+  overflow-wrap: anywhere;
 }
-.check-card__body .segmented {
+.check-card__body .segmented,
+.semantic-card__body .segmented {
   width: 100%;
+  flex-wrap: wrap;
 }
-.check-card__body .segmented__opt {
-  flex: 1;
+.check-card__body .segmented__opt,
+.semantic-card__body .segmented__opt {
+  flex: 1 0 auto;
   justify-content: center;
   padding: 0 6px;
   font-size: 11px;
@@ -5120,10 +5134,8 @@ h1.h1 {
 .semantic-card__body {
   display: grid;
   grid-template-columns:
-    minmax(250px, 1.2fr)
-    minmax(230px, 1.1fr)
-    minmax(170px, 0.85fr)
-    minmax(120px, 0.6fr);
+    minmax(320px, 1.4fr)
+    repeat(3, minmax(0, 1fr));
   gap: 12px 14px;
   padding: 0 15px 14px 53px;
 }
@@ -5960,21 +5972,31 @@ h1.h1 {
 }
 
 /* ---------- responsive round-2 ---------------------------------------- */
-@media (max-width: 1100px) {
+/* Respond to the card width: the wizard also reserves space for its sidebar. */
+@container (max-width: 900px) {
   .check-card__body,
   .semantic-card__body {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     padding-left: 53px;
   }
-  .semantic-card__body > .check-card__control:nth-child(2),
-  .semantic-card__body > .check-card__control:nth-child(3),
-  .semantic-card__body > .check-card__control:nth-child(4) {
-    grid-column: auto;
-  }
   .check-card__body > .check-card__control:first-child,
   .semantic-card__body > .check-card__control:first-child {
     grid-column: 1 / -1;
   }
+}
+@container (max-width: 520px) {
+  .check-card__body,
+  .semantic-card__body {
+    grid-template-columns: minmax(0, 1fr);
+    padding-left: 15px;
+    gap: 10px;
+  }
+  .check-card__preview-rule {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+  }
+}
+@media (max-width: 1100px) {
   .rules-editor__head,
   .rules-editor__row {
     grid-template-columns: 150px minmax(0, 1fr) 170px 34px;
@@ -5994,11 +6016,6 @@ h1.h1 {
   }
 }
 @media (max-width: 820px) {
-  .check-card__body,
-  .semantic-card__body {
-    padding-left: 15px;
-    gap: 10px;
-  }
   .rules-editor__head {
     display: none;
   }
@@ -6030,14 +6047,6 @@ h1.h1 {
   }
 }
 @media (max-width: 720px) {
-  .check-card__body,
-  .semantic-card__body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .check-card__preview-rule {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 1px;
-  }
   .lib-card {
     padding: 13px 13px 11px;
   }
