@@ -28,6 +28,7 @@ nav:
     - "Flow model and catalog": design/flow.md
     - "Run lifecycle": design/lifecycle.md
     - "Stage CLI": design/stage-cli.md
+    - "Checkpoint library": design/checkpoint-library.md
     - "Operator web program": design/web-operator.md
     - "Operational storage": design/storage.md
     - "Evidence and revisions": design/evidence-and-revisions.md

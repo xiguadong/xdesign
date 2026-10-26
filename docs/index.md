@@ -18,7 +18,8 @@ package, timeline, and swimlane diagrams together on one page.
 | The project, its parts, and how they collaborate | [architecture/index.md](architecture/index.md) |
 | What the system must do and why | [requirements/index.md](requirements/index.md) |
 | How the flows and runs are designed | [design/index.md](design/index.md) |
-| How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, or a custom command | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
+| How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, a custom command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
+| How reusable checks are authored, versioned, and shared across wishes | [Checkpoint library](design/checkpoint-library.md#d97) |
 | The embedded operator web page and its local HTTP contract | [Operator web program](design/web-operator.md#d91) and [operator web API](interfaces/web-api.md#i16) |
 | How durable revisions, materials, saves and recovery work | [Storage design](design/storage.md#d86) and [store format](interfaces/store-format.md#i11) |
 | The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |

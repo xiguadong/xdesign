@@ -44,8 +44,10 @@ The stable error codes are the handler codes in the tables below: `invalid_json`
 `invalid_artifact`, `invalid_judgment`, `missing_uri`, and `invalid_uri` for requests;
 `not_found`, `unknown_wish`, and `material_not_found` for missing routes, wishes, and
 revisions; `method_not_allowed`; `already_exists` and `already_delivered` for conflicts;
-`payload_too_large` and `material_too_large`; and `work_failed`, `check_failed`,
-`init_failed`, and `internal_error` for server-side failures. The message is human text;
+`payload_too_large` and `material_too_large`; `invalid_checkpoint` for a rejected library
+save and `builtin_checkpoint` for an attempted built-in mutation; and `work_failed`,
+`check_failed`, `init_failed`, `checkpoint_failed`, and `internal_error` for server-side
+failures. The message is human text;
 callers branch on the code. Failed lifecycle actions may also carry an `error.detail`
 object with the command's `exit_code`, `stdout`, and `stderr`.
 
@@ -60,7 +62,8 @@ path under `/api/` returns the JSON `404`, not the page.
 
 ## 2. Read endpoints and field tables
 
-All payloads below are the `data` member of the success envelope.
+All payloads below are the `data` member of the success envelope. The checkpoint library
+routes are described in [§4](#i19).
 
 | Method and path | Purpose |
 | --- | --- |
@@ -70,6 +73,8 @@ All payloads below are the `data` member of the success envelope.
 | `GET /api/wishes/{wish_id}` | Wish detail: plan with frozen bindings, run visits and assessments, revision history, and derived events |
 | `GET /api/wishes/{wish_id}/work` | Current work order from `xdesign next` |
 | `GET /api/wishes/{wish_id}/material?uri=URI` | Raw frozen material bytes of the requested head-revision URI |
+| `GET /api/checkpoints` | Project checkpoint library: built-ins plus user entries, with issues |
+| `GET /api/checkpoints/{checkpoint_id}` | One full library entry with its builtin flag and script existence |
 | `GET /` and `GET /<asset>` | Embedded page and static assets |
 
 ### 2.1 `GET /api/health`
@@ -97,7 +102,7 @@ for syntactic checkpoints, a `checker` object:
 | `command_uri` | Built-in command path |
 | `establishes` | Conformance kinds the checker states |
 | `rules` | Array of `{rule_id, condition, reads}` |
-| `modes` | Binding modes the page can offer: `["default", "cli"]` on a syntactic checker; a semantic checkpoint has `checker: null` |
+| `modes` | Executors advertised for the checker: `["default", "cli"]`. The operator page adds the `library` choice for the supported gates from `GET /api/checkpoints`; a semantic checkpoint has `checker: null` and can accept a semantic library entry |
 
 `custom_checks_supported` is `true` only for `simple-flow`, the flow whose four syntactic
 checkpoints can be bound ([D88](../design/flows/simple-flow/definition.md#d88)).
@@ -131,14 +136,29 @@ An unknown id is `404 unknown_wish`. The detail payload repeats the list fields 
 `plan`, `run`, `history`, and `events`. `plan` is the frozen plan: `plan_id`, `plan_sha256`, `stages`, and
 `checkpoints`. A plan stage has `stage_id`, `next_stage_ids`, `exit_checkpoint_ids`, and
 `completes_flow`. A plan checkpoint has `checkpoint_id`, `stage_id`, `kind`, `title`,
-`criteria`, `agent_may_judge`, `human_may_judge`, and `checker`, whose `binding` is
-derived from the frozen plan:
+`criteria`, `agent_may_judge`, `human_may_judge`, `library_id` (the frozen library entry
+id, or `null`), and `checker`, whose `binding` is derived from the frozen plan:
 
 | `binding.mode` | Other binding fields | Meaning |
 | --- | --- | --- |
 | `default` | none (the object is just `{"mode": "default"}`) | Built-in deterministic command |
 | `cli` | `cli` and `model` | Agent CLI executor with the named model |
 | `command` | `command_uri` (the frozen checker's command path) | Custom project-relative checker command |
+| `library` | `library_id` | Frozen library checkpoint; its executor, rules or criteria are read from the plan, not the current library |
+
+For a frozen library binding the `binding` object is `{"mode": "library", "library_id":
+"<id>"}`. A syntactic checkpoint carries it inside its `checker` object, where the other
+binding modes live; a semantic checkpoint has no checker, so its `binding` sits on the
+checkpoint object itself. A reader should therefore check the plan checkpoint's
+`library_id` first and fall back to the derived `binding`.
+
+Because a library edit never changes a registered run, a checkpoint whose `library_id` is
+set also carries a display-only `library` summary resolved from the current project
+library: `{"checkpoint_id", "title", "kind", "version", "builtin"}`. It is `null` when the
+entry was removed or the library is unreadable, and the detail response then includes a
+`warnings` array naming the frozen ids that can no longer be resolved. The frozen plan
+fields are authoritative; the summary only labels them, and a warning never fails the
+detail request.
 
 A syntactic checkpoint's `title` is its checker id; a semantic checkpoint's title is the
 checkpoint id ([D88](../design/flows/simple-flow/definition.md#d88)).
@@ -219,15 +239,16 @@ Request fields:
 | `title` | Required; 1–200 characters |
 | `description` | Optional; at most 4000 characters |
 | `flow_id` | Required; `simple-flow` or `wish-verify` |
-| `checks` | Optional array; a non-empty array is allowed only with `simple-flow` and binds the four syntactic checkpoints |
+| `checks` | Optional array; a non-empty array is allowed only with `simple-flow` and binds the four syntactic checkpoints or the semantic `verificationAccepted` gate |
 
 A `checks` entry has `checkpoint_id`, `mode`, and the mode's fields:
 
 | Field | Rule |
 | --- | --- |
-| `checkpoint_id` | One of `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted`; no duplicates |
-| `mode` | `default` or `cli`; `command` is rejected here because a custom command is configured through `xdesign init --checks` |
+| `checkpoint_id` | `default` and `cli` accept the four syntactic ids `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted`; `library` also accepts the semantic `verificationAccepted`. No duplicates |
+| `mode` | `default`, `cli`, or `library`; `command` is rejected here because a custom command is configured through `xdesign init --checks` |
 | `cli`, `model` | Required for `cli`; `cli` is `codex` or `kimi` and `model` is a non-empty identifier of 1–200 characters |
+| `library_id` | Required for `library`; a lower-case checkpoint id slug. The server rejects a missing or non-slug value as `400 invalid_checks`, then best-effort pre-validates the id and kind against the current library: an unknown id or a syntactic/semantic kind mismatch is `400 invalid_checks`. If the library cannot be read, `init` stays authoritative and its binding rejection maps to the same `400 invalid_checks`; a valid binding is passed through unchanged |
 
 A checkpoint omitted from `checks` defaults to `default`; bindings are not required to be
 complete. An existing store item or legacy directory is `409 already_exists`.
@@ -238,8 +259,9 @@ whose documentation comment carries the display text, and, when at least one bin
 non-default, `cache/web/checks/<wish_id>.json` with
 `{"schema_version": 1, "checks": [...]}`. It then invokes `init` with `--wish` and
 `--checks` as applicable and returns `wish_id`, `flow_id`, `init` (the parsed CLI
-response), `stdout`, and `stderr`. A non-zero `init` exit is an HTTP 500 error with code
-`init_failed`, the CLI's stderr as the message, and the raw streams in `error.detail`.
+response), `stdout`, and `stderr`. A binding rejection from `init` is `400 invalid_checks`;
+any other non-zero `init` exit is an HTTP 500 error with code `init_failed`, the CLI's
+stderr as the message, and the raw streams in `error.detail`.
 
 ### 3.2 `POST /api/wishes/{wish_id}/check` — record and check
 
@@ -270,14 +292,64 @@ means the stage remained blocked and is returned with `exit_code: 1` so the page
 the correction reasons. Any other exit code is an HTTP 500 error with code
 `check_failed`, its message from stderr, and the raw streams under `error.detail`.
 
-## 4. Control position and limits
+<a id="i19"></a>
+
+## 4. Checkpoint library endpoints
+
+The checkpoint routes expose the project checkpoint library
+([D97](../design/checkpoint-library.md#d97), [D98](../design/checkpoint-library.md#d98)).
+The read routes run `xdesign checkpoint list`/`show` as a subprocess and pass the CLI's
+JSON reply through as `data`; the save route writes the request to
+`cache/web/checkpoint-requests/<uuid>.json` and runs `xdesign checkpoint save --request
+<file>`. The server never edits `checkpoints/` itself.
+
+| Method and path | Purpose |
+| --- | --- |
+| `GET /api/checkpoints` | The effective library: built-ins plus user entries, with load `issues` |
+| `GET /api/checkpoints/{checkpoint_id}` | One full entry with its builtin flag and script existence |
+| `POST /api/checkpoints` | Validate and save one entry; optionally generate a scaffold script |
+
+`GET /api/checkpoints` returns the list reply: `schema_version`, `library_uri`
+(`checkpoints/library.json`), `issues`, and `checkpoints`. A summary has `checkpoint_id`,
+`title`, `kind`, `builtin`, `version`, `updated_at`, `tags`, `executor` (the executor
+object, or `null` for a semantic entry), `checker_id` (the optional reused-script
+identity, or `null`), `rule_count`, and `criteria_count`. `issues` is
+empty for a healthy library; it reports non-fatal concerns such as a script executor whose
+script file is missing, while a malformed library stays a hard `500 checkpoint_failed`
+error rather than a partial listing.
+
+`GET /api/checkpoints/{checkpoint_id}` returns the `show` reply: `schema_version` and the
+full `checkpoint` entry plus `builtin` and `script_exists`. An unknown id is
+`404 unknown_checkpoint`; a path segment that is not a valid checkpoint id does not match
+the route and returns the generic `404 not_found`. A bad slug inside a save request is
+`400 invalid_checkpoint`.
+
+`POST /api/checkpoints` takes the save request object: the full entry fields plus an
+optional `"create_script": "scaffold"` ([D100](../design/checkpoint-library.md#d100)). The
+success reply is the save reply — `schema_version`, `checkpoint`, `script_uri` (or `null`),
+`created`, and `version`. Error mapping:
+
+| Condition | Status and code |
+| --- | --- |
+| Body is not valid JSON | `400 invalid_json` (shared request parsing) |
+| Invalid definition: non-object body, invalid slug/kind/fields, missing required member, bad script or library reference | `400 invalid_checkpoint` |
+| Save names a built-in id | `409 builtin_checkpoint` |
+| The CLI reports another failure | `500 checkpoint_failed`, with `error.detail` carrying the exit code, `stdout`, and `stderr` |
+
+Saving an existing user id is an update and returns `created: false` with the incremented
+version; a built-in entry is read-only. The routes are display/authoring surfaces, not a
+run authority: they never execute a checker and never alter a registered run's frozen
+plan.
+
+## 5. Control position and limits
 
 This is a local operator interface, not a service contract. It binds loopback, has no
 authentication or authorization layer, no TLS, no remote or multi-user deployment, and no
 compatibility promise beyond this branch; the interface has no frozen baseline. The page
 is not the documentation site, does not use its interface, and does not read the docs
-tree. The API is not a second record authority: every durable write is the stage CLI's,
-and the recorded plan, assessments, and evidence remain the authority for what happened.
-Verification design for this contract is [WEB-01 to WEB-05](../verification/design.md#d96);
-executed acceptance and retained command evidence belong to the branch's execution
-record, not to this page.
+tree. The API is not a second record authority: every durable write is the invoked CLI's,
+the checkpoint save writes project authoring source through the CLI, and the recorded plan,
+assessments, and evidence remain the authority for what happened. Verification design for
+this contract is [WEB-01 to WEB-05](../verification/design.md#d96) and
+[WEB2-01 to WEB2-05](../verification/design.md#d104); executed acceptance and retained
+command evidence belong to the branch's execution record, not to this page.

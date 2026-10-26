@@ -25,15 +25,22 @@ xdesign store history WISH_ID
 xdesign store checkout WISH_ID [--revision N] --to DIR
 xdesign store outcome OPERATION_ID
 xdesign store doctor [--verify]
+xdesign checkpoint list
+xdesign checkpoint show CHECKPOINT_ID
+xdesign checkpoint save --request FILE
 xdesign web [--host HOST] [--port PORT] [--open]
             [--project-root PATH] [--store-root PATH]
 ```
 
-`--checks FILE` binds the four SimpleFlow syntactic checkpoints for the new run and is
-meaningful only with `--flow simple-flow`; a non-default binding for another flow is
-rejected, and a default-only file is a no-op. The file, its validation errors and its
-frozen-plan effect are in [§1.5](#d89). `xdesign web` starts the embedded operator page; its command
-line, loopback and lifecycle boundaries are in [§1.6](#d90).
+`--checks FILE` selects the check executor for the four SimpleFlow syntactic checkpoints
+and the semantic `verificationAccepted` gate for the new run, and is meaningful only with
+`--flow simple-flow`; a non-default binding for another flow is rejected, and a
+default-only file is a no-op. The file, its validation errors and its frozen-plan effect
+are in [§1.5](#d89); library bindings also resolve project library entries. `xdesign
+checkpoint` reads and updates the project checkpoint library (see §1.6 and the
+[checkpoint library design](checkpoint-library.md#d97)); `xdesign web`
+starts the embedded operator page, whose command line, loopback and lifecycle boundaries
+are in [§1.7](#d90).
 
 `init` is the one-time boundary before the repeated `next` / `check` loop. New runs create
 a store item and initial revision exclusively, freeze the chosen built-in plan and work,
@@ -217,9 +224,10 @@ authentication, and final human acceptance. Technical completion is not human ac
 ### 1.5 Check binding configuration
 
 `xdesign init` accepts `--checks FILE` for `--flow simple-flow` only. The file selects the
-executor of the four syntactic SimpleFlow checkpoints; the design contract for the modes,
-plan freezing and recorded authority is in [D88](flows/simple-flow/definition.md#d88). The
-file is strict JSON:
+check executor of the four syntactic SimpleFlow checkpoints and the semantic
+`verificationAccepted` gate; the design contract for the modes, plan freezing and recorded
+authority is in [D88](flows/simple-flow/definition.md#d88), and the library format is in
+[the checkpoint library design](checkpoint-library.md#d97). The file is strict JSON:
 
 ```json
 {
@@ -230,7 +238,10 @@ file is strict JSON:
      "cli": "codex", "model": "gpt-6-astra"},
     {"checkpoint_id": "simpleImplementationAccepted", "mode": "command",
      "command_uri": "tools/checks/custom_implementation.py"},
-    {"checkpoint_id": "simpleRecordAccepted", "mode": "default"}
+    {"checkpoint_id": "simpleRecordAccepted", "mode": "library",
+     "library_id": "builtin-simple-record"},
+    {"checkpoint_id": "verificationAccepted", "mode": "library",
+     "library_id": "verification-evidence-complete"}
   ]
 }
 ```
@@ -239,24 +250,94 @@ file is strict JSON:
 | --- | --- |
 | `schema_version` | required, exactly `1` |
 | `checks` | required array; an empty array is equivalent to an all-default binding |
-| `checkpoint_id` | required; one of the four syntactic SimpleFlow checkpoint ids; no duplicates |
-| `mode` | required; `default`, `cli` or `command` |
+| `checkpoint_id` | required; one of the four syntactic SimpleFlow checkpoint ids, or the semantic id `verificationAccepted` (which accepts only `library` mode); no duplicates |
+| `mode` | required; `default`, `cli`, `command` or `library` |
 | `cli` | required for `cli`; `codex` or `kimi` |
 | `model` | required for `cli`; a non-empty model identifier passed to the agent CLI |
 | `command_uri` | required for `command`; a normalized project-relative `.py` path that exists in the repository and implements the invocation and report interface |
+| `library_id` | required for `library`; a checkpoint id resolvable in the project library; the entry's kind must match the gate (`command` and `cli` are not accepted on the semantic gate) |
 
 A checkpoint omitted from the file keeps the `default` binding. Unknown fields, unknown
-checkpoint ids, duplicate checkpoints, unknown modes, missing required members, and empty
-`cli`/`model`/`command_uri` values are invalid requests: `init` exits 2 with the error on
+checkpoint ids, duplicate checkpoints, unknown modes, missing required members, empty
+`cli`/`model`/`command_uri` values, a missing or unknown `library_id`, and a library entry
+whose kind does not match the gate are invalid requests: `init` exits 2 with the error on
 stderr before it creates the run or commits a store revision. A non-default binding with
-`--flow wish-verify` is rejected because that flow declares only semantic checkpoints; a
+`--flow wish-verify` is rejected because that flow has no library binding in this round; a
 default-only file for that flow is accepted as a no-op.
 The validated binding is frozen into the plan; `next` and `check` accept no binding
-option, and editing the file later does not rebind a registered run ([D88](flows/simple-flow/definition.md#d88)).
+option, and editing the file or the library later does not rebind a registered run
+([D88](flows/simple-flow/definition.md#d88), [D101](checkpoint-library.md#d101)).
+
+### 1.6 Checkpoint library commands
+
+The `checkpoint` commands read and update the project library at
+`checkpoints/library.json` ([D97](checkpoint-library.md#d97)). Each command prints one JSON
+object on stdout: a success reply with exit `0`, or a failure object with exit `2` for an
+invalid request or definition and `1` for an internal failure:
+
+```json
+{"schema_version": 1, "ok": false, "error": {"code": "invalid_checkpoint", "message": "..."}}
+```
+
+The stable failure codes are `invalid_request` (bad arguments or unreadable request file),
+`invalid_checkpoint` (malformed library, invalid entry, or malformed save request),
+`builtin_checkpoint` (an attempted built-in mutation), `unknown_checkpoint` (a show of an
+unknown id), and `internal_error` (I/O failure).
+
+```text
+xdesign checkpoint list
+xdesign checkpoint show CHECKPOINT_ID
+xdesign checkpoint save --request FILE
+```
+
+`list` prints the effective library — built-ins plus user entries — in the reply shape
+owned by the [checkpoint library interface](../interfaces/web-api.md#i19):
+
+```json
+{"schema_version": 1, "library_uri": "checkpoints/library.json", "issues": [],
+ "checkpoints": [{"checkpoint_id": "...", "title": "...", "kind": "syntactic",
+   "builtin": false, "version": 2, "updated_at": "...", "tags": ["..."],
+   "executor": {"mode": "script", "command_uri": "..."},
+   "checker_id": "simpleRequirementsCheck",
+   "rule_count": 2, "criteria_count": 0}]}
+```
+
+The summary's `executor` is `null` for a semantic entry, and `checker_id` is `null`
+unless the entry declares a reused-script identity.
+
+`show CHECKPOINT_ID` prints the full entry with its `builtin` flag and whether its script
+exists; an unknown id is an invalid request. `save --request FILE` takes the full entry
+fields plus an optional `"create_script": "scaffold"` (see [D100](checkpoint-library.md#d100)):
+
+```json
+{"checkpoint_id": "energy-budget-positive",
+ "title": "Energy budget stays non-negative",
+ "description": "Deterministic check that no declared energy budget is negative.",
+ "kind": "syntactic",
+ "tags": ["energy", "design"],
+ "rules": [{"rule_id": "budget-declared",
+            "condition": "Every actuator declares a numeric energyBudget.",
+            "reads": ["mbse/model/design.sysml"]}],
+ "inputs": ["mbse/model/design.sysml"],
+ "executor": {"mode": "script",
+              "command_uri": "checkpoints/scripts/energy_budget_positive.py"},
+ "create_script": "scaffold"}
+```
+
+The request may also carry the optional syntactic `checker_id` identity when it reuses a
+shipped checker script that reports its own hardcoded id; without it the library id becomes
+the frozen checker id and assessor ([D100](checkpoint-library.md#d100)). Saving an existing
+user id is an update (`version` + 1, previous snapshot pushed into `history`); saving a
+built-in id or a new entry that reuses a built-in id is an invalid request; saving a new id
+creates version 1. The reply names the saved entry, its script URI
+when one was generated, and whether the save created an entry. `list` and `show` never
+execute a checker. An unreadable library is reported as an issue or an invalid-request
+error; a missing library file is the built-ins-only library, not an error
+([D98](checkpoint-library.md#d98)).
 
 <a id="d90"></a>
 
-### 1.6 Operator web command
+### 1.7 Operator web command
 
 `xdesign web` starts the embedded operator page and its local HTTP API:
 
@@ -284,11 +365,13 @@ envelopes, status codes, and action behavior are in the
 boundaries and embedded-asset release model are in
 [the operator web design](web-operator.md#d91).
 
-### 1.7 Software realization and verification
+### 1.8 Software realization and verification
 
 | Source | Responsibility |
 | --- | --- |
-| `src/main.rs` | Routes the top-level commands, including `web`, and retains the demo entry points |
+| `src/main.rs` | Routes the top-level commands, including `checkpoint` and `web`, and retains the demo entry points |
+| `src/checkpoint/mod.rs`, `library.rs`, `cli.rs` | Library model and validation, built-in seeds, version/history, scaffold generation, and the `checkpoint` command replies |
+| `checkpoints/library.json`, `checkpoints/scripts/` | Project authoring source; see the [checkpoint library design](checkpoint-library.md#d98) |
 | `src/stage_cli/mod.rs` | Validates arguments, result exchange, and stage orchestration |
 | `src/stage_cli/work.rs` | Freezes modeled stage work and collects artifact snapshots |
 | `src/stage_cli/store.rs` | Resolves wishes, verifies frozen files and serializes writers |

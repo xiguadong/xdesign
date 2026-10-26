@@ -145,3 +145,72 @@ the read/write boundary and release claims are [D92 to D94](../design/web-operat
 the lifecycle semantics reused by WEB-03 are the [stage CLI's](../design/stage-cli.md#d85).
 The screen-level page behavior follows the branch's working specification in
 `web/SPEC.md`; a visual screenshot establishes only what it shows and is not acceptance.
+
+<a id="d103"></a>
+
+## 5. Checkpoint library and library-binding verification cases
+
+The round-2 checkpoint library ([D97](../design/checkpoint-library.md#d97)) is
+Git-tracked authoring source: reusable syntactic rule sets with their executors and
+semantic criterion sets with their judges, versioned in `checkpoints/library.json`. Wish
+initialization may bind those definitions to the four syntactic SimpleFlow gates and the
+semantic `verificationAccepted` gate through the `library` mode of the binding file
+([D101](../design/checkpoint-library.md#d101), [D88](../design/flows/simple-flow/definition.md#d88)).
+The command surface is in the [stage CLI](../design/stage-cli.md#d85) and the library
+itself remains authoring source while `.xdesign` remains the operational record. The cases
+below are verification design, not executed results: each uses a temporary project root and
+stub executables, never a real agent, and executed outcomes belong to the branch's execution
+record. The requirement inventory has no new library row yet; the cases preserve the
+existing syntactic-check and run-integrity obligations from [R01](../requirements/requirements.md#r01)
+(`syntacticCheckIsFixed`, `checkerRulesAreDeclared`, `stageCliPreservesRunIntegrity`) while
+the design sections are the primary trace for the extension.
+
+| Case | Input or operation | Expected result |
+| --- | --- | --- |
+| LIB-01 Library load, missing file, and validation | With no `checkpoints/library.json`, list the library; then present malformed JSON, an unknown field, an unknown kind, a syntactic entry without rules/inputs/executor, a semantic entry with rules or without a true judge, a duplicate id, and a non-slug id. | The missing file is not an error and the effective library is the five built-ins; every malformed or invalid entry is an explicit invalid-request error (exit 2) that names the problem, and the runtime never guesses a kind or drops an entry silently. |
+| LIB-02 Built-in entries and immutability | List the library and show each built-in; attempt to save or overwrite each built-in id; duplicate a built-in into a new user id. | The listing contains the four syntactic built-ins and the semantic built-in with `builtin: true`, their rules or criteria copied from the default plan; mutation of a built-in id is rejected without changing the file; duplicating into a new user id succeeds and is version 1. |
+| LIB-03 Versions and history | Save a new user entry, then update it twice; inspect the saved entry and its history. | The first save is version 1 with empty history; each update increments the version and pushes the previous snapshot to the front of a history of at most ten items with the documented fields; built-ins are not versioned in the library file. |
+| LIB-04 Script reuse and scaffold generation | Save a syntactic script entry with `create_script: "scaffold"` at the required `checkpoints/scripts/` URI; run `--list-inputs` and the full invocation against it; save another entry reusing an existing script without `create_script`. | The scaffold is deterministic and self-contained: it lists the declared inputs, verifies the plan/record/visit binding, writes the raw report with `input_sha256` covering the wish model, record snapshot, plan, declared inputs, and its own bytes, and returns a failed `rule not implemented` verdict for each declared rule; the reused script path succeeds with no generation and the entry's source records `generated` versus `manual`. |
+| LIB-05 `checkpoint list`/`show`/`save` round trip | Run the three commands against a temporary library; inspect replies and exit codes; repeat with an unknown id, an invalid save request, a built-in id, and an unreadable library. | Each command prints one JSON object on stdout; list and show never execute a checker; show returns the full entry with `builtin` and `script_exists`; save reports the entry, version, `created`, and `script_uri`; invalid requests exit 2 and internal failures exit 1 without a partial library file. |
+| LIB-06 Syntactic library binding end to end | Create a syntactic library entry with one stub script; register a SimpleFlow run with a `library` binding for one syntactic gate, then run `next` and `check`. | The frozen plan carries `checkpoint.library`, the library's rules, the frozen checker id (the entry's optional `checker_id`, otherwise the library id), and the entry's command URI; the work definition freezes the entry's `inputs` instead of calling `--list-inputs`; `check` executes the stub, creates an assessment with script authority and the frozen checker id as assessor, and retains the report; `next` reloads the same frozen plan. Reusing a shipped `tools/checks/*.py` script whose hardcoded `--checker-id` differs from the library id requires the entry's `checker_id`, and the frozen plan then records that identity. |
+| LIB-07 Semantic library binding | Create a semantic library entry with criteria and judges; register a SimpleFlow run with a `library` binding for `verificationAccepted`; submit a permitted judgment, and separately omit the judgment. | The frozen plan carries `checkpoint.library`, the entry's criteria, and its judge permissions, with no checker; a permitted agent or human judgment over the frozen criteria creates the assessment; an omitted judgment records an unevaluated semantic assessment and does not authorize completion; a script authority judgment remains rejected. |
+| LIB-08 Kind mismatch and unsupported library bindings rejected | Bind a semantic entry to a syntactic gate, a syntactic entry to `verificationAccepted`, an unknown library id, a library binding while the library file is unreadable, and a library binding for `wish-verify`. | Every case is an initialization error (exit 2) before a wish item or store revision exists; the store head is unchanged; a default-only file for `wish-verify` remains a no-op. |
+| LIB-09 Default plan bytes unchanged | Register one run with no `--checks` and one with a default-only file; compare each frozen plan byte-for-byte with the built-in plan and compare their hashes. | Both runs freeze the unchanged built-in plan (no library or custom fields) and pass the existing record checker; library mode adds frozen fields only to a run that chose it. |
+| LIB-10 Frozen-plan durability across library edits | After a library-bound run is initialized, edit the bound entry's rules and executor, rename it, then delete `checkpoints/library.json`; run `next`, `check`, restore, and the record checker; inspect the operator detail. | The run keeps using its frozen plan fields in all operations and the completed visit stays authorized with its retained evidence; the detail shows the frozen `library_id` with a warning when the current library no longer resolves it; a new registration sees the edited library. |
+
+The frozen-plan oracle for LIB-06 to LIB-10 is the binding contract in
+[D88](../design/flows/simple-flow/definition.md#d88) and [D101](../design/checkpoint-library.md#d101);
+the report and evidence obligations are those of the checker command contract
+([D07](../design/flows/simple-flow/definition.md#d07)) and the assessment record
+([E04](../design/evidence-and-revisions.md#e04)); the authoring-side model is
+[D98](../design/checkpoint-library.md#d98) and [D100](../design/checkpoint-library.md#d100).
+A validated library entry, a generated scaffold, or a green round-trip is not an engineering
+acceptance; the executed outcomes belong to the branch's execution record.
+
+<a id="d104"></a>
+
+## 6. Round-2 operator UI and start-work handoff verification cases
+
+The round-2 operator surfaces add the checkpoint library API ([I19](../interfaces/web-api.md#i19)),
+library bindings in the wish detail and wizard, the unambiguous check-executor wording
+([D105](../design/web-operator.md#d105)), and the explicit start-work handoff
+([D106](../design/web-operator.md#d106)). These cases are verification design, not executed
+acceptance: a screenshot, a passing curl, or a copied prompt establishes only what it shows,
+and executed results belong to the branch's execution record. Run them against a disposable
+temporary project root and never write inside the repository's own store.
+
+| Case | Input or operation | Expected result |
+| --- | --- | --- |
+| WEB2-01 Checkpoint HTTP endpoints | Exercise `GET /api/checkpoints`, `GET /api/checkpoints/{id}`, and `POST /api/checkpoints` against a temporary library; then send a malformed definition, a built-in mutation, an unknown id, a bad slug, and a failing save request. | List and show pass the CLI reply through as `data`; save returns the save reply with `checkpoint`, `version`, `created`, and `script_uri`; the documented errors map to `400 invalid_checkpoint`, `409 builtin_checkpoint`, `404`, and `500 checkpoint_failed` with `error.detail`; envelopes, headers, and body limits match the interface page. |
+| WEB2-02 Wish detail library join and warnings | Detail a wish whose frozen plan binds a library entry; then remove the entry from the current library, rename the library, and make the library unreadable. | The frozen plan fields are authoritative: `library_id` and `binding.mode = "library"` come from the plan; the display `library` summary resolves `{checkpoint_id, title, kind, version, builtin}` while the entry exists; when it cannot be resolved the summary is `null`, a `warnings` array names the frozen id, and the detail request still succeeds. |
+| WEB2-03 Create-wish library bindings | Create a wish through `POST /api/wishes` with syntactic and semantic library bindings, a mixed default/library set, a kind mismatch, a missing library id, a `command` mode, and an unreadable library. | Valid library bindings are passed through unchanged and `init` commits the registration; the detail shows the frozen library plans; kind mismatch and unknown ids are `400 invalid_checks` (pre-validated from the current library, with the CLI's own rejection mapped to the same code when the library cannot be read); `command` mode is still rejected at the web boundary; default and CLI modes keep their round-1 behavior. |
+| WEB2-04 Start-work handoff content and non-automation | Create a wish, inspect the run without calling `next`, then render the detail page and handoff card; copy the prompt and commands; run a successful check and a blocked check. | Creating the wish does not start any stage work or spawn a working agent: the run waits at its first stage and only `next`/`check` subprocesses occur; the handoff card explains that the flow does not auto-run, shows a copyable prompt containing the wish id, title, current stage, goal, instructions, the commands, and the result requirements (`state_token`, batch fields, and a judgment when the stage has a semantic gate), and shows copyable `next`/`check` commands; after a check the detail refreshes with the next handoff state, and a blocked check shows the corrections in the same handoff. |
+| WEB2-05 Executor wording and control alignment | Render the wizard check cards in `Built-in script`, `Agent CLI`, and `Library`/`Library checkpoint` modes at full, 980 px, and 720 px widths; render the Checkpoints view, the semantic card, and a library-bound wish detail; copy the visible executor labels into the assessment rows. | The option group is labelled `Check executor` with exactly the three documented choices (`Library` may be the short segmented label; chips and detail rows say `Library checkpoint`); every check node states that stage work is performed by the working agent and the choice selects only the verifier; the executor control and its dependent columns form one stable grid and never overlap or shift baseline when the mode changes or the viewport narrows; the Checkpoints view, wizard review, lifecycle nodes, and assessment rows use the same vocabulary and show `judged_by` plus assessor. Screenshot evidence is retained with the case, and it establishes only the rendered state, not an engineering acceptance. |
+
+The interface oracle for WEB2-01 to WEB2-03 is [I19](../interfaces/web-api.md#i19) and the
+detail fields in [I17](../interfaces/web-api.md#i17); the create request fields are in
+[I18](../interfaces/web-api.md#i18). The handoff and wording claims are the design in
+[D105](../design/web-operator.md#d105) and [D106](../design/web-operator.md#d106), and the
+stage interaction they expose is the [stage CLI contract](../design/stage-cli.md#d85). The
+frozen-plan durability check is LIB-10; a UI alignment screenshot is not executed
+acceptance.

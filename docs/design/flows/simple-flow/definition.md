@@ -319,21 +319,29 @@ documentation fixes what each rule means.
 
 The four syntactic checkpoints keep their declared criteria and rules, but the *executor*
 that establishes each of them can be selected per wish when the wish is registered. A
-binding chooses one of three modes for one checkpoint:
+binding chooses one of four modes for one checkpoint:
 
 | Mode | Executed by | Recorded authority | Recorded assessor | Deterministic |
 | --- | --- | --- | --- | --- |
 | `default` | the flow's built-in checker command | `script` | the checker id, for example `simpleRequirementsCheck` | yes |
 | `cli` | an agent CLI chosen from `codex` and `kimi`, with a named model | `agent` | `<cli>:<model>`, for example `codex:gpt-6-astra` | no — an agent judgment |
 | `command` | a project-relative checker command that implements the same invocation and report interface as the built-in command | `script` | the checker id | as the supplied command |
+| `library` | a reusable checkpoint definition from the project library, with the executor and rules or criteria frozen at registration | `script` or `agent` for a syntactic entry (per its executor); the caller's permitted judge for a semantic entry | the frozen checker id for a script executor, `<cli>:<model>` for an agent CLI executor, the judge identity for a semantic gate | as the library entry's executor |
 
 The selectable binding is data, not a second checker definition: the plan still names the
-same four checkpoints, each with the same declared rules. The binding decides which
-program answers those rules and therefore which authority the assessment records. The
-custom runner is described by `RsCheckerSpec.custom` in `src/core/plan.rs`; the flow's
-built-in declarations are in `src/simple_flow/blueprint.rs`; execution and report
-validation are in `src/simple_flow/check.rs`; and registration accepts the binding in
-`src/stage_cli/mod.rs`.
+same four checkpoints, each with its declared rules. The binding decides which program
+answers those rules and therefore which authority the assessment records. The custom
+runner is described by `RsCheckerSpec.custom` in `src/core/plan.rs`; the flow's built-in
+declarations are in `src/simple_flow/blueprint.rs`; execution and report validation are in
+`src/simple_flow/check.rs`; library resolution is in `src/checkpoint/`; and registration
+accepts the binding in `src/stage_cli/mod.rs`.
+
+The distinction is about the *check executor*, not about who performs the stage work.
+Every stage's work is performed by the working agent (or the human operator acting as the
+caller) through the `next` → work → `check` interaction ([F04](../../lifecycle.md#f04)).
+The binding chooses only who verifies the checkpoint: the repository's built-in script,
+a separate agent CLI run, a custom command, or a frozen library checkpoint. The operator
+page uses the same wording ([D105](../../web-operator.md#d105)).
 
 ### 6.1 The binding file and its validation
 
@@ -341,22 +349,56 @@ The bindings for one registration are declared in a strict JSON file passed as
 `xdesign init WISH_ID --flow simple-flow --checks FILE`. The [stage CLI](../../stage-cli.md#d89)
 owns the option, the exact schema and its validation errors. In summary, the file names
 `schema_version = 1` and a `checks` array; each entry names one of the four syntactic
-checkpoint ids and its mode. An omitted checkpoint is `default`. Duplicate or unknown
-checkpoint ids, unknown modes, a `cli` mode without `codex`/`kimi` or without a non-empty
-model, a `command` mode without a normalized project-relative `.py` `command_uri` that
-exists in the repository, and unknown fields are rejected before any run exists. A
-non-default binding is rejected for `wish-verify`, which declares only semantic
-checkpoints ([D57](../wish-verify/definition.md#d57)); a default-only file for that flow
-is a no-op. Bindings are not accepted on a later `next` or `check`; changing one requires
-a new run.
+checkpoint ids or the semantic id `verificationAccepted` (whose only accepted mode is
+`library`), and its mode. An omitted
+checkpoint is `default`. Duplicate or unknown checkpoint ids, unknown modes, a `cli` mode
+without `codex`/`kimi` or without a non-empty model, a `command` mode without a normalized
+project-relative `.py` `command_uri` that exists in the repository, a `library` mode
+without a resolvable `library_id` of the required kind, and unknown fields are rejected
+before any run exists. A non-default binding is rejected for `wish-verify`, which has no
+library binding in this round ([D57](../wish-verify/definition.md#d57)); a default-only
+file for that flow is a no-op. Bindings are not accepted on a later `next` or `check`; changing
+one requires a new run. [§6.2](#d88) states the library mode, and the
+[checkpoint library design](../../checkpoint-library.md#d101) owns the library format and
+resolution rules.
 
 The same choices can be made from the operator page. Its create-wish action sends the
 bindings to the same `init` command, and the plan detail shows the binding of each
-checkpoint in the `mode`/`cli`/`model`/`command_uri` form owned by the
-[web operator API](../../../interfaces/web-api.md#i17). The page can select `default` or
-`cli` only; a `command` binding is configured through the CLI option.
+checkpoint in the `mode`/`cli`/`model`/`command_uri`/`library_id` form owned by the
+[web operator API](../../../interfaces/web-api.md#i17). The page can select `default`,
+`cli`, or a syntactic or semantic library entry; a `command` binding is configured through
+the CLI option only.
 
-### 6.2 Plan freezing and reconstruction
+### 6.2 Library checkpoint bindings
+
+A `library` binding names a reusable project checkpoint definition instead of a program
+per run: `{"checkpoint_id": "...", "mode": "library", "library_id": "..."}`. The supported
+gates are the four syntactic gates and the semantic `verificationAccepted` gate; the
+library is read from the project root at `init` and validated then. Resolution is
+kind-bound: a syntactic gate requires a syntactic entry and a semantic gate requires a
+semantic entry ([D101](../../checkpoint-library.md#d101)). The frozen result is:
+
+| Gate kind | Frozen plan | Frozen work |
+| --- | --- | --- |
+| Syntactic | `checkpoint.library = <library id>`; checker id = the entry's `checker_id` when it declares one, otherwise the library id; rules = the entry's rules; command URI = the entry's script command (script executor) or the default command URI (agent CLI executor); the custom runner records `process` or `cli` + CLI/model | The stage's declared inputs are the entry's `inputs`, frozen at registration instead of invoking `--list-inputs` |
+| Semantic | `checkpoint.library = <library id>`; criteria = the entry's criteria; `agent_may_judge`/`human_may_judge` from the entry's judges; no checker | No work-input change; the caller's permitted judgment evaluates the frozen criteria as today |
+
+A kind mismatch, a missing or unknown library id, an unreadable library, or a library
+binding on a gate that does not support it is an initialization error: no run is created.
+A semantic library binding keeps the existing judgment contract — the result file supplies
+the permitted agent or human judgment and its evidence; the library only supplies the
+criteria and the judge permissions. A script executor records script authority named by
+the frozen checker id (the library id), and an agent CLI executor records agent authority
+`<cli>:<model>`, exactly as the corresponding non-library modes above.
+
+Everything resolved is frozen with the plan: `next`, `check`, restore, the record checker,
+and the operator page reconstruct the binding from the stored plan and never re-read the
+library. Editing, renaming, or deleting the entry after registration changes nothing for
+that run; a new registration is required to pick up a changed definition. A default or
+non-library run stays byte-identical to before, and the library mode adds frozen fields
+only to the run that chose it.
+
+### 6.3 Plan freezing and reconstruction
 
 A default-only registration is unchanged: with no non-default binding, the plan is the
 built-in plan, no custom runner is serialized, and the frozen plan bytes and hash are the
@@ -371,7 +413,7 @@ the web page reconstruct the binding from the stored frozen plan; they do not re
 `--checks` file or a workspace configuration. Editing the file after registration has no
 effect on that run, and this slice exposes no rebind action.
 
-### 6.3 Execution, authority, and retained evidence
+### 6.4 Execution, authority, and retained evidence
 
 For each syntactic checkpoint in the current visit, the bound executor runs and must
 answer the checkpoint's declared rule ids. The `default` and `command` modes use the
@@ -399,7 +441,7 @@ when the deadline expires, and an explicit `CheckerTimeout` is recorded rather t
 pass. The read-only flag and prompt are the agent-run contract; they do not turn an agent
 judgment into a fixed check.
 
-### 6.4 What this does not change
+### 6.5 What this does not change
 
 - The four gates, their criteria and their 18 rules are unchanged; a binding changes the
   executor, not what must be established. Rule-set equality, report shape, revision and
@@ -407,12 +449,14 @@ judgment into a fixed check.
 - A `default`-only run behaves exactly as before. Deterministic authorization claims hold
   only for `default` and for a command that is itself deterministic; a `cli` assessment is
   an agent judgment.
-- The semantic `verificationAccepted` gate is not bindable: it remains a supplied agent or
-  human judgment through the result file ([F02](../../adapters.md#f02)).
+- The semantic `verificationAccepted` gate does not accept `cli` or `command` executors:
+  it remains a supplied agent or human judgment through the result file
+  ([F02](../../adapters.md#f02)). A semantic library entry may bind it, supplying the
+  frozen criteria and judge permissions ([§6.2](#d88)).
 - `wish-verify` declares no syntactic checkpoint and keeps its two semantic judgments;
   non-default bindings are outside this slice.
 
-### 6.5 The wish-verify boundary
+### 6.6 The wish-verify boundary
 
 `DesignedWishVerifyFlow` has no checker, so it has nothing to bind: both of its gates are
 semantic and are judged in the stage interaction. The existing
@@ -423,5 +467,6 @@ agent authority with the executor in the assessor field, and restore keeps that 
 instead of rejecting it as a script-only assessment. The binding is part of the plan, so
 the authorization rule remains reconstructable from the stored record.
 
-The verification cases for this contract are [CUSTOM-01 to CUSTOM-06](../../../verification/design.md#d95);
-they are verification design, not executed acceptance.
+The verification cases for this contract are [CUSTOM-01 to CUSTOM-06](../../../verification/design.md#d95)
+for the executor bindings and [LIB-01 to LIB-10](../../../verification/design.md#d103) for
+the library bindings; they are verification design, not executed acceptance.

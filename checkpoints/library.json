@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "checkpoints": [
+    {
+      "checkpoint_id": "requirements-rationale-and-trace",
+      "title": "Requirements rationale and satisfy links",
+      "description": "Reusable syntactic gate: every requirement carries its rationale and every satisfy link resolves to a declared requirement. Reuses the shipped simple_requirements.py checker.",
+      "kind": "syntactic",
+      "tags": [
+        "requirements",
+        "simple-flow"
+      ],
+      "rules": [
+        {
+          "rule_id": "requirements-carry-rationale",
+          "condition": "XDesignRequirements declares at least one requirement, and every requirement declaration inside it carries a nonempty rationale attribute.",
+          "reads": [
+            "mbse/model/requirements.sysml"
+          ]
+        },
+        {
+          "rule_id": "satisfy-links-resolve",
+          "condition": "The declared traceability source has at least one satisfy link, and every satisfy link names a requirement declared inside XDesignRequirements.",
+          "reads": [
+            "mbse/model/requirements.sysml",
+            "mbse/model/traceability.sysml"
+          ]
+        }
+      ],
+      "inputs": [
+        "mbse/model/requirements.sysml",
+        "mbse/model/traceability.sysml"
+      ],
+      "executor": {
+        "mode": "script",
+        "command_uri": "tools/checks/simple_requirements.py"
+      },
+      "checker_id": "simpleRequirementsCheck",
+      "criteria": [],
+      "version": 1,
+      "created_at": "2026-10-26T01:46:42Z",
+      "updated_at": "2026-10-26T01:46:42Z",
+      "source": "manual",
+      "history": []
+    },
+    {
+      "checkpoint_id": "verification-evidence-complete",
+      "title": "Verification evidence answers every requirement",
+      "description": "Reusable semantic gate: a permitted judge must be able to re-examine the retained evidence and see every requirement answered, without re-asking the author.",
+      "kind": "semantic",
+      "tags": [
+        "verification",
+        "simple-flow"
+      ],
+      "rules": [],
+      "inputs": [],
+      "criteria": [
+        "Every requirement has retained evidence that a reader can re-examine.",
+        "The evidence and the record stand on their own without re-asking the author."
+      ],
+      "judges": {
+        "agent": true,
+        "human": true
+      },
+      "version": 1,
+      "created_at": "2026-10-26T01:46:42Z",
+      "updated_at": "2026-10-26T01:46:42Z",
+      "source": "manual",
+      "history": []
+    }
+  ]
+}

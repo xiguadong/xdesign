@@ -99,7 +99,7 @@ underscores.
 Initialize once, then repeat the same two commands at each stage:
 
 ```bash
-xdesign init WISH_ID --flow simple-flow [--wish FILE]
+xdesign init WISH_ID --flow simple-flow [--wish FILE] [--checks FILE]
 xdesign next WISH_ID
 # Perform the work described by the returned stage.
 xdesign check WISH_ID
@@ -152,7 +152,52 @@ final human acceptance.
 
 The current CLI supports these two repository-bound flat flows. See the
 [CLI contract](docs/design/stage-cli.md#d85) for storage, result validation, and
-the remaining execution limits.
+the remaining execution limits. Creating a wish (and freezing its flow and checks)
+never starts an agent: `next` hands the current work order to the working agent, the
+agent performs the stage, and `check --result FILE` submits it. The operator web page
+shows and copies this handoff but does not launch stage work.
+
+### Customize checks with the checkpoint library
+
+Each of the four syntactic SimpleFlow gates can run the built-in deterministic checker,
+an agent CLI (codex or kimi with a model), or a reusable definition from the project
+checkpoint library. The choice is frozen into the run plan at `init`, so later library
+edits never change an existing run.
+
+```bash
+xdesign checkpoint list          # built-in and project entries
+xdesign checkpoint show ID
+xdesign checkpoint save --request cache/checkpoint.json
+xdesign init WISH_ID --flow simple-flow --checks cache/checks.json
+```
+
+A syntactic library entry declares its rules, the project inputs the rules read, and an
+executor: a project checker script (reuse an existing one, or generate a scaffold under
+`checkpoints/scripts/`), or an agent CLI plus model. Reusing a shipped
+`tools/checks/*.py` script also needs the entry's optional `checker_id` (for example
+`simpleRequirementsCheck`) because those scripts enforce their own identity. A semantic
+entry records reusable criteria and permitted judges and can be bound to the SimpleFlow
+`verificationAccepted` gate. Project entries are versioned with history in the Git-tracked
+`checkpoints/library.json`; see [checkpoints/README.md](checkpoints/README.md) and the
+[checkpoint library design](docs/design/checkpoint-library.md).
+
+### Operator web UI
+
+```bash
+xdesign web [--host 127.0.0.1] [--port 7788] [--open] [--project-root PATH] [--store-root PATH]
+```
+
+The page and its small HTTP server are compiled into the `xdesign` executable (source in
+`web/`, contract in `web/SPEC.md`), so the web program ships with the release package and
+needs no Node.js, npm, CDN, or separate static server. It binds loopback by default and
+offers: a wish lifecycle board with stage and checkpoint outcomes, an event timeline and
+retained-material viewer; wish creation with flow choice and per-check-node
+default / agent-CLI+model / library configuration; `Get next work` and `Run check`
+actions; a checkpoints view to browse, create and version reusable syntactic and semantic
+checkpoints; and a Start-work handoff card with a copyable agent prompt. It is an operator
+console, not the documentation site, and it never starts stage work by itself. The
+lifecycle visualisation asset is embedded as local SVG; no external requests are made.
+
 
 ## Documentation
 

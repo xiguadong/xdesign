@@ -40,6 +40,8 @@ The executed slices' plans and execution records are frozen historical evidence 
 | tools/ | Scripts and development utilities. |
 | docs/ | Authored documentation: requirements, architecture, design (common pages plus flow-specific pages and one document per API), interfaces, verification design, and records. Entry: docs/index.md; rules: docs/AGENTS.md. |
 | docs/records/ | Frozen historical archive (2026-10-25): plans, reviews, execution records, evidence summaries, current status, and legacy/bootstrap wish history retained in Git as acceptance evidence. Do not edit; maintained records are `.xdesign` record items. |
+| web/ | Embedded operator web program: the page under `web/assets/` and its Rust server module under `web/server/`, compiled into the single `xdesign` executable; contract in `web/SPEC.md`. |
+| checkpoints/ | Project-level checkpoint library: reusable syntactic rule sets with their scripts/executors and semantic criteria, versioned in `checkpoints/library.json`; generated checker scripts under `checkpoints/scripts/`. Git-tracked authoring source, not operational state. |
 | .xdesign/ | Durable local operational store: new wish/run revisions, project record revisions, content-addressed materials, evidence, and receipts. Ignored by Git; not a development environment or temporary cache. |
 | cache/ | Temporary data, local project environments, regenerable working material, and temporary files. |
 
