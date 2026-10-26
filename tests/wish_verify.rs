@@ -1,8 +1,10 @@
 use std::{collections::VecDeque, fs, path::Path, sync::Mutex};
 use uuid::Uuid;
+use xdesign::checkpoint::RsCheckpointLibrary;
 use xdesign::core::*;
 use xdesign::simple_flow::{
-    apply_check_bindings, RsCheckBinding, RsCheckBindingConfig, RsCheckBindingMode,
+    apply_check_bindings, apply_check_bindings_with_library, RsCheckBinding, RsCheckBindingConfig,
+    RsCheckBindingMode,
 };
 use xdesign::wish_verify::*;
 
@@ -477,6 +479,7 @@ fn custom_check_bindings_are_rejected_for_wish_verify() {
             cli: cli.map(str::to_owned),
             model: model.map(str::to_owned),
             command_uri: command_uri.map(str::to_owned),
+            library_id: None,
         }
     }
     let mut plan = wish_verify_flow_plan();
@@ -530,5 +533,42 @@ fn custom_check_bindings_are_rejected_for_wish_verify() {
     )
     .unwrap();
     assert!(plan.checkpoints.iter().all(|gate| gate.checker.is_none()));
+    assert_eq!(validate_wish_verify_plan(&plan), Ok(()));
+}
+
+#[test]
+fn library_check_bindings_are_rejected_for_wish_verify() {
+    let dir = test_dir();
+    let library = RsCheckpointLibrary::load(Path::new(&dir)).unwrap();
+    let mut plan = wish_verify_flow_plan();
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![
+            RsCheckBinding {
+                checkpoint_id: "simpleRequirementsAccepted".into(),
+                mode: RsCheckBindingMode::Library,
+                cli: None,
+                model: None,
+                command_uri: None,
+                library_id: Some("some-library-checkpoint".into()),
+            },
+            RsCheckBinding {
+                checkpoint_id: "verificationAccepted".into(),
+                mode: RsCheckBindingMode::Library,
+                cli: None,
+                model: None,
+                command_uri: None,
+                library_id: Some("some-semantic-checkpoint".into()),
+            },
+        ],
+    };
+    assert_eq!(
+        apply_check_bindings(&mut plan, &config),
+        Err("custom checks are supported for simple-flow only".to_string())
+    );
+    assert_eq!(
+        apply_check_bindings_with_library(&mut plan, &config, &library),
+        Err("custom checks are supported for simple-flow only".to_string())
+    );
     assert_eq!(validate_wish_verify_plan(&plan), Ok(()));
 }

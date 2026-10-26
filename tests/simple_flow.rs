@@ -1,9 +1,11 @@
 use std::{
     collections::VecDeque,
     fs,
+    path::Path,
     sync::{Arc, Mutex},
 };
 use uuid::Uuid;
+use xdesign::checkpoint::RsCheckpointLibrary;
 use xdesign::core::*;
 use xdesign::simple_flow::*;
 
@@ -695,6 +697,7 @@ fn binding(
         cli: cli.map(str::to_owned),
         model: model.map(str::to_owned),
         command_uri: command_uri.map(str::to_owned),
+        library_id: None,
     }
 }
 
@@ -708,6 +711,17 @@ fn default_plan_serialization_and_validation_are_unchanged() {
     assert!(
         !text.contains("\"custom\""),
         "default plan bytes gained a custom key: {text}"
+    );
+    assert!(
+        !text.contains("\"library\""),
+        "default plan bytes gained a library key: {text}"
+    );
+    // The default SimpleFlow plan bytes must stay exactly as before either
+    // custom check bindings round (verified against the pre-change binary).
+    assert_eq!(
+        sha256_bytes(&bytes),
+        "10864848c1cae28233827d7cd8d82b7a4c6a677a9c16a5687fcbdc3e9227ca04",
+        "default SimpleFlow plan bytes changed"
     );
     let decoded: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
     for checkpoint in decoded["checkpoints"].as_array().unwrap() {
@@ -902,4 +916,417 @@ fn designed_plan_accepts_cli_and_command_bindings_and_rejects_invalid_ones() {
         checks: vec![],
     };
     assert!(apply_check_bindings(&mut plan, &wrong_schema).is_err());
+}
+
+fn write_checkpoint_library(dir: &str, entries: serde_json::Value) {
+    fs::create_dir_all(format!("{dir}/checkpoints")).unwrap();
+    fs::write(
+        format!("{dir}/checkpoints/library.json"),
+        serde_json::to_vec_pretty(&serde_json::json!({
+            "schema_version": 1,
+            "checkpoints": entries,
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+}
+
+fn checkpoint_entry(
+    id: &str,
+    kind: &str,
+    rules: serde_json::Value,
+    inputs: serde_json::Value,
+    executor: serde_json::Value,
+    criteria: serde_json::Value,
+    judges: serde_json::Value,
+) -> serde_json::Value {
+    let mut entry = serde_json::json!({
+        "checkpoint_id": id,
+        "title": format!("Library checkpoint {id}"),
+        "description": "A reusable library checkpoint used by the tests.",
+        "kind": kind,
+        "tags": ["test"],
+        "version": 3,
+        "created_at": "2026-10-26T00:00:00Z",
+        "updated_at": "2026-10-26T00:05:00Z",
+        "source": "manual",
+        "history": [],
+    });
+    if !rules.is_null() {
+        entry["rules"] = rules;
+    }
+    if !inputs.is_null() {
+        entry["inputs"] = inputs;
+    }
+    if !executor.is_null() {
+        entry["executor"] = executor;
+    }
+    if !criteria.is_null() {
+        entry["criteria"] = criteria;
+    }
+    if !judges.is_null() {
+        entry["judges"] = judges;
+    }
+    entry
+}
+
+fn library_binding(checkpoint_id: &str, library_id: &str) -> RsCheckBinding {
+    RsCheckBinding {
+        checkpoint_id: checkpoint_id.into(),
+        mode: RsCheckBindingMode::Library,
+        cli: None,
+        model: None,
+        command_uri: None,
+        library_id: Some(library_id.into()),
+    }
+}
+
+fn library_plan(dir: &str, entries: serde_json::Value, config: RsCheckBindingConfig) -> RsFlowPlan {
+    write_checkpoint_library(dir, entries);
+    let library = RsCheckpointLibrary::load(Path::new(dir)).unwrap();
+    let mut plan = designed_simple_flow_plan();
+    apply_check_bindings_with_library(&mut plan, &config, &library).unwrap();
+    plan.freeze(format!("{dir}/library-plan.json")).unwrap();
+    plan
+}
+
+#[test]
+fn designed_plan_accepts_syntactic_and_semantic_library_bindings() {
+    let dir = test_dir();
+    fs::create_dir_all(format!("{dir}/tools/checks")).unwrap();
+    fs::create_dir_all(format!("{dir}/mbse/model")).unwrap();
+    fs::write(
+        format!("{dir}/tools/checks/simple_requirements.py"),
+        "print('library checker')\n",
+    )
+    .unwrap();
+    fs::write(
+        format!("{dir}/mbse/model/requirements.sysml"),
+        "package XDesignRequirements {}\n",
+    )
+    .unwrap();
+    let entries = serde_json::json!([
+        checkpoint_entry(
+            "energy-budget-positive",
+            "syntactic",
+            serde_json::json!([
+                {"rule_id": "budget-declared", "condition": "Every actuator declares an energyBudget.", "reads": ["mbse/model/requirements.sysml"]},
+            ]),
+            serde_json::json!(["mbse/model/requirements.sysml"]),
+            serde_json::json!({"mode": "script", "command_uri": "tools/checks/simple_requirements.py"}),
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+        ),
+        checkpoint_entry(
+            "verification-evidence-complete",
+            "semantic",
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+            serde_json::json!([
+                "Every requirement has retained evidence that a reader can re-examine.",
+                "The evidence and the record stand on their own.",
+            ]),
+            serde_json::json!({"agent": true, "human": false}),
+        ),
+    ]);
+    let config = RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![
+            library_binding("simpleRequirementsAccepted", "energy-budget-positive"),
+            library_binding("verificationAccepted", "verification-evidence-complete"),
+        ],
+    };
+    let plan = library_plan(&dir, entries, config);
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+    let syntactic = &plan.checkpoints[0];
+    assert_eq!(syntactic.library.as_deref(), Some("energy-budget-positive"));
+    let checker = syntactic.checker.as_ref().unwrap();
+    assert_eq!(checker.checker_id, "energy-budget-positive");
+    assert_eq!(
+        checker
+            .rules
+            .iter()
+            .map(|rule| rule.rule_id.as_str())
+            .collect::<Vec<_>>(),
+        vec!["budget-declared"]
+    );
+    assert_eq!(
+        syntactic.criteria,
+        designed_simple_flow_plan().checkpoints[0].criteria
+    );
+    assert_eq!(checker.command_uri, "tools/checks/simple_requirements.py");
+    assert_eq!(
+        checker.custom,
+        Some(RsCustomChecker {
+            runner: RsCustomRunner::Process,
+            cli: None,
+            model: None,
+        })
+    );
+    let semantic = &plan.checkpoints[4];
+    assert_eq!(
+        semantic.library.as_deref(),
+        Some("verification-evidence-complete")
+    );
+    assert!(semantic.checker.is_none());
+    assert_eq!(semantic.criteria.len(), 2);
+    assert!(semantic.agent_may_judge);
+    assert!(!semantic.human_may_judge);
+
+    // The frozen plan reloads and validates without the library file.
+    let reloaded = RsFlowPlan::load_frozen(&plan.plan_uri, &plan.plan_sha256).unwrap();
+    assert_eq!(validate_designed_plan(&reloaded), Ok(()));
+    assert_eq!(reloaded, plan);
+
+    // Tampered library rules/criteria/library ids are rejected.
+    let mut tampered = plan.clone();
+    tampered.checkpoints[0].checker.as_mut().unwrap().rules[0].condition = "".into();
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidChecker)
+    );
+    let mut tampered = plan.clone();
+    let duplicate_rule = tampered.checkpoints[0].checker.as_ref().unwrap().rules[0].clone();
+    tampered.checkpoints[0]
+        .checker
+        .as_mut()
+        .unwrap()
+        .rules
+        .push(duplicate_rule);
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidChecker)
+    );
+    // The frozen checker identity may be the reused script identity (for
+    // example simpleRequirementsCheck) instead of the library id; an invalid
+    // identity shape is still rejected.
+    let mut renamed = plan.clone();
+    renamed.checkpoints[0].checker.as_mut().unwrap().checker_id = "simpleRequirementsCheck".into();
+    assert_eq!(validate_designed_plan(&renamed), Ok(()));
+    let mut tampered = plan.clone();
+    tampered.checkpoints[0].checker.as_mut().unwrap().checker_id = "not a checker id".into();
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidChecker)
+    );
+    let mut tampered = plan.clone();
+    tampered.checkpoints[0].library = None;
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidChecker)
+    );
+    let mut tampered = plan.clone();
+    tampered.checkpoints[4].criteria.clear();
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
+    let mut tampered = plan.clone();
+    tampered.checkpoints[4].agent_may_judge = false;
+    tampered.checkpoints[4].human_may_judge = false;
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidDesignedFlow)
+    );
+    // A non-library plan cannot gain a library marker out of nowhere.
+    let mut tampered = designed_simple_flow_plan();
+    tampered.checkpoints[0].library = Some("energy-budget-positive".into());
+    assert_eq!(
+        validate_designed_plan(&tampered),
+        Err(RsPlanError::InvalidChecker)
+    );
+}
+
+#[test]
+fn library_binding_resolution_rejects_kind_missing_and_unknown_ids() {
+    let dir = test_dir();
+    fs::create_dir_all(format!("{dir}/tools/checks")).unwrap();
+    fs::create_dir_all(format!("{dir}/mbse/model")).unwrap();
+    fs::write(
+        format!("{dir}/tools/checks/simple_requirements.py"),
+        "print('library checker')\n",
+    )
+    .unwrap();
+    fs::write(
+        format!("{dir}/mbse/model/requirements.sysml"),
+        "package XDesignRequirements {}\n",
+    )
+    .unwrap();
+    let entries = serde_json::json!([
+        checkpoint_entry(
+            "syntactic-library",
+            "syntactic",
+            serde_json::json!([
+                {"rule_id": "rule-one", "condition": "The rule holds.", "reads": ["mbse/model/requirements.sysml"]},
+            ]),
+            serde_json::json!(["mbse/model/requirements.sysml"]),
+            serde_json::json!({"mode": "script", "command_uri": "tools/checks/simple_requirements.py"}),
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+        ),
+        checkpoint_entry(
+            "semantic-library",
+            "semantic",
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+            serde_json::Value::Null,
+            serde_json::json!(["The evidence stands on its own."]),
+            serde_json::json!({"agent": true, "human": true}),
+        ),
+    ]);
+    write_checkpoint_library(&dir, entries);
+    let library = RsCheckpointLibrary::load(Path::new(&dir)).unwrap();
+    let mut plan = designed_simple_flow_plan();
+    let config = |checkpoint_id: &str, library_id: &str| RsCheckBindingConfig {
+        schema_version: 1,
+        checks: vec![library_binding(checkpoint_id, library_id)],
+    };
+    let error = apply_check_bindings_with_library(
+        &mut plan,
+        &config("simpleRequirementsAccepted", "semantic-library"),
+        &library,
+    )
+    .unwrap_err();
+    assert!(error.contains("kind mismatch"), "{error}");
+    let error = apply_check_bindings_with_library(
+        &mut plan,
+        &config("verificationAccepted", "syntactic-library"),
+        &library,
+    )
+    .unwrap_err();
+    assert!(error.contains("kind mismatch"), "{error}");
+    let error = apply_check_bindings_with_library(
+        &mut plan,
+        &config("simpleRequirementsAccepted", "does-not-exist"),
+        &library,
+    )
+    .unwrap_err();
+    assert!(error.contains("unknown library checkpoint"), "{error}");
+    let mut missing_id = config("simpleRequirementsAccepted", "syntactic-library");
+    missing_id.checks[0].library_id = None;
+    let error = apply_check_bindings_with_library(&mut plan, &missing_id, &library).unwrap_err();
+    assert!(error.contains("requires a library_id"), "{error}");
+    let mut invalid_id = config("simpleRequirementsAccepted", "syntactic-library");
+    invalid_id.checks[0].library_id = Some("Not_A_Slug".into());
+    let error = apply_check_bindings_with_library(&mut plan, &invalid_id, &library).unwrap_err();
+    assert!(error.contains("invalid library_id"), "{error}");
+    // Library mode without the project library resolver is refused.
+    let error = apply_check_bindings(
+        &mut plan,
+        &config("simpleRequirementsAccepted", "syntactic-library"),
+    )
+    .unwrap_err();
+    assert!(
+        error.contains("require the project checkpoint library"),
+        "{error}"
+    );
+    // The plan was not mutated by the rejected bindings.
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+}
+
+#[derive(Clone)]
+struct CriteriaCapturingJudge {
+    criteria: Arc<Mutex<Vec<String>>>,
+}
+
+impl RsJudge for CriteriaCapturingJudge {
+    fn review(
+        &self,
+        criteria: &[String],
+        _evidence_uris: &[String],
+    ) -> (RsCheckpointOutcome, String) {
+        *self.criteria.lock().unwrap() = criteria.to_vec();
+        (
+            RsCheckpointOutcome::Passed,
+            "Reviewed the frozen library criteria".into(),
+        )
+    }
+    fn authority(&self) -> RsJudgeAuthority {
+        RsJudgeAuthority::Agent
+    }
+    fn identity(&self) -> &str {
+        "library-reviewer"
+    }
+}
+
+#[test]
+fn semantic_library_gate_is_judged_with_its_frozen_criteria_and_restores() {
+    let dir = test_dir();
+    let entries = serde_json::json!([checkpoint_entry(
+        "verification-evidence-complete",
+        "semantic",
+        serde_json::Value::Null,
+        serde_json::Value::Null,
+        serde_json::Value::Null,
+        serde_json::json!([
+            "Every requirement has retained evidence that a reader can re-examine.",
+            "The evidence and the record stand on their own.",
+        ]),
+        serde_json::json!({"agent": true, "human": false}),
+    ),]);
+    let mut plan = library_plan(
+        &dir,
+        entries,
+        RsCheckBindingConfig {
+            schema_version: 1,
+            checks: vec![library_binding(
+                "verificationAccepted",
+                "verification-evidence-complete",
+            )],
+        },
+    );
+    assert_eq!(validate_designed_plan(&plan), Ok(()));
+    let frozen_criteria = plan.checkpoints[4].criteria.clone();
+    let wish = fixture(&dir, "wish.sysml", "package Wish {}\n");
+    let criteria_seen = Arc::new(Mutex::new(Vec::new()));
+    let mut run = create_designed_run(
+        plan.clone(),
+        wish.clone(),
+        format!("{dir}/run.json"),
+        Box::new(MockCheck {
+            dir: dir.clone(),
+            verdicts: Arc::new(Mutex::new(VecDeque::new())),
+            stages: Arc::new(Mutex::new(vec![])),
+        }),
+        Box::new(CriteriaCapturingJudge {
+            criteria: criteria_seen.clone(),
+        }),
+    )
+    .unwrap();
+    for stage in ["requirements", "design", "implement"] {
+        add_artifact(&mut run, &dir, &format!("{stage}.txt"), stage);
+        assert_eq!(run.evaluate_gates()[0].outcome, RsCheckpointOutcome::Passed);
+        assert_eq!(run.advance(), RsAdvanceOutcome::EnterNextStage);
+    }
+    add_artifact(&mut run, &dir, "verification.txt", "verification fixture");
+    let entries = run.evaluate_gates();
+    assert_eq!(entries.len(), 2);
+    assert_eq!(
+        entries[1].checkpoint_id, "verificationAccepted",
+        "library semantic gate keeps its plan checkpoint id"
+    );
+    assert_eq!(entries[1].judged_by, RsJudgeAuthority::Agent);
+    assert_eq!(entries[1].assessor, "library-reviewer");
+    assert_eq!(*criteria_seen.lock().unwrap(), frozen_criteria);
+    assert_eq!(run.advance(), RsAdvanceOutcome::CompleteRun);
+    assert_eq!(run.status(), RsFlowStatus::Completed);
+    // Restoring the completed run re-validates the frozen library criteria and
+    // the agent-authority semantic assessment through the plan alone.
+    let restored = xdesign::core::restore_run(
+        plan,
+        wish,
+        format!("{dir}/run.json"),
+        Box::new(MockCheck {
+            dir: dir.clone(),
+            verdicts: Arc::new(Mutex::new(VecDeque::new())),
+            stages: Arc::new(Mutex::new(vec![])),
+        }),
+        Box::new(CriteriaCapturingJudge {
+            criteria: Arc::new(Mutex::new(Vec::new())),
+        }),
+    )
+    .unwrap();
+    assert_eq!(restored.status(), RsFlowStatus::Completed);
+    assert_eq!(restored.plan().checkpoints[4].criteria, frozen_criteria);
 }

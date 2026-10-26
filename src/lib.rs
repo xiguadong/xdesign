@@ -1,10 +1,13 @@
 //! xdesign application library: `core` holds flow-agnostic infrastructure,
+//! `checkpoint` owns the project checkpoint library and its command envelope,
 //! `simple_flow` and `wish_verify` build the designed flows on it, `storage`
 //! owns local operational persistence, and `web` is the embedded operator web
-//! UI. Flow and storage modules may use core; core never depends on a flow or
-//! on SQLite storage, and the web operator UI depends on flows and storage
-//! without being a flow.
+//! UI. The checkpoint module seeds its built-ins from the designed flows and
+//! flows resolve library bindings through it; core never depends on a flow,
+//! the checkpoint library, or SQLite storage, and the web operator UI depends
+//! on flows, the checkpoint library and storage without being a flow.
 
+pub mod checkpoint;
 pub mod core;
 pub mod simple_flow;
 pub mod storage;

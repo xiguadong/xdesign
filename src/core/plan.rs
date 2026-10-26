@@ -62,6 +62,11 @@ pub struct RsCheckpointSpec {
     pub checker: Option<RsCheckerSpec>,
     pub agent_may_judge: bool,
     pub human_may_judge: bool,
+    /// The project checkpoint-library entry this gate was frozen from, if the
+    /// run bound a library checkpoint at initialization. The frozen rules or
+    /// criteria are the durable definition; this id only names the origin.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub library: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -97,6 +102,30 @@ pub fn valid_relative_path(s: &str) -> bool {
         && path
             .components()
             .all(|c| matches!(c, std::path::Component::Normal(_)))
+}
+
+/// A checker identity a script may report, and the identity frozen into a
+/// library-bound plan: `[A-Za-z0-9][A-Za-z0-9_-]{0,127}`.
+pub fn valid_checker_id(s: &str) -> bool {
+    !s.is_empty()
+        && s.len() <= 128
+        && s.as_bytes()
+            .first()
+            .is_some_and(|byte| byte.is_ascii_alphanumeric())
+        && s.bytes()
+            .all(|byte| byte.is_ascii_alphanumeric() || byte == b'-' || byte == b'_')
+}
+
+/// Checkpoint-library ids are lowercase slugs: `[a-z0-9][a-z0-9_-]{0,63}`.
+pub fn valid_library_id(s: &str) -> bool {
+    !s.is_empty()
+        && s.len() <= 64
+        && s.as_bytes()
+            .first()
+            .is_some_and(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
+        && s.bytes().all(|byte| {
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'-' || byte == b'_'
+        })
 }
 
 impl RsFlowPlan {
@@ -175,6 +204,13 @@ impl RsFlowPlan {
         for gate in &self.checkpoints {
             if !stage_ids.contains(gate.stage_id.as_str()) {
                 return Err(RsPlanError::UnknownStageReference);
+            }
+            if gate
+                .library
+                .as_deref()
+                .is_some_and(|library| !valid_library_id(library))
+            {
+                return Err(RsPlanError::InvalidDesignedFlow);
             }
             match (gate.kind, gate.checker.as_ref()) {
                 (RsCheckKind::Syntactic, None) => {

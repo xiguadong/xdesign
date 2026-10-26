@@ -843,6 +843,9 @@ package XDesignDetailedDesign {
             item run : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/run.rs"; attribute redefines responsibility = "Run state, authorization, advance and reopen"; }
             item coreFactory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/core/factory.rs"; attribute redefines responsibility = "Create a run from any structurally valid plan"; }
             item simpleFlowModule : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/mod.rs"; attribute redefines responsibility = "SimpleFlow public API within xdesign"; }
+            item checkpointModule : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/checkpoint/mod.rs"; attribute redefines responsibility = "Checkpoint library public API within xdesign"; }
+            item checkpointLibrary : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/checkpoint/library.rs"; attribute redefines responsibility = "Checkpoint library model, validation, built-in seeds, atomic storage and scaffold generation"; }
+            item checkpointCli : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/checkpoint/cli.rs"; attribute redefines responsibility = "Checkpoint list, show and save command envelope"; }
             item blueprint : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/blueprint.rs"; attribute redefines responsibility = "The designed four-stage plan as data and its blueprint conformance"; }
             item simpleFlowFactory : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/factory.rs"; attribute redefines responsibility = "Create a conforming designed run"; }
             item processCheck : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/check.rs"; attribute redefines responsibility = "Fixed four-checker process adapter"; }

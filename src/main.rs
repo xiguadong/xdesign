@@ -283,6 +283,14 @@ fn main() {
             }
         }
     }
+    if args.get(1).map(String::as_str) == Some("checkpoint") {
+        let (reply, code) = xdesign::checkpoint::cli::dispatch(&args[2..]);
+        println!(
+            "{}",
+            serde_json::to_string(&reply).expect("JSON checkpoint response")
+        );
+        std::process::exit(code);
+    }
     if args.get(1).map(String::as_str) == Some("store") {
         let (reply, code) = xdesign::storage::cli::dispatch(&args[2..]);
         let rendered = serde_json::to_string_pretty(&reply).expect("JSON store response");

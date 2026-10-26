@@ -1370,6 +1370,11 @@ struct PlanCheckpoint {
     checker: Option<PlanChecker>,
     agent_may_judge: bool,
     human_may_judge: bool,
+    /// The checkpoint-library origin frozen into a library-bound run. The
+    /// projection does not interpret it but must tolerate the member.
+    #[serde(default)]
+    #[allow(dead_code)]
+    library: Option<String>,
 }
 
 #[allow(dead_code)]

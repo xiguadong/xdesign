@@ -11,6 +11,7 @@ pub fn wish_verify_flow_plan() -> RsFlowPlan {
             checker: None,
             agent_may_judge: true,
             human_may_judge: true,
+            library: None,
         }
     }
     RsFlowPlan {

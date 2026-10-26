@@ -817,3 +817,672 @@ fn init_checks_binds_a_custom_command_script_and_check_uses_it() {
     assert_eq!(checked["work"]["stage_id"], "design");
     assert_eq!(project.next()["work"]["stage_id"], "design");
 }
+
+fn checkpoint_entry_json(id: &str, kind: &str) -> Value {
+    json!({
+        "checkpoint_id": id,
+        "title": format!("Checkpoint {id}"),
+        "description": format!("Library checkpoint {id} used by the CLI integration tests."),
+        "kind": kind,
+        "tags": ["test"],
+        "version": 1,
+        "created_at": "2026-10-26T00:00:00Z",
+        "updated_at": "2026-10-26T00:00:00Z",
+        "source": "manual",
+        "history": [],
+    })
+}
+
+fn syntactic_library_entry(id: &str, script_uri: &str, input_uri: &str, rule_id: &str) -> Value {
+    let mut entry = checkpoint_entry_json(id, "syntactic");
+    entry["rules"] = json!([{
+        "rule_id": rule_id,
+        "condition": format!("The declared rule {rule_id} holds for the recorded revision."),
+        "reads": [input_uri],
+    }]);
+    entry["inputs"] = json!([input_uri]);
+    entry["executor"] = json!({"mode": "script", "command_uri": script_uri});
+    entry
+}
+
+fn cli_library_entry(id: &str, cli: &str, model: &str, input_uri: &str, rule_id: &str) -> Value {
+    let mut entry = syntactic_library_entry(id, "", input_uri, rule_id);
+    entry["executor"] = json!({"mode": "cli", "cli": cli, "model": model});
+    entry
+}
+
+fn semantic_library_entry(id: &str, criteria: &[&str], agent: bool, human: bool) -> Value {
+    let mut entry = checkpoint_entry_json(id, "semantic");
+    entry["criteria"] = json!(criteria);
+    entry["judges"] = json!({"agent": agent, "human": human});
+    entry
+}
+
+fn library_binding(checkpoint_id: &str, library_id: &str) -> Value {
+    json!({
+        "checkpoint_id": checkpoint_id,
+        "mode": "library",
+        "library_id": library_id,
+    })
+}
+
+impl Project {
+    fn library(&self, entries: &[Value]) {
+        self.write(
+            "checkpoints/library.json",
+            &serde_json::to_vec_pretty(&json!({
+                "schema_version": 1,
+                "checkpoints": entries,
+            }))
+            .unwrap(),
+        );
+    }
+    fn save_checkpoint(&self, request: &Value, code: i32) -> Value {
+        self.write(
+            "checkpoint-request.json",
+            &serde_json::to_vec_pretty(request).unwrap(),
+        );
+        self.json(
+            &["checkpoint", "save", "--request", "checkpoint-request.json"],
+            code,
+        )
+    }
+    fn init_with_checks(&self, id: &str, checks: &[Value]) -> Value {
+        self.write(
+            "checks.json",
+            &serde_json::to_vec_pretty(&json!({
+                "schema_version": 1,
+                "checks": checks,
+            }))
+            .unwrap(),
+        );
+        self.json(
+            &[
+                "init",
+                id,
+                "--flow",
+                "simple-flow",
+                "--checks",
+                "checks.json",
+            ],
+            0,
+        )
+    }
+    fn plan_json(&self, id: &str) -> Value {
+        serde_json::from_slice(
+            &fs::read(self.root.join(format!("cache/xdesign/{id}/plan.json"))).unwrap(),
+        )
+        .unwrap()
+    }
+}
+
+#[test]
+fn checkpoint_library_cli_lists_shows_and_saves_round_trip() {
+    let project = Project::simple(false);
+    // A missing library.json is the built-ins and zero user entries.
+    let list = project.json(&["checkpoint", "list"], 0);
+    assert_eq!(list["schema_version"], 1);
+    assert_eq!(list["library_uri"], "checkpoints/library.json");
+    assert_eq!(list["issues"], json!([]));
+    let builtins = list["checkpoints"].as_array().unwrap();
+    assert_eq!(builtins.len(), 5);
+    let ids: Vec<&str> = builtins
+        .iter()
+        .map(|entry| entry["checkpoint_id"].as_str().unwrap())
+        .collect();
+    assert_eq!(
+        ids,
+        vec![
+            "builtin-simple-requirements",
+            "builtin-simple-design",
+            "builtin-simple-implementation",
+            "builtin-simple-record",
+            "builtin-simple-verification"
+        ]
+    );
+    assert!(builtins.iter().all(|entry| entry["builtin"] == true));
+    assert_eq!(builtins[0]["rule_count"], 2);
+    assert_eq!(builtins[0]["checker_id"], "simpleRequirementsCheck");
+    assert_eq!(builtins[4]["criteria_count"], 2);
+    assert_eq!(builtins[4]["checker_id"], Value::Null);
+    let show = project.json(&["checkpoint", "show", "builtin-simple-requirements"], 0);
+    assert_eq!(show["checkpoint"]["builtin"], true);
+    assert_eq!(show["checkpoint"]["script_exists"], true);
+    assert_eq!(show["checkpoint"]["rules"].as_array().unwrap().len(), 2);
+    assert_eq!(show["checkpoint"]["checker_id"], "simpleRequirementsCheck");
+    let unknown = project.json(&["checkpoint", "show", "does-not-exist"], 2);
+    assert_eq!(unknown["ok"], false);
+    assert_eq!(unknown["error"]["code"], "unknown_checkpoint");
+    assert!(unknown["error"]["message"]
+        .as_str()
+        .unwrap()
+        .contains("does-not-exist"));
+
+    // Save a manual syntactic entry, then update it.
+    let entry = syntactic_library_entry(
+        "energy-budget-positive",
+        "tools/checks/simple_requirements.py",
+        "mbse/model/requirements.sysml",
+        "budget-declared",
+    );
+    let saved = project.save_checkpoint(&entry, 0);
+    assert_eq!(saved["created"], true);
+    assert_eq!(saved["version"], 1);
+    assert_eq!(saved["checkpoint"]["builtin"], false);
+    assert_eq!(saved["script_uri"], "tools/checks/simple_requirements.py");
+    let mut updated = entry.clone();
+    updated["title"] = json!("Energy budget stays non-negative (updated)");
+    let saved = project.save_checkpoint(&updated, 0);
+    assert_eq!(saved["created"], false);
+    assert_eq!(saved["version"], 2);
+    let show = project.json(&["checkpoint", "show", "energy-budget-positive"], 0);
+    assert_eq!(show["checkpoint"]["builtin"], false);
+    assert_eq!(show["checkpoint"]["version"], 2);
+    assert_eq!(show["checkpoint"]["source"], "manual");
+    assert_eq!(show["checkpoint"]["history"].as_array().unwrap().len(), 1);
+    let list = project.json(&["checkpoint", "list"], 0);
+    let checkpoints = list["checkpoints"].as_array().unwrap();
+    assert_eq!(checkpoints.len(), 6);
+    let user = checkpoints
+        .iter()
+        .find(|entry| entry["checkpoint_id"] == "energy-budget-positive")
+        .unwrap();
+    assert_eq!(user["builtin"], false);
+    assert_eq!(user["version"], 2);
+    assert_eq!(user["rule_count"], 1);
+    assert_eq!(user["criteria_count"], 0);
+    assert_eq!(
+        user["executor"],
+        json!({"mode": "script", "command_uri": "tools/checks/simple_requirements.py"})
+    );
+
+    // Semantic entries cannot claim a checker identity.
+    let mut semantic_with_id = semantic_library_entry(
+        "semantic-with-identity",
+        &["The evidence stands on its own."],
+        true,
+        true,
+    );
+    semantic_with_id["checker_id"] = json!("someChecker");
+    let error = project.save_checkpoint(&semantic_with_id, 2);
+    assert_eq!(error["error"]["code"], "invalid_checkpoint");
+    // A syntactic entry may declare the identity its reused script reports.
+    let mut reused = entry.clone();
+    reused["checkpoint_id"] = json!("requirements-reuse");
+    reused["checker_id"] = json!("simpleRequirementsCheck");
+    let saved = project.save_checkpoint(&reused, 0);
+    assert_eq!(saved["checkpoint"]["checker_id"], "simpleRequirementsCheck");
+    let show = project.json(&["checkpoint", "show", "requirements-reuse"], 0);
+    assert_eq!(show["checkpoint"]["checker_id"], "simpleRequirementsCheck");
+
+    // A built-in id cannot be mutated, but it can be shown.
+    let mut builtin_attempt = entry.clone();
+    builtin_attempt["checkpoint_id"] = json!("builtin-simple-requirements");
+    let error = project.save_checkpoint(&builtin_attempt, 2);
+    assert_eq!(error["ok"], false);
+    assert_eq!(error["error"]["code"], "builtin_checkpoint");
+
+    // Invalid definitions carry the stable invalid_checkpoint code.
+    let mut invalid = entry.clone();
+    invalid["rules"] = json!([]);
+    let error = project.save_checkpoint(&invalid, 2);
+    assert_eq!(error["error"]["code"], "invalid_checkpoint");
+    let mut invalid = entry.clone();
+    invalid["kind"] = json!("fuzzy");
+    let error = project.save_checkpoint(&invalid, 2);
+    assert_eq!(error["error"]["code"], "invalid_checkpoint");
+    project.write("broken-request.json", b"not json");
+    let error = project.json(
+        &["checkpoint", "save", "--request", "broken-request.json"],
+        2,
+    );
+    assert_eq!(error["error"]["code"], "invalid_checkpoint");
+
+    // A malformed library file is an explicit error, never guessed.
+    project.write("checkpoints/library.json", b"{ not json");
+    let error = project.json(&["checkpoint", "list"], 2);
+    assert_eq!(error["error"]["code"], "invalid_checkpoint");
+    fs::remove_file(project.root.join("checkpoints/library.json")).unwrap();
+    let list = project.json(&["checkpoint", "list"], 0);
+    assert_eq!(list["checkpoints"].as_array().unwrap().len(), 5);
+}
+
+#[test]
+fn scaffold_save_writes_a_protocol_compatible_checker_script() {
+    let project = Project::simple(false);
+    let mut entry = syntactic_library_entry(
+        "energy-budget-positive",
+        "checkpoints/scripts/energy_budget_positive.py",
+        "mbse/model/requirements.sysml",
+        "budget-declared",
+    );
+    entry["rules"].as_array_mut().unwrap().push(json!({
+        "rule_id": "budget-non-negative",
+        "condition": "Every declared energyBudget is >= 0.",
+        "reads": ["mbse/model/requirements.sysml"],
+    }));
+    entry["create_script"] = json!("scaffold");
+    let saved = project.save_checkpoint(&entry, 0);
+    assert_eq!(saved["created"], true);
+    assert_eq!(
+        saved["script_uri"],
+        "checkpoints/scripts/energy_budget_positive.py"
+    );
+    let script_uri = saved["script_uri"].as_str().unwrap();
+    let script = fs::read_to_string(project.root.join(script_uri)).unwrap();
+    assert!(script.starts_with("#!/usr/bin/env python3"));
+    assert!(script.contains("rule not implemented: budget-declared"));
+    assert!(script.contains("rule not implemented: budget-non-negative"));
+    assert!(script.contains("--list-inputs"));
+    assert!(script.contains("input_sha256"));
+    assert!(script.contains("snapshot_digest"));
+    let output = Command::new("python3")
+        .current_dir(&project.root)
+        .arg(script_uri)
+        .arg("--list-inputs")
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let declared: Vec<String> = serde_json::from_slice(&output.stdout).unwrap();
+    assert_eq!(declared, vec!["mbse/model/requirements.sysml"]);
+    // The generated entry is listable and shows its generated source.
+    let list = project.json(&["checkpoint", "list"], 0);
+    let generated = list["checkpoints"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|entry| entry["checkpoint_id"] == "energy-budget-positive")
+        .unwrap()
+        .clone();
+    assert_eq!(generated["rule_count"], 2);
+    let show = project.json(&["checkpoint", "show", "energy-budget-positive"], 0);
+    assert_eq!(show["checkpoint"]["source"], "generated");
+}
+
+#[test]
+fn init_with_scaffolded_script_library_binding_runs_the_script() {
+    let project = Project::simple(false);
+    let entry = syntactic_library_entry(
+        "requirements-library",
+        "checkpoints/scripts/requirements_library.py",
+        "mbse/model/requirements.sysml",
+        "requirements-implemented",
+    );
+    let mut entry = entry;
+    entry["checker_id"] = json!("requirementsLibraryIdentity");
+    entry["create_script"] = json!("scaffold");
+    let saved = project.save_checkpoint(&entry, 0);
+    let script_uri = saved["script_uri"].as_str().unwrap().to_owned();
+    // The authored checkpoint implements its rule; the frozen library entry
+    // reuses that existing project script without create_script.
+    let script = fs::read_to_string(project.root.join(&script_uri)).unwrap();
+    let script = script.replace(
+        "return False, [\"rule not implemented: requirements-implemented\"]",
+        "return True, []",
+    );
+    assert!(!script.contains("rule not implemented: requirements-implemented"));
+    project.write(&script_uri, script.as_bytes());
+    project.init_with_checks(
+        "wish-test",
+        &[library_binding(
+            "simpleRequirementsAccepted",
+            "requirements-library",
+        )],
+    );
+    let plan = project.plan_json("wish-test");
+    let checkpoint = &plan["checkpoints"][0];
+    assert_eq!(checkpoint["library"], "requirements-library");
+    let checker = &checkpoint["checker"];
+    assert_eq!(checker["checker_id"], "requirementsLibraryIdentity");
+    assert_eq!(checker["command_uri"], script_uri);
+    assert_eq!(checker["custom"], json!({"runner": "process"}));
+    assert_eq!(checker["rules"][0]["rule_id"], "requirements-implemented");
+    let work: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/work.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        work["stages"][0]["frozen_paths"],
+        json!(["mbse/model/requirements.sysml"]),
+        "library entry inputs replace the --list-inputs invocation"
+    );
+    let checked = project.json(&["check", "wish-test"], 0);
+    let assessment = &checked["assessed"]["assessments"][0];
+    assert_eq!(assessment["outcome"], "passed");
+    assert_eq!(assessment["judged_by"], "script");
+    assert_eq!(assessment["assessor"], "requirementsLibraryIdentity");
+    assert_eq!(checked["advance"], "enter_next_stage");
+    assert_eq!(checked["work"]["stage_id"], "design");
+    let report_uri = assessment["evidence_uris"][0].as_str().unwrap();
+    let report: Value =
+        serde_json::from_slice(&fs::read(project.root.join(report_uri)).unwrap()).unwrap();
+    assert_eq!(report["checker_id"], "requirementsLibraryIdentity");
+    assert_eq!(report["overall_verdict"], "passed");
+    assert!(report["input_sha256"]
+        .as_object()
+        .unwrap()
+        .contains_key(&script_uri));
+    // next reloads the frozen library plan from the store.
+    assert_eq!(project.next()["work"]["stage_id"], "design");
+}
+
+#[test]
+fn init_with_unedited_scaffold_library_binding_reports_honest_failure() {
+    let project = Project::simple(false);
+    let mut entry = syntactic_library_entry(
+        "honest-scaffold",
+        "checkpoints/scripts/honest_scaffold.py",
+        "mbse/model/requirements.sysml",
+        "not-yet-implemented",
+    );
+    entry["create_script"] = json!("scaffold");
+    project.save_checkpoint(&entry, 0);
+    project.init_with_checks(
+        "wish-test",
+        &[library_binding(
+            "simpleRequirementsAccepted",
+            "honest-scaffold",
+        )],
+    );
+    let blocked = project.json(&["check", "wish-test"], 1);
+    let assessment = &blocked["assessed"]["assessments"][0];
+    assert_eq!(assessment["outcome"], "failed");
+    assert_eq!(assessment["judged_by"], "script");
+    assert_eq!(assessment["assessor"], "honest-scaffold");
+    assert!(assessment["rationale"]
+        .as_str()
+        .unwrap()
+        .contains("rule not implemented: not-yet-implemented"));
+    assert_eq!(blocked["work"]["stage_id"], "requirements");
+    assert_eq!(blocked["advance"], "remain_blocked");
+}
+
+#[cfg(unix)]
+#[test]
+fn init_with_cli_library_binding_records_agent_authority() {
+    use std::os::unix::fs::PermissionsExt;
+    let project = Project::simple(false);
+    let entry = cli_library_entry(
+        "agent-requirements-library",
+        "codex",
+        "gpt-library-model",
+        "mbse/model/requirements.sysml",
+        "requirements-agent-rule",
+    );
+    let saved = project.save_checkpoint(&entry, 0);
+    assert_eq!(saved["script_uri"], Value::Null);
+    let stub = project.root.join("cache/library-agent-stub.py");
+    fs::create_dir_all(stub.parent().unwrap()).unwrap();
+    fs::write(
+        &stub,
+        "#!/usr/bin/env python3\nimport json\nprint(json.dumps({\"overall_verdict\":\"passed\",\"rules\":[{\"rule_id\":\"requirements-agent-rule\",\"verdict\":\"passed\",\"failures\":[]}]}))\n",
+    )
+    .unwrap();
+    fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
+    let stub = stub.to_string_lossy().into_owned();
+    project.init_with_checks(
+        "wish-test",
+        &[library_binding(
+            "simpleRequirementsAccepted",
+            "agent-requirements-library",
+        )],
+    );
+    let plan = project.plan_json("wish-test");
+    let checker = &plan["checkpoints"][0]["checker"];
+    assert_eq!(checker["checker_id"], "agent-requirements-library");
+    assert_eq!(
+        checker["command_uri"],
+        "tools/checks/simple_requirements.py"
+    );
+    assert_eq!(
+        checker["custom"],
+        json!({"runner": "cli", "cli": "codex", "model": "gpt-library-model"})
+    );
+    assert_eq!(checker["rules"][0]["rule_id"], "requirements-agent-rule");
+    let checked = project.json_env(
+        &["check", "wish-test"],
+        0,
+        &[("XDESIGN_AGENT_CODEX_BIN", stub.as_str())],
+    );
+    let assessment = &checked["assessed"]["assessments"][0];
+    assert_eq!(assessment["outcome"], "passed");
+    assert_eq!(assessment["judged_by"], "agent");
+    assert_eq!(assessment["assessor"], "codex:gpt-library-model");
+    assert_eq!(checked["advance"], "enter_next_stage");
+    assert_eq!(project.next()["work"]["stage_id"], "design");
+}
+
+#[test]
+fn init_with_semantic_library_binding_freezes_criteria_and_judges() {
+    let project = Project::simple(false);
+    let entry = semantic_library_entry(
+        "verification-evidence-complete",
+        &[
+            "Every requirement has retained evidence that a reader can re-examine.",
+            "The evidence and the record stand on their own.",
+        ],
+        true,
+        false,
+    );
+    project.save_checkpoint(&entry, 0);
+    project.init_with_checks(
+        "wish-test",
+        &[library_binding(
+            "verificationAccepted",
+            "verification-evidence-complete",
+        )],
+    );
+    let plan = project.plan_json("wish-test");
+    let semantic = &plan["checkpoints"][4];
+    assert_eq!(semantic["checkpoint_id"], "verificationAccepted");
+    assert_eq!(semantic["library"], "verification-evidence-complete");
+    assert_eq!(semantic["checker"], Value::Null);
+    assert_eq!(semantic["agent_may_judge"], true);
+    assert_eq!(semantic["human_may_judge"], false);
+    assert_eq!(
+        semantic["criteria"],
+        json!([
+            "Every requirement has retained evidence that a reader can re-examine.",
+            "The evidence and the record stand on their own.",
+        ])
+    );
+    // The frozen plan reloads and validates through next.
+    assert_eq!(project.next()["work"]["stage_id"], "requirements");
+
+    // Kind mismatch, unknown id, invalid id and unsupported-flow bindings fail.
+    let mut wrong_kind = entry.clone();
+    wrong_kind["checkpoint_id"] = json!("syntactic-lookalike");
+    wrong_kind["kind"] = json!("syntactic");
+    wrong_kind.as_object_mut().unwrap().remove("criteria");
+    wrong_kind.as_object_mut().unwrap().remove("judges");
+    wrong_kind["rules"] = json!([{
+        "rule_id": "rule-one",
+        "condition": "The rule holds.",
+        "reads": ["mbse/model/requirements.sysml"],
+    }]);
+    wrong_kind["inputs"] = json!(["mbse/model/requirements.sysml"]);
+    wrong_kind["executor"] =
+        json!({"mode": "script", "command_uri": "tools/checks/simple_requirements.py"});
+    project.save_checkpoint(&wrong_kind, 0);
+    let mut checks = json!([library_binding(
+        "verificationAccepted",
+        "syntactic-lookalike"
+    ),]);
+    project.write(
+        "checks.json",
+        &serde_json::to_vec_pretty(&json!({"schema_version": 1, "checks": checks.clone()}))
+            .unwrap(),
+    );
+    let error = project.error(&[
+        "init",
+        "wish-mismatch",
+        "--flow",
+        "simple-flow",
+        "--checks",
+        "checks.json",
+    ]);
+    assert!(error.contains("kind mismatch"), "{error}");
+    checks[0]["library_id"] = json!("missing-library");
+    project.write(
+        "checks.json",
+        &serde_json::to_vec_pretty(&json!({"schema_version": 1, "checks": checks})).unwrap(),
+    );
+    let error = project.error(&[
+        "init",
+        "wish-missing",
+        "--flow",
+        "simple-flow",
+        "--checks",
+        "checks.json",
+    ]);
+    assert!(error.contains("unknown library checkpoint"), "{error}");
+    // wish-verify has no library binding in this round.
+    project.write("mbse/wishes/wish-onlyverify.sysml", b"package Wish {}\n");
+    project.write(
+        "checks.json",
+        &serde_json::to_vec_pretty(&json!({
+            "schema_version": 1,
+            "checks": [library_binding("verificationAccepted", "verification-evidence-complete")],
+        }))
+        .unwrap(),
+    );
+    let error = project.error(&[
+        "init",
+        "wish-onlyverify",
+        "--flow",
+        "wish-verify",
+        "--checks",
+        "checks.json",
+    ]);
+    assert!(
+        error.contains("custom checks are supported for simple-flow only"),
+        "{error}"
+    );
+}
+
+#[test]
+fn init_without_checks_keeps_the_default_plan_bytes() {
+    let project = Project::simple(false);
+    project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    let plan_path = project.root.join("cache/xdesign/wish-test/plan.json");
+    let bytes = fs::read(&plan_path).unwrap();
+    assert_eq!(
+        sha256_bytes(&bytes),
+        "10864848c1cae28233827d7cd8d82b7a4c6a677a9c16a5687fcbdc3e9227ca04",
+        "a run without --checks must freeze the unchanged default plan"
+    );
+    assert!(!String::from_utf8_lossy(&bytes).contains("\"library\""));
+}
+
+#[test]
+fn init_with_reused_shipped_checker_library_binding_passes() {
+    let project = Project::simple(false);
+    let default_plan = designed_simple_flow_plan();
+    let requirements_rules = default_plan.checkpoints[0]
+        .checker
+        .as_ref()
+        .unwrap()
+        .rules
+        .clone();
+    let mut entry = checkpoint_entry_json("requirements-reuse", "syntactic");
+    entry["rules"] = serde_json::to_value(&requirements_rules).unwrap();
+    entry["inputs"] = json!([
+        "mbse/model/requirements.sysml",
+        "mbse/model/traceability.sysml",
+    ]);
+    entry["executor"] = json!({
+        "mode": "script",
+        "command_uri": "tools/checks/simple_requirements.py",
+    });
+    entry["checker_id"] = json!("simpleRequirementsCheck");
+    project.save_checkpoint(&entry, 0);
+    project.init_with_checks(
+        "wish-test",
+        &[library_binding(
+            "simpleRequirementsAccepted",
+            "requirements-reuse",
+        )],
+    );
+    let plan = project.plan_json("wish-test");
+    let checkpoint = &plan["checkpoints"][0];
+    assert_eq!(checkpoint["library"], "requirements-reuse");
+    assert_eq!(
+        checkpoint["checker"]["checker_id"],
+        "simpleRequirementsCheck"
+    );
+    assert_eq!(
+        checkpoint["checker"]["command_uri"],
+        "tools/checks/simple_requirements.py"
+    );
+    assert_eq!(
+        checkpoint["checker"]["custom"],
+        json!({"runner": "process"})
+    );
+    let work: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/work.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        work["stages"][0]["frozen_paths"],
+        json!([
+            "mbse/model/requirements.sysml",
+            "mbse/model/traceability.sysml",
+        ])
+    );
+    let checked = project.json(&["check", "wish-test"], 0);
+    let assessment = &checked["assessed"]["assessments"][0];
+    assert_eq!(assessment["outcome"], "passed");
+    assert_eq!(assessment["judged_by"], "script");
+    assert_eq!(assessment["assessor"], "simpleRequirementsCheck");
+    assert_eq!(checked["advance"], "enter_next_stage");
+    assert_eq!(checked["work"]["stage_id"], "design");
+    let report_uri = assessment["evidence_uris"][0].as_str().unwrap();
+    let report: Value =
+        serde_json::from_slice(&fs::read(project.root.join(report_uri)).unwrap()).unwrap();
+    assert_eq!(report["checker_id"], "simpleRequirementsCheck");
+    assert_eq!(report["overall_verdict"], "passed");
+    // The frozen plan reloads from the store on next and keeps the reused
+    // script identity while checkpoint.library keeps its provenance.
+    assert_eq!(project.next()["work"]["stage_id"], "design");
+    let reloaded_plan = project.plan_json("wish-test");
+    assert_eq!(
+        reloaded_plan["checkpoints"][0]["library"],
+        "requirements-reuse"
+    );
+    assert_eq!(
+        reloaded_plan["checkpoints"][0]["checker"]["checker_id"],
+        "simpleRequirementsCheck"
+    );
+
+    // The built-in syntactic seed reuses the shipped checker identity too.
+    project.write("mbse/wishes/wish-builtin.sysml", b"package Wish {}\n");
+    project.init_with_checks(
+        "wish-builtin",
+        &[library_binding(
+            "simpleRequirementsAccepted",
+            "builtin-simple-requirements",
+        )],
+    );
+    let builtin_plan = project.plan_json("wish-builtin");
+    assert_eq!(
+        builtin_plan["checkpoints"][0]["library"],
+        "builtin-simple-requirements"
+    );
+    assert_eq!(
+        builtin_plan["checkpoints"][0]["checker"]["checker_id"],
+        "simpleRequirementsCheck"
+    );
+    let builtin_checked = project.json(&["check", "wish-builtin"], 0);
+    assert_eq!(
+        builtin_checked["assessed"]["assessments"][0]["outcome"],
+        "passed"
+    );
+    assert_eq!(
+        builtin_checked["assessed"]["assessments"][0]["assessor"],
+        "simpleRequirementsCheck"
+    );
+}

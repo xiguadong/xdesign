@@ -22,13 +22,16 @@ pub const HELP: &str =
        xdesign next WISH_ID
        xdesign check WISH_ID [--result FILE] [--operation-id ID]
        xdesign store COMMAND [OPTIONS]
+       xdesign checkpoint list|show CHECKPOINT_ID|save --request FILE
        xdesign web [--host HOST] [--port PORT] [--open]
        xdesign --help
 
 Run from the project root. init imports mbse/wishes/WISH_ID.sysml by default.
 --checks FILE binds SimpleFlow checkpoints to the default deterministic checker, an
-agent CLI (codex or kimi with a model), or a project command script; the binding is
-frozen into the run plan. next returns current work without changing the stored head.
+agent CLI (codex or kimi with a model), a project command script, or a reusable
+checkpoint from checkpoints/library.json (mode library with library_id); the
+binding is frozen into the run plan. The checkpoint command lists, shows and saves
+the project checkpoint library. next returns current work without changing the stored head.
 check records outputs, evaluates the stage's gates and returns correction work,
 successor work or completion. Semantic gates require a snapshot-bound judgment in
 the optional result JSON; see docs/design/stage-cli.md for the exchange schema.

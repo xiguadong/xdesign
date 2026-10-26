@@ -716,9 +716,10 @@ impl RsProcessCheck {
                 return Err(RsGateError::CommandFailed);
             }
             if (stage == "requirements" || stage == "design")
-                && uri != wish_model
-                && uri != run_record
-                && uri != plan_uri
+                && uri.as_str() != wish_model
+                && uri.as_str() != run_record
+                && uri.as_str() != plan_uri
+                && uri.as_str() != checker.command_uri.as_str()
                 && bound.get(uri.as_str()).copied() != Some(digest.as_str())
             {
                 return Err(RsGateError::CommandFailed);

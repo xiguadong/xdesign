@@ -957,6 +957,7 @@ fn custom_check_binding_plans_are_projected_while_unknown_checker_members_stay_r
             cli: Some("codex".into()),
             model: Some("gpt-6-astra".into()),
             command_uri: None,
+            library_id: None,
         }],
     };
     xdesign::simple_flow::apply_check_bindings(&mut plan, &config).unwrap();
@@ -989,6 +990,33 @@ fn custom_check_binding_plans_are_projected_while_unknown_checker_members_stay_r
     assert_eq!(listed.len(), 1);
     assert_eq!(listed[0].item_id, "wish-bound");
     assert!(listed[0].projection.is_some());
+
+    // A library-bound plan carries `checkpoint.library` and a library checker
+    // id; the read-only projection must tolerate both.
+    let mut library_plan: Value = serde_json::from_slice(&plan_bytes).unwrap();
+    library_plan["checkpoints"][0]["library"] = json!("energy-budget-positive");
+    library_plan["checkpoints"][0]["checker"]["checker_id"] = json!("energy-budget-positive");
+    library_plan["checkpoints"][4]["library"] = json!("verification-evidence-complete");
+    let library_bytes = serde_json::to_vec_pretty(&library_plan).unwrap();
+    let (materials, metadata) =
+        wish_files_with_plan_bytes(&fixture, "wish-library", "active", 0, &library_bytes);
+    let library_request = RsSaveRequest {
+        schema_version: 1,
+        operation_id: "wish-library-save".into(),
+        item_id: "wish-library".into(),
+        kind: "wish".into(),
+        expected_revision: 0,
+        metadata,
+        materials,
+        result: json!({"status": "saved"}),
+    };
+    store.save(&fixture.project, &library_request).unwrap();
+    let projected = store
+        .get("wish-library", None)
+        .unwrap()
+        .projection
+        .expect("library-bound plan must project");
+    assert_eq!(projected.flow_id, "simple-flow");
 
     // An unknown member inside the checker stays a schema error: the custom
     // runner is the only tolerated addition.

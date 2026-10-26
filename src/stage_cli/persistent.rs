@@ -10,11 +10,15 @@ use std::{
     io::Write,
     path::{Path, PathBuf},
 };
+use xdesign::checkpoint::RsCheckpointLibrary;
 use xdesign::core::{
     create_run, sha256_bytes, valid_digest, RsActivityEntry, RsAdvanceOutcome, RsFlowRun,
     RsFlowStatus,
 };
-use xdesign::simple_flow::{apply_check_bindings, RsCheckBindingConfig};
+use xdesign::simple_flow::{
+    apply_check_bindings, apply_check_bindings_with_library, RsCheckBindingConfig,
+    RsCheckBindingMode,
+};
 use xdesign::storage::cli;
 use xdesign::storage::{
     RsItemRevision, RsMaterial, RsOperationOutcome, RsOperationReceipt, RsSaveMaterial,
@@ -717,12 +721,25 @@ pub fn init(
     if item_exists(id)? {
         return Err(format!("wish {id} is already initialized"));
     }
+    let mut library_inputs = std::collections::BTreeMap::new();
     if let Some(checks_uri) = checks {
         let bytes = store::read_file(checks_uri)?;
         let config: RsCheckBindingConfig = serde_json::from_slice(&bytes)
             .map_err(|error| format!("invalid check binding JSON: {error}"))?;
-        apply_check_bindings(&mut plan, &config)
-            .map_err(|error| format!("invalid check bindings: {error}"))?;
+        if config
+            .checks
+            .iter()
+            .any(|binding| binding.mode == RsCheckBindingMode::Library)
+        {
+            let root = project_root()?;
+            let library = RsCheckpointLibrary::load(&root)
+                .map_err(|error| format!("invalid checkpoint library: {error}"))?;
+            library_inputs = apply_check_bindings_with_library(&mut plan, &config, &library)
+                .map_err(|error| format!("invalid check bindings: {error}"))?;
+        } else {
+            apply_check_bindings(&mut plan, &config)
+                .map_err(|error| format!("invalid check bindings: {error}"))?;
+        }
     }
     let source = wish
         .map(str::to_owned)
@@ -801,7 +818,7 @@ pub fn init(
         let run_record_uri = format!("{dir}/run.json");
         plan.freeze(plan_uri.clone())
             .map_err(|error| format!("cannot freeze plan: {error:?}"))?;
-        let work = WorkDefinition::freeze(flow, &plan, &working)?;
+        let work = WorkDefinition::freeze_with_inputs(flow, &plan, &working, &library_inputs)?;
         let work_bytes = serde_json::to_vec_pretty(&work).map_err(|error| error.to_string())?;
         store::write_new(&work_uri, &work_bytes)?;
         let run = create_run(

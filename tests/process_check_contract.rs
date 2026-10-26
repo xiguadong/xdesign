@@ -283,6 +283,7 @@ fn command_binding_runs_the_bound_project_script_with_the_raw_report_contract() 
             cli: None,
             model: None,
             command_uri: Some(custom.clone()),
+            library_id: None,
         }],
     };
     apply_check_bindings(&mut plan, &config).unwrap();
@@ -400,6 +401,7 @@ fn kimi_cli_binding_uses_the_override_program_and_its_argument_shape() {
             cli: Some("kimi".into()),
             model: Some("kimi-code/k3".into()),
             command_uri: None,
+            library_id: None,
         }],
     };
     apply_check_bindings(&mut plan, &config).unwrap();

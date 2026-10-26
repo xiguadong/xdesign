@@ -59,7 +59,21 @@ fn templates(flow: &str) -> Result<Vec<StageWork>, String> {
 }
 
 impl WorkDefinition {
+    /// Freeze work from the built-in per-stage input selection.
+    #[allow(dead_code)]
     pub fn freeze(flow: &str, plan: &RsFlowPlan, wish: &str) -> Result<Self, String> {
+        Self::freeze_with_inputs(flow, plan, wish, &std::collections::BTreeMap::new())
+    }
+
+    /// Freeze work with caller-supplied inputs for library-bound syntactic
+    /// gates. Those `entry.inputs` replace the checker's `--list-inputs`
+    /// invocation; every other stage keeps the built-in selection.
+    pub fn freeze_with_inputs(
+        flow: &str,
+        plan: &RsFlowPlan,
+        wish: &str,
+        library_inputs: &std::collections::BTreeMap<String, Vec<String>>,
+    ) -> Result<Self, String> {
         let mut stages = templates(flow)?;
         for work in &mut stages {
             let selector = work.expected_outputs[0].as_str();
@@ -69,23 +83,37 @@ impl WorkDefinition {
                     .into_iter()
                     .find_map(|gate| gate.checker.as_ref())
                     .ok_or("work has no fixed checker")?;
-                artifact_path(&checker.command_uri)?;
-                let output = Command::new("python3")
-                    .env("PYTHONDONTWRITEBYTECODE", "1")
-                    .arg(&checker.command_uri)
-                    .arg("--list-inputs")
-                    .output()
-                    .map_err(|e| format!("cannot list {} inputs: {e}", checker.checker_id))?;
-                if !output.status.success() {
-                    return Err(format!(
-                        "{} --list-inputs failed: {}",
-                        checker.command_uri,
-                        String::from_utf8_lossy(&output.stderr)
-                    ));
+                if let Some(inputs) = library_inputs.get(&work.stage_id) {
+                    if inputs.is_empty() {
+                        return Err(format!(
+                            "library checkpoint for {} declares no inputs",
+                            work.stage_id
+                        ));
+                    }
+                    for input in inputs {
+                        artifact_path(input)?;
+                    }
+                    work.frozen_paths = inputs.clone();
+                    work.frozen_paths.sort();
+                } else {
+                    artifact_path(&checker.command_uri)?;
+                    let output = Command::new("python3")
+                        .env("PYTHONDONTWRITEBYTECODE", "1")
+                        .arg(&checker.command_uri)
+                        .arg("--list-inputs")
+                        .output()
+                        .map_err(|e| format!("cannot list {} inputs: {e}", checker.checker_id))?;
+                    if !output.status.success() {
+                        return Err(format!(
+                            "{} --list-inputs failed: {}",
+                            checker.command_uri,
+                            String::from_utf8_lossy(&output.stderr)
+                        ));
+                    }
+                    work.frozen_paths = serde_json::from_slice(&output.stdout)
+                        .map_err(|e| format!("invalid checker input list: {e}"))?;
+                    work.frozen_paths.sort();
                 }
-                work.frozen_paths = serde_json::from_slice(&output.stdout)
-                    .map_err(|e| format!("invalid checker input list: {e}"))?;
-                work.frozen_paths.sort();
             } else if selector == "wish:model" {
                 work.frozen_paths = vec![wish.into()];
             } else if selector == "source:src" {
