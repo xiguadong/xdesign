@@ -16,6 +16,49 @@ package XDesignRequirements {
         attribute rationale : String;
     }
 
+    requirement checkpointSourceIsProjectOwned : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
+        doc /* A reusable checkpoint definition and its scripts belong to the
+           selected project's engineering source. A run retains its resolved
+           rules, criteria and executor selection separately from mutable source. */
+        attribute redefines rationale = "Installing or updating xdesign must not move a user's project checks into the tool repository or rewrite a previously registered definition.";
+    }
+
+    requirement configuredChecksRetainAuthority : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
+        doc /* Configured evaluations retain the actual script or agent authority,
+           executor identity, assessed revision and evidence. A CLI agent's answer
+           must not be represented as deterministic script evidence. */
+        attribute redefines rationale = "Executor selection changes the strength and repeatability of an assessment; readers need the actual authority to interpret its result.";
+    }
+
+    requirement operatorDelegatesRunState : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
+        doc /* The embedded local operator projects stored run facts and delegates
+           lifecycle changes to init/next/check. Checkpoint authoring changes source;
+           it does not create a passed assessment or start stage work. */
+        attribute redefines rationale = "A second mutable UI status or an implicit stage-work launch would make the displayed history disagree with the flow's recorded decisions.";
+    }
+
+    requirement sharedChecksHavePinnedOrigins : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
+        doc /* Proposed cross-project obligation, not implemented: an imported
+           definition identifies its namespace and upstream revision and pins the
+           exact definition, executor bundle and project input mapping. A later
+           upstream update cannot change an existing binding. */
+        attribute redefines rationale = "The same local slug or script path can name unrelated bytes in two projects; sharing requires immutable content identity and explicit adaptation.";
+    }
+
+    requirement crossProjectHistoryKeepsItsOwner : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
+        doc /* Proposed federation obligation, not implemented: a history reference
+           identifies project, store, item, immutable revision and assessment.
+           Aggregation remains a projection of each project's authority and shows
+           unavailable sources explicitly. Preservation also requires a verified
+           backup/restore contract before the store is a sole archive. */
+        attribute redefines rationale = "A project path or wish ID is not globally unique, and a central status cache cannot preserve the evidence or authority of its source projects.";
+    }
+
     requirement checkpointKindIsDeclared : XDesignRequirement {
         @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R01"; }
         doc /* Every checkpoint declares whether its criteria are established

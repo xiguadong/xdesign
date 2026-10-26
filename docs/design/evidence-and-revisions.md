@@ -71,6 +71,12 @@ manifest does not rewrite the run record's existing URI fields or turn an unchec
 into a pass; the fixed record checker and semantic judgment still evaluate their stated
 snapshot. Checkout supplies the archived bytes for independent re-examination.
 
+The scripted/semantic authority rule above describes the generic model. Custom CLI-bound
+SimpleFlow gates currently keep a syntactic kind with agent authority; their evidence
+must be interpreted as an agent judgment. The [checkpoint authority deviation and
+history ownership](checkpoint-library.md#d107) state this unresolved design policy and
+the distinction between definition, binding and execution history.
+
 <a id="e05"></a>
 
 ## 4. Delivery invariants

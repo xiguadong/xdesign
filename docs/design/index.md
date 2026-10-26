@@ -35,6 +35,7 @@ The project SysML model is the structural source. These pages explain the modele
 | Checker command, judge authority, reports, refusal/error boundary | [adapters.md](adapters.md); a flow's definition.md for its commands and rules |
 | Per-wish check binding (default, agent CLI, custom command, library checkpoint) | the flow's definition.md and [stage-cli.md](stage-cli.md#d89) |
 | A reusable checkpoint definition, its script, or its version history | [checkpoint-library.md](checkpoint-library.md); [D88](flows/simple-flow/definition.md#d88) for the binding |
+| Real-project check ownership, definition/binding/execution history, or cross-project reuse | [As-built project boundary](checkpoint-library.md#d107), [proposed sharing and federation](checkpoint-library.md#d108), [remediation flow](checkpoint-library.md#d109) |
 | The operator web page, its local HTTP actions, or an embedded asset | [web-operator.md](web-operator.md); HTTP contract in [interfaces/web-api.md](../interfaces/web-api.md#i16) |
 | A flow's module class, factory, adapter, Rust realization, or limits | that flow's implementation.md |
 | A view, view applicability, figure coverage, or figure ownership | that flow's views.md; presentation contract in [interfaces/documentation-contract.md](../interfaces/documentation-contract.md) |

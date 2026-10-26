@@ -41,6 +41,61 @@ package XDesignArchitecture {
         event occurrence assessed;
     }
 
+    part def ProjectCheckContext {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* As-built local project boundary. The operator selects one project
+           root and one operational store root. Paths in library definitions are
+           relative to that project, not to the xdesign executable repository.
+           A filesystem path is not a stable cross-project identity. */
+        attribute projectRoot : String;
+        part checkpointLibrary : CheckpointLibrarySource;
+        ref part store : XDesignStorage::ProjectStore;
+    }
+
+    part def CheckpointLibrarySource {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* Git-owned reusable definitions and scripts. This is authoring
+           source, not a record of executions. Missing user source means built-ins
+           only; malformed source is an error. */
+        attribute libraryUri : String default "checkpoints/library.json";
+        attribute scriptsDirectory : String default "checkpoints/scripts";
+        item definitions : ReusableCheckpointDefinition [0..*];
+    }
+
+    item def ReusableCheckpointDefinition {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D98"; }
+        doc /* Existing library entry, before per-run resolution. Syntactic
+           entries own rules, declared input paths and a script or CLI executor;
+           semantic entries own criteria and permitted judges. These are source
+           definitions, not passed assessments. Entry versions are local authoring
+           counters and are not frozen into today's run provenance. */
+        attribute checkpointId : String;
+        attribute title : String;
+        attribute description : String;
+        attribute kind : CheckKind;
+        attribute entryVersion : Integer;
+        item rules : CheckerRule [0..*];
+        attribute inputs : String [0..*];
+        attribute executorMode : String [0..1];
+        attribute commandUri : String [0..1];
+        attribute checkerId : String [0..1];
+        attribute cli : String [0..1];
+        attribute model : String [0..1];
+        attribute criteria : String [0..*];
+        attribute agentMayJudge : Boolean default false;
+        attribute humanMayJudge : Boolean default false;
+    }
+
+    part def OperatorWebProgram {
+        @XDesignCommon::DocSection { document = "docs/design/web-operator.md"; section = "D91"; }
+        doc /* Implemented local operator boundary: embedded assets, store-derived
+           views, checkpoint authoring and stage CLI subprocesses. It delegates
+           progression to the existing flat-flow runtime and does not implement
+           the generic Controller. Saving a wish does not start stage work. */
+        ref part project : ProjectCheckContext;
+        ref part cli : XDesignWorkflow::StageCli;
+    }
+
     part def Checkpoint {
         @XDesignCommon::DocSection { document = "docs/design/adapters.md"; section = "F02"; }
         doc /* Reusable gate definition, independent of a particular wish.

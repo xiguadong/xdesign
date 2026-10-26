@@ -13,6 +13,8 @@ pub struct RsCheckerSpec {
     pub command_uri: String,
     pub establishes: Vec<RsConformanceKind>,
     pub rules: Vec<RsCheckerRuleSpec>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom: Option<RsCustomChecker>,
 }
 ```
 
@@ -26,5 +28,14 @@ RsCheckerSpec binds a syntactic gate to the command it runs and the rules its re
 | 2 | `command_uri` | `String` | `pub` | repository-relative path of an existing command | What is invoked |
 | 3 | `establishes` | `Vec<RsConformanceKind>` | `pub` | non-empty | Which conformance classes this checker establishes |
 | 4 | `rules` | `Vec<RsCheckerRuleSpec>` | `pub` | non-empty | What decides the verdict |
+| 5 | `custom` | `Option<RsCustomChecker>` | `pub` | absent for default; `process` or `cli` runner | Optional executor selection frozen in the plan |
+
+`RsCustomChecker` contains `runner: RsCustomRunner` (`Process` or `Cli`),
+`cli: Option<String>` and `model: Option<String>`. The two optional strings use serde
+default/omit-when-none attributes. CLI/model identify an agent executor; a process runner
+uses `command_uri`. The default omits `custom` to preserve prior frozen-plan bytes.
+The script path does not pin executable bytes. The
+[as-built model](../../checkpoint-library.md#d107) explains the agent-authority deviation
+from the generic scripted-only checkpoint contract.
 
 **See also:** [`RsCheckerRuleSpec`](rs-checker-rule-spec.md#u36), [`RsConformanceKind`](rs-conformance-kind.md#u50), [`RsCheckCommand::run_check`](rs-check-command-run-check.md#u22), [gates and rules D06](../../flows/simple-flow/definition.md#d06).

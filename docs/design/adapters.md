@@ -22,7 +22,12 @@ These are coverage categories, not verdicts about engineering adequacy.
 | `CheckKind::syntactic` | yes, at least one | none set | a script (`JudgeAuthority::script`) | `requirementsAccepted` — "requirements and their verification criteria trace to the wish", fixed by `requirementTraceCheck` |
 | `CheckKind::semantic` | no | `agentMayJudge` and/or `humanMayJudge` | an agent or a human | `verificationAccepted` — "verification evidence demonstrates that the implementation satisfies the requirements" |
 
-Three assertions make the split enforceable rather than conventional:
+This is the generic modeled contract. The implemented custom CLI binding permits agent
+authority on a gate still labeled syntactic and therefore deviates from the third
+assertion below. The [as-built authority review](checkpoint-library.md#d107) records the
+deviation and policy alternatives; the compiler does not evaluate assertion bodies.
+
+Three assertions specify the split:
 
 - `Checkpoint::syntacticCriteriaAreFixedByCheckers` — a syntactic checkpoint has at least
   one checker and sets no judge flag.

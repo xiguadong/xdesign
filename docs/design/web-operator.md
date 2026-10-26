@@ -211,13 +211,21 @@ automation.
 
 Limits of this design:
 
-- It is a local operator convenience, not a modeled interface: IF-001 to IF-004 in the
-  [interface control document](../interfaces/contracts.md#i01) are unchanged, and no SysML
-  element was added for this program. The interface claim rests on this page, the
-  [API page](../interfaces/web-api.md#i16), and the source.
+- `XDesignArchitecture::OperatorWebProgram` now allocates this local boundary, and
+  `xdesign.webOperator` binds it to the project context and stage CLI. The as-built
+  [model/source map](checkpoint-library.md#d107) was added after the original delivery;
+  it does not backdate a design-stage approval. IF-001 to IF-004 in the
+  [interface control document](../interfaces/contracts.md#i01) remain unchanged; the
+  local HTTP contract is the [operator API](../interfaces/web-api.md#i16).
 - The program displays and drives the existing lifecycle; it does not add a new stage
   action, a rebind operation, whole-store backup, remote operation, or project acceptance.
 - The page's status, event, and evidence views are projections of the stored record. They
   do not create a second record and do not establish an engineering acceptance.
 - The verification design states the cases; executed acceptance and its retained evidence
   belong to the branch's execution record, not to this page.
+
+The server selects one project root and one store root. Checkpoint edits are made in that
+project's Git-owned source, while stage attempts and evidence belong to its store. Its
+history view is not a multi-project history service. The current ownership, portability
+limits and proposed shared-definition/history boundary are in the
+[checkpoint project design](checkpoint-library.md#d107).

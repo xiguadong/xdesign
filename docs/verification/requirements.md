@@ -11,6 +11,8 @@ declared case or a clean compiler result as an executed acceptance test.
 
 | Scope | Method and phase | Evidence or case | Acceptance state |
 | --- | --- | --- | --- |
+| Checkpoint source, configured authority and local operator | Source/model inspection at design reconciliation, with existing runtime case families | `CheckpointOperatorDesignReview`; [R16](../requirements/requirements.md#r16), [D110](design.md#d110) | As-built allocation; generic scripted-only authority policy remains unresolved |
+| Shared checkpoint origins and cross-project history | Future integration test and restore demonstration | `CrossProjectCheckpointReview`; PROJECT-01..06 in [D110](design.md#d110) | Proposed requirements; no implemented satisfier or executed cross-project result |
 | SysML syntax and supported references | Automated analysis at design delivery | pinned compiler `parse` and `check`, including model-only check ([T02](../architecture/constraints.md#t02)) | Executed for design-stage wishes; unevaluated rules remain |
 | Documentation locators, embeds, and figure blocks | Automated inspection at documentation design delivery | `tools/check_documentation.py`; [D31](../interfaces/documentation-contract.md#d31) | Executed as a standalone audit, not a workflow gate |
 | Nine primary figure presentation | Measured inspection and visual review at design delivery | `DiagramPresentationReview`; [V06](../records/wishes/wish-history.md#v06) | Historical presentation review recorded |

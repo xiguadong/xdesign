@@ -20,6 +20,7 @@ package, timeline, and swimlane diagrams together on one page.
 | How the flows and runs are designed | [design/index.md](design/index.md) |
 | How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, a custom command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
 | How reusable checks are authored, versioned, and shared across wishes | [Checkpoint library](design/checkpoint-library.md#d97) |
+| Where checks and history belong in a real project, and the proposed cross-project boundary | [Project ownership and history](design/checkpoint-library.md#d107); [cross-project proposal](design/checkpoint-library.md#d108) |
 | The embedded operator web page and its local HTTP contract | [Operator web program](design/web-operator.md#d91) and [operator web API](interfaces/web-api.md#i16) |
 | How durable revisions, materials, saves and recovery work | [Storage design](design/storage.md#d86) and [store format](interfaces/store-format.md#i11) |
 | The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |
@@ -83,6 +84,7 @@ interfaces and meaning of those annotations are defined in
 | `mbse/model/requirements.sysml`, `traceability.sysml` | `requirements/requirements.md`, `verification/requirements.md` |
 | `mbse/model/architecture.sysml`, `composition.sysml`, `workflow.sysml` | `architecture/`, `design/flow.md`, `design/lifecycle.md` |
 | `mbse/model/detailedDesign.sysml` | `design/flows/simple-flow/`, `design/flows/wish-verify/` |
+| Project/operator additions in `architecture.sysml`, `composition.sysml`, `detailedDesign.sysml`, `uml.sysml` | `design/checkpoint-library.md#d107`, `design/web-operator.md`; proposed cross-project definitions are explicitly designed-only |
 | `mbse/model/verification.sysml` | `verification/` |
 | `mbse/model/uml.sysml` | `design/api/` and the module designs |
 | `mbse/model/storage.sysml` | `design/storage.md`, `interfaces/store-format.md`, `design/api/storage/` |

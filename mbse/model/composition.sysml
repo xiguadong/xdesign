@@ -17,6 +17,11 @@ package XDesignComposition {
 
         part cli : StageCli;
         bind cli.controller = controller;
+        part projectChecks : ProjectCheckContext;
+        bind projectChecks.store = store;
+        part webOperator : OperatorWebProgram;
+        bind webOperator.project = projectChecks;
+        bind webOperator.cli = cli;
 
         part vModel : VModel :> 'flow' subsets availableFlows {
             @XDesignCommon::DocSection { document = "docs/design/flow.md"; section = "F03"; }

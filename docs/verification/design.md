@@ -81,16 +81,15 @@ following cases are designed verification obligations, not executed results. The
 
 The configurable SimpleFlow check bindings ([D88](../design/flows/simple-flow/definition.md#d88))
 are selected at registration through the strict schema and validation in
-[the stage CLI](../design/stage-cli.md#d89) and are frozen into the plan. They preserve the
-existing syntactic-check requirements — the gate's criteria and declared rules stay fixed
-(`syntacticCheckIsFixed`, `checkerRulesAreDeclared`, `gateSyntaxIsRunnable`) and the run
-record stays authoritative (`stageCliPreservesRunIntegrity`) in
-[R01](../requirements/requirements.md#r01) — while a `cli` binding records the explicit
+[the stage CLI](../design/stage-cli.md#d89) and are frozen into the plan. The resolved
+rules and executor selection are retained in the frozen plan, while the
+run record retains assessments and evidence. A `cli` binding records the explicit
 agent-authority extension described in [D88](../design/flows/simple-flow/definition.md#d88).
-The requirement inventory has no separate row for configurable bindings yet, so the design
-section is the primary trace for the extension itself. The branch did not extend the
-model's verification case definitions, so these cases are branch verification design
-rather than members of the `XDesignVerification` cases in [§1](#d54). They state obligations to apply when the feature is exercised; they do not
+The current [requirement allocation](../requirements/requirements.md#r16) and
+`CheckpointOperatorDesignReview` now trace this extension. The original delivery did not
+include that model allocation. A CLI agent does not satisfy the generic scripted-only
+requirement or assessment constraint; the [authority deviation](../design/checkpoint-library.md#d107)
+remains explicit. These cases state obligations to apply when the feature is exercised; they do not
 extend the executed acceptance of the Rust slices, and they are not executed results.
 Executed outcomes and retained command evidence belong to the branch's execution record.
 
@@ -160,10 +159,10 @@ The command surface is in the [stage CLI](../design/stage-cli.md#d85) and the li
 itself remains authoring source while `.xdesign` remains the operational record. The cases
 below are verification design, not executed results: each uses a temporary project root and
 stub executables, never a real agent, and executed outcomes belong to the branch's execution
-record. The requirement inventory has no new library row yet; the cases preserve the
-existing syntactic-check and run-integrity obligations from [R01](../requirements/requirements.md#r01)
-(`syntacticCheckIsFixed`, `checkerRulesAreDeclared`, `stageCliPreservesRunIntegrity`) while
-the design sections are the primary trace for the extension.
+record. The [current requirements](../requirements/requirements.md#r16) and
+`CheckpointOperatorDesignReview` allocate the source, authority and operator obligations.
+The CLI authority deviation and incomplete executable/provenance freezing remain explicit
+in the [as-built project boundary](../design/checkpoint-library.md#d107).
 
 | Case | Input or operation | Expected result |
 | --- | --- | --- |
@@ -214,3 +213,39 @@ detail fields in [I17](../interfaces/web-api.md#i17); the create request fields 
 stage interaction they expose is the [stage CLI contract](../design/stage-cli.md#d85). The
 frozen-plan durability check is LIB-10; a UI alignment screenshot is not executed
 acceptance.
+
+
+<a id="d110"></a>
+
+## 7. Checkpoint/operator reconciliation and project portability cases
+
+`XDesignVerification::CheckpointOperatorDesignReview` allocates the current source,
+configured-authority and operator requirements in [R16](../requirements/requirements.md#r16).
+The review compares the as-built model with `src/checkpoint/library.rs`,
+`src/simple_flow/blueprint.rs`, `src/simple_flow/check.rs`, `src/stage_cli/work.rs`,
+`src/stage_cli/persistent.rs`, `src/core/plan.rs` and `web/server/`. The CUSTOM, LIB, WEB
+and WEB2 matrices remain behavior verification design; their earlier execution records
+are not rerun or replaced by a documentation review.
+
+| Review | Required observation | Limit |
+| --- | --- | --- |
+| DESIGN-01 Source/model allocation | Project library/source paths, frozen plan/work fields, actual authority and delegated web mutations agree with the implementation and model/source map | Inspection establishes this allocation, not a new runtime acceptance |
+| DESIGN-02 History and preservation | Distinguish partial definition history, frozen binding fields and immutable execution facts; identify missing version/digests, current script execution, live version summaries and identity-bound store recovery | Do not infer executor pinning, migration or backup support |
+| DESIGN-03 Policy and proposal boundary | Retain the generic scripted-only requirement; expose the implemented CLI deviation; proposed identity/package/history definitions have no implemented satisfiers | A compiler pass cannot resolve policy or evaluate assertion bodies |
+| DESIGN-04 Mechanical consistency | Model-only and full pinned compiler parse/check, default documentation audit and strict docs build; retain reports and unevaluated diagnostics | These checks do not establish engineering acceptance or independent review |
+
+`CrossProjectCheckpointReview` defines future acceptance of the proposed requirements.
+These cases are not executable capabilities of the current release. Each needs a new
+implementation flow and retained results before it may be reported passed.
+
+| Case | Scenario | Required outcome |
+| --- | --- | --- |
+| PROJECT-01 Real-project boundary | Use the binary in two fresh projects with different roots, local stores and project-specific input layouts; omit the xdesign repository's scripts | Every source read/write and artifact collection uses the selected project; missing scripts/mappings fail explicitly; listing a built-in does not imply it is runnable |
+| PROJECT-02 Pinned shared definitions | Import a shared package into A and B; include two namespaces with the same local checkpoint ID; update/remove upstream after registration | Qualified origins and complete bundle/definition digests remain inspectable; imports do not shadow; earlier bindings remain unchanged |
+| PROJECT-03 Executor and input drift | Change a script, imported helper, rule-data file, environment identity or consumer mapping after binding; repeat with a stub agent | Frozen bundle contract detects drift or executes the retained bundle; the reviewed inputs are identified; re-execution creates a distinct attempt and no deterministic agent guarantee |
+| PROJECT-04 Federated history | Give A and B identical wish/checkpoint IDs, multiple failed/passed attempts and the same project across two stores; then make one store unavailable | Project/store/revision/assessment references distinguish results; source authority is preserved; unavailable/stale sources are explicit; the index cannot authorize a gate |
+| PROJECT-05 Clone, worktree and archive | Fresh clone, moved workspace, concurrent worktrees, project fork and archived project | Explicit project identity and workspace/store selection preserve provenance and isolate materialization; Git clone alone does not claim to restore operational history |
+| PROJECT-06 Verified restore | Remove disposable cache; separately lose or relocate a store and perform a future supported verified archival/restore procedure on another machine | Cache restoration preserves retained material bytes; store restore preserves logical history and evidence under its designed identity rules; raw copy is never reported as supported restore |
+
+PROJECT-02..06 require interfaces beyond the current strict schemas. No passing SysML
+analysis, single-project test result or record backfill substitutes for those executions.

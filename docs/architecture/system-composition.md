@@ -49,6 +49,15 @@ controller; the agent performs the returned work in the project workspace.
 The [local CLI implementation](../design/stage-cli.md#d85) realizes this interaction
 for the two built-in flat flows.
 
+The concrete composition also owns `projectChecks : ProjectCheckContext` and
+`webOperator : OperatorWebProgram`. `projectChecks.store = store`,
+`webOperator.project = projectChecks`, and `webOperator.cli = cli` allocate the
+implemented operator's project library, store views and delegated stage actions.
+`ProjectCheckContext` owns `CheckpointLibrarySource`; definitions/scripts belong to the
+selected project's Git source and evaluations to its store. The existing figures above
+and below do not project these later additions. Their as-built source mapping and
+cross-project proposal are in the [checkpoint project design](../design/checkpoint-library.md#d107).
+
 ![Stage CLI packages and their integration into xdesign](assets/stage-cli-packages.svg)
 
 > **Figure B01-2 — Stage CLI package integration.**

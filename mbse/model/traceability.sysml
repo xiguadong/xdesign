@@ -34,6 +34,11 @@ package XDesignTraceability {
        the actual anchors, embeds, explanatory blocks, rules, and reading paths
        require a separate documentation review. */
 
+    satisfy checkpointSourceIsProjectOwned by CheckpointLibrarySource;
+    satisfy configuredChecksRetainAuthority by XDesignRustUml::RsCustomChecker;
+    satisfy operatorDelegatesRunState by OperatorWebProgram;
+    /* sharedChecksHavePinnedOrigins and crossProjectHistoryKeepsItsOwner are
+       proposed requirements without implemented satisfiers. See R15 and D108. */
     satisfy checkpointKindIsDeclared by Checkpoint.kind;
     satisfy syntacticCheckIsFixed by Checkpoint.checkers;
     satisfy syntacticAssessmentIsScripted by CheckpointAssessment.judgedBy;

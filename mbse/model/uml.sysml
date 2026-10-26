@@ -360,6 +360,8 @@ package XDesignRustUml {
         attribute agentMayJudge : Boolean;
         attribute humanMayJudge : Boolean;
 
+        attribute 'library' : String [0..1];
+
         event occurrence evaluationEntered;
         event occurrence rulesRead;
         event occurrence assessed;
@@ -376,8 +378,43 @@ package XDesignRustUml {
         attribute commandUri : String;
         attribute establishes : RsConformanceKind [1..*];
         part rules : RsCheckerRuleSpec [1..*];
+        part custom : RsCustomChecker [0..1];
     }
     dependency rsCheckerSpecRealizes from RsCheckerSpec to XDesignArchitecture::Checker;
+
+    part def RsCustomChecker {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* Existing src/core/plan.rs struct. The runner is process or cli;
+           cli/model are present for agent execution. This records the current
+           extension and does not redefine the generic scripted-only invariant. */
+        attribute runner : String;
+        attribute cli : String [0..1];
+        attribute model : String [0..1];
+    }
+    dependency rsCheckpointSpecBinds from RsCheckpointSpec to XDesignDetailedDesign::FrozenCheckBinding;
+
+    part def RsCheckpointLibrary {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* Existing src/checkpoint/library.rs service and entry collection.
+           Source realization projection, not a new public API. */
+        part entries : RsCheckpointEntry [0..*];
+    }
+    dependency rsCheckpointLibraryRealizes from RsCheckpointLibrary to XDesignDetailedDesign::CheckpointLibraryService;
+
+    part def RsCheckpointEntry {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D98"; }
+        doc /* Existing src/checkpoint/library.rs entry struct. The architecture
+           definition projects its kind-specific fields; the retained partial
+           history is explained in D99 and D107, not execution history. */
+    }
+    dependency rsCheckpointEntryRealizes from RsCheckpointEntry to XDesignArchitecture::ReusableCheckpointDefinition;
+
+    part def RsOperatorAppState {
+        @XDesignCommon::DocSection { document = "docs/design/web-operator.md"; section = "D91"; }
+        doc /* Existing private web/server/api.rs AppState with selected project
+           and store roots. This projection does not invent a public Rust type. */
+    }
+    dependency rsOperatorRealizes from RsOperatorAppState to XDesignArchitecture::OperatorWebProgram;
 
     part def RsCheckerRuleSpec {
         @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checker-rule-spec.md"; section = "U36"; }

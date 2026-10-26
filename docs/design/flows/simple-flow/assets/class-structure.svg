@@ -292,6 +292,7 @@ attribute checkerId
 attribute commandUri
 attribute establishes : RsConformanceKind [1..*]
 part rules : RsCheckerRuleSpec [1..*]
+part custom : RsCustomChecker [0..1]
 398736ac-2f22-5ec9-ac93-1565f608ee15</title>
 <rect fill="white" stroke="none" x="239.75" y="-200.0" width="148.5" height="68.5" class="node" /><rect fill="none" stroke="#647a91" x="239.75" y="-200.0" width="148.5" height="68.5" /><text xml:space="preserve" text-anchor="start" x="248.75" y="-178.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
 <text xml:space="preserve" text-anchor="start" x="248.75" y="-145.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Rs Checker Spec</text>
@@ -317,6 +318,7 @@ attribute criteria [1..*]
 part checker : RsCheckerSpec [0..1]
 attribute agentMayJudge
 attribute humanMayJudge
+attribute library [0..1]
 eventoccurrence evaluationEntered
 eventoccurrence rulesRead
 eventoccurrence assessed

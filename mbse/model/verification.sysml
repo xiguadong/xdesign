@@ -220,6 +220,33 @@ package XDesignVerification {
         }
     }
 
+    verification def CheckpointOperatorDesignReview {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D110"; }
+        doc /* Planned review of current source/model/doc mappings and the
+           CUSTOM, LIB, WEB and WEB2 case families. Inspect project ownership,
+           frozen fields, actual assessor authority, missing executable pinning,
+           and the explicit generic-model authority deviation. Run parse/check,
+           documentation audit and strict build. This declaration is not a pass. */
+        subject operator : XDesignArchitecture::OperatorWebProgram;
+        objective currentContract {
+            verify requirement sourceOwner :> XDesignRequirements::checkpointSourceIsProjectOwned;
+            verify requirement authority :> XDesignRequirements::configuredChecksRetainAuthority;
+            verify requirement delegation :> XDesignRequirements::operatorDelegatesRunState;
+        }
+    }
+
+    verification def CrossProjectCheckpointReview {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D110"; }
+        doc /* Future acceptance only: two projects with colliding local IDs,
+           pinned imports, upstream and executor drift, cache removal, inaccessible
+           stores, fresh clones, worktrees and verified restore. These scenarios
+           cannot be passed by model analysis or by existing single-project tests. */
+        objective proposedContract {
+            verify requirement origins :> XDesignRequirements::sharedChecksHavePinnedOrigins;
+            verify requirement history :> XDesignRequirements::crossProjectHistoryKeepsItsOwner;
+        }
+    }
+
     verification def StorageVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D87"; }
         doc /* Planned storage verification, not an executed result. Exercise format

@@ -59,7 +59,11 @@ nested or arbitrary user-defined flows; and Windows-specific filesystem guarante
 ### 1.2 Physical representation and local trust boundary
 
 The default root is `<project>/.xdesign/`; `XDESIGN_STORE_ROOT` and the explicit CLI root
-option select another local root. `open` never creates a store. `init` opens a valid existing
+option select another local root. This selects a location, not a project namespace;
+sharing one root among unrelated projects is not a supported history federation.
+The [project checkpoint design](checkpoint-library.md#d107) separates definition,
+binding and execution history and states a [proposed cross-project boundary](checkpoint-library.md#d108).
+`open` never creates a store. `init` opens a valid existing
 store without changing its identity and otherwise requires an absent or safe empty root, where
 a root holding only the allowlisted OS-generated entry counts as empty;
 it never adopts nonempty foreign content. Version 1 uses SQLite for records and queries and

@@ -16,6 +16,62 @@ package XDesignDetailedDesign {
        XDesignComposition owns the concrete selectable usage; this file defines
        its design without changing historical four-stage runs. */
 
+    item def FrozenCheckBinding {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* As-built projection across the frozen plan and work definition.
+           libraryId is optional origin text, not a versioned package identity.
+           Rules, criteria, permissions, runner and selected input paths are copied
+           at init; commandUri does not freeze script bytes or dependencies.
+           Library input selection replaces checker selectors only for the
+           requirements and design stages in the current implementation. */
+        attribute checkpointId : String;
+        attribute libraryId : String [0..1];
+        attribute executorMode : String;
+        attribute commandUri : String [0..1];
+        attribute cli : String [0..1];
+        attribute model : String [0..1];
+        ref item rules : CheckerRule [0..*];
+        attribute criteria : String [0..*];
+        attribute agentMayJudge : Boolean;
+        attribute humanMayJudge : Boolean;
+        attribute selectedInputPaths : String [0..*];
+    }
+
+    part def CheckpointLibraryService {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
+        doc /* Load/validate source, save definitions with ten previous partial
+           snapshots, optionally scaffold a script, and resolve init bindings.
+           Saving source alone never evaluates a gate. */
+        ref part source : CheckpointLibrarySource;
+    }
+
+    package ProposedProjectChecks {
+        @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D108"; }
+        doc /* Discussion proposal only. No runtime, serialized contract, project
+           identity, package import, federation or store relocation is implemented
+           by these declarations. */
+        item def DefinitionOrigin {
+            @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D108"; }
+            attribute namespace : String;
+            attribute checkpointId : String;
+            attribute upstreamRevision : String;
+            attribute definitionSha256 : String;
+            attribute executorBundleSha256 : String;
+        }
+        item def ExecutionReference {
+            @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D108"; }
+            attribute projectId : String;
+            attribute storeId : String;
+            attribute itemId : String;
+            attribute storeRevision : Integer;
+            attribute runId : String;
+            attribute stageId : String;
+            attribute visitIndex : Integer;
+            attribute artifactRevision : Integer;
+            attribute assessmentIndex : Integer;
+        }
+    }
+
     part def DesignedSimpleFlow :> SimpleFlow {
         @XDesignCommon::DiagramPresentation { label = "Gated simple flow"; summary = "Four stages with explicit exit gates"; }
         @XDesignCommon::DocSection { document = "docs/design/flows/simple-flow/definition.md"; section = "D01"; }

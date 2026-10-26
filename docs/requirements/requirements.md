@@ -131,7 +131,7 @@ runtime and verification evidence ([B03](../architecture/system-composition.md#b
 
 ## 5. Functional and supporting requirements inventory
 
-The current inventory has thirty-three requirements. It combines workflow behavior,
+The inventory combines workflow behavior,
 model/document consistency, presentation, and checker obligations; the last three are
 supporting quality constraints rather than user actions. Every requirement specializes
 `XDesignRequirement`, which carries a `rationale`. No requirement names the wish that
@@ -175,6 +175,11 @@ each already has full per-requirement acceptance and verification fields. [R11](
 | `workingCacheIsRecoverable` | Regenerate runtime cache and checkout every manifest byte; replay the SimpleFlow record checker on restored evidence | Cache is disposable only if durable copies reconstruct a usable record | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `wishStatusProjectsFlowExecution` | Derive wish status/current stage from the selected flow's run record and support kind/status queries | An independent status flag could contradict the flow's actual position | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `storageInputAndIntegrityAreChecked` | Refuse incompatible, malformed, excessive, unsafe or replaced state; verify digests and report missing/altered/orphan/pending data | Durable but corrupt or unsafe bytes must not enter engineering decisions | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `checkpointSourceIsProjectOwned` | Keep reusable source in the selected project and resolved run fields in its store | Tool installation and source edits must not redefine a registered run | `CheckpointLibrarySource` | As-built allocation; executor bytes are not pinned at init; [R16](#r16) |
+| `configuredChecksRetainAuthority` | Retain actual executor authority, identity, revision and evidence | An agent answer cannot be represented as deterministic script evidence | `RsCustomChecker` | As-built allocation; generic scripted-only policy conflict remains; [R16](#r16) |
+| `operatorDelegatesRunState` | Project stored facts and delegate lifecycle to the stage runtime | UI state must not become a second run authority | `OperatorWebProgram` | As-built allocation; [R16](#r16) |
+| `sharedChecksHavePinnedOrigins` | Pin shared definition origin, executor bundle and input mapping | Equal local names do not identify equal content across projects | No implemented satisfier | Proposed extension; [R16](#r16) |
+| `crossProjectHistoryKeepsItsOwner` | Identify source project/store/revision and retain restorable evidence | A derived central index is not the source authority | No implemented satisfier | Proposed extension; [R16](#r16) |
 
 <a id="r08"></a>
 
@@ -285,8 +290,8 @@ they do not by themselves certify requirements quality or test coverage.
 
 ## 10. Requirements traceability matrix
 
-`mbse/model/traceability.sysml` — twenty-nine `satisfy` links from a requirement to the
-model feature that answers it:
+`mbse/model/traceability.sysml` carries the `satisfy` links from requirements to the
+model features allocated to answer them:
 
 | Requirement | Satisfier |
 | --- | --- |
@@ -319,6 +324,9 @@ model feature that answers it:
 | `workingCacheIsRecoverable` | `CheckoutOperation` |
 | `wishStatusProjectsFlowExecution` | `WishProjection` |
 | `storageInputAndIntegrityAreChecked` | `DoctorOperation` |
+| `checkpointSourceIsProjectOwned` | `CheckpointLibrarySource` |
+| `configuredChecksRetainAuthority` | `RsCustomChecker` |
+| `operatorDelegatesRunState` | `OperatorWebProgram` |
 
 `semanticCheckNamesItsJudges` is the one requirement with two links; every requirement
 with a model satisfier added since has one link. The compiler export cannot attribute
@@ -341,7 +349,10 @@ but it does not cover the default V-model or historical wish SysML records
 satisfier because their products are the [documentation entry](../index.md), the
 per-flow document structure, [UML view applicability](../design/flows/simple-flow/views.md#d52),
 and an honest software design status. Their absence from the `satisfy` table is explicit
-rather than an omitted obligation. `XDesignVerification::DocumentationContractReview` declares
+rather than an omitted obligation. The proposed `sharedChecksHavePinnedOrigins` and
+`crossProjectHistoryKeepsItsOwner` also have no implemented satisfier; their proposed
+design and planned verification are in [R16](#r16).
+`XDesignVerification::DocumentationContractReview` declares
 planned coverage for all six wish-0008 requirements; its declaration records no pass.
 The revision-1, corrective revision-2, directory-layout revision-3, and asset-layout
 revision-4 assessments are
@@ -383,7 +394,7 @@ repository does not implement formal change approval or a frozen RTM workflow.
 | Document concern | Model source | Current limit |
 | --- | --- | --- |
 | Requirement and rationale | `XDesignRequirements::XDesignRequirement` usages; `DocSection` to [R01](#r01) | Requirement fields are not yet a full SRS acceptance record. |
-| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations and four documentation obligations have no SysML satisfier. |
+| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations, four documentation obligations and two proposed cross-project requirements have no implemented satisfier. |
 | Software design documentation | UML guide and SimpleFlow design; [D52](../design/flows/simple-flow/views.md#d52) | UML applicability and status have a planned review, not a model satisfier. |
 | Planned verification | `XDesignVerification` cases and `verify` links | Case declaration does not record a passed result. |
 | User goals | `XDesignDetailedDesign::ProgressWish`, `ReviewEvidence`, and `useCaseDiagram`; [R06](#r06) | The view concerns SimpleFlow and is not a complete deployed-product scenario set. |
@@ -393,3 +404,32 @@ repository does not implement formal change approval or a frozen RTM workflow.
 Open requirements-stage work is to classify and complete every requirement's method,
 phase, and acceptance criterion; decide runtime performance, security, deployment, data
 retention, and interface contracts as needed; and hold an explicit requirements review.
+
+<a id="r16"></a>
+
+## 13. Checkpoint and operator reconciliation requirements
+
+These requirements distinguish allocation of the existing implementation from proposed
+real-project extensions. Their rationale is normative in `XDesignRequirements`; their
+design is in the [checkpoint project boundary](../design/checkpoint-library.md#d107).
+They do not supply a missing historical requirements review.
+
+| Requirement | Acceptance condition | Verification allocation |
+| --- | --- | --- |
+| `checkpointSourceIsProjectOwned` | Selecting project B reads/writes B's checkpoint source; initializing a run retains resolved rules/criteria independently of subsequent library edits | `CheckpointOperatorDesignReview`; existing LIB-01, LIB-04, LIB-05, LIB-08 and WEB2-01 cases |
+| `configuredChecksRetainAuthority` | Script and CLI evaluations identify their actual authority and assessor, reviewed snapshot and retained report/log bytes; no agent result is described as deterministic | `CheckpointOperatorDesignReview`; CUSTOM-02, CUSTOM-03, CUSTOM-06 and LIB-07 |
+| `operatorDelegatesRunState` | Operator status/history derive from the selected store; lifecycle actions use the stage CLI; source saves do not assess gates or launch stage work | `CheckpointOperatorDesignReview`; WEB-02..05 and WEB2-01..05 |
+| `sharedChecksHavePinnedOrigins` (proposed) | Two projects import an identified immutable definition/bundle with explicit input mapping; updating or removing upstream cannot change an existing binding; ambiguity and digest drift fail explicitly | `CrossProjectCheckpointReview`; future PROJECT-02 and PROJECT-03 |
+| `crossProjectHistoryKeepsItsOwner` (proposed) | Colliding wish IDs remain distinct; history links identify a pinned source revision/assessment; unavailable stores remain visible; a supported archival/restore exercise retains original evidence and provenance | `CrossProjectCheckpointReview`; future PROJECT-04..06 |
+
+The legacy generic requirement `syntacticAssessmentIsScripted` still requires a script.
+The implemented CLI binding keeps a syntactic gate kind while recording agent authority,
+so it does not satisfy that requirement. `syntacticCheckIsFixed` also cannot establish
+deterministic reproducibility for an agent runner. Their existing generic satisfaction
+links do not establish conformance of the extension. The
+[authority policy decision](../design/checkpoint-library.md#d107) is open; these new
+requirements do not implicitly relax either requirement or the assessment constraint.
+
+The proposed requirements have planned verification links and no implemented satisfiers.
+No shared registry, project identity format, cross-project history API, executable
+dependency lock or store-transfer contract is delivered by their declaration.
