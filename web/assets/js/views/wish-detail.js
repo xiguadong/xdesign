@@ -25,12 +25,16 @@ import {
   toastError,
   toastWarn,
   toastInfo,
+  librarySummaryChip,
+  executorSummary,
   rawJsonBlock,
   loadingBlock,
   emptyState,
   errorState,
 } from "../components.js";
 import { getSampleDetail, getSampleWork, getSampleCheckResponse } from "../sample-data.mjs";
+
+let viewDetail = null;
 
 const EVENT_ICONS = {
   init: "flag",
@@ -122,8 +126,11 @@ export const wishDetailView = {
 
     const head = root.querySelector("[data-detail-head]");
     const main = root.querySelector("[data-detail-main]");
+    viewDetail = detail;
     if (head) head.innerHTML = renderHead(app, detail, app.state.flows);
     if (main) main.innerHTML = renderMain(app, detail, app.state.flows);
+    const handoffSlot = root.querySelector("[data-handoff]");
+    if (handoffSlot) handoffSlot.outerHTML = renderHandoff(app, detail, app.state.flows);
     return { detail, wishId: data.wishId };
   },
 
@@ -143,6 +150,7 @@ export const wishDetailView = {
   mount(app, root, data, param) {
     if (data.notFound) return null;
     const wishId = data.wishId;
+    viewDetail = data.detail;
     const state = (detailState = detailState || { work: null, workError: null, checkResult: null, checkError: null });
 
     // ---- delegated read-only actions (survive surgical polling) ----
@@ -172,6 +180,34 @@ export const wishDetailView = {
       const refresh = event.target.closest("[data-refresh-view]");
       if (refresh) {
         app.refreshCurrent({ userInitiated: true });
+        return;
+      }
+      const copyHandoff = event.target.closest("[data-copy-handoff]");
+      if (copyHandoff) {
+        event.preventDefault();
+        const kind = copyHandoff.dataset.copyHandoff;
+        const texts = handoffTexts(viewDetail, app.state.flows);
+        const text = kind === "next" ? texts.next : kind === "check" ? texts.check : texts.prompt;
+        copyText(text).then((ok) => {
+          if (!ok) {
+            toastError("Copy failed", "The browser blocked clipboard access.");
+            return;
+          }
+          if (kind === "prompt") toastOk("Handoff prompt copied", "Paste it into the working agent.");
+          else toastOk("Command copied", text);
+        });
+        return;
+      }
+      const openLibrary = event.target.closest("[data-open-library]");
+      if (openLibrary) {
+        event.preventDefault();
+        location.hash = `#/checkpoints?open=${encodeURIComponent(openLibrary.dataset.openLibrary)}`;
+        return;
+      }
+      const scrollWork = event.target.closest("[data-scroll-work]");
+      if (scrollWork) {
+        const panel = root.querySelector("[data-work-panel]");
+        if (panel) panel.scrollIntoView({ behavior: "smooth", block: "center" });
         return;
       }
       const scrollCheck = event.target.closest("[data-scroll-check]");
@@ -296,6 +332,7 @@ function renderHead(app, detail, flows) {
         <button class="btn btn--sm" type="button" data-raw-toggle data-raw-target="detail-raw">${icon("code")}Raw JSON</button>
       </div>
     </div>
+    ${renderWarnings(detail)}
     <pre class="raw-json" id="detail-raw" hidden>${esc(prettyJson(detail))}</pre>
   </header>`;
 }
@@ -387,22 +424,66 @@ function boardGateState(assessment) {
   return assessment.outcome || "unevaluated";
 }
 
-function bindingFor(detail, checkpointId) {
-  const checkpoint = (detail.plan?.checkpoints || []).find((entry) => entry.checkpoint_id === checkpointId);
-  if (!checkpoint) return null;
-  // The frozen plan carries the binding inside the checker
-  // (checkpoint.checker.binding, SPEC §5.4); tolerate a top-level binding too.
-  if (checkpoint.checker) {
-    return checkpoint.checker.binding || checkpoint.binding || { mode: "default" };
-  }
-  return checkpoint.binding || null;
+function planCheckpoint(detail, checkpointId) {
+  return (detail.plan?.checkpoints || []).find((entry) => entry.checkpoint_id === checkpointId) || null;
 }
 
-function bindingLabel(binding) {
-  if (!binding) return "default";
+function bindingFor(detail, checkpointId) {
+  const checkpoint = planCheckpoint(detail, checkpointId);
+  if (!checkpoint) return null;
+  // Syntactic bindings live under checker.binding (SPEC §5.4/§9.4); a semantic
+  // library binding lives on the checkpoint itself (checker is null). Default
+  // semantic gates carry no binding object at all.
+  if (checkpoint.checker && checkpoint.checker.binding) return checkpoint.checker.binding;
+  if (checkpoint.binding) return checkpoint.binding;
+  return null;
+}
+
+function libraryFor(detail, checkpointId) {
+  const checkpoint = planCheckpoint(detail, checkpointId);
+  return checkpoint && checkpoint.library ? checkpoint.library : null;
+}
+
+function bindingLabel(binding, checkpoint = null) {
+  const semantic = Boolean(checkpoint && checkpoint.kind === "semantic");
+  if (!binding || !binding.mode) return semantic ? "judged" : "built-in script";
   if (binding.mode === "cli") return `${binding.cli}:${binding.model}`;
+  if (binding.mode === "library") return `library · ${binding.library_id || "unresolved"}`;
   if (binding.mode === "command") return truncate(binding.command_uri || "command", 22);
-  return "default";
+  return semantic ? "judged" : "built-in script";
+}
+
+function renderWarnings(detail) {
+  const warnings = Array.isArray(detail.warnings) ? detail.warnings : [];
+  if (warnings.length === 0) return "";
+  return `<div class="detail-warnings">${icon("alert-triangle")}
+    <div>
+      <strong>${warnings.length} frozen library binding${warnings.length === 1 ? "" : "s"} no longer resolve${warnings.length === 1 ? "s" : ""} in the current project library.</strong>
+      <ul>${warnings.map((warning) => `<li>${esc(typeof warning === "string" ? warning : warning.message || warning.library_id || "unresolved library id")}</li>`).join("")}</ul>
+      <div class="text-faint" style="font-size:10.5px;margin-top:3px">The run keeps its frozen snapshot; only the display summary is missing.</div>
+    </div>
+  </div>`;
+}
+
+function renderLibraryBinding(detail, checkpoint) {
+  const binding = bindingFor(detail, checkpoint.checkpoint_id);
+  if (!binding || binding.mode !== "library") return "";
+  const library = libraryFor(detail, checkpoint.checkpoint_id);
+  const missing = !library;
+  const rules = (checkpoint.checker && checkpoint.checker.rules) || [];
+  return `<div class="binding-stack">
+    <div class="library-binding ${missing ? "is-missing" : ""}">
+      ${icon(missing ? "alert-triangle" : "library")}
+      <span class="library-binding__title">${esc(library ? library.title : "Library checkpoint no longer resolves")}</span>
+      <span class="library-binding__meta">${esc(binding.library_id || "")}${library ? ` · ${esc(library.kind)} · v${esc(library.version)}${library.builtin ? " · built-in" : ""}` : ""}</span>
+      ${missing
+        ? `<span class="library-binding__warn">frozen id is missing from the project library; the frozen rules below are still authoritative.</span>`
+        : `<button class="library-binding__open" type="button" data-open-library="${esc(library.checkpoint_id)}">${icon("arrow-up-right")}open in library</button>`}
+    </div>
+    ${rules.length && checkpoint.kind === "syntactic"
+      ? `<div>${rules.map((rule) => `<div class="check-card__preview-rule"><span class="mono">${esc(rule.rule_id)}</span><span>${esc(rule.condition)}</span></div>`).join("")}</div>`
+      : ""}
+  </div>`;
 }
 
 function renderBoard(detail, flow) {
@@ -419,15 +500,19 @@ function renderBoard(detail, flow) {
               const assessment = latestAssessment(detail, checkpoint.checkpoint_id);
               const gateState = boardGateState(assessment);
               const binding = bindingFor(detail, checkpoint.checkpoint_id);
-              const bindingText = checkpoint.kind === "semantic" ? "judged" : bindingLabel(binding);
-              const title = `${checkpoint.title || checkpoint.checkpoint_id} · ${gateState}${binding && binding.mode === "cli" ? ` · ${binding.cli}:${binding.model}` : ""}`;
+              const library = libraryFor(detail, checkpoint.checkpoint_id);
+              const isLibrary = binding && binding.mode === "library";
+              const missing = isLibrary && !library;
+              const bindingText = missing ? "library missing" : bindingLabel(binding, checkpoint);
+              const bindingClass = isLibrary ? (missing ? "is-missing" : "is-library") : "";
+              const title = `${checkpoint.title || checkpoint.checkpoint_id} · ${gateState}${isLibrary ? ` · library ${binding.library_id}${library ? ` (${library.title})` : " (unresolved)"}` : binding && binding.mode === "cli" ? ` · ${binding.cli}:${binding.model}` : binding ? "" : " · judged"}`;
               return `<div class="board__gate-slot">
-                <span class="board__gate is-${gateState} tone-${outcomeTone(assessment?.outcome)}" title="${esc(title)}">
+                <span class="board__gate is-${gateState}${missing ? " is-warning" : ""} tone-${outcomeTone(assessment?.outcome)}" title="${esc(title)}">
                   <span class="diamond" aria-hidden="true"></span>
                   <span>${esc(gateState === "none" ? "not run" : gateState)}</span>
                 </span>
                 <span class="board__gate-label" title="${esc(checkpoint.checkpoint_id)}">${esc(truncate(checkpoint.title || checkpoint.checkpoint_id, 26))}</span>
-                <span class="board__gate-binding">${esc(bindingText)}</span>
+                <span class="board__gate-binding ${bindingClass}" title="${esc(isLibrary ? `library checkpoint ${binding.library_id}${library ? ` · ${library.title} · v${library.version}` : " · unresolved"}` : bindingText)}">${esc(bindingText)}</span>
               </div>`;
             })
             .join("")}</div>`
@@ -519,17 +604,22 @@ function renderCheckpointRow(detail, checkpoint) {
         <strong>${esc(checkpoint.title || checkpoint.checkpoint_id)}</strong>
         <span class="chip chip--mono chip--sm">${esc(checkpoint.checkpoint_id)}</span>
         <span class="checkpoint-row__kind ${isSemantic ? "is-semantic" : ""}">${esc(checkpoint.kind)}</span>
-        ${isSemantic
-          ? `<span class="chip chip--violet chip--sm">${icon("sparkle")}judged</span>`
-          : binding && binding.mode === "cli"
-            ? `<span class="chip chip--violet chip--sm">${icon("cpu")}${esc(binding.cli)}:${esc(binding.model)}</span>`
-            : `<span class="chip chip--green chip--sm">${icon("shield")}default</span>`}
+        ${
+          binding && binding.mode === "library"
+            ? `<span class="chip chip--cyan chip--sm">${icon("library")}library checkpoint</span>`
+            : binding && binding.mode === "cli"
+              ? `<span class="chip chip--violet chip--sm">${icon("cpu")}agent CLI · ${esc(binding.cli)}:${esc(binding.model)}</span>`
+              : isSemantic
+                ? `<span class="chip chip--violet chip--sm">${icon("sparkle")}default criteria · judged</span>`
+                : `<span class="chip chip--green chip--sm">${icon("shield")}built-in script</span>`
+        }
       </div>
       ${assessment ? outcomeChip(assessment.outcome) : `<span class="badge badge--soft">not run</span>`}
     </div>
     <ul class="checkpoint-row__criteria">
       ${(checkpoint.criteria || []).map((criterion) => `<li>${esc(criterion)}</li>`).join("")}
     </ul>
+    ${renderLibraryBinding(detail, checkpoint)}
     ${
       assessment
         ? `<div class="assessment tone-${tone}">
@@ -610,11 +700,138 @@ function renderTimeline(app, detail, flow) {
 /* Side column                                                        */
 /* ------------------------------------------------------------------ */
 
+/* ------------------------------------------------------------------ */
+/* Start-work handoff (SPEC §9.5)                                     */
+/* ------------------------------------------------------------------ */
+
+function latestFailedAssessment(detail) {
+  const visits = detail.run?.visits || [];
+  for (let index = visits.length - 1; index >= 0; index -= 1) {
+    const assessments = visits[index].assessments || [];
+    for (let inner = assessments.length - 1; inner >= 0; inner -= 1) {
+      if (assessments[inner].outcome === "failed") return assessments[inner];
+    }
+  }
+  return null;
+}
+
+function handoffCorrections(detail, work) {
+  if (detail.status !== "blocked") return [];
+  const fromWork = (work && work.correction_reasons) || [];
+  if (fromWork.length > 0) return fromWork;
+  const failed = latestFailedAssessment(detail);
+  if (failed) return [`${failed.checkpoint_id}: ${failed.rationale || "the recorded assessment failed."}`];
+  return [];
+}
+
+function handoffTexts(detail, flows) {
+  const flow = (flows || []).find((entry) => entry.flow_id === detail.flow_id);
+  const workResult = detailState && detailState.work;
+  const response = workResult && workResult.response ? workResult.response : null;
+  const work = response && response.work ? response.work : null;
+  const stageId = (work && work.stage_id) || detail.current_stage || (flow && flow.stages && flow.stages[0] && flow.stages[0].stage_id) || "first";
+  const stage = flow && flow.stages ? flow.stages.find((entry) => entry.stage_id === stageId) : null;
+  const goal = (work && work.goal) || (stage && stage.goal) || "Read the current work order with `xdesign next`.";
+  const instructions = (work && work.instructions) || (stage && stage.instructions) || "";
+  const outputs = (work && work.expected_outputs) || (stage && stage.expected_outputs) || [];
+  const corrections = handoffCorrections(detail, work);
+  const semantic = hasSemanticGate(detail);
+
+  const lines = [];
+  lines.push(`You are the working agent for xdesign wish ${detail.wish_id}${detail.title && detail.title !== detail.wish_id ? ` ("${detail.title}")` : ""}.`);
+  lines.push(`Flow: ${flow ? flow.title : detail.flow_id} · current stage: ${stageTitle(flow, stageId)} (${stageId})`);
+  lines.push("");
+  lines.push(`Goal: ${goal}`);
+  if (instructions) lines.push(`Instructions: ${instructions}`);
+  if (outputs.length) lines.push(`Expected outputs: ${outputs.join(", ")}`);
+  lines.push("");
+  lines.push("Run these commands from the project root:");
+  lines.push(`  xdesign next ${detail.wish_id}`);
+  lines.push(`  xdesign check ${detail.wish_id} --result result.json`);
+  lines.push("");
+  lines.push("Write result.json from the latest `xdesign next` response. It must include:");
+  lines.push("  - the current state_token from that response,");
+  lines.push("  - the batch fields for this stage (activities, artifacts and digests),");
+  lines.push(
+    semantic
+      ? "  - a judgment object {authority, identity, outcome, rationale} because this stage has a semantic gate."
+      : "  - a judgment object only if this stage has a semantic gate (this one does not).",
+  );
+  if (work && response) {
+    lines.push("");
+    lines.push(
+      `Loaded work order: stage ${work.stage_id}, visit ${work.visit_index ?? 0}, artifact revision ${work.artifact_revision ?? 0}, state_token ${response.state_token || "(see response)"}.`,
+    );
+  } else {
+    lines.push("");
+    lines.push("Current work has not been fetched in this console yet; run `xdesign next` to obtain the state_token before writing result.json.");
+  }
+  if (corrections.length > 0) {
+    lines.push("");
+    lines.push("Corrections required before a check can accept this stage:");
+    for (const correction of corrections) lines.push(`  - ${correction}`);
+  }
+  lines.push("");
+  lines.push("Do not start stage work from the web console: it displays work orders and submits results only.");
+
+  return {
+    prompt: lines.join("\n"),
+    next: `xdesign next ${detail.wish_id}`,
+    check: `xdesign check ${detail.wish_id} --result result.json`,
+    corrections,
+    workLoaded: Boolean(work),
+  };
+}
+
+function renderHandoff(app, detail, flows) {
+  const texts = handoffTexts(detail, flows);
+  const sample = app.state.sampleMode;
+  return `<section class="handoff" data-handoff aria-label="Start work handoff">
+    <div class="handoff__head">
+      <div class="handoff__title"><span class="icon-badge">${icon("handoff")}</span>Start work
+        <span class="chip chip--accent chip--sm">operator handoff</span>
+        ${texts.workLoaded ? `<span class="chip chip--green chip--sm">${icon("check")}work order loaded</span>` : ""}
+      </div>
+    </div>
+    <div class="handoff__explain"><strong>Creating this wish froze the plan; it did not start an agent.</strong> Hand the work order to a working agent, let it produce the stage result, then submit <span class="mono">xdesign check</span>. The console only runs the CLI for the operator.</div>
+    <div class="handoff__body">
+      <div>
+        <div class="handoff__block-title"><span>Agent handoff prompt</span>
+          <button class="handoff__copy" type="button" data-copy-handoff="prompt" aria-label="Copy the handoff prompt">${icon("copy")}copy</button>
+        </div>
+        <pre class="handoff__prompt" data-handoff-prompt>${esc(texts.prompt)}</pre>
+      </div>
+      <div>
+        <div class="handoff__block-title"><span>Commands</span></div>
+        <div class="handoff__commands">
+          <div class="handoff__command"><code data-handoff-command="next">${esc(texts.next)}</code><button class="handoff__copy" type="button" data-copy-handoff="next">${icon("copy")}copy</button></div>
+          <div class="handoff__command"><code data-handoff-command="check">${esc(texts.check)}</code><button class="handoff__copy" type="button" data-copy-handoff="check">${icon("copy")}copy</button></div>
+        </div>
+      </div>
+      ${
+        texts.corrections.length
+          ? `<div class="handoff__corrections"><strong>Corrections required</strong><ul>${texts.corrections.map((correction) => `<li>${esc(correction)}</li>`).join("")}</ul></div>`
+          : ""
+      }
+      <div class="handoff__note">The result file must carry the current <span class="mono">state_token</span>${hasSemanticGate(detail) ? " and a judgment object for the semantic gate" : ""}. Stage work is never started from this console.</div>
+      <div class="handoff__actions">
+        <button class="btn btn--primary btn--sm" type="button" data-copy-handoff="prompt">${icon("copy")}Copy handoff prompt</button>
+        ${
+          texts.workLoaded
+            ? `<button class="btn btn--ghost btn--sm" type="button" data-scroll-work>${icon("play")}Show current work</button>`
+            : `<button class="btn btn--ghost btn--sm${sample ? " is-disabled" : ""}" type="button" data-get-work title="${sample ? "Writes are disabled in sample mode" : "Run xdesign next read-only and compose the prompt with the work order"}">${icon("play")}Load current work</button>`
+        }
+      </div>
+    </div>
+  </section>`;
+}
+
 function renderSide(app, detail, flows) {
   if (detail.status === "delivered") {
     return `${renderReceipt(detail)}${renderHistory(detail)}${renderRawDetail()}`;
   }
-  return `<div data-work-panel>${renderWorkPanel(app, detail)}</div>
+  return `${renderHandoff(app, detail, flows)}
+    <div data-work-panel>${renderWorkPanel(app, detail)}</div>
     <div data-check-panel>${renderCheckPanel(app, detail)}</div>
     ${renderHistory(detail)}`;
 }
@@ -885,6 +1102,12 @@ function renderCheckResponse(root, result) {
 
 /* ---- current work button ------------------------------------------- */
 
+function refreshHandoff(app, root) {
+  if (!root || !viewDetail) return;
+  const slot = root.querySelector("[data-handoff]");
+  if (slot) slot.outerHTML = renderHandoff(app, viewDetail, app.state.flows);
+}
+
 function bindWorkButton(app, root, button, wishId) {
   const onClick = async (event) => {
     const target = event.target.closest("[data-get-work]");
@@ -902,12 +1125,14 @@ function bindWorkButton(app, root, button, wishId) {
       const result = await api.work(wishId);
       detailState = { ...(detailState || {}), work: result, workError: null };
       if (body) body.innerHTML = renderWorkResult({ status: "active" }, result);
+      refreshHandoff(app, root);
       toastOk("Work fetched", result.response?.work ? `Stage ${result.response.work.stage_id} is waiting for artifacts.` : "Run completed.");
     } catch (error) {
       const detail = error instanceof ApiError ? error : null;
       const workError = { message: error.message, detail: detail?.detail };
       detailState = { ...(detailState || {}), workError, work: null };
       if (body) body.innerHTML = renderWorkError(workError);
+      refreshHandoff(app, root);
       if (error instanceof ApiError && error.code === "work_failed") {
         toastError("Next work failed", error.message);
       } else {

@@ -89,6 +89,10 @@ export const api = {
   check: (wishId, body) =>
     request(`/api/wishes/${encodeURIComponent(wishId)}/check`, { method: "POST", body, timeout: 620_000 }),
   create: (body) => request("/api/wishes", { method: "POST", body, timeout: 620_000 }),
+  checkpoints: () => request("/api/checkpoints"),
+  checkpoint: (checkpointId) => request(`/api/checkpoints/${encodeURIComponent(checkpointId)}`),
+  createCheckpoint: (body) =>
+    request("/api/checkpoints", { method: "POST", body, timeout: 120_000 }),
   material: (wishId, uri) =>
     request(`/api/wishes/${encodeURIComponent(wishId)}/material?uri=${encodeURIComponent(uri)}`, {
       raw: true,

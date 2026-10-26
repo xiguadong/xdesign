@@ -21,12 +21,14 @@ export const flowsView = {
 
   async load(app) {
     if (!app.state.flows.length) await app.loadMeta();
-    return { flows: app.state.flows, agents: app.state.agents };
+    await app.loadCheckpoints();
+    return { flows: app.state.flows, agents: app.state.agents, checkpoints: app.state.checkpoints };
   },
 
   render(app, data) {
     const flows = (data && data.flows) || app.state.flows;
     const agents = (data && data.agents) || app.state.agents;
+    const checkpoints = (data && data.checkpoints) || app.state.checkpoints || [];
     const stageCount = flows.reduce((total, flow) => total + (flow.stages || []).length, 0);
     const checkpointCount = flows.reduce((total, flow) => total + (flow.checkpoints || []).length, 0);
     const ruleCount = flows.reduce(
@@ -55,7 +57,7 @@ export const flowsView = {
     </div>
 
     <div class="catalog animate-rise is-delay-2" style="margin-top:18px">
-      ${flows.map((flow) => renderFlowCard(flow, agents)).join("")}
+      ${flows.map((flow) => renderFlowCard(flow, agents, checkpoints)).join("")}
     </div>
 
     ${renderBindingModes()}`;
@@ -74,7 +76,7 @@ function catalogStat(label, value, iconName, tone, meta) {
   </div>`;
 }
 
-function renderFlowCard(flow, agents) {
+function renderFlowCard(flow, agents, libraryEntries) {
   const stages = flow.stages || [];
   const checkpoints = flow.checkpoints || [];
   const checkerCount = checkpoints.filter((checkpoint) => checkpoint.checker).length;
@@ -86,7 +88,7 @@ function renderFlowCard(flow, agents) {
           <div class="catalog-card__id">${esc(flow.flow_id)}</div>
         </div>
         <span class="chip ${flow.custom_checks_supported ? "chip--violet" : "chip--sm"}">
-          ${flow.custom_checks_supported ? `${icon("sparkle")}custom checks` : "semantic only"}
+          ${flow.custom_checks_supported ? `${icon("library")}library bindable` : `${icon("sparkle")}semantic only`}
         </span>
       </div>
       <p class="catalog-card__summary">${esc(flow.summary || "")}</p>
@@ -124,21 +126,41 @@ function renderFlowCard(flow, agents) {
     </div>
 
     <div class="catalog-section">
-      <div class="catalog-section__title"><span>Custom check availability</span></div>
+      <div class="catalog-section__title"><span>Library availability</span><span class="mono">checkpoints in this project</span></div>
       ${
         flow.custom_checks_supported
-          ? `<div class="check-note">${icon("sparkle")}<span><strong>Bindable.</strong> Each syntactic checkpoint can bind <span class="mono">default</span> (deterministic checker) or <span class="mono">cli</span> (codex/kimi, agent authority). <span class="mono">command</span> bindings are configured through <span class="mono">xdesign init --checks</span> only. The binding is frozen into the plan.</span></div>
-             <div class="review__bindings" style="margin-top:10px">
-               ${["codex", "kimi"]
-                 .map((cli) => {
-                   const agent = (agents || []).find((entry) => entry.cli === cli);
-                   return `<div class="review-binding">
-                     <span class="review-binding__name mono">${esc(cli)}</span>
-                     <span class="review-binding__mode">${icon(agent && agent.available ? "check-circle" : "alert-circle")}<span class="badge ${agent && agent.available ? "chip--green" : "chip--rose"} badge--mono">${agent && agent.available ? "available" : "not detected"}</span><span>${esc(truncate((agent && (agent.version || agent.default_model)) || "—", 46))}</span></span>
-                   </div>`;
-                 })
-                 .join("")}
-             </div>`
+          ? (() => {
+              const syntacticEntries = (libraryEntries || []).filter((entry) => entry.kind === "syntactic");
+              const semanticEntries = (libraryEntries || []).filter((entry) => entry.kind === "semantic");
+              return `<div class="check-note">${icon("library")}<span><strong>Bindable check executors.</strong> Each syntactic checkpoint can bind the <span class="mono">built-in script</span>, an <span class="mono">agent CLI</span> run, or a frozen <span class="mono">library checkpoint</span>. The semantic verification gate can bind a semantic library entry. The chosen executor is frozen into the plan.</span></div>
+                <div class="catalog-library">
+                  <div class="catalog-library__row">
+                    <span class="catalog-library__label">${icon("shield")}Syntactic entries</span>
+                    <span class="catalog-library__list">${
+                      syntacticEntries.length
+                        ? syntacticEntries.map((entry) => `<a class="chip chip--sm chip--cyan" href="#/checkpoints?open=${encodeURIComponent(entry.checkpoint_id)}">${esc(entry.title)} · <span class="mono">${esc(entry.checkpoint_id)}</span></a>`).join("")
+                        : '<span class="text-faint" style="font-size:11px">No user entries; the built-in plan checkers remain available as built-in script bindings.</span>'
+                    }</span>
+                  </div>
+                  <div class="catalog-library__row">
+                    <span class="catalog-library__label">${icon("sparkle")}Semantic entries</span>
+                    <span class="catalog-library__list">${
+                      semanticEntries.length
+                        ? semanticEntries.map((entry) => `<a class="chip chip--sm chip--violet" href="#/checkpoints?open=${encodeURIComponent(entry.checkpoint_id)}">${esc(entry.title)} · <span class="mono">${esc(entry.checkpoint_id)}</span></a>`).join("")
+                        : '<span class="text-faint" style="font-size:11px">No semantic library entries yet.</span>'
+                    }</span>
+                  </div>
+                  <div class="catalog-library__row">
+                    <span class="catalog-library__label">${icon("cpu")}Agent CLIs</span>
+                    <span class="catalog-library__list">${["codex", "kimi"]
+                      .map((cli) => {
+                        const agent = (agents || []).find((entry) => entry.cli === cli);
+                        return `<span class="chip chip--sm ${agent && agent.available ? "chip--green" : "chip--rose"}">${icon(agent && agent.available ? "check" : "alert-circle")}${esc(cli)} · ${agent && agent.available ? "available" : "not detected"}</span>`;
+                      })
+                      .join("")}</span>
+                  </div>
+                </div>`;
+            })()
           : `<div class="check-note">${icon("info")}<span><strong>Not bindable in this slice.</strong> WishVerifyFlow keeps its two semantic judgments; non-default check bindings are rejected for it. The gates are judged by an agent or human and recorded with that authority.</span></div>`
       }
     </div>
@@ -192,23 +214,23 @@ function renderBindingModes() {
     {
       tone: "green",
       iconName: "shield",
-      name: "default",
-      tag: "deterministic",
-      text: "Runs the flow's built-in checker inside xdesign. The plan bytes are frozen exactly as before custom bindings existed. The assessment is recorded with script authority.",
+      name: "Built-in script",
+      tag: "script authority",
+      text: "Runs the repository's deterministic checker inside xdesign. The plan bytes match the default plan. The assessment is recorded with script authority and the checker id as assessor.",
     },
     {
       tone: "violet",
       iconName: "cpu",
-      name: "cli",
+      name: "Agent CLI",
       tag: "agent authority",
-      text: "Executes the checkpoint with codex or kimi. The agent answers the declared checker rules; the verdict is retained with an assessor of <span class=\"mono\">cli:model</span> and recorded as agent authority.",
+      text: "Runs a separate codex or kimi review of the same declared rules. The verdict is retained with an assessor of <span class=\"mono\">cli:model</span> and recorded as agent authority.",
     },
     {
       tone: "cyan",
-      iconName: "terminal",
-      name: "command",
-      tag: "init only",
-      text: "Runs a project-relative checker command through the existing checker interface. Available through <span class=\"mono\">xdesign init --checks</span>, not from the web wizard.",
+      iconName: "library",
+      name: "Library checkpoint",
+      tag: "frozen definition",
+      text: "Freezes a project library entry's rules/criteria, inputs and declared executor into the plan. Later library edits never change an existing run; script entries keep script authority, CLI entries agent authority.",
     },
   ];
   return `<section class="panel" style="margin-top:18px">
@@ -231,7 +253,7 @@ function renderBindingModes() {
         .join("")}
     </div>
     <div class="side-panel__note" style="padding:0 20px 18px">
-      A non-default binding changes the frozen plan: <span class="mono">xdesign next</span>, <span class="mono">xdesign check</span> and this page reconstruct the executor from the store without any separate configuration file.
+      Stage work is always performed by the working agent; the check executor selects only who verifies the checkpoint. A non-default binding changes the frozen plan, and <span class="mono">xdesign next</span>, <span class="mono">xdesign check</span> and this page reconstruct the executor from the store without a separate configuration file.
     </div>
   </section>`;
 }

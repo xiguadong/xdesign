@@ -22,11 +22,14 @@ import {
   SAMPLE_FLOWS,
   SAMPLE_WISHES,
   SAMPLE_FLOWS as FLOWS_PAYLOAD,
+  SAMPLE_CHECKPOINTS,
   getSampleDetail,
   getSampleWork,
   getSampleCheckResponse,
   getSampleInitResponse,
   getSampleMaterial,
+  toCheckpointListEntry,
+  findSampleCheckpointEntry,
 } from "../assets/js/sample-data.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -74,6 +77,145 @@ const options = parseArgs(process.argv.slice(2));
 /** Runtime wish list: seeded from the sample dataset (or empty with --empty) and
  *  extended by POST /api/wishes. --empty models a real, reachable, empty project. */
 const wishes = options.empty ? [] : SAMPLE_WISHES.map((wish) => ({ ...wish }));
+
+/** In-memory project checkpoint library. --empty models a project whose
+ *  checkpoints/library.json does not exist yet (built-ins only). */
+const library = (options.empty ? SAMPLE_CHECKPOINTS.filter((entry) => entry.builtin) : SAMPLE_CHECKPOINTS).map(
+  (entry) => structuredClone(entry),
+);
+
+const LIBRARY_CHECKPOINT_RE = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+
+function libraryListReply() {
+  return {
+    schema_version: 1,
+    library_uri: "checkpoints/library.json",
+    issues: [],
+    checkpoints: library.map((entry) => toCheckpointListEntry(entry)),
+  };
+}
+
+function libraryShowReply(entry) {
+  return {
+    schema_version: 1,
+    checkpoint: {
+      ...structuredClone(entry),
+      builtin: Boolean(entry.builtin),
+      script_exists: entry.executor && entry.executor.mode === "script" ? true : false,
+    },
+  };
+}
+
+function validateCheckpointSave(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) return "The request body must be a checkpoint object.";
+  const checkpointId = String(body.checkpoint_id || "");
+  if (!LIBRARY_CHECKPOINT_RE.test(checkpointId)) {
+    return "checkpoint_id must be a slug matching [a-z0-9][a-z0-9_-]{0,63}.";
+  }
+  const existing = library.find((entry) => entry.checkpoint_id === checkpointId);
+  if (existing && existing.builtin) return "__builtin__";
+  const kind = String(body.kind || "");
+  if (!["syntactic", "semantic"].includes(kind)) return "kind must be syntactic or semantic.";
+  const title = String(body.title || "").trim();
+  if (title.length < 1 || title.length > 120) return "title must contain between 1 and 120 characters.";
+  const description = String(body.description || "").trim();
+  if (description.length < 1 || description.length > 1000) return "description must contain between 1 and 1000 characters.";
+  const tags = Array.isArray(body.tags) ? body.tags : [];
+  if (tags.length > 8) return "tags must contain at most 8 entries.";
+  for (const tag of tags) {
+    if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(String(tag))) return `tag ${JSON.stringify(tag)} is not a lowercase slug.`;
+  }
+  if (kind === "syntactic") {
+    const rules = Array.isArray(body.rules) ? body.rules : [];
+    if (rules.length === 0) return "a syntactic checkpoint needs at least one rule.";
+    for (const rule of rules) {
+      if (!rule || !LIBRARY_CHECKPOINT_RE.test(String(rule.rule_id || ""))) return "every rule needs a slug rule_id.";
+      if (!String(rule.condition || "").trim()) return `rule ${rule.rule_id} needs a non-empty condition.`;
+    }
+    const inputs = Array.isArray(body.inputs) ? body.inputs : [];
+    if (inputs.length === 0) return "a syntactic checkpoint needs at least one input.";
+    const executor = body.executor || {};
+    if (!["script", "cli"].includes(executor.mode)) return "executor.mode must be script or cli.";
+    if (executor.mode === "script" && !String(executor.command_uri || "").endsWith(".py")) {
+      return "a script executor needs a project-relative .py command_uri.";
+    }
+    if (executor.mode === "cli") {
+      if (!["codex", "kimi"].includes(executor.cli)) return "a CLI executor needs cli codex or kimi.";
+      if (!String(executor.model || "").trim()) return "a CLI executor needs a non-empty model.";
+    }
+    if (body.create_script !== undefined && body.create_script !== "scaffold") return "create_script must be scaffold when present.";
+    if (body.create_script === "scaffold") {
+      const expected = `checkpoints/scripts/${checkpointId.replace(/-/g, "_")}.py`;
+      if (executor.mode !== "script" || executor.command_uri !== expected) {
+        return `create_script scaffold requires the script executor ${expected}.`;
+      }
+    }
+  } else {
+    const criteria = Array.isArray(body.criteria) ? body.criteria : [];
+    if (criteria.length === 0) return "a semantic checkpoint needs at least one criterion.";
+    const judges = body.judges || {};
+    if (!judges.agent && !judges.human) return "a semantic checkpoint needs at least one permitted judge.";
+    if ((Array.isArray(body.rules) && body.rules.length > 0) || (Array.isArray(body.inputs) && body.inputs.length > 0) || body.executor) {
+      return "a semantic checkpoint must not carry rules, inputs or an executor.";
+    }
+  }
+  return null;
+}
+
+function saveCheckpoint(body) {
+  const now = new Date().toISOString();
+  const checkpointId = String(body.checkpoint_id);
+  const existing = library.find((entry) => entry.checkpoint_id === checkpointId);
+  let scriptUri = null;
+  const entry = {
+    checkpoint_id: checkpointId,
+    title: String(body.title).trim(),
+    description: String(body.description).trim(),
+    kind: body.kind,
+    tags: Array.isArray(body.tags) ? body.tags : [],
+    version: 1,
+    created_at: now,
+    updated_at: now,
+    source: body.create_script === "scaffold" ? "generated" : body.source || "manual",
+    builtin: false,
+    history: [],
+  };
+  if (body.kind === "syntactic") {
+    entry.rules = body.rules.map((rule) => ({ rule_id: rule.rule_id, condition: rule.condition, reads: Array.isArray(rule.reads) ? rule.reads : [] }));
+    entry.inputs = Array.isArray(body.inputs) ? body.inputs : [];
+    entry.executor = { mode: body.executor.mode, command_uri: body.executor.command_uri };
+    if (body.executor.mode === "cli") {
+      entry.executor = { mode: "cli", cli: body.executor.cli, model: body.executor.model };
+    }
+    if (body.create_script === "scaffold") scriptUri = entry.executor.command_uri;
+  } else {
+    entry.criteria = body.criteria.map((criterion) => String(criterion)).filter(Boolean);
+    entry.judges = { agent: Boolean(body.judges.agent), human: Boolean(body.judges.human) };
+  }
+  if (existing) {
+    const snapshot = {
+      version: existing.version,
+      updated_at: existing.updated_at,
+      description: existing.description,
+      kind: existing.kind,
+      rules: existing.rules,
+      inputs: existing.inputs,
+      executor: existing.executor,
+      criteria: existing.criteria,
+      judges: existing.judges,
+      tags: existing.tags,
+    };
+    entry.version = existing.version + 1;
+    entry.created_at = existing.created_at;
+    entry.source = existing.source === "generated" ? "generated" : entry.source;
+    entry.history = [snapshot, ...(existing.history || [])].slice(0, 10);
+    const index = library.indexOf(existing);
+    library[index] = entry;
+  } else {
+    library.push(entry);
+  }
+  return { entry, scriptUri, created: !existing };
+}
 
 function envelope(res, status, payload) {
   const body = Buffer.from(JSON.stringify(payload));
@@ -157,6 +299,39 @@ function wishIdFromPath(pathname) {
 }
 
 const WISH_ID_RE = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/;
+const SYNTHETIC_GATE_IDS = [
+  "simpleRequirementsAccepted",
+  "simpleDesignAccepted",
+  "simpleImplementationAccepted",
+  "simpleRecordAccepted",
+];
+const SEMANTIC_GATE_IDS = ["verificationAccepted"];
+
+function validateWishChecks(checks) {
+  for (const entry of checks) {
+    const checkpointId = String(entry.checkpoint_id || "");
+    const allowed = SYNTHETIC_GATE_IDS.includes(checkpointId) || SEMANTIC_GATE_IDS.includes(checkpointId);
+    if (!allowed) return `checkpoint ${checkpointId} cannot take a check binding.`;
+    const mode = entry.mode || "default";
+    if (mode === "default") continue;
+    if (mode === "cli") {
+      if (!["codex", "kimi"].includes(entry.cli)) return `checkpoint ${checkpointId} needs cli codex or kimi.`;
+      if (!String(entry.model || "").trim()) return `checkpoint ${checkpointId} needs a non-empty model.`;
+      continue;
+    }
+    if (mode === "library") {
+      const libraryEntry = library.find((candidate) => candidate.checkpoint_id === entry.library_id);
+      if (!libraryEntry) return `checkpoint ${checkpointId} binds unknown library id ${entry.library_id || "(missing)"}.`;
+      const expectedKind = SYNTHETIC_GATE_IDS.includes(checkpointId) ? "syntactic" : "semantic";
+      if (libraryEntry.kind !== expectedKind) {
+        return `checkpoint ${checkpointId} requires a ${expectedKind} library entry; ${entry.library_id} is ${libraryEntry.kind}.`;
+      }
+      continue;
+    }
+    return `checkpoint ${checkpointId} has unknown mode ${mode}.`;
+  }
+  return null;
+}
 const SYNTHETIC_IDS = [
   "simpleRequirementsAccepted",
   "simpleDesignAccepted",
@@ -179,6 +354,59 @@ async function handleApi(req, res, pathname, searchParams) {
   // GET /api/flows
   if (pathname === "/api/flows" && req.method === "GET") {
     ok(res, FLOWS_PAYLOAD);
+    return;
+  }
+
+  // GET/POST /api/checkpoints and GET /api/checkpoints/{id}
+  if (pathname === "/api/checkpoints") {
+    if (req.method === "GET") {
+      ok(res, libraryListReply());
+      return;
+    }
+    if (req.method === "POST") {
+      const raw = await readBody(req);
+      let body;
+      try {
+        body = JSON.parse(raw || "{}");
+      } catch {
+        fail(res, 400, "invalid_json", "The request body is not valid JSON.");
+        return;
+      }
+      const validation = validateCheckpointSave(body);
+      if (validation === "__builtin__") {
+        fail(res, 409, "builtin_checkpoint", `Checkpoint ${body.checkpoint_id} is a built-in and cannot be saved.`);
+        return;
+      }
+      if (validation) {
+        fail(res, 400, "invalid_checkpoint", validation);
+        return;
+      }
+      const saved = saveCheckpoint(body);
+      ok(res, {
+        schema_version: 1,
+        checkpoint: { ...structuredClone(saved.entry), builtin: false, script_exists: Boolean(saved.scriptUri) || Boolean(saved.entry.executor && saved.entry.executor.mode === "script") },
+        script_uri: saved.scriptUri,
+        created: saved.created,
+        version: saved.entry.version,
+      });
+      return;
+    }
+    fail(res, 405, "method_not_allowed", "Only GET and POST are supported for /api/checkpoints.");
+    return;
+  }
+
+  if (pathname.startsWith("/api/checkpoints/")) {
+    if (req.method !== "GET") {
+      fail(res, 405, "method_not_allowed", "Only GET is supported for a checkpoint definition.");
+      return;
+    }
+    const checkpointId = decodeURIComponent(pathname.slice("/api/checkpoints/".length));
+    const entry = library.find((candidate) => candidate.checkpoint_id === checkpointId);
+    if (!entry) {
+      fail(res, 404, "unknown_checkpoint", `No checkpoint with id ${checkpointId}.`);
+      return;
+    }
+    ok(res, libraryShowReply(entry));
     return;
   }
 
@@ -221,6 +449,12 @@ async function handleApi(req, res, pathname, searchParams) {
         fail(res, 409, "already_exists", `An item with wish id ${wishId} already exists.`);
         return;
       }
+      const checks = Array.isArray(body.checks) ? body.checks : [];
+      const checkError = validateWishChecks(checks);
+      if (checkError) {
+        fail(res, 400, "invalid_checks", checkError);
+        return;
+      }
       const created = {
         wish_id: wishId,
         title,
@@ -231,6 +465,7 @@ async function handleApi(req, res, pathname, searchParams) {
         head_revision: 1,
         source: "store",
         updated_at: new Date().toISOString(),
+        checks: checks.map((entry) => ({ ...entry })),
       };
       wishes.push(created);
       // The detail/work/material builders are shared with the page's sample

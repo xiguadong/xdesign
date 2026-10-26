@@ -12,7 +12,7 @@ use crate::storage::{RsItemRevision, RsMaterial, RsStore, RsStoreError, RsWishSt
 use crate::wish_verify::wish_verify_flow_plan;
 use serde::Deserialize;
 use serde_json::{json, Map, Value};
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
@@ -250,6 +250,14 @@ fn route_api(state: &AppState, request: &Request) -> ApiResult {
             require_method(request, Method::Get)?;
             material(state, wish_id, request)
         }
+        ["api", "checkpoints"] => match request.method {
+            Method::Get => checkpoint_list(state),
+            Method::Post => checkpoint_save(state, request),
+        },
+        ["api", "checkpoints", checkpoint_id] if valid_checkpoint_id(checkpoint_id) => {
+            require_method(request, Method::Get)?;
+            checkpoint_show(state, checkpoint_id)
+        }
         _ => Err(ApiError::not_found(
             "not_found",
             format!("Unknown API route: {}", request.path),
@@ -272,6 +280,18 @@ fn valid_wish_id(wish_id: &str) -> bool {
             .next()
             .is_some_and(|byte| byte.is_ascii_alphanumeric())
         && bytes.all(|byte| byte.is_ascii_alphanumeric() || byte == b'_' || byte == b'-')
+}
+
+/// Checkpoint library ids are lower-case slugs per the library model.
+fn valid_checkpoint_id(checkpoint_id: &str) -> bool {
+    let mut bytes = checkpoint_id.bytes();
+    checkpoint_id.len() <= 64
+        && bytes
+            .next()
+            .is_some_and(|byte| byte.is_ascii_lowercase() || byte.is_ascii_digit())
+        && bytes.all(|byte| {
+            byte.is_ascii_lowercase() || byte.is_ascii_digit() || byte == b'_' || byte == b'-'
+        })
 }
 
 // ---------------------------------------------------------------------------
@@ -813,7 +833,8 @@ fn load_legacy_wish(state: &AppState, wish_id: &str) -> Result<LoadedWish, ApiEr
 }
 
 fn wish_detail(state: &AppState, wish_id: &str) -> ApiResult {
-    let wish = load_wish(state, wish_id)?;
+    let mut wish = load_wish(state, wish_id)?;
+    let warnings = attach_library_summaries(state, &mut wish.plan);
     let (title, description) = wish_title_description(wish_id, wish.source_text.as_deref());
     let events = derive_events(&wish.plan, &wish.run, &wish.flow_id);
     Ok(http::json_ok(json!({
@@ -829,7 +850,103 @@ fn wish_detail(state: &AppState, wish_id: &str) -> ApiResult {
         "run": wish.run,
         "history": wish.history,
         "events": events,
+        "warnings": warnings,
     })))
+}
+
+/// Join the frozen library ids of a plan with the *current* project library so
+/// the page can show a display title/version for each bound checkpoint.
+///
+/// The frozen plan (and its recorded rules/criteria) is always authoritative;
+/// this join is display-only. The library is read through one best-effort
+/// `xdesign checkpoint list` subprocess, so a missing or malformed library
+/// never fails the detail response: unresolved checkpoints get `library: null`
+/// and the reason is reported in the top-level `warnings` array.
+fn attach_library_summaries(state: &AppState, plan: &mut Value) -> Vec<String> {
+    let mut bound_ids: Vec<String> = Vec::new();
+    if let Some(checkpoints) = plan.get("checkpoints").and_then(Value::as_array) {
+        for checkpoint in checkpoints {
+            if let Some(library_id) = checkpoint
+                .get("library_id")
+                .and_then(Value::as_str)
+                .filter(|library_id| !library_id.is_empty())
+            {
+                if !bound_ids.iter().any(|bound| bound == library_id) {
+                    bound_ids.push(library_id.to_owned());
+                }
+            }
+        }
+    }
+    let mut warnings = Vec::new();
+    let mut summaries: BTreeMap<String, Value> = BTreeMap::new();
+    if !bound_ids.is_empty() {
+        match fetch_library_entries(state) {
+            Ok(entries) => {
+                for entry in entries {
+                    if let Some(checkpoint_id) =
+                        entry.get("checkpoint_id").and_then(Value::as_str)
+                    {
+                        summaries.insert(checkpoint_id.to_owned(), library_summary(&entry));
+                    }
+                }
+            }
+            Err(message) => warnings.push(format!(
+                "Cannot read the checkpoint library ({message}); frozen library checkpoints {} cannot be resolved.",
+                bound_ids.join(", ")
+            )),
+        }
+    }
+    if let Some(checkpoints) = plan.get_mut("checkpoints").and_then(Value::as_array_mut) {
+        for checkpoint in checkpoints {
+            let library_id = checkpoint
+                .get("library_id")
+                .and_then(Value::as_str)
+                .filter(|library_id| !library_id.is_empty())
+                .map(str::to_owned);
+            let Some(library_id) = library_id else {
+                checkpoint["library"] = Value::Null;
+                continue;
+            };
+            match summaries.get(&library_id) {
+                Some(summary) => checkpoint["library"] = summary.clone(),
+                None => {
+                    checkpoint["library"] = Value::Null;
+                    if warnings.is_empty() || !warnings[0].starts_with("Cannot read") {
+                        warnings.push(format!(
+                            "Frozen library checkpoint {library_id} is not present in the current project library."
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    warnings
+}
+
+/// One `checkpoint list` invocation, parsed into its checkpoint entries.
+fn fetch_library_entries(state: &AppState) -> Result<Vec<Value>, String> {
+    let output = run_lifecycle(state, &["checkpoint", "list"])?;
+    if output.exit_code != 0 {
+        return Err(lifecycle_message(&output, "xdesign checkpoint list failed"));
+    }
+    let reply: Value = serde_json::from_slice(&output.stdout)
+        .map_err(|error| format!("xdesign checkpoint list returned invalid JSON: {error}"))?;
+    Ok(reply
+        .get("checkpoints")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default())
+}
+
+/// The display projection of one current library entry.
+fn library_summary(entry: &Value) -> Value {
+    json!({
+        "checkpoint_id": entry.get("checkpoint_id").cloned().unwrap_or(Value::Null),
+        "title": entry.get("title").cloned().unwrap_or(Value::Null),
+        "kind": entry.get("kind").cloned().unwrap_or(Value::Null),
+        "version": entry.get("version").cloned().unwrap_or(Value::Null),
+        "builtin": entry.get("builtin").cloned().unwrap_or(Value::Bool(false)),
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -882,6 +999,17 @@ fn checkpoint_detail_json(checkpoint: &Value) -> Value {
     let checker = checkpoint
         .get("checker")
         .filter(|checker| !checker.is_null());
+    // A frozen library binding is recorded on the checkpoint itself
+    // (`checkpoint.library`), independent of the checker executor the entry
+    // declared; the frozen plan stays authoritative over the current library.
+    let library_id = checkpoint
+        .get("library")
+        .and_then(Value::as_str)
+        .filter(|library_id| !library_id.is_empty())
+        .map(str::to_owned);
+    let library_binding = library_id
+        .as_ref()
+        .map(|library_id| json!({"mode": "library", "library_id": library_id}));
     let title = if kind == "syntactic" {
         checker
             .and_then(|checker| checker.get("checker_id"))
@@ -897,10 +1025,12 @@ fn checkpoint_detail_json(checkpoint: &Value) -> Value {
             "command_uri": checker.get("command_uri").cloned().unwrap_or(Value::Null),
             "establishes": checker.get("establishes").cloned().unwrap_or_else(|| json!([])),
             "rules": checker.get("rules").cloned().unwrap_or_else(|| json!([])),
-            "binding": derive_binding(checker),
+            "binding": library_binding
+                .clone()
+                .unwrap_or_else(|| derive_binding(checker)),
         })
     });
-    json!({
+    let mut projected = json!({
         "checkpoint_id": checkpoint_id,
         "stage_id": checkpoint.get("stage_id").cloned().unwrap_or(Value::Null),
         "kind": kind,
@@ -908,8 +1038,15 @@ fn checkpoint_detail_json(checkpoint: &Value) -> Value {
         "criteria": checkpoint.get("criteria").cloned().unwrap_or_else(|| json!([])),
         "agent_may_judge": checkpoint.get("agent_may_judge").cloned().unwrap_or(Value::Bool(false)),
         "human_may_judge": checkpoint.get("human_may_judge").cloned().unwrap_or(Value::Bool(false)),
+        "library_id": library_id,
         "checker": checker_json.unwrap_or(Value::Null),
-    })
+    });
+    // Semantic checkpoints have no checker object to host a binding; expose the
+    // frozen library binding on the checkpoint itself for a uniform read path.
+    if let Some(library_binding) = library_binding {
+        projected["binding"] = library_binding;
+    }
+    projected
 }
 
 /// Binding derived from the frozen plan checkpoint. The CLI freezes the chosen
@@ -1432,11 +1569,22 @@ const SIMPLE_FLOW_CHECKPOINTS: &[&str] = &[
     "simpleRecordAccepted",
 ];
 
+/// The SimpleFlow semantic gate, which accepts a semantic library checkpoint.
+const SIMPLE_FLOW_SEMANTIC_CHECKPOINT: &str = "verificationAccepted";
+
+/// Library-bound gates per SPEC 9.3: the four syntactic gates and the single
+/// SimpleFlow semantic gate.
+fn library_bindable_checkpoint(checkpoint_id: &str) -> bool {
+    SIMPLE_FLOW_CHECKPOINTS.contains(&checkpoint_id)
+        || checkpoint_id == SIMPLE_FLOW_SEMANTIC_CHECKPOINT
+}
+
 struct BindingRequest {
     checkpoint_id: String,
     mode: String,
     cli: Option<String>,
     model: Option<String>,
+    library_id: Option<String>,
 }
 
 fn create_wish(state: &AppState, request: &Request) -> ApiResult {
@@ -1485,13 +1633,14 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
     }
     let bindings = parse_bindings(&flow_id, object.get("checks"))?;
     ensure_wish_absent(state, &wish_id)?;
+    validate_library_bindings(state, &bindings)?;
     let source_uri = format!("cache/web/wishes/{wish_id}.sysml");
     let source_path = project_path(&state.project_root, &source_uri)?;
     write_project_file(
         &source_path,
         wish_source(&wish_id, &title, description.as_deref(), &flow_id).as_bytes(),
     )?;
-    let non_default = bindings.iter().any(|binding| binding.mode == "cli");
+    let non_default = bindings.iter().any(|binding| binding.mode != "default");
     let checks_uri = if non_default {
         let uri = format!("cache/web/checks/{wish_id}.json");
         let path = project_path(&state.project_root, &uri)?;
@@ -1503,9 +1652,15 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
                     let mut entry = Map::new();
                     entry.insert("checkpoint_id".into(), json!(binding.checkpoint_id));
                     entry.insert("mode".into(), json!(binding.mode));
-                    if binding.mode == "cli" {
-                        entry.insert("cli".into(), json!(binding.cli));
-                        entry.insert("model".into(), json!(binding.model));
+                    match binding.mode.as_str() {
+                        "cli" => {
+                            entry.insert("cli".into(), json!(binding.cli));
+                            entry.insert("model".into(), json!(binding.model));
+                        }
+                        "library" => {
+                            entry.insert("library_id".into(), json!(binding.library_id));
+                        }
+                        _ => {}
                     }
                     Value::Object(entry)
                 })
@@ -1537,6 +1692,13 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
         .run(&args, &state.project_root)
         .map_err(|message| ApiError::new(500, "init_failed", message))?;
     if output.exit_code != 0 {
+        if init_rejected_binding(&output) {
+            return Err(ApiError::bad_request(
+                "invalid_checks",
+                lifecycle_message(&output, "invalid check bindings"),
+            )
+            .with_detail(lifecycle_detail(&output)));
+        }
         return Err(ApiError::new(
             500,
             "init_failed",
@@ -1554,6 +1716,86 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
         "stdout": String::from_utf8_lossy(&output.stdout),
         "stderr": String::from_utf8_lossy(&output.stderr),
     })))
+}
+
+/// The library kind a gate requires, or `None` when the gate cannot be
+/// library-bound (structural validation has already rejected that case).
+fn required_library_kind(checkpoint_id: &str) -> Option<&'static str> {
+    if SIMPLE_FLOW_CHECKPOINTS.contains(&checkpoint_id) {
+        Some("syntactic")
+    } else if checkpoint_id == SIMPLE_FLOW_SEMANTIC_CHECKPOINT {
+        Some("semantic")
+    } else {
+        None
+    }
+}
+
+/// Cheap create-time validation of library bindings: one best-effort
+/// `checkpoint list` resolves the current library, and a missing id or a
+/// kind mismatch is a client error rather than a server failure. When the
+/// library cannot be read, `init` stays authoritative and
+/// [`init_rejected_binding`] maps its rejection to the same 400 contract.
+fn validate_library_bindings(
+    state: &AppState,
+    bindings: &[BindingRequest],
+) -> Result<(), ApiError> {
+    let library_bindings: Vec<&BindingRequest> = bindings
+        .iter()
+        .filter(|binding| binding.mode == "library")
+        .collect();
+    if library_bindings.is_empty() {
+        return Ok(());
+    }
+    let Ok(entries) = fetch_library_entries(state) else {
+        return Ok(());
+    };
+    let mut kinds: BTreeMap<String, String> = BTreeMap::new();
+    for entry in entries {
+        if let (Some(checkpoint_id), Some(kind)) = (
+            entry.get("checkpoint_id").and_then(Value::as_str),
+            entry.get("kind").and_then(Value::as_str),
+        ) {
+            kinds.insert(checkpoint_id.to_owned(), kind.to_owned());
+        }
+    }
+    for binding in library_bindings {
+        let Some(library_id) = binding.library_id.as_deref() else {
+            continue;
+        };
+        let Some(required) = required_library_kind(&binding.checkpoint_id) else {
+            continue;
+        };
+        let Some(kind) = kinds.get(library_id) else {
+            return Err(ApiError::bad_request(
+                "invalid_checks",
+                format!("unknown library checkpoint: {library_id}"),
+            ));
+        };
+        if kind != required {
+            return Err(ApiError::bad_request(
+                "invalid_checks",
+                format!(
+                    "library checkpoint {library_id} is {kind} but the gate requires {required}"
+                ),
+            ));
+        }
+    }
+    Ok(())
+}
+
+/// Whether a failed `init` is the CLI's authoritative rejection of a check
+/// binding (a client error) rather than an engine or I/O failure.
+fn init_rejected_binding(output: &LifecycleOutput) -> bool {
+    if output.exit_code != 2 {
+        return false;
+    }
+    let stderr = String::from_utf8_lossy(&output.stderr).to_ascii_lowercase();
+    let stdout = String::from_utf8_lossy(&output.stdout).to_ascii_lowercase();
+    [stderr, stdout].iter().any(|text| {
+        text.contains("invalid check binding")
+            || text.contains("library checkpoint")
+            || text.contains("library entry")
+    })
 }
 
 /// The page-created wish source: a marker comment read back by the list/detail
@@ -1616,12 +1858,6 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
             ApiError::bad_request("invalid_checks", "each checks entry must be an object.")
         })?;
         let checkpoint_id = required_string(object, "checkpoint_id")?;
-        if !SIMPLE_FLOW_CHECKPOINTS.contains(&checkpoint_id.as_str()) {
-            return Err(ApiError::bad_request(
-                "invalid_checks",
-                format!("{checkpoint_id} is not a simple-flow syntactic checkpoint."),
-            ));
-        }
         if !seen.insert(checkpoint_id.clone()) {
             return Err(ApiError::bad_request(
                 "invalid_checks",
@@ -1639,13 +1875,23 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
             }
         };
         match mode.as_str() {
-            "default" => bindings.push(BindingRequest {
-                checkpoint_id,
-                mode,
-                cli: None,
-                model: None,
-            }),
-            "cli" => {
+            "default" | "cli" => {
+                if !SIMPLE_FLOW_CHECKPOINTS.contains(&checkpoint_id.as_str()) {
+                    return Err(ApiError::bad_request(
+                        "invalid_checks",
+                        format!("{checkpoint_id} is not a simple-flow syntactic checkpoint."),
+                    ));
+                }
+                if mode == "default" {
+                    bindings.push(BindingRequest {
+                        checkpoint_id,
+                        mode,
+                        cli: None,
+                        model: None,
+                        library_id: None,
+                    });
+                    continue;
+                }
                 let cli = required_string(object, "cli")?;
                 if !matches!(cli.as_str(), "codex" | "kimi") {
                     return Err(ApiError::bad_request(
@@ -1665,6 +1911,45 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
                     mode,
                     cli: Some(cli),
                     model: Some(model),
+                    library_id: None,
+                });
+            }
+            "library" => {
+                if !library_bindable_checkpoint(&checkpoint_id) {
+                    return Err(ApiError::bad_request(
+                        "invalid_checks",
+                        format!(
+                            "{checkpoint_id} does not accept a library binding; the four simple-flow syntactic checkpoints and {SIMPLE_FLOW_SEMANTIC_CHECKPOINT} do."
+                        ),
+                    ));
+                }
+                let library_id = match object.get("library_id") {
+                    Some(Value::String(library_id)) => library_id.clone(),
+                    Some(_) => {
+                        return Err(ApiError::bad_request(
+                            "invalid_checks",
+                            "library_id must be a string.",
+                        ))
+                    }
+                    None => {
+                        return Err(ApiError::bad_request(
+                            "invalid_checks",
+                            "mode \"library\" requires library_id.",
+                        ))
+                    }
+                };
+                if !valid_checkpoint_id(&library_id) {
+                    return Err(ApiError::bad_request(
+                        "invalid_checks",
+                        "library_id must be a lower-case checkpoint id slug.",
+                    ));
+                }
+                bindings.push(BindingRequest {
+                    checkpoint_id,
+                    mode,
+                    cli: None,
+                    model: None,
+                    library_id: Some(library_id),
                 });
             }
             "command" => {
@@ -1676,7 +1961,7 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
             _ => {
                 return Err(ApiError::bad_request(
                     "invalid_checks",
-                    "mode must be default or cli.",
+                    "mode must be default, cli, or library.",
                 ))
             }
         }
@@ -1897,6 +2182,197 @@ fn run_record_uris(project_root: &Path, run_record_uri: &str) -> BTreeSet<String
         }
     }
     uris
+}
+
+// ---------------------------------------------------------------------------
+// Checkpoint library endpoints (round 2, SPEC 9.4)
+// ---------------------------------------------------------------------------
+
+/// Which CLI action failed, for the small differences in HTTP error mapping.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum CheckpointAction {
+    List,
+    Show,
+    Save,
+}
+
+impl CheckpointAction {
+    fn command(self) -> &'static str {
+        match self {
+            Self::List => "xdesign checkpoint list",
+            Self::Show => "xdesign checkpoint show",
+            Self::Save => "xdesign checkpoint save",
+        }
+    }
+}
+
+fn checkpoint_list(state: &AppState) -> ApiResult {
+    let output = run_lifecycle(state, &["checkpoint", "list"]).map_err(checkpoint_spawn_error)?;
+    if output.exit_code != 0 {
+        return Err(classify_checkpoint_error(&output, CheckpointAction::List));
+    }
+    Ok(http::json_ok(checkpoint_reply(
+        &output,
+        CheckpointAction::List,
+    )?))
+}
+
+fn checkpoint_show(state: &AppState, checkpoint_id: &str) -> ApiResult {
+    let output = run_lifecycle(state, &["checkpoint", "show", checkpoint_id])
+        .map_err(checkpoint_spawn_error)?;
+    if output.exit_code != 0 {
+        return Err(classify_checkpoint_error(&output, CheckpointAction::Show));
+    }
+    Ok(http::json_ok(checkpoint_reply(
+        &output,
+        CheckpointAction::Show,
+    )?))
+}
+
+fn checkpoint_save(state: &AppState, request: &Request) -> ApiResult {
+    let body = parse_json_body(request)?;
+    if !body.is_object() {
+        return Err(ApiError::bad_request(
+            "invalid_checkpoint",
+            "The checkpoint save request must be a JSON object.",
+        ));
+    }
+    let request_uri = format!(
+        "cache/web/checkpoint-requests/{}.json",
+        uuid::Uuid::new_v4()
+    );
+    let request_path = project_path(&state.project_root, &request_uri)?;
+    let encoded = serde_json::to_vec_pretty(&body).map_err(|error| {
+        ApiError::internal(format!("cannot encode the checkpoint request: {error}"))
+    })?;
+    write_project_file(&request_path, &encoded)?;
+    let output = run_lifecycle(
+        state,
+        &["checkpoint", "save", "--request", request_uri.as_str()],
+    )
+    .map_err(checkpoint_spawn_error)?;
+    if output.exit_code != 0 {
+        return Err(classify_checkpoint_error(&output, CheckpointAction::Save));
+    }
+    Ok(http::json_ok(checkpoint_reply(
+        &output,
+        CheckpointAction::Save,
+    )?))
+}
+
+fn checkpoint_spawn_error(message: String) -> ApiError {
+    ApiError::new(500, "checkpoint_failed", message)
+}
+
+/// Parse one successful CLI checkpoint reply and pass it through as `data`.
+fn checkpoint_reply(output: &LifecycleOutput, action: CheckpointAction) -> Result<Value, ApiError> {
+    let reply: Value = serde_json::from_slice(&output.stdout).map_err(|error| {
+        ApiError::new(
+            500,
+            "checkpoint_failed",
+            format!(
+                "{} returned a reply that is not JSON: {error}",
+                action.command()
+            ),
+        )
+        .with_detail(lifecycle_detail(output))
+    })?;
+    if reply.get("schema_version").and_then(Value::as_u64) != Some(1) {
+        return Err(ApiError::new(
+            500,
+            "checkpoint_failed",
+            format!("{} returned an unsupported reply", action.command()),
+        )
+        .with_detail(lifecycle_detail(output)));
+    }
+    Ok(reply)
+}
+
+/// Parse a CLI error object if the binary printed one (on stdout or stderr).
+fn checkpoint_error_object(output: &LifecycleOutput) -> Option<Value> {
+    for bytes in [&output.stdout, &output.stderr] {
+        if let Ok(value) = serde_json::from_slice::<Value>(bytes) {
+            if value.is_object() {
+                return Some(value);
+            }
+        }
+    }
+    None
+}
+
+fn checkpoint_error_fields(output: &LifecycleOutput) -> (Option<String>, Option<String>) {
+    let Some(value) = checkpoint_error_object(output) else {
+        return (None, None);
+    };
+    let error = value.get("error");
+    let code = error
+        .and_then(|error| error.get("code"))
+        .or_else(|| value.get("code"))
+        .and_then(Value::as_str)
+        .map(str::to_owned);
+    let message = error
+        .and_then(|error| error.get("message"))
+        .or_else(|| value.get("message"))
+        .and_then(Value::as_str)
+        .map(str::to_owned);
+    (code, message)
+}
+
+fn checkpoint_message(output: &LifecycleOutput, fallback: &str) -> String {
+    let (_, message) = checkpoint_error_fields(output);
+    message.unwrap_or_else(|| lifecycle_message(output, fallback))
+}
+
+/// Map CLI failures to the HTTP contract: 400 invalid definition, 409 built-in
+/// mutation, 404 unknown id for `show`, and 500 for everything else.
+fn classify_checkpoint_error(output: &LifecycleOutput, action: CheckpointAction) -> ApiError {
+    let (code, _) = checkpoint_error_fields(output);
+    let message = checkpoint_message(output, &format!("{} failed", action.command()));
+    let lower = message.to_ascii_lowercase();
+    let detail = lifecycle_detail(output);
+    let code_lower = code.as_deref().unwrap_or_default().to_ascii_lowercase();
+    let builtin = code_lower.contains("builtin")
+        || code_lower.contains("immutable")
+        || lower.contains("built-in")
+        || lower.contains("builtin");
+    let unknown = code_lower.contains("unknown")
+        || code_lower.contains("not_found")
+        || code_lower.contains("not-found")
+        || lower.contains("unknown")
+        || lower.contains("does not exist")
+        || lower.contains("not found")
+        || lower.contains("not present");
+    // The CLI contract distinguishes `invalid_checkpoint` (definition problems)
+    // from `invalid_request` (bad CLI invocation, a server-side defect here).
+    let invalid_definition = code_lower.contains("invalid_checkpoint")
+        || code_lower.contains("validation")
+        || code_lower.contains("schema")
+        || code_lower.contains("unsupported");
+    match action {
+        CheckpointAction::Save => {
+            if builtin {
+                return ApiError::new(409, "builtin_checkpoint", message).with_detail(detail);
+            }
+            if invalid_definition {
+                return ApiError::new(400, "invalid_checkpoint", message).with_detail(detail);
+            }
+            // A plain-text/uncoded exit-2 failure is treated as an invalid
+            // definition; a coded non-definition failure is a server error.
+            if code.is_none() && output.exit_code == 2 {
+                return ApiError::new(400, "invalid_checkpoint", message).with_detail(detail);
+            }
+            ApiError::new(500, "checkpoint_failed", message).with_detail(detail)
+        }
+        CheckpointAction::Show => {
+            if unknown {
+                return ApiError::not_found("unknown_checkpoint", message);
+            }
+            ApiError::new(500, "checkpoint_failed", message).with_detail(detail)
+        }
+        CheckpointAction::List => {
+            ApiError::new(500, "checkpoint_failed", message).with_detail(detail)
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -2400,6 +2876,39 @@ mod tests {
         .unwrap()
     }
 
+    /// A frozen SimpleFlow plan carrying library bindings, shaped like the CLI
+    /// freezes them (SPEC 9.3): `checkpoint.library` plus the library entry's
+    /// rules/executor replacing the built-in checker definition.
+    fn library_frozen_plan(flow_id: &str, bindings: &[(&str, &str)]) -> Value {
+        let plan = flow_plan(flow_id);
+        let mut frozen: Value = serde_json::from_slice(&frozen_plan_bytes(&plan)).unwrap();
+        for checkpoint in frozen["checkpoints"].as_array_mut().unwrap() {
+            let checkpoint_id = checkpoint["checkpoint_id"]
+                .as_str()
+                .unwrap_or_default()
+                .to_owned();
+            let Some((_, library_id)) = bindings
+                .iter()
+                .find(|(bound_id, _)| *bound_id == checkpoint_id)
+            else {
+                continue;
+            };
+            checkpoint["library"] = json!(library_id);
+            if let Some(checker) = checkpoint
+                .get_mut("checker")
+                .filter(|checker| !checker.is_null())
+            {
+                checker["checker_id"] = json!(library_id);
+                checker["command_uri"] = json!(format!(
+                    "checkpoints/scripts/{}.py",
+                    library_id.replace('-', "_")
+                ));
+                checker["custom"] = json!({"runner": "process"});
+            }
+        }
+        frozen
+    }
+
     fn stage_ids(flow_id: &str) -> &'static [&'static str] {
         match flow_id {
             "simple-flow" => &["requirements", "design", "implement", "verify"],
@@ -2530,8 +3039,23 @@ mod tests {
         marker: Option<(&str, &str)>,
         description: Option<&str>,
     ) -> Value {
+        seed_store_wish_with_plan(project, wish_id, flow_id, status, marker, description, None)
+    }
+
+    fn seed_store_wish_with_plan(
+        project: &TestProject,
+        wish_id: &str,
+        flow_id: &str,
+        status: &str,
+        marker: Option<(&str, &str)>,
+        description: Option<&str>,
+        frozen_plan: Option<Value>,
+    ) -> Value {
         let plan = flow_plan(flow_id);
-        let plan_bytes = frozen_plan_bytes(&plan);
+        let plan_bytes = match frozen_plan {
+            Some(frozen) => serde_json::to_vec_pretty(&frozen).unwrap(),
+            None => frozen_plan_bytes(&plan),
+        };
         let plan_sha256 = crate::core::sha256_bytes(&plan_bytes);
         let run = seeded_run(wish_id, flow_id, &plan_sha256, status);
         let run_bytes = serde_json::to_vec_pretty(&run).unwrap();
@@ -2640,8 +3164,22 @@ mod tests {
         run_status: &str,
         description: &str,
     ) {
+        seed_legacy_wish_with_plan(project, wish_id, flow_id, run_status, description, None)
+    }
+
+    fn seed_legacy_wish_with_plan(
+        project: &TestProject,
+        wish_id: &str,
+        flow_id: &str,
+        run_status: &str,
+        description: &str,
+        frozen_plan: Option<Value>,
+    ) {
         let plan = flow_plan(flow_id);
-        let plan_bytes = frozen_plan_bytes(&plan);
+        let plan_bytes = match frozen_plan {
+            Some(frozen) => serde_json::to_vec_pretty(&frozen).unwrap(),
+            None => frozen_plan_bytes(&plan),
+        };
         let plan_sha256 = crate::core::sha256_bytes(&plan_bytes);
         let run = seeded_run(wish_id, flow_id, &plan_sha256, run_status);
         let directory = format!("cache/xdesign/{wish_id}");
@@ -3780,6 +4318,818 @@ mod tests {
             "uri=docs%2Fprivate.md",
         ));
         assert_eq!((status, code.as_str()), (404, "material_not_found"));
+    }
+
+    // ------------------------------------------------------------------
+    // Checkpoint library endpoints (round 2)
+    // ------------------------------------------------------------------
+
+    fn checkpoint_list_reply() -> Value {
+        json!({
+            "schema_version": 1,
+            "library_uri": "checkpoints/library.json",
+            "issues": [],
+            "checkpoints": [
+                {
+                    "checkpoint_id": "energy-budget-positive",
+                    "title": "Energy budget stays non-negative",
+                    "kind": "syntactic",
+                    "builtin": false,
+                    "version": 2,
+                    "updated_at": "2026-10-26T00:00:00Z",
+                    "tags": ["energy", "design"],
+                    "executor": {
+                        "mode": "script",
+                        "command_uri": "checkpoints/scripts/energy_budget_positive.py",
+                    },
+                    "rule_count": 2,
+                    "criteria_count": 0,
+                },
+                {
+                    "checkpoint_id": "builtin-simple-requirements",
+                    "title": "SimpleFlow requirements checker",
+                    "kind": "syntactic",
+                    "builtin": true,
+                    "version": 1,
+                    "updated_at": null,
+                    "tags": [],
+                    "executor": {
+                        "mode": "script",
+                        "command_uri": "tools/checks/simple_requirements.py",
+                    },
+                    "rule_count": 2,
+                    "criteria_count": 0,
+                },
+                {
+                    "checkpoint_id": "verification-evidence-complete",
+                    "title": "Verification evidence answers every requirement",
+                    "kind": "semantic",
+                    "builtin": false,
+                    "version": 3,
+                    "updated_at": "2026-10-26T00:00:00Z",
+                    "tags": ["verification"],
+                    "executor": null,
+                    "rule_count": 0,
+                    "criteria_count": 2,
+                },
+            ],
+        })
+    }
+
+    fn checkpoint_show_reply(checkpoint_id: &str) -> Value {
+        json!({
+            "schema_version": 1,
+            "checkpoint": {
+                "checkpoint_id": checkpoint_id,
+                "title": "Energy budget stays non-negative",
+                "description": "Deterministic check that no declared energy budget is negative.",
+                "kind": "syntactic",
+                "builtin": false,
+                "tags": ["energy"],
+                "rules": [{
+                    "rule_id": "budget-declared",
+                    "condition": "Every actuator declares a numeric energyBudget.",
+                    "reads": ["mbse/model/design.sysml"],
+                }],
+                "inputs": ["mbse/model/design.sysml"],
+                "executor": {
+                    "mode": "script",
+                    "command_uri": "checkpoints/scripts/energy_budget_positive.py",
+                },
+                "version": 2,
+                "created_at": "2026-10-26T00:00:00Z",
+                "updated_at": "2026-10-26T00:00:00Z",
+                "source": "generated",
+                "history": [],
+                "script_exists": true,
+            },
+        })
+    }
+
+    fn checkpoint_save_reply(checkpoint_id: &str) -> Value {
+        json!({
+            "schema_version": 1,
+            "checkpoint": {
+                "checkpoint_id": checkpoint_id,
+                "title": "Energy budget stays non-negative",
+                "kind": "syntactic",
+                "builtin": false,
+                "version": 2,
+            },
+            "script_uri": "checkpoints/scripts/energy_budget_positive.py",
+            "created": true,
+            "version": 2,
+        })
+    }
+
+    fn valid_checkpoint_save_body() -> Value {
+        json!({
+            "checkpoint_id": "energy-budget-positive",
+            "title": "Energy budget stays non-negative",
+            "description": "Deterministic check that no declared energy budget is negative.",
+            "kind": "syntactic",
+            "tags": ["energy", "design"],
+            "rules": [{
+                "rule_id": "budget-declared",
+                "condition": "Every actuator declares a numeric energyBudget.",
+                "reads": ["mbse/model/design.sysml"],
+            }],
+            "inputs": ["mbse/model/design.sysml"],
+            "executor": {
+                "mode": "script",
+                "command_uri": "checkpoints/scripts/energy_budget_positive.py",
+            },
+            "create_script": "scaffold",
+        })
+    }
+
+    #[test]
+    fn checkpoints_list_passes_the_cli_reply_through() {
+        let project = TestProject::new("checkpoints-list");
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        let state = test_state(&project, lifecycle.clone());
+        let data = ok_data(&get(&state, "/api/checkpoints"));
+        assert_eq!(data, checkpoint_list_reply());
+        assert_eq!(
+            lifecycle.call_args(),
+            vec![vec!["checkpoint".to_owned(), "list".to_owned()]]
+        );
+        let calls = lifecycle.calls();
+        assert_eq!(calls[0].1, project.root());
+    }
+
+    #[test]
+    fn checkpoint_list_failure_is_checkpoint_failed_with_detail() {
+        let project = TestProject::new("checkpoints-list-fail");
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: invalid entry in checkpoints/library.json",
+        ));
+        let state = test_state(&project, lifecycle);
+        let response = get(&state, "/api/checkpoints");
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (500, "checkpoint_failed"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert_eq!(value["error"]["detail"]["exit_code"], 2);
+        assert!(value["error"]["detail"]["stderr"]
+            .as_str()
+            .unwrap()
+            .contains("invalid entry"));
+    }
+
+    #[test]
+    fn checkpoints_show_passes_through_and_maps_unknown_ids() {
+        let project = TestProject::new("checkpoints-show");
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(
+            0,
+            checkpoint_show_reply("energy-budget-positive"),
+        ));
+        lifecycle.push(lifecycle_reply(
+            2,
+            json!({"schema_version": 1, "ok": false,
+                   "error": {"code": "unknown_checkpoint",
+                             "message": "unknown checkpoint: missing-id"}}),
+        ));
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: unknown checkpoint: missing-id",
+        ));
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: invalid checkpoints/library.json",
+        ));
+        let state = test_state(&project, lifecycle.clone());
+
+        let data = ok_data(&get(&state, "/api/checkpoints/energy-budget-positive"));
+        assert_eq!(
+            data["checkpoint"]["checkpoint_id"],
+            "energy-budget-positive"
+        );
+        assert_eq!(data["checkpoint"]["script_exists"], true);
+
+        let (status, code) = error_code(&get(&state, "/api/checkpoints/missing-id"));
+        assert_eq!((status, code.as_str()), (404, "unknown_checkpoint"));
+
+        // A plain-text unknown-id failure still maps to 404.
+        let (status, code) = error_code(&get(&state, "/api/checkpoints/missing-id"));
+        assert_eq!((status, code.as_str()), (404, "unknown_checkpoint"));
+
+        // Any other failure (here a malformed library) stays a server error.
+        let response = get(&state, "/api/checkpoints/missing-id");
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (500, "checkpoint_failed"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert!(value["error"]["detail"]["stderr"]
+            .as_str()
+            .unwrap()
+            .contains("invalid checkpoints/library.json"));
+
+        assert_eq!(
+            lifecycle.call_args(),
+            vec![
+                vec![
+                    "checkpoint".to_owned(),
+                    "show".to_owned(),
+                    "energy-budget-positive".to_owned()
+                ],
+                vec![
+                    "checkpoint".to_owned(),
+                    "show".to_owned(),
+                    "missing-id".to_owned()
+                ],
+                vec![
+                    "checkpoint".to_owned(),
+                    "show".to_owned(),
+                    "missing-id".to_owned()
+                ],
+                vec![
+                    "checkpoint".to_owned(),
+                    "show".to_owned(),
+                    "missing-id".to_owned()
+                ],
+            ]
+        );
+    }
+
+    #[test]
+    fn checkpoint_routes_validate_ids_and_methods() {
+        let project = TestProject::new("checkpoints-routes");
+        let lifecycle = FakeLifecycle::default();
+        let state = test_state(&project, lifecycle.clone());
+        let (status, code) = error_code(&get(&state, "/api/checkpoints/UPPER-id"));
+        assert_eq!((status, code.as_str()), (404, "not_found"));
+        let (status, code) = error_code(&post(
+            &state,
+            "/api/checkpoints/energy-budget-positive",
+            json!({}),
+        ));
+        assert_eq!((status, code.as_str()), (405, "method_not_allowed"));
+        assert!(lifecycle.calls().is_empty());
+    }
+
+    #[test]
+    fn checkpoint_save_writes_the_request_file_and_runs_the_cli() {
+        let project = TestProject::new("checkpoint-save");
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(
+            0,
+            checkpoint_save_reply("energy-budget-positive"),
+        ));
+        let state = test_state(&project, lifecycle.clone());
+        let body = valid_checkpoint_save_body();
+        let data = ok_data(&post(&state, "/api/checkpoints", body.clone()));
+        assert_eq!(data["created"], true);
+        assert_eq!(data["version"], 2);
+        assert_eq!(
+            data["script_uri"],
+            "checkpoints/scripts/energy_budget_positive.py"
+        );
+
+        let calls = lifecycle.calls();
+        assert_eq!(calls.len(), 1);
+        let args = &calls[0].0;
+        assert_eq!(args[0], "checkpoint");
+        assert_eq!(args[1], "save");
+        assert_eq!(args[2], "--request");
+        let request_uri = &args[3];
+        assert!(
+            request_uri.starts_with("cache/web/checkpoint-requests/"),
+            "{request_uri}"
+        );
+        assert!(request_uri.ends_with(".json"), "{request_uri}");
+        let written: Value = serde_json::from_str(&project.read_text(request_uri)).unwrap();
+        assert_eq!(written, body);
+        assert_eq!(calls[0].1, project.root());
+    }
+
+    #[test]
+    fn checkpoint_save_maps_invalid_builtin_and_internal_failures() {
+        let project = TestProject::new("checkpoint-save-errors");
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(
+            2,
+            json!({"schema_version": 1, "ok": false,
+                   "error": {"code": "invalid_checkpoint",
+                             "message": "syntactic checkpoint requires at least one rule"}}),
+        ));
+        lifecycle.push(lifecycle_reply(
+            2,
+            json!({"schema_version": 1, "ok": false,
+                   "error": {"code": "builtin_checkpoint",
+                             "message": "built-in checkpoints cannot be saved"}}),
+        ));
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: cannot overwrite the built-in checkpoint builtin-simple-requirements",
+        ));
+        lifecycle.push(lifecycle_failure(1, "xdesign: internal failure"));
+        let state = test_state(&project, lifecycle.clone());
+        let body = valid_checkpoint_save_body();
+
+        let response = post(&state, "/api/checkpoints", body.clone());
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (400, "invalid_checkpoint"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert!(value["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("at least one rule"));
+
+        let (status, code) = error_code(&post(&state, "/api/checkpoints", body.clone()));
+        assert_eq!((status, code.as_str()), (409, "builtin_checkpoint"));
+
+        // A plain-text built-in mutation is still classified as a conflict.
+        let (status, code) = error_code(&post(&state, "/api/checkpoints", body.clone()));
+        assert_eq!((status, code.as_str()), (409, "builtin_checkpoint"));
+
+        let response = post(&state, "/api/checkpoints", body);
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (500, "checkpoint_failed"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert_eq!(value["error"]["detail"]["exit_code"], 1);
+        assert!(value["error"]["detail"]["stderr"]
+            .as_str()
+            .unwrap()
+            .contains("internal failure"));
+    }
+
+    #[test]
+    fn checkpoint_save_rejects_malformed_requests_before_running_the_cli() {
+        let project = TestProject::new("checkpoint-save-bad");
+        let lifecycle = FakeLifecycle::default();
+        let state = test_state(&project, lifecycle.clone());
+
+        let (status, code) = error_code(&post_raw(&state, "/api/checkpoints", b"{not json"));
+        assert_eq!((status, code.as_str()), (400, "invalid_json"));
+
+        let (status, code) = error_code(&post(&state, "/api/checkpoints", json!([])));
+        assert_eq!((status, code.as_str()), (400, "invalid_checkpoint"));
+
+        assert!(lifecycle.calls().is_empty());
+        assert!(!project
+            .root()
+            .join("cache/web/checkpoint-requests")
+            .exists());
+    }
+
+    // ------------------------------------------------------------------
+    // Library bindings in create/detail (round 2)
+    // ------------------------------------------------------------------
+
+    fn library_create_body() -> Value {
+        json!({
+            "wish_id": "wish-library",
+            "title": "Library bound wish",
+            "description": "Uses a script library checkpoint and a semantic library checkpoint.",
+            "flow_id": "simple-flow",
+            "checks": [
+                {"checkpoint_id": "simpleRequirementsAccepted", "mode": "library",
+                 "library_id": "energy-budget-positive"},
+                {"checkpoint_id": "simpleDesignAccepted", "mode": "default"},
+                {"checkpoint_id": "simpleImplementationAccepted", "mode": "default"},
+                {"checkpoint_id": "simpleRecordAccepted", "mode": "default"},
+                {"checkpoint_id": "verificationAccepted", "mode": "library",
+                 "library_id": "verification-evidence-complete"},
+            ],
+        })
+    }
+
+    #[test]
+    fn create_wish_accepts_library_bindings_and_writes_them_to_the_checks_file() {
+        let project = TestProject::new("create-library");
+        let lifecycle = FakeLifecycle::default();
+        // Best-effort pre-validation reads the library once.
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        lifecycle.push(lifecycle_reply(
+            0,
+            json!({"schema_version": 1, "wish_id": "wish-library",
+                   "flow_id": "simple-flow", "store_revision": 1}),
+        ));
+        let state = test_state(&project, lifecycle.clone());
+        let data = ok_data(&post(&state, "/api/wishes", library_create_body()));
+        assert_eq!(data["wish_id"], "wish-library");
+
+        let config: Value =
+            serde_json::from_str(&project.read_text("cache/web/checks/wish-library.json")).unwrap();
+        assert_eq!(config["schema_version"], 1);
+        let checks = config["checks"].as_array().unwrap();
+        assert_eq!(checks.len(), 5);
+        let requirements = checks
+            .iter()
+            .find(|entry| entry["checkpoint_id"] == "simpleRequirementsAccepted")
+            .unwrap();
+        assert_eq!(requirements["mode"], "library");
+        assert_eq!(requirements["library_id"], "energy-budget-positive");
+        let verification = checks
+            .iter()
+            .find(|entry| entry["checkpoint_id"] == "verificationAccepted")
+            .unwrap();
+        assert_eq!(verification["mode"], "library");
+        assert_eq!(verification["library_id"], "verification-evidence-complete");
+        assert!(checks.iter().all(|entry| entry["mode"] != "cli"));
+
+        let calls = lifecycle.call_args();
+        assert_eq!(calls.len(), 2);
+        assert_eq!(calls[0], vec!["checkpoint", "list"]);
+        assert!(calls[1]
+            .windows(2)
+            .any(|pair| pair == ["--checks", "cache/web/checks/wish-library.json"]));
+    }
+
+    fn create_body_with_checks(checks: Value) -> Value {
+        json!({
+            "wish_id": "wish-kind",
+            "title": "Kind checked wish",
+            "description": "Library binding pre-validation",
+            "flow_id": "simple-flow",
+            "checks": checks,
+        })
+    }
+
+    #[test]
+    fn create_wish_prevalidates_library_kind_and_existence() {
+        let project = TestProject::new("create-library-prevalidate");
+        let lifecycle = FakeLifecycle::default();
+        for _ in 0..4 {
+            lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        }
+        lifecycle.push(lifecycle_reply(
+            0,
+            json!({"schema_version": 1, "wish_id": "wish-kind", "store_revision": 1}),
+        ));
+        let state = test_state(&project, lifecycle.clone());
+
+        // Semantic entry bound to a syntactic gate.
+        let response = post(
+            &state,
+            "/api/wishes",
+            create_body_with_checks(json!([{
+                "checkpoint_id": "simpleRequirementsAccepted",
+                "mode": "library",
+                "library_id": "verification-evidence-complete",
+            }])),
+        );
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (400, "invalid_checks"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        let message = value["error"]["message"].as_str().unwrap();
+        assert!(message.contains("is semantic"), "{message}");
+        assert!(message.contains("requires syntactic"), "{message}");
+
+        // Unknown library id.
+        let response = post(
+            &state,
+            "/api/wishes",
+            create_body_with_checks(json!([{
+                "checkpoint_id": "simpleRequirementsAccepted",
+                "mode": "library",
+                "library_id": "ghost-gate",
+            }])),
+        );
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (400, "invalid_checks"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert!(value["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("unknown library checkpoint: ghost-gate"));
+
+        // Syntactic entry bound to the semantic gate.
+        let response = post(
+            &state,
+            "/api/wishes",
+            create_body_with_checks(json!([{
+                "checkpoint_id": "verificationAccepted",
+                "mode": "library",
+                "library_id": "energy-budget-positive",
+            }])),
+        );
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (400, "invalid_checks"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        let message = value["error"]["message"].as_str().unwrap();
+        assert!(message.contains("is syntactic"), "{message}");
+        assert!(message.contains("requires semantic"), "{message}");
+
+        // Invalid bindings never wrote the wish source or ran init.
+        assert!(!project.root().join("cache/web").exists());
+        assert_eq!(lifecycle.call_args().len(), 3);
+
+        // Kind-appropriate bindings still create the wish.
+        let data = ok_data(&post(
+            &state,
+            "/api/wishes",
+            create_body_with_checks(json!([
+                {"checkpoint_id": "simpleRequirementsAccepted", "mode": "library",
+                 "library_id": "energy-budget-positive"},
+                {"checkpoint_id": "simpleDesignAccepted", "mode": "default"},
+                {"checkpoint_id": "simpleImplementationAccepted", "mode": "default"},
+                {"checkpoint_id": "simpleRecordAccepted", "mode": "default"},
+                {"checkpoint_id": "verificationAccepted", "mode": "library",
+                 "library_id": "verification-evidence-complete"},
+            ])),
+        ));
+        assert_eq!(data["wish_id"], "wish-kind");
+        let calls = lifecycle.call_args();
+        assert_eq!(calls.len(), 5);
+        assert_eq!(calls[3], vec!["checkpoint", "list"]);
+        assert_eq!(calls[4][0], "init");
+    }
+
+    #[test]
+    fn create_wish_maps_authoritative_init_binding_rejection_to_400() {
+        let project = TestProject::new("create-library-fallback");
+        let lifecycle = FakeLifecycle::default();
+        // The library cannot be read during pre-validation: init decides.
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: cannot read checkpoints/library.json",
+        ));
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: invalid check bindings: library checkpoint ghost is semantic but the gate requires syntactic",
+        ));
+        // A genuine engine/IO failure is still a server error.
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: cannot read checkpoints/library.json",
+        ));
+        lifecycle.push(lifecycle_failure(
+            1,
+            "xdesign: cannot write operational store: disk full",
+        ));
+        let state = test_state(&project, lifecycle.clone());
+        let body = create_body_with_checks(json!([{
+            "checkpoint_id": "simpleRequirementsAccepted",
+            "mode": "library",
+            "library_id": "ghost-gate",
+        }]));
+
+        let response = post(&state, "/api/wishes", body.clone());
+        let (status, code) = error_code(&response);
+        assert_eq!((status, code.as_str()), (400, "invalid_checks"));
+        let value: Value = serde_json::from_slice(&response.body).unwrap();
+        assert!(value["error"]["message"]
+            .as_str()
+            .unwrap()
+            .contains("library checkpoint ghost"));
+
+        let (status, code) = error_code(&post(&state, "/api/wishes", body));
+        assert_eq!((status, code.as_str()), (500, "init_failed"));
+    }
+
+    #[test]
+    fn create_wish_rejects_invalid_library_bindings() {
+        let project = TestProject::new("create-library-bad");
+        let lifecycle = FakeLifecycle::default();
+        let state = test_state(&project, lifecycle.clone());
+        let cases: Vec<Value> = vec![
+            // Library mode on a gate that has no library binding.
+            json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
+                   "checks": [{"checkpoint_id": "someOtherGate", "mode": "library",
+                               "library_id": "energy-budget-positive"}]}),
+            // Missing library id.
+            json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
+                   "checks": [{"checkpoint_id": "simpleRequirementsAccepted",
+                               "mode": "library"}]}),
+            // Non-slug library id.
+            json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
+                   "checks": [{"checkpoint_id": "simpleRequirementsAccepted",
+                               "mode": "library", "library_id": "Energy Budget"}]}),
+            // Library bindings are not supported for wish-verify.
+            json!({"wish_id": "w1", "title": "T", "flow_id": "wish-verify",
+                   "checks": [{"checkpoint_id": "wishAccepted", "mode": "library",
+                               "library_id": "verification-evidence-complete"}]}),
+            // The semantic gate only accepts library mode, not default.
+            json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
+                   "checks": [{"checkpoint_id": "verificationAccepted", "mode": "default"}]}),
+        ];
+        for body in cases {
+            let (status, code) = error_code(&post(&state, "/api/wishes", body.clone()));
+            assert_eq!(status, 400, "case {body}: {code}");
+            assert_eq!(code, "invalid_checks", "case {body}");
+        }
+        assert!(lifecycle.calls().is_empty());
+        assert!(!project.root().join("cache/web/checks").exists());
+    }
+
+    fn find_checkpoint<'a>(data: &'a Value, checkpoint_id: &str) -> &'a Value {
+        data["plan"]["checkpoints"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|checkpoint| checkpoint["checkpoint_id"] == checkpoint_id)
+            .unwrap()
+    }
+
+    #[test]
+    fn wish_detail_joins_the_current_library_and_exposes_library_bindings() {
+        let project = TestProject::new("detail-library");
+        let frozen = library_frozen_plan(
+            "simple-flow",
+            &[
+                ("simpleRequirementsAccepted", "energy-budget-positive"),
+                ("verificationAccepted", "verification-evidence-complete"),
+            ],
+        );
+        seed_legacy_wish_with_plan(
+            &project,
+            "wish-library-detail",
+            "simple-flow",
+            "active",
+            "Library detail",
+            Some(frozen),
+        );
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        let state = test_state(&project, lifecycle.clone());
+        let data = ok_data(&get(&state, "/api/wishes/wish-library-detail"));
+
+        let requirements = find_checkpoint(&data, "simpleRequirementsAccepted");
+        assert_eq!(requirements["library_id"], "energy-budget-positive");
+        assert_eq!(
+            requirements["checker"]["binding"],
+            json!({"mode": "library", "library_id": "energy-budget-positive"})
+        );
+        assert_eq!(
+            requirements["library"],
+            json!({
+                "checkpoint_id": "energy-budget-positive",
+                "title": "Energy budget stays non-negative",
+                "kind": "syntactic",
+                "version": 2,
+                "builtin": false,
+            })
+        );
+
+        let verification = find_checkpoint(&data, "verificationAccepted");
+        assert_eq!(verification["library_id"], "verification-evidence-complete");
+        assert_eq!(verification["checker"], Value::Null);
+        assert_eq!(
+            verification["binding"],
+            json!({"mode": "library", "library_id": "verification-evidence-complete"})
+        );
+        assert_eq!(
+            verification["library"]["title"],
+            "Verification evidence answers every requirement"
+        );
+
+        let design = find_checkpoint(&data, "simpleDesignAccepted");
+        assert_eq!(design["library_id"], Value::Null);
+        assert_eq!(design["library"], Value::Null);
+        assert_eq!(design["checker"]["binding"], json!({"mode": "default"}));
+
+        assert_eq!(data["warnings"], json!([]));
+        assert_eq!(
+            lifecycle.call_args(),
+            vec![vec!["checkpoint".to_owned(), "list".to_owned()]]
+        );
+    }
+
+    #[test]
+    fn wish_detail_joins_library_for_store_backed_wishes() {
+        let project = TestProject::new("detail-library-store");
+        let frozen = library_frozen_plan(
+            "simple-flow",
+            &[
+                ("simpleRequirementsAccepted", "energy-budget-positive"),
+                ("verificationAccepted", "verification-evidence-complete"),
+            ],
+        );
+        seed_store_wish_with_plan(
+            &project,
+            "wish-library-store",
+            "simple-flow",
+            "active",
+            Some(("Store library", "Frozen library bindings in the store plan")),
+            None,
+            Some(frozen),
+        );
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        let state = test_state(&project, lifecycle.clone());
+        let data = ok_data(&get(&state, "/api/wishes/wish-library-store"));
+        assert_eq!(data["source"], "store");
+        assert_eq!(data["head_revision"], 1);
+        let requirements = find_checkpoint(&data, "simpleRequirementsAccepted");
+        assert_eq!(requirements["library_id"], "energy-budget-positive");
+        assert_eq!(
+            requirements["checker"]["binding"],
+            json!({"mode": "library", "library_id": "energy-budget-positive"})
+        );
+        assert_eq!(
+            requirements["library"]["title"],
+            "Energy budget stays non-negative"
+        );
+        let verification = find_checkpoint(&data, "verificationAccepted");
+        assert_eq!(
+            verification["binding"],
+            json!({"mode": "library", "library_id": "verification-evidence-complete"})
+        );
+        assert_eq!(data["warnings"], json!([]));
+        assert_eq!(
+            lifecycle.call_args(),
+            vec![vec!["checkpoint".to_owned(), "list".to_owned()]]
+        );
+
+        // The list projection of the same store-backed library wish must still
+        // work (the store plan carries the frozen library member).
+        let wishes = ok_data(&get(&state, "/api/wishes"));
+        assert!(wishes["wishes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|wish| wish["wish_id"] == "wish-library-store"));
+    }
+
+    #[test]
+    fn wish_detail_warns_when_a_frozen_library_id_no_longer_resolves() {
+        let project = TestProject::new("detail-library-missing");
+        let frozen = library_frozen_plan(
+            "simple-flow",
+            &[
+                ("simpleRequirementsAccepted", "energy-budget-positive"),
+                ("simpleDesignAccepted", "removed-checkpoint"),
+            ],
+        );
+        seed_legacy_wish_with_plan(
+            &project,
+            "wish-library-missing",
+            "simple-flow",
+            "active",
+            "Missing library",
+            Some(frozen),
+        );
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
+        let state = test_state(&project, lifecycle);
+        let data = ok_data(&get(&state, "/api/wishes/wish-library-missing"));
+
+        let requirements = find_checkpoint(&data, "simpleRequirementsAccepted");
+        assert_eq!(requirements["library_id"], "energy-budget-positive");
+        assert!(requirements["library"]["title"].is_string());
+        let design = find_checkpoint(&data, "simpleDesignAccepted");
+        assert_eq!(design["library_id"], "removed-checkpoint");
+        assert_eq!(design["library"], Value::Null);
+        let warnings = data["warnings"].as_array().unwrap();
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.as_str().unwrap().contains("removed-checkpoint")),
+            "{warnings:?}"
+        );
+    }
+
+    #[test]
+    fn wish_detail_never_fails_when_the_library_is_unreadable() {
+        let project = TestProject::new("detail-library-unreadable");
+        let frozen = library_frozen_plan(
+            "simple-flow",
+            &[("simpleRequirementsAccepted", "energy-budget-positive")],
+        );
+        seed_legacy_wish_with_plan(
+            &project,
+            "wish-library-broken",
+            "simple-flow",
+            "active",
+            "Broken library",
+            Some(frozen),
+        );
+        let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_failure(
+            2,
+            "xdesign: invalid checkpoints/library.json",
+        ));
+        let state = test_state(&project, lifecycle);
+        let data = ok_data(&get(&state, "/api/wishes/wish-library-broken"));
+        let requirements = find_checkpoint(&data, "simpleRequirementsAccepted");
+        assert_eq!(requirements["library_id"], "energy-budget-positive");
+        assert_eq!(requirements["library"], Value::Null);
+        assert_eq!(
+            requirements["checker"]["binding"],
+            json!({"mode": "library", "library_id": "energy-budget-positive"})
+        );
+        let warnings = data["warnings"].as_array().unwrap();
+        assert!(
+            warnings.iter().any(|warning| warning
+                .as_str()
+                .unwrap()
+                .contains("Cannot read the checkpoint library")),
+            "{warnings:?}"
+        );
+    }
+
+    #[test]
+    fn wish_detail_does_not_run_checkpoint_list_without_library_bindings() {
+        let project = TestProject::new("detail-no-library");
+        seed_legacy_wish(&project, "wish-plain", "simple-flow", "active", "Plain");
+        let lifecycle = FakeLifecycle::default();
+        let state = test_state(&project, lifecycle.clone());
+        ok_data(&get(&state, "/api/wishes/wish-plain"));
+        assert!(lifecycle.call_args().is_empty());
     }
 
     // ------------------------------------------------------------------

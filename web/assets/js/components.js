@@ -106,7 +106,7 @@ export function openModal({ title, subtitle = "", bodyHtml = "", footerHtml = ""
   root.innerHTML = `
     <div class="modal__backdrop" data-modal-backdrop></div>
     <div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}">
-      <div class="modal__card ${size === "sm" ? "modal__card--sm" : ""}">
+      <div class="modal__card ${size === "sm" ? "modal__card--sm" : size === "lg" ? "modal__card--lg" : ""}">
         <div class="modal__head">
           <div class="modal__titles">
             <div class="modal__title">${icon(iconName)}<span>${esc(title)}</span></div>
@@ -411,6 +411,51 @@ export function mountRawJson(root) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Check-executor vocabulary (SPEC 9.6.2)                             */
+/* ------------------------------------------------------------------ */
+
+export const EXECUTOR_LABELS = {
+  default: "Built-in script",
+  cli: "Agent CLI",
+  library: "Library checkpoint",
+  command: "Project command",
+};
+
+export function executorLabel(mode) {
+  return EXECUTOR_LABELS[mode] || "Built-in script";
+}
+
+export function executorChip(mode, { library = null, cli = null, model = null, size = "chip--sm" } = {}) {
+  if (mode === "cli") {
+    return `<span class="chip chip--violet ${size}">${icon("cpu")}Agent CLI · <span class="mono">${esc(cli || "?")}:${esc(model || "?")}</span></span>`;
+  }
+  if (mode === "library") {
+    const title = library ? library.title : `missing · ${library?.checkpoint_id || ""}`;
+    return `<span class="chip chip--cyan ${size}">${icon("library")}Library · <span class="mono">${esc((library && library.checkpoint_id) || "unresolved")}</span>${library ? "" : " ⚠"}</span>`;
+  }
+  return `<span class="chip chip--green ${size}">${icon("shield")}Built-in script · script authority</span>`;
+}
+
+export function executorSummary(executor) {
+  if (!executor) return "judged (no executor)";
+  if (executor.mode === "script") return `script · ${executor.command_uri}`;
+  if (executor.mode === "cli") return `agent CLI · ${executor.cli}:${executor.model}`;
+  return executor.mode;
+}
+
+export function librarySummaryChip(library, { missingId = null, size = "chip--sm" } = {}) {
+  if (!library) {
+    return `<span class="chip chip--rose ${size}">${icon("alert-triangle")}library · <span class="mono">${esc(missingId || "unresolved")}</span></span>`;
+  }
+  return `<span class="chip chip--cyan ${size}">${icon("library")}library · <span class="mono">${esc(library.checkpoint_id)}</span> · v${esc(library.version)}${library.builtin ? " · built-in" : ""}</span>`;
+}
+
+export function checkpointKindChip(entry, size = "chip--sm") {
+  const semantic = entry && entry.kind === "semantic";
+  return `<span class="chip ${semantic ? "chip--violet" : "chip--accent"} ${size}">${semantic ? icon("sparkle") : icon("shield")}${esc(entry ? entry.kind : "unknown")}</span>`;
+}
+
+/* ------------------------------------------------------------------ */
 /* Misc helpers                                                       */
 /* ------------------------------------------------------------------ */
 
@@ -419,14 +464,17 @@ export function loadingBlock(label = "Loading…") {
 }
 
 export function fmtBinding(binding, ctx) {
-  if (!binding) return `<span class="text-faint">no binding</span>`;
+  if (!binding) return `<span class="text-faint">not bound</span>`;
   if (binding.mode === "cli") {
     return `<span class="badge chip--violet badge--mono">${icon("cpu")} ${esc(binding.cli)}:${esc(binding.model)}</span>`;
+  }
+  if (binding.mode === "library") {
+    return `<span class="badge chip--cyan badge--mono">${icon("library")} ${esc(binding.library_id || "library")}</span>`;
   }
   if (binding.mode === "command") {
     return `<span class="badge badge--soft badge--mono">${esc(binding.command_uri || "command")}</span>`;
   }
-  return `<span class="badge badge--soft badge--mono">${icon("shield")} default</span>`;
+  return `<span class="badge badge--soft badge--mono">${icon("shield")} built-in script</span>`;
 }
 
 export function outcomeBadge(outcome) {

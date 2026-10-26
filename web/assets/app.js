@@ -10,12 +10,19 @@ import {
   statusChip,
 } from "./js/util.js";
 import { toastError, toastWarn, toastInfo, closeModal, errorState } from "./js/components.js";
-import { SAMPLE_HEALTH, SAMPLE_FLOWS, SAMPLE_WISHES } from "./js/sample-data.mjs";
+import {
+  SAMPLE_HEALTH,
+  SAMPLE_FLOWS,
+  SAMPLE_WISHES,
+  getSampleCheckpointLibrary,
+  getSampleCheckpoint,
+} from "./js/sample-data.mjs";
 import { overviewView } from "./js/views/overview.js";
 import { wishesView } from "./js/views/wishes.js";
 import { wizardView } from "./js/views/wizard.js";
 import { wishDetailView } from "./js/views/wish-detail.js";
 import { flowsView } from "./js/views/flows.js";
+import { checkpointsView } from "./js/views/checkpoints.js";
 
 const APP_VERSION = "0.1.0";
 const POLL_INTERVAL_MS = 4000;
@@ -33,6 +40,11 @@ class WishFlowApp {
       agents: [],
       flowById: new Map(),
       wishes: [],
+      checkpoints: [],
+      checkpointById: new Map(),
+      checkpointsLoaded: false,
+      checkpointsError: null,
+      checkpointDetailById: new Map(),
       sampleMode: false,
       sampleReason: "",
       demoRequested: DEMO_REQUESTED,
@@ -48,6 +60,7 @@ class WishFlowApp {
       new: wizardView,
       "wish-detail": wishDetailView,
       flows: flowsView,
+      checkpoints: checkpointsView,
     };
     this.current = null;
     this.pollTimer = null;
@@ -124,10 +137,58 @@ class WishFlowApp {
     }
   }
 
+  async loadCheckpoints({ force = false } = {}) {
+    if (this.state.checkpointsLoaded && !force) return this.state.checkpoints;
+    if (this.state.sampleMode) {
+      this.setCheckpoints(getSampleCheckpointLibrary().checkpoints);
+      this.state.checkpointsError = null;
+      return this.state.checkpoints;
+    }
+    try {
+      const payload = await api.checkpoints();
+      const list = Array.isArray(payload && payload.checkpoints) ? payload.checkpoints : [];
+      this.setCheckpoints(list);
+      this.state.checkpointsError = null;
+    } catch (error) {
+      this.setCheckpoints([]);
+      this.state.checkpointsError = error;
+    }
+    return this.state.checkpoints;
+  }
+
+  setCheckpoints(list) {
+    this.state.checkpoints = list || [];
+    this.state.checkpointById = new Map(this.state.checkpoints.map((entry) => [entry.checkpoint_id, entry]));
+    this.state.checkpointsLoaded = true;
+    this.state.checkpointDetailById = new Map();
+  }
+
+  async loadCheckpointDetail(checkpointId, { force = false } = {}) {
+    if (!checkpointId) return null;
+    if (!force && this.state.checkpointDetailById.has(checkpointId)) {
+      return this.state.checkpointDetailById.get(checkpointId);
+    }
+    try {
+      const reply = this.state.sampleMode
+        ? getSampleCheckpoint(checkpointId)
+        : await api.checkpoint(checkpointId);
+      if (!reply || !reply.checkpoint) return null;
+      this.state.checkpointDetailById.set(checkpointId, reply.checkpoint);
+      return reply.checkpoint;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  checkpointSuggestions(kind) {
+    return this.state.checkpoints.filter((entry) => !kind || entry.kind === kind);
+  }
+
   enterSampleMode(reason = "offline") {
     this.state.sampleMode = true;
     this.state.sampleReason = reason;
     this.state.wishes = sortWishes(SAMPLE_WISHES);
+    this.setCheckpoints(getSampleCheckpointLibrary().checkpoints);
     if (this.state.metaFromSample || this.state.flows.length === 0) {
       this.state.flows = SAMPLE_FLOWS.flows;
       this.state.agents = SAMPLE_FLOWS.agents;
@@ -137,8 +198,14 @@ class WishFlowApp {
   }
 
   exitSampleMode() {
+    const wasSample = this.state.sampleMode;
     this.state.sampleMode = false;
     this.state.sampleReason = "";
+    if (wasSample) {
+      this.state.checkpointsLoaded = false;
+      this.state.checkpoints = [];
+      this.state.checkpointById = new Map();
+    }
   }
 
   /* ---------------------------------------------------------------- */
@@ -154,6 +221,7 @@ class WishFlowApp {
       <a class="mobile-nav__link" href="#/overview" data-route="overview" aria-label="Overview"><span data-icon="overview"></span><span>Overview</span></a>
       <a class="mobile-nav__link" href="#/wishes" data-route="wishes" aria-label="Wishes"><span data-icon="wishes"></span><span>Wishes</span></a>
       <a class="mobile-nav__link mobile-nav__link--primary" href="#/new" data-route="new" aria-label="New wish"><span data-icon="plus"></span></a>
+      <a class="mobile-nav__link" href="#/checkpoints" data-route="checkpoints" aria-label="Checkpoints"><span data-icon="library"></span><span>Library</span></a>
       <a class="mobile-nav__link" href="#/flows" data-route="flows" aria-label="Flows"><span data-icon="flows"></span><span>Flows</span></a>`;
     document.body.appendChild(nav);
     hydrateIcons(nav);

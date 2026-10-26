@@ -5,13 +5,13 @@
 // the chosen bindings are frozen into the plan by `xdesign init`.
 
 import { api, ApiError } from "../api.js";
-import { esc, icon, suggestWishId, flowChip, parseHash } from "../util.js";
+import { esc, icon, suggestWishId, flowChip, parseHash, relativeTime } from "../util.js";
 import { toastOk, toastError, toastWarn } from "../components.js";
 
 const STEPS = [
   { key: "identity", label: "Identity", title: "Name the wish", sub: "A stable wish id, a short title and the intent behind it." },
   { key: "flow", label: "Flow", title: "Choose a flow", sub: "The flow decides the stages, the gates and the checks that run." },
-  { key: "checks", label: "Checks", title: "Bind the checks", sub: "SimpleFlow exposes four check nodes; each runs the deterministic default or an agent CLI execution." },
+  { key: "checks", label: "Checks", title: "Bind the checks", sub: "Stage work is always performed by the working agent; each binding selects only who verifies the checkpoint." },
   { key: "review", label: "Review", title: "Review and create", sub: "Confirm the wish and the frozen per-node bindings before creating the plan." },
 ];
 
@@ -106,6 +106,7 @@ function ensureDraft(app) {
         cli,
         model: defaultModelFor(app, cli),
         modelOverride: "",
+        libraryId: "",
       };
     }
   }
@@ -132,20 +133,421 @@ function validateIdentity(current) {
   return errors;
 }
 
+function libraryEntries(app, kind) {
+  return (app.state.checkpoints || []).filter((entry) => !kind || entry.kind === kind);
+}
+
+function findLibraryEntry(app, libraryId) {
+  if (!libraryId) return null;
+  return (app.state.checkpoints || []).find((entry) => entry.checkpoint_id === libraryId) || null;
+}
+
+function selectedLibraryDetail(app, libraryId) {
+  return (app.state.checkpointDetailById && app.state.checkpointDetailById.get(libraryId)) || null;
+}
+
+function renderCheckCard(app, current, flow, node, index, agents, { libraryError = null } = {}) {
+  const binding = current.checks[node.checkpoint_id] || {
+    mode: "default",
+    cli: defaultCli(app),
+    model: defaultModelFor(app, defaultCli(app)),
+    modelOverride: "",
+    libraryId: "",
+  };
+  const mode = binding.mode || "default";
+  const isCli = mode === "cli";
+  const isLibrary = mode === "library";
+  const agent = agentFor(app, binding.cli);
+  const available = Boolean(agent && agent.available);
+  const checker = node.checker || {};
+  const ruleCount = (checker.rules || []).length;
+  const stage = (flow.stages || []).find((entry) => entry.stage_id === node.stage_id);
+  const models = (agent && agent.models) || [];
+  const effectiveModel = (binding.modelOverride || "").trim() || binding.model;
+  const libraryChoices = libraryEntries(app, "syntactic");
+  const entry = findLibraryEntry(app, binding.libraryId);
+  const entryDetail = selectedLibraryDetail(app, binding.libraryId);
+  const entryRules = entryDetail && entryDetail.rules ? entryDetail.rules : [];
+  const previewDefinition = entryDetail || entry;
+  const effectiveRuleCount = isLibrary ? (previewDefinition ? previewDefinition.rule_count ?? (entryRules || []).length : 0) : ruleCount;
+  const error = current.errors[node.checkpoint_id];
+  const modeChip = isCli
+    ? `<span class="chip chip--violet chip--sm">${icon("cpu")}Agent CLI</span>`
+    : isLibrary
+      ? `<span class="chip chip--cyan chip--sm">${icon("library")}Library checkpoint</span>`
+      : `<span class="chip chip--green chip--sm">${icon("shield")}Built-in script</span>`;
+
+  const executorCell = `<div class="check-card__control">
+      <span class="check-card__control-label">Check executor</span>
+      <div class="segmented" role="group" aria-label="Check executor for ${esc(node.checkpoint_id)}">
+        <button class="segmented__opt ${mode === "default" ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="default" aria-pressed="${mode === "default"}">${icon("shield")}Built-in script</button>
+        <button class="segmented__opt ${isCli ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="cli" aria-pressed="${isCli}">${icon("cpu")}Agent CLI</button>
+        <button class="segmented__opt ${isLibrary ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="library" aria-pressed="${isLibrary}" ${libraryError ? "disabled" : ""}>${icon("library")}Library</button>
+      </div>
+      <span class="check-card__hint">${mode === "default" ? "Repository checker · script authority." : isCli ? "Separate CLI run · agent authority." : "Frozen library rules and executor."}</span>
+    </div>`;
+
+  const primaryCell = isCli
+    ? `<div class="check-card__control">
+        <span class="check-card__control-label">CLI</span>
+        <select class="select" data-check-cli="${esc(node.checkpoint_id)}" aria-label="Agent CLI for ${esc(node.checkpoint_id)}">
+          ${agents.map((entry2) => `<option value="${esc(entry2.cli)}" ${entry2.cli === binding.cli ? "selected" : ""}>${esc(entry2.cli)}${entry2.available ? "" : " · off"}</option>`).join("")}
+        </select>
+        <span class="check-card__hint">${available ? esc(agent.version || "detected") : "not detected on this machine"}</span>
+      </div>`
+    : isLibrary
+      ? `<div class="check-card__control">
+          <span class="check-card__control-label">Library checkpoint</span>
+          <select class="select" data-check-library="${esc(node.checkpoint_id)}" aria-label="Library checkpoint for ${esc(node.checkpoint_id)}" ${libraryError ? "disabled" : ""}>
+            <option value="">Select a syntactic entry…</option>
+            ${libraryChoices
+              .map((candidate) => {
+                const rules = candidate.rule_count ?? 0;
+                const executor = candidate.executor
+                  ? candidate.executor.mode === "cli"
+                    ? `agent CLI ${candidate.executor.cli}:${candidate.executor.model}`
+                    : `script ${candidate.executor.command_uri}`
+                  : "judged";
+                return `<option value="${esc(candidate.checkpoint_id)}" ${candidate.checkpoint_id === binding.libraryId ? "selected" : ""}>${esc(candidate.title)} · ${esc(candidate.checkpoint_id)} · ${rules} rule${rules === 1 ? "" : "s"} · ${esc(executor)}</option>`;
+              })
+              .join("")}
+          </select>
+          <span class="check-card__hint">${libraryChoices.length} syntactic entr${libraryChoices.length === 1 ? "y" : "ies"} available</span>
+        </div>`
+      : `<div class="check-card__control">
+          <span class="check-card__control-label">Built-in checker</span>
+          <div class="check-card__static" title="${esc(checker.command_uri || "")}">${icon("terminal")}${esc(checker.checker_id || node.title)}</div>
+          <span class="check-card__hint">${esc(truncateMiddle(checker.command_uri || "built-in checker", 34))}</span>
+        </div>`;
+
+  const secondaryCell = isCli
+    ? `<div class="check-card__control">
+        <span class="check-card__control-label">Model</span>
+        <select class="select" data-check-model="${esc(node.checkpoint_id)}" aria-label="Model for ${esc(node.checkpoint_id)}">
+          ${models.map((model) => `<option value="${esc(model.id)}" ${model.id === binding.model ? "selected" : ""}>${esc(model.label || model.id)}</option>`).join("")}
+          ${models.length === 0 ? `<option value="${esc(binding.model)}" selected>${esc(binding.model || "default")}</option>` : ""}
+        </select>
+        <span class="check-card__hint">from <span class="mono">/api/flows</span></span>
+      </div>`
+    : isLibrary
+      ? `<div class="check-card__control">
+          <span class="check-card__control-label">Entry executor</span>
+          <div class="check-card__static" title="${esc(entry ? (entry.executor && entry.executor.mode === "cli" ? `${entry.executor.cli}:${entry.executor.model}` : (entry.executor && entry.executor.command_uri) || "judged") : "no entry selected")}">
+            ${icon("terminal")}${esc(entry ? (entry.executor && entry.executor.mode === "cli" ? `${entry.executor.cli}:${entry.executor.model}` : (entry.executor && entry.executor.command_uri ? entry.executor.command_uri.split("/").pop() : "judged")) : "no entry selected")}
+          </div>
+          <span class="check-card__hint" title="${esc(entry && entry.executor && entry.executor.command_uri ? entry.executor.command_uri : "")}">${entry ? (entry.executor && entry.executor.mode === "cli" ? "agent execution" : "script execution") : "choose an entry"} · ${entry ? (entry.builtin ? "built-in" : "user") : ""}</span>
+        </div>`
+      : `<div class="check-card__control">
+          <span class="check-card__control-label">Authority</span>
+          <div class="check-card__static">${icon("shield")}script authority</div>
+          <span class="check-card__hint">recorded assessor ${esc(checker.checker_id || node.title)}</span>
+        </div>`;
+
+  const tertiaryCell = isCli
+    ? `<div class="check-card__control">
+        <span class="check-card__control-label">Model override</span>
+        <input class="input input--mono" data-check-model-override="${esc(node.checkpoint_id)}" value="${esc(binding.modelOverride || "")}" placeholder="optional model id" spellcheck="false" autocomplete="off" aria-label="Free-text model override for ${esc(node.checkpoint_id)}" />
+        <span class="check-card__hint">effective <span class="mono" data-effective-model="${esc(node.checkpoint_id)}">${esc(effectiveModel || "—")}</span></span>
+      </div>`
+    : isLibrary
+      ? `<div class="check-card__control">
+          <span class="check-card__control-label">Version</span>
+          <div class="check-card__static">${icon("git-commit")}${entry ? `v${esc(entry.version)} · ${effectiveRuleCount} rule${effectiveRuleCount === 1 ? "" : "s"}` : "—"}</div>
+          <span class="check-card__hint">${entry ? `updated ${esc(relativeTime(entry.updated_at))}` : "select an entry to preview rules"}</span>
+        </div>`
+      : `<div class="check-card__control">
+          <span class="check-card__control-label">Declared rules</span>
+          <div class="check-card__static">${icon("diamond")}${ruleCount} rule${ruleCount === 1 ? "" : "s"}</div>
+          <span class="check-card__hint">${esc((checker.establishes || []).slice(0, 2).join(", ") || "deterministic checker")}</span>
+        </div>`;
+
+  const preview = isLibrary
+    ? `<div class="check-card__preview">
+        <div class="check-card__preview-head"><span>${icon("library")}rules frozen into the plan</span>${entry ? `<span class="check-card__preview-title">${esc(entry.title)}</span>` : ""}</div>
+        ${
+          !binding.libraryId
+            ? '<span class="check-card__preview-empty">Select a library checkpoint to preview its rules.</span>'
+            : entryRules.length
+              ? entryRules.map((rule) => `<div class="check-card__preview-rule"><span class="mono">${esc(rule.rule_id)}</span><span>${esc(rule.condition)}</span></div>`).join("")
+              : '<span class="check-card__preview-empty">Loading library rules…</span>'
+        }
+      </div>`
+    : "";
+
+  return `<div class="check-card ${isCli ? "is-cli" : ""} ${isLibrary ? "is-library" : ""}" data-check-card="${esc(node.checkpoint_id)}" data-executor="${esc(mode)}">
+    <div class="check-card__head">
+      <span class="check-card__order">${String(index + 1).padStart(2, "0")}</span>
+      <div class="check-card__titles">
+        <div class="check-card__title">
+          <span class="check-card__name">${esc(isLibrary ? entry ? entry.title : "Library checkpoint" : checker.checker_id || node.title)}</span>
+          <span class="check-card__id">${esc(node.checkpoint_id)}</span>
+          <span class="chip chip--sm">${esc(stage ? stage.title : node.stage_id)}</span>
+          ${modeChip}
+        </div>
+        <div class="check-card__meta">
+          <span>${effectiveRuleCount} rule${effectiveRuleCount === 1 ? "" : "s"}</span>
+          <span class="sep-dot"></span>
+          <span class="mono">${esc(isCli ? "agent CLI execution" : isLibrary ? (entry ? entry.checkpoint_id : "library entry pending") : checker.command_uri || "built-in checker")}</span>
+        </div>
+      </div>
+    </div>
+    <div class="check-card__body">
+      ${executorCell}
+      ${primaryCell}
+      ${secondaryCell}
+      ${tertiaryCell}
+      ${preview}
+    </div>
+    <div class="field__error" data-check-error="${esc(node.checkpoint_id)}" style="padding:0 15px 12px 53px" ${error ? "" : "hidden"}>${error ? `${icon("alert-circle")}${esc(error)}` : ""}</div>
+  </div>`;
+}
+
+function renderSemanticCard(app, current, flow, { libraryError = null } = {}) {
+  const gate = (flow.checkpoints || []).find((checkpoint) => checkpoint.checkpoint_id === "verificationAccepted");
+  if (!gate) return "";
+  const state = current.semantic || { mode: "default", libraryId: "" };
+  const isLibrary = state.mode === "library";
+  const choices = libraryEntries(app, "semantic");
+  const entry = findLibraryEntry(app, state.libraryId);
+  const detail = selectedLibraryDetail(app, state.libraryId);
+  const criteria = isLibrary ? (detail && detail.criteria) || [] : gate.criteria || [];
+  const error = current.errors.verificationAccepted;
+  const judges = isLibrary && entry ? "library-defined" : "agent + human";
+  return `<div class="semantic-card" data-semantic-card>
+    <div class="semantic-card__head">
+      <span class="semantic-card__order">${icon("sparkle")}</span>
+      <div class="check-card__titles">
+        <div class="check-card__title">
+          <span class="check-card__name">verificationAccepted</span>
+          <span class="check-card__id">SimpleFlow · semantic gate</span>
+          <span class="chip chip--violet chip--sm">${icon("sparkle")}semantic judgment</span>
+          <span class="chip chip--sm">${esc(gate.stage_id)}</span>
+          ${isLibrary ? `<span class="chip chip--cyan chip--sm">${icon("library")}Library checkpoint</span>` : `<span class="chip chip--green chip--sm">${icon("shield")}Default criteria</span>`}
+        </div>
+        <div class="check-card__meta">
+          <span>${criteria.length} ${isLibrary ? "library" : "flow"} criteria</span>
+          <span class="sep-dot"></span>
+          <span>${esc(judges)}</span>
+          <span class="sep-dot"></span>
+          <span class="mono">${entry ? `v${esc(entry.version)} · ${esc(entry.checkpoint_id)}` : "the flow's declared semantic gate"}</span>
+        </div>
+      </div>
+    </div>
+    <div class="semantic-card__body">
+      <div class="check-card__control">
+        <span class="check-card__control-label">Check executor</span>
+        <div class="segmented" role="group" aria-label="Check executor for the verification gate">
+          <button class="segmented__opt ${!isLibrary ? "is-active" : ""}" type="button" data-semantic-mode="default" aria-pressed="${!isLibrary}">${icon("shield")}Default criteria</button>
+          <button class="segmented__opt ${isLibrary ? "is-active" : ""}" type="button" data-semantic-mode="library" aria-pressed="${isLibrary}" ${libraryError ? "disabled" : ""}>${icon("library")}Library</button>
+        </div>
+        <span class="check-card__hint">${isLibrary ? "A permitted judge applies the frozen semantic criteria." : "A permitted judge applies the flow's declared criteria."}</span>
+      </div>
+      <div class="check-card__control">
+        <span class="check-card__control-label">Semantic checkpoint</span>
+        ${
+          isLibrary
+            ? `<select class="select" data-semantic-library aria-label="Semantic library checkpoint" ${libraryError ? "disabled" : ""}>
+                <option value="">Select a semantic entry…</option>
+                ${choices.map((candidate) => `<option value="${esc(candidate.checkpoint_id)}" ${candidate.checkpoint_id === state.libraryId ? "selected" : ""}>${esc(candidate.title)} · ${esc(candidate.checkpoint_id)} · ${candidate.criteria_count || 0} criteria</option>`).join("")}
+              </select>
+              <span class="check-card__hint">${choices.length} semantic entr${choices.length === 1 ? "y" : "ies"} available</span>`
+            : `<div class="check-card__static">${icon("shield")}flow criteria</div>
+               <span class="check-card__hint">declared by SimpleFlow verification</span>`
+        }
+      </div>
+      <div class="check-card__control">
+        <span class="check-card__control-label">Judges</span>
+        <div class="check-card__static">${icon("sparkle")}${esc(judges)}</div>
+        <span class="check-card__hint">${isLibrary ? "from the frozen library entry" : `agent ${gate.agent_may_judge ? "permitted" : "not permitted"} · human ${gate.human_may_judge ? "permitted" : "not permitted"}`}</span>
+      </div>
+      <div class="check-card__control">
+        <span class="check-card__control-label">Version</span>
+        <div class="check-card__static">${icon("git-commit")}${entry ? `v${esc(entry.version)}` : "flow default"}</div>
+        <span class="check-card__hint">${isLibrary ? "library frozen into the plan" : "no executor: the gate is judged"}</span>
+      </div>
+      <div class="semantic-card__criteria">
+        <div class="check-card__preview-head">${icon("sparkle")}Criteria frozen into the plan</div>
+        ${
+          criteria.length
+            ? `<ul class="semantic-card__criteria">${criteria.map((criterion) => `<li>${esc(criterion)}</li>`).join("")}</ul>`
+            : `<span class="check-card__preview-empty">${isLibrary && state.libraryId ? "Loading library criteria…" : "Select a semantic library checkpoint to preview its criteria."}</span>`
+        }
+      </div>
+    </div>
+    <div class="field__error" data-check-error="verificationAccepted" style="padding:0 15px 12px 53px" ${error ? "" : "hidden"}>${error ? `${icon("alert-circle")}${esc(error)}` : ""}</div>
+  </div>`;
+}
+
+function truncateMiddle(value, max) {
+  const text = String(value || "");
+  if (text.length <= max) return text;
+  const half = Math.floor((max - 1) / 2);
+  return `${text.slice(0, half)}…${text.slice(text.length - half)}`;
+}
+
+function renderReview(app, current) {
+  const flow = flowFor(app, current.flowId);
+  const sample = app.state.sampleMode;
+  const nodes = flow && flow.flow_id === "simple-flow" ? checkNodeInfo(app, flow) : [];
+  const semanticState = current.semantic || { mode: "default", libraryId: "" };
+  const semanticEntry = findLibraryEntry(app, semanticState.libraryId);
+  return `<div class="review">
+    <div class="review__block">
+      <div class="review__block-head">
+        <span class="review__block-title">Wish</span>
+        ${flowChip(current.flowId)}
+      </div>
+      <div class="review__wish-title">${esc(current.title.trim() || "Untitled wish")}</div>
+      <div class="review__wish-id">${esc(current.wishId.trim() || "wish-id-pending")}</div>
+      ${current.description.trim() ? `<div class="review__wish-desc">${esc(current.description.trim())}</div>` : '<div class="review__wish-desc text-faint">No description.</div>'}
+      <div class="review__meta">
+        ${flow ? `<span class="chip chip--mono chip--sm">${(flow.stages || []).length} stages</span>` : ""}
+        ${flow ? `<span class="chip chip--mono chip--sm">${(flow.checkpoints || []).length} checkpoints</span>` : ""}
+        <span class="chip chip--mono chip--sm">source · store</span>
+      </div>
+    </div>
+    <div class="review__block">
+      <div class="review__block-head">
+        <span class="review__block-title">Check executors</span>
+        <span class="chip chip--sm">${flow && flow.flow_id === "simple-flow" ? "frozen into plan" : "semantic judgments"}</span>
+      </div>
+      ${
+        nodes.length > 0
+          ? `<div class="review__bindings">${nodes
+              .map((node) => {
+                const binding = current.checks[node.checkpoint_id] || { mode: "default" };
+                const model = (binding.modelOverride || "").trim() || binding.model;
+                const entry = findLibraryEntry(app, binding.libraryId);
+                const isCli = binding.mode === "cli";
+                const isLibrary = binding.mode === "library";
+                return `<div class="review-binding ${isCli ? "is-cli" : ""} ${isLibrary ? "is-library" : ""}">
+                  <span class="review-binding__name">${esc(node.checker.checker_id || node.title)}</span>
+                  <span class="review-binding__mode">
+                    ${
+                      isCli
+                        ? `${icon("cpu")}<span class="badge chip--violet badge--mono">Agent CLI · ${esc(binding.cli)}:${esc(model)}</span>`
+                        : isLibrary
+                          ? `${icon("library")}<span class="badge chip--cyan badge--mono">Library · ${esc(entry ? entry.title : binding.libraryId || "not selected")}</span>`
+                          : `${icon("shield")}<span class="badge badge--soft badge--mono">Built-in script</span>`
+                    }
+                  </span>
+                </div>`;
+              })
+              .join("")}
+              <div class="review-binding ${semanticState.mode === "library" ? "is-library" : ""}">
+                <span class="review-binding__name">verificationAccepted <span class="text-faint">· semantic</span></span>
+                <span class="review-binding__mode">
+                  ${semanticState.mode === "library" ? `${icon("library")}<span class="badge chip--cyan badge--mono">Library · ${esc(semanticEntry ? semanticEntry.title : semanticState.libraryId || "not selected")}</span>` : `${icon("sparkle")}<span class="badge badge--soft badge--mono">Default criteria</span>`}
+                </span>
+              </div></div>`
+          : `<div class="review__bindings">${(flow ? flow.checkpoints : [])
+              .map((checkpoint) => `<div class="review-binding"><span class="review-binding__name">${esc(checkpoint.title)}</span><span class="review-binding__mode">${icon("sparkle")}<span class="badge badge--soft badge--mono">judged at ${esc(checkpoint.stage_id)}</span></span></div>`)
+              .join("")}</div>`
+      }
+    </div>
+    <div class="review__notice">${icon("info")}<span><strong>What creation does.</strong> The wizard writes the wish source and, when a binding is not the default, a binding configuration. <span class="mono">xdesign init</span> then creates the store item and freezes the plan — including these check executors — before any stage work begins. <strong>Stage work is never started automatically:</strong> hand the work order to a working agent from the wish detail page.</span></div>
+    ${sample ? `<div class="review__notice">${icon("alert-triangle")}<span><strong>Sample mode.</strong> Creation is disabled for the labelled demo dataset. Start <span class="mono">xdesign web</span> against a real store to create this wish.</span></div>` : ""}
+    <div class="form-error" data-create-error ${current.createError ? "" : "hidden"}>${icon("alert-circle")}<span>${esc(current.createError || "")}</span></div>
+  </div>`;
+}
+
+function renderStepFoot(app, current) {
+  const isFirst = current.step === 0;
+  const isLast = current.step === STEPS.length - 1;
+  const sample = app.state.sampleMode;
+  return `<div class="wizard-card__foot">
+    <div class="row">
+      ${isFirst ? "" : `<button class="btn btn--ghost" type="button" data-step="${current.step - 1}">${icon("chevron-left")}Back</button>`}
+    </div>
+    <div class="row">
+      ${isLast ? "" : `<button class="btn btn--primary" type="button" data-next-step>${current.step === 2 ? "Review" : "Continue"}${icon("chevron")}</button>`}
+      ${
+        isLast
+          ? `<button class="btn btn--primary btn--lg ${current.submitting ? "is-busy" : ""}" type="button" data-create-wish ${sample || current.submitting ? "disabled" : ""} title="${sample ? "Writes are disabled in sample mode" : ""}">
+              ${current.submitting ? "" : icon("sparkle")}${current.submitting ? "Creating…" : "Create wish"}
+            </button>`
+          : ""
+      }
+    </div>
+  </div>`;
+}
+
+function renderSummary(app, current) {
+  const flow = flowFor(app, current.flowId);
+  const nodes = flow && flow.flow_id === "simple-flow" ? checkNodeInfo(app, flow) : [];
+  const cliCount = nodes.filter((node) => current.checks[node.checkpoint_id] && current.checks[node.checkpoint_id].mode === "cli").length;
+  const libraryCount = nodes.filter((node) => current.checks[node.checkpoint_id] && current.checks[node.checkpoint_id].mode === "library").length + (current.semantic && current.semantic.mode === "library" ? 1 : 0);
+  return `<div class="card summary-card">
+    <div class="summary-card__title">${icon("sparkle")}Draft summary</div>
+    <div class="summary-row"><span class="summary-row__key">Wish id</span><span class="summary-row__value mono">${esc(current.wishId || "—")}</span></div>
+    <div class="summary-row"><span class="summary-row__key">Title</span><span class="summary-row__value">${esc(current.title || "—")}</span></div>
+    <div class="summary-row"><span class="summary-row__key">Flow</span><span class="summary-row__value mono">${esc(current.flowId)}</span></div>
+    <div class="summary-row"><span class="summary-row__key">Gates</span><span class="summary-row__value mono">${nodes.length || (flow ? flow.checkpoints.length : 0)}</span></div>
+    <div class="summary-row"><span class="summary-row__key">Agent CLI</span><span class="summary-row__value mono">${cliCount} of ${nodes.length || 0}</span></div>
+    <div class="summary-row"><span class="summary-row__key">Library</span><span class="summary-row__value mono">${libraryCount} bound</span></div>
+    <div class="summary-progress" aria-hidden="true">
+      ${STEPS.map((step, index) => `<i class="${index < current.step ? "is-done" : index === current.step ? "is-active" : ""}"></i>`).join("")}
+      <span>step ${current.step + 1}/${STEPS.length}</span>
+    </div>
+  </div>`;
+}
+
+function renderWhatHappens(app) {
+  return `<div class="card summary-card">
+    <div class="summary-card__title">${icon("layers")}What happens on create</div>
+    <div class="work-result__list">
+      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">1 — Write the wish source marker and the optional binding configuration.</div>
+      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">2 — Run <span class="mono" style="color:var(--ink-soft)">xdesign init</span> to create the store item at revision 1.</div>
+      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">3 — Freeze the plan, including every check binding, then open the wish detail.</div>
+    </div>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Behaviour                                                          */
+/* ------------------------------------------------------------------ */
+
+function focusFirstError(root) {
+  const invalid = root.querySelector(".is-invalid");
+  if (invalid) {
+    invalid.focus({ preventScroll: true });
+    invalid.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Validation (check executors)                                       */
+/* ------------------------------------------------------------------ */
+
 function validateChecks(app) {
   const errors = {};
   const flow = flowFor(app, draft.flowId);
   if (!flow || flow.flow_id !== "simple-flow") return errors;
   for (const node of checkNodeInfo(app, flow)) {
     const binding = draft.checks[node.checkpoint_id];
-    if (!binding || binding.mode !== "cli") continue;
-    if (!["codex", "kimi"].includes(binding.cli)) {
-      errors[node.checkpoint_id] = "Choose codex or kimi for an agent CLI binding.";
+    if (!binding) continue;
+    if (binding.mode === "cli") {
+      if (!["codex", "kimi"].includes(binding.cli)) {
+        errors[node.checkpoint_id] = "Choose codex or kimi for an Agent CLI executor.";
+        continue;
+      }
+      const model = (binding.modelOverride || "").trim() || binding.model;
+      if (!model) errors[node.checkpoint_id] = "An Agent CLI executor needs a non-empty model id.";
+      else if (model.length > 200) errors[node.checkpoint_id] = "The model id must be 200 characters or fewer.";
       continue;
     }
-    const model = (binding.modelOverride || "").trim() || binding.model;
-    if (!model) errors[node.checkpoint_id] = "An agent CLI binding needs a non-empty model id.";
-    else if (model.length > 200) errors[node.checkpoint_id] = "The model id must be 200 characters or fewer.";
+    if (binding.mode === "library") {
+      const entry = findLibraryEntry(app, binding.libraryId);
+      if (!binding.libraryId) errors[node.checkpoint_id] = "Select a library checkpoint for this gate.";
+      else if (!entry) errors[node.checkpoint_id] = `Library checkpoint ${binding.libraryId} is no longer available.`;
+      else if (entry.kind !== "syntactic") errors[node.checkpoint_id] = "This gate needs a syntactic library checkpoint.";
+    }
+  }
+  if (draft.semantic && draft.semantic.mode === "library") {
+    const entry = findLibraryEntry(app, draft.semantic.libraryId);
+    if (!draft.semantic.libraryId) errors.verificationAccepted = "Select a semantic library checkpoint for the verification gate.";
+    else if (!entry) errors.verificationAccepted = `Library checkpoint ${draft.semantic.libraryId} is no longer available.`;
+    else if (entry.kind !== "semantic") errors.verificationAccepted = "The verification gate needs a semantic library checkpoint.";
   }
   return errors;
 }
@@ -170,15 +572,24 @@ export const wizardView = {
 
   async load(app) {
     if (!app.state.flows.length) await app.loadMeta();
+    await app.loadCheckpoints();
     const { params } = parseHash(location.hash);
     const stepParam = Number(params.get("step"));
     if (Number.isInteger(stepParam) && stepParam >= 0 && stepParam < STEPS.length) {
       ensureDraft(app).step = stepParam;
     }
+    const current = ensureDraft(app);
+    const selected = [
+      ...Object.values(current.checks || {})
+        .filter((binding) => binding.mode === "library" && binding.libraryId)
+        .map((binding) => binding.libraryId),
+      ...(current.semantic && current.semantic.mode === "library" && current.semantic.libraryId ? [current.semantic.libraryId] : []),
+    ];
+    await Promise.all(selected.map((id) => app.loadCheckpointDetail(id)));
     return { flows: app.state.flows };
   },
 
-  render(app, data) {
+  render(app) {
     const current = ensureDraft(app);
     return renderWizard(app, current);
   },
@@ -223,8 +634,6 @@ export const wizardView = {
     };
 
     const bind = () => {
-      const step = STEPS[current.step].key;
-
       // ---- stepper ----
       root.querySelectorAll("[data-step]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -294,7 +703,7 @@ export const wizardView = {
         });
       });
 
-      // ---- check bindings ----
+      // ---- check executors ----
       root.querySelectorAll("[data-check-mode]").forEach((button) => {
         button.addEventListener("click", () => {
           const checkpointId = button.dataset.checkMode;
@@ -303,6 +712,36 @@ export const wizardView = {
           if (!binding || binding.mode === mode) return;
           binding.mode = mode;
           current.errors = { ...current.errors, [checkpointId]: undefined };
+          rerender();
+        });
+      });
+      root.querySelectorAll("[data-check-library]").forEach((select) => {
+        select.addEventListener("change", async () => {
+          const checkpointId = select.dataset.checkLibrary;
+          const binding = current.checks[checkpointId];
+          if (!binding) return;
+          binding.libraryId = select.value;
+          current.errors = { ...current.errors, [checkpointId]: undefined };
+          if (select.value) await app.loadCheckpointDetail(select.value);
+          rerender();
+        });
+      });
+      root.querySelectorAll("[data-semantic-mode]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const mode = button.dataset.semanticMode;
+          if (!current.semantic) current.semantic = { mode: "default", libraryId: "" };
+          if (current.semantic.mode === mode) return;
+          current.semantic.mode = mode;
+          current.errors = { ...current.errors, verificationAccepted: undefined };
+          rerender();
+        });
+      });
+      root.querySelectorAll("[data-semantic-library]").forEach((select) => {
+        select.addEventListener("change", async () => {
+          if (!current.semantic) current.semantic = { mode: "library", libraryId: "" };
+          current.semantic.libraryId = select.value;
+          current.errors = { ...current.errors, verificationAccepted: undefined };
+          if (select.value) await app.loadCheckpointDetail(select.value);
           rerender();
         });
       });
@@ -352,6 +791,22 @@ export const wizardView = {
       }
 
       focusFirstError(root);
+
+      // Hydrate library details chosen earlier (list endpoints return summaries only).
+      if (current.step === 2) {
+        const selectedLibraryIds = [
+          ...Object.values(current.checks || {})
+            .filter((binding) => binding.mode === "library" && binding.libraryId)
+            .map((binding) => binding.libraryId),
+          ...(current.semantic && current.semantic.mode === "library" && current.semantic.libraryId ? [current.semantic.libraryId] : []),
+        ].filter(Boolean);
+        const missing = selectedLibraryIds.filter((id) => !app.state.checkpointDetailById.has(id));
+        if (missing.length > 0) {
+          Promise.all(missing.map((id) => app.loadCheckpointDetail(id))).then(() => {
+            if (current.step === 2) rerender();
+          });
+        }
+      }
     };
 
     bind();
@@ -372,7 +827,7 @@ function renderWizard(app, current) {
     <div class="page-head__titles">
       <span class="eyebrow">Start a wish</span>
       <h1 class="h1">New wish</h1>
-      <p class="lede">Write the wish source, choose its flow, and freeze the check bindings into the plan. The wizard never runs a check; it creates a run waiting at the first stage.</p>
+      <p class="lede">Write the wish source, choose its flow, and freeze the check executors into the plan. The wizard never runs a check and never starts stage work; it creates a run waiting at the first stage.</p>
     </div>
     <div class="page-head__actions">
       <a class="btn btn--ghost" href="#/wishes">${icon("chevron-left")}Back to wishes</a>
@@ -493,8 +948,8 @@ function renderFlowStep(app, current) {
           <span class="flow-option__summary">${esc(flow.summary || "")}</span>
           <span class="flow-option__stages" aria-hidden="true">${Array.from({ length: Math.max(stageCount, 2) }).map(() => "<i></i>").join("")}</span>
           <span class="flow-option__foot">
-            <span>${stageCount} stages · ${gateCount} deterministic gates${semanticCount ? ` · ${semanticCount} judged` : ""}</span>
-            ${flow.custom_checks_supported ? '<span class="chip chip--violet chip--sm">custom checks</span>' : '<span class="chip chip--sm">semantic only</span>'}
+            <span>${stageCount} stages · ${gateCount} syntactic gates${semanticCount ? ` · ${semanticCount} judged` : ""}</span>
+            ${flow.custom_checks_supported ? '<span class="chip chip--violet chip--sm">library bindable</span>' : '<span class="chip chip--sm">semantic only</span>'}
           </span>
         </button>`;
       })
@@ -502,219 +957,14 @@ function renderFlowStep(app, current) {
   </div>
   ${
     current.flowId === "wish-verify"
-      ? `<div class="check-note">${icon("info")}<span><strong>WishVerifyFlow keeps its semantic judgments.</strong> Non-default check bindings are rejected for this flow in the current slice, so the wizard creates it with the two judged checkpoints only.</span></div>`
-      : `<div class="check-note">${icon("shield")}<span><strong>SimpleFlow supports custom checks.</strong> Its four syntactic gates can each run the built-in deterministic checker or an agent CLI execution, and the choice is frozen into the plan.</span></div>`
+      ? `<div class="check-note">${icon("info")}<span><strong>WishVerifyFlow keeps its semantic judgments.</strong> Non-default check executors are rejected for this flow in the current slice, so the wizard creates it with the two judged checkpoints only.</span></div>`
+      : `<div class="check-note">${icon("library")}<span><strong>SimpleFlow supports library and agent executors.</strong> Each syntactic gate can bind the built-in script, a separate Agent CLI run, or a frozen library checkpoint; the semantic verification gate can bind a semantic library entry. The choice is frozen into the plan.</span></div>`
   }`;
-}
-
-function renderChecksStep(app, current) {
-  const flow = flowFor(app, current.flowId);
-  if (!flow || flow.flow_id !== "simple-flow") {
-    return `<div class="check-note">${icon("info")}<span><strong>No check bindings for ${esc(flow ? flow.title : current.flowId)}.</strong> This flow judges its checkpoints semantically at verification time; continue to review.</span></div>
-    <div class="review__block">
-      <div class="review__block-head"><span class="review__block-title">Judged checkpoints</span><span class="chip chip--violet chip--sm">semantic</span></div>
-      <div class="review__bindings">
-        ${(flow ? flow.checkpoints : [])
-          .map((checkpoint) => `<div class="review-binding"><span class="review-binding__name">${esc(checkpoint.title)}</span><span class="review-binding__mode">${icon("shield")}${esc(checkpoint.stage_id)} · judged at verification</span></div>`)
-          .join("")}
-      </div>
-    </div>`;
-  }
-  const nodes = checkNodeInfo(app, flow);
-  const agents = app.state.agents || [];
-  return `<div class="check-cards">
-    ${nodes
-      .map((node, index) => renderCheckCard(app, current, flow, node, index, agents))
-      .join("")}
-  </div>
-  <div class="check-note">${icon("info")}<span><strong>Default bindings are deterministic.</strong> The checker runs inside xdesign and is recorded with script authority. <strong>Agent CLI bindings</strong> are executed by codex or kimi, recorded with agent authority and the <span class="mono">cli:model</span> assessor, and frozen into the plan so every later check reconstructs the same executor.</span></div>`;
-}
-
-function renderCheckCard(app, current, flow, node, index, agents) {
-  const binding = current.checks[node.checkpoint_id] || { mode: "default", cli: defaultCli(app), model: defaultModelFor(app, defaultCli(app)), modelOverride: "" };
-  const isCli = binding.mode === "cli";
-  const agent = agentFor(app, binding.cli);
-  const available = Boolean(agent && agent.available);
-  const checker = node.checker || {};
-  const ruleCount = (checker.rules || []).length;
-  const stage = (flow.stages || []).find((entry) => entry.stage_id === node.stage_id);
-  const models = (agent && agent.models) || [];
-  const effectiveModel = (binding.modelOverride || "").trim() || binding.model;
-  const error = current.errors[node.checkpoint_id];
-  return `<div class="check-card ${isCli ? "is-cli" : ""}" data-check-card="${esc(node.checkpoint_id)}">
-    <div class="check-card__head">
-      <span class="check-card__order">${String(index + 1).padStart(2, "0")}</span>
-      <div class="check-card__titles">
-        <div class="check-card__title">
-          <span class="check-card__name">${esc(checker.checker_id || node.title)}</span>
-          <span class="check-card__id">${esc(node.checkpoint_id)}</span>
-          <span class="chip chip--sm">${esc(stage ? stage.title : node.stage_id)}</span>
-          ${isCli ? '<span class="chip chip--violet chip--sm">' + icon("cpu") + "agent CLI</span>" : '<span class="chip chip--green chip--sm">' + icon("shield") + "default</span>"}
-        </div>
-        <div class="check-card__meta">
-          <span>${ruleCount} rule${ruleCount === 1 ? "" : "s"}</span>
-          <span class="sep-dot"></span>
-          <span class="mono">${esc(checker.command_uri || "built-in checker")}</span>
-          ${(checker.establishes || []).length ? `<span class="sep-dot"></span><span>establishes ${esc((checker.establishes || []).slice(0, 2).join(", "))}</span>` : ""}
-        </div>
-      </div>
-    </div>
-    <div class="check-card__body">
-      <div class="check-card__control">
-        <span class="check-card__control-label">Executor</span>
-        <div class="segmented" role="group" aria-label="Executor for ${esc(node.checkpoint_id)}">
-          <button class="segmented__opt ${!isCli ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="default" aria-pressed="${!isCli}">
-            ${icon("shield")}Default
-          </button>
-          <button class="segmented__opt ${isCli ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="cli" aria-pressed="${isCli}">
-            ${icon("cpu")}Agent CLI
-          </button>
-        </div>
-        <span class="check-card__hint">${isCli ? "Executed by the CLI, recorded as agent authority." : "Built-in deterministic checker, script authority."}</span>
-      </div>
-      ${
-        isCli
-          ? `<div class="check-card__control" style="flex:0 0 128px">
-              <span class="check-card__control-label">CLI</span>
-              <select class="select" data-check-cli="${esc(node.checkpoint_id)}" aria-label="Agent CLI for ${esc(node.checkpoint_id)}">
-                ${agents
-                  .map((entry) => `<option value="${esc(entry.cli)}" ${entry.cli === binding.cli ? "selected" : ""}>${esc(entry.cli)}${entry.available ? "" : " · off"}</option>`)
-                  .join("")}
-              </select>
-              <span class="check-card__hint">${available ? esc(agent.version || "detected") : "not detected on this machine"}</span>
-            </div>
-            <div class="check-card__control">
-              <span class="check-card__control-label">Model</span>
-              <select class="select" data-check-model="${esc(node.checkpoint_id)}" aria-label="Model for ${esc(node.checkpoint_id)}">
-                ${models.map((model) => `<option value="${esc(model.id)}" ${model.id === binding.model ? "selected" : ""}>${esc(model.label || model.id)}</option>`).join("")}
-                ${models.length === 0 ? `<option value="${esc(binding.model)}" selected>${esc(binding.model || "default")}</option>` : ""}
-              </select>
-              <span class="check-card__hint">from <span class="mono">/api/flows</span></span>
-            </div>
-            <div class="check-card__control">
-              <span class="check-card__control-label">Override</span>
-              <input class="input input--mono" data-check-model-override="${esc(node.checkpoint_id)}" value="${esc(binding.modelOverride || "")}" placeholder="custom model id" spellcheck="false" autocomplete="off" aria-label="Free-text model override for ${esc(node.checkpoint_id)}" />
-              <span class="check-card__hint">leave blank to use selected · effective <span class="mono" data-effective-model="${esc(node.checkpoint_id)}">${esc(effectiveModel || "—")}</span></span>
-            </div>`
-          : ""
-      }
-    </div>
-    <div class="field__error" data-check-error="${esc(node.checkpoint_id)}" style="padding:0 15px 12px 53px" ${error ? "" : "hidden"}>${error ? `${icon("alert-circle")}${esc(error)}` : ""}</div>
-  </div>`;
-}
-
-function renderReview(app, current) {
-  const flow = flowFor(app, current.flowId);
-  const sample = app.state.sampleMode;
-  const nodes = flow && flow.flow_id === "simple-flow" ? checkNodeInfo(app, flow) : [];
-  const sampleBlocked = sample || current.submitting;
-  return `<div class="review">
-    <div class="review__block">
-      <div class="review__block-head">
-        <span class="review__block-title">Wish</span>
-        ${flowChip(current.flowId)}
-      </div>
-      <div class="review__wish-title">${esc(current.title.trim() || "Untitled wish")}</div>
-      <div class="review__wish-id">${esc(current.wishId.trim() || "wish-id-pending")}</div>
-      ${current.description.trim() ? `<div class="review__wish-desc">${esc(current.description.trim())}</div>` : '<div class="review__wish-desc text-faint">No description.</div>'}
-      <div class="review__meta">
-        ${flow ? `<span class="chip chip--mono chip--sm">${(flow.stages || []).length} stages</span>` : ""}
-        ${flow ? `<span class="chip chip--mono chip--sm">${(flow.checkpoints || []).length} checkpoints</span>` : ""}
-        <span class="chip chip--mono chip--sm">source · store</span>
-      </div>
-    </div>
-    <div class="review__block">
-      <div class="review__block-head">
-        <span class="review__block-title">Check bindings</span>
-        <span class="chip chip--sm">${flow && flow.flow_id === "simple-flow" ? "frozen into plan" : "semantic judgments"}</span>
-      </div>
-      ${
-        nodes.length > 0
-          ? `<div class="review__bindings">${nodes
-              .map((node) => {
-                const binding = current.checks[node.checkpoint_id];
-                const isCli = binding && binding.mode === "cli";
-                const model = binding ? (binding.modelOverride || "").trim() || binding.model : "";
-                return `<div class="review-binding ${isCli ? "is-cli" : ""}">
-                  <span class="review-binding__name">${esc(node.checker.checker_id || node.title)}</span>
-                  <span class="review-binding__mode">
-                    ${isCli ? `${icon("cpu")}<span class="badge chip--violet badge--mono">${esc(binding.cli)}:${esc(model)}</span>` : `${icon("shield")}<span class="badge badge--soft badge--mono">default</span>`}
-                  </span>
-                </div>`;
-              })
-              .join("")}</div>`
-          : `<div class="review__bindings">${(flow ? flow.checkpoints : [])
-              .map((checkpoint) => `<div class="review-binding"><span class="review-binding__name">${esc(checkpoint.title)}</span><span class="review-binding__mode">${icon("shield")}<span class="badge badge--soft badge--mono">judged at ${esc(checkpoint.stage_id)}</span></span></div>`)
-              .join("")}</div>`
-      }
-    </div>
-    <div class="review__notice">${icon("info")}<span><strong>What creation does.</strong> The wizard writes the wish source and, when a binding is not the default, a binding configuration. <span class="mono">xdesign init</span> then creates the store item and freezes the plan — including these bindings — before any stage work begins. The wizard does not run a check.</span></div>
-    ${sample ? `<div class="review__notice">${icon("alert-triangle")}<span><strong>Sample mode.</strong> Creation is disabled for the labelled demo dataset. Start <span class="mono">xdesign web</span> against a real store to create this wish.</span></div>` : ""}
-    <div class="form-error" data-create-error ${current.createError ? "" : "hidden"}>${icon("alert-circle")}<span>${esc(current.createError || "")}</span></div>
-  </div>`;
-}
-
-function renderStepFoot(app, current) {
-  const isFirst = current.step === 0;
-  const isLast = current.step === STEPS.length - 1;
-  const sample = app.state.sampleMode;
-  return `<div class="wizard-card__foot">
-    <div class="row">
-      ${isFirst ? "" : `<button class="btn btn--ghost" type="button" data-step="${current.step - 1}">${icon("chevron-left")}Back</button>`}
-    </div>
-    <div class="row">
-      ${isLast ? "" : `<button class="btn btn--primary" type="button" data-next-step>${current.step === 2 ? "Review" : "Continue"}${icon("chevron")}</button>`}
-      ${
-        isLast
-          ? `<button class="btn btn--primary btn--lg ${current.submitting ? "is-busy" : ""}" type="button" data-create-wish ${sample || current.submitting ? "disabled" : ""} title="${sample ? "Writes are disabled in sample mode" : ""}">
-              ${current.submitting ? "" : icon("sparkle")}${current.submitting ? "Creating…" : "Create wish"}
-            </button>`
-          : ""
-      }
-    </div>
-  </div>`;
-}
-
-function renderSummary(app, current) {
-  const flow = flowFor(app, current.flowId);
-  const nodes = flow && flow.flow_id === "simple-flow" ? checkNodeInfo(app, flow) : [];
-  const cliCount = nodes.filter((node) => current.checks[node.checkpoint_id] && current.checks[node.checkpoint_id].mode === "cli").length;
-  return `<div class="card summary-card">
-    <div class="summary-card__title">${icon("sparkle")}Draft summary</div>
-    <div class="summary-row"><span class="summary-row__key">Wish id</span><span class="summary-row__value mono">${esc(current.wishId || "—")}</span></div>
-    <div class="summary-row"><span class="summary-row__key">Title</span><span class="summary-row__value">${esc(current.title || "—")}</span></div>
-    <div class="summary-row"><span class="summary-row__key">Flow</span><span class="summary-row__value mono">${esc(current.flowId)}</span></div>
-    <div class="summary-row"><span class="summary-row__key">Gates</span><span class="summary-row__value mono">${nodes.length || (flow ? flow.checkpoints.length : 0)}</span></div>
-    <div class="summary-row"><span class="summary-row__key">Agent CLI</span><span class="summary-row__value mono">${cliCount} of ${nodes.length || 0}</span></div>
-    <div class="summary-progress" aria-hidden="true">
-      ${STEPS.map((step, index) => `<i class="${index < current.step ? "is-done" : index === current.step ? "is-active" : ""}"></i>`).join("")}
-      <span>step ${current.step + 1}/${STEPS.length}</span>
-    </div>
-  </div>`;
-}
-
-function renderWhatHappens(app) {
-  return `<div class="card summary-card">
-    <div class="summary-card__title">${icon("layers")}What happens on create</div>
-    <div class="work-result__list">
-      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">1 — Write the wish source marker and the optional binding configuration.</div>
-      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">2 — Run <span class="mono" style="color:var(--ink-soft)">xdesign init</span> to create the store item at revision 1.</div>
-      <div style="padding-left:0;color:var(--muted);font-size:11.5px;line-height:1.6">3 — Freeze the plan, including every check binding, then open the wish detail.</div>
-    </div>
-  </div>`;
 }
 
 /* ------------------------------------------------------------------ */
 /* Behaviour                                                          */
 /* ------------------------------------------------------------------ */
-
-function focusFirstError(root) {
-  const invalid = root.querySelector(".is-invalid");
-  if (invalid) {
-    invalid.focus({ preventScroll: true });
-    invalid.scrollIntoView({ block: "center", behavior: "smooth" });
-  }
-}
 
 async function submit(app, root, current, rerender) {
   if (current.submitting) return;
@@ -752,8 +1002,14 @@ async function submit(app, root, current, rerender) {
           model: (binding.modelOverride || "").trim() || binding.model,
         };
       }
+      if (binding.mode === "library") {
+        return { checkpoint_id: node.checkpoint_id, mode: "library", library_id: binding.libraryId };
+      }
       return { checkpoint_id: node.checkpoint_id, mode: "default" };
     });
+    if (current.semantic && current.semantic.mode === "library" && current.semantic.libraryId) {
+      body.checks.push({ checkpoint_id: "verificationAccepted", mode: "library", library_id: current.semantic.libraryId });
+    }
   }
 
   current.submitting = true;
@@ -789,4 +1045,29 @@ async function submit(app, root, current, rerender) {
     rerender();
     toastError("Wish could not be created", current.createError);
   }
+}
+
+function renderChecksStep(app, current) {
+  const flow = flowFor(app, current.flowId);
+  if (!flow || flow.flow_id !== "simple-flow") {
+    return `<div class="check-note">${icon("info")}<span><strong>No check bindings for ${esc(flow ? flow.title : current.flowId)}.</strong> This flow judges its checkpoints semantically at verification time; continue to review.</span></div>
+    <div class="review__block">
+      <div class="review__block-head"><span class="review__block-title">Judged checkpoints</span><span class="chip chip--violet chip--sm">semantic</span></div>
+      <div class="review__bindings">
+        ${(flow ? flow.checkpoints : [])
+          .map((checkpoint) => `<div class="review-binding"><span class="review-binding__name">${esc(checkpoint.title)}</span><span class="review-binding__mode">${icon("sparkle")}${esc(checkpoint.stage_id)} · judged at verification</span></div>`)
+          .join("")}
+      </div>
+    </div>`;
+  }
+  const nodes = checkNodeInfo(app, flow);
+  const agents = app.state.agents || [];
+  const libraryError = app.state.checkpointsError;
+  return `<div class="check-note check-executor-note">${icon("info")}<span><strong>Stage work is always performed by the working agent.</strong> The <strong>check executor</strong> selects only who verifies a checkpoint: the repository's <strong>built-in script</strong> (deterministic, script authority), a separate <strong>Agent CLI</strong> run (agent authority <span class="mono">cli:model</span>), or a <strong>library checkpoint</strong> whose frozen rules and declared executor are used. The choice is frozen into the plan by <span class="mono">xdesign init</span>.</span></div>
+  ${libraryError ? `<div class="form-inline-error" style="margin-top:10px">${icon("alert-circle")}<span>Checkpoint library unavailable (${esc(libraryError.message || "request failed")}). Library mode stays disabled until the service returns.</span></div>` : ""}
+  <div class="check-cards">
+    ${nodes.map((node, index) => renderCheckCard(app, current, flow, node, index, agents, { libraryError })).join("")}
+  </div>
+  ${renderSemanticCard(app, current, flow, { libraryError })}
+  <div class="check-note">${icon("info")}<span><strong>Built-in script bindings are deterministic</strong> and recorded with script authority. <strong>Agent CLI bindings</strong> run a separate codex/kimi review of the same declared rules and record agent authority. <strong>Library bindings</strong> freeze the library entry's rules, inputs and executor; later library edits never change a frozen plan.</span></div>`;
 }

@@ -37,6 +37,7 @@ export const overviewView = {
 
   async load(app) {
     await app.loadWishes();
+    await app.loadCheckpoints();
     return { wishes: app.state.wishes };
   },
 
@@ -100,7 +101,7 @@ export const overviewView = {
             <div class="agent-list">${renderAgents(agents)}</div>
             <div class="agent-note">
               <span class="icon">${icon("info")}</span>
-              <span><strong>Default bindings</strong> run the deterministic checker. <strong>Agent CLI bindings</strong> are executed by the CLI, recorded with agent authority, and frozen into the plan at creation.</span>
+              <span>Stage work is always performed by the working agent. The <strong>built-in script</strong> executor records script authority; <strong>Agent CLI</strong> records agent authority; <strong>library checkpoints</strong> freeze a project definition into the plan.</span>
             </div>
           </section>
           <section class="panel">
@@ -114,6 +115,7 @@ export const overviewView = {
               ${envRow("Store", health.store_root || ".xdesign", true)}
               ${envRow("Store present", health.store_present ? "yes" : "no")}
               ${envRow("Flows", `${flows.length} catalogued`)}
+              ${envRow("Checkpoint library", `${(app.state.checkpoints || []).length} entries`)}
               ${envRow("Last refresh", app.state.lastUpdated ? relativeTime(app.state.lastUpdated) : "—")}
             </div>
           </section>

@@ -333,6 +333,241 @@ export function getSampleAgent(cli) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Checkpoint library                                                 */
+/* ------------------------------------------------------------------ */
+
+const SIMPLE = simpleFlow.checkpoints;
+
+function builtinCheckpoint({ checkpoint_id, source_checkpoint_id, title, description, tags, inputs, command_uri }) {
+  const checkpoint = SIMPLE.find((entry) => entry.checkpoint_id === source_checkpoint_id);
+  const rules = (checkpoint.checker ? checkpoint.checker.rules : []).map((rule) => ({ ...rule, reads: [...rule.reads] }));
+  return {
+    checkpoint_id,
+    title,
+    description,
+    kind: "syntactic",
+    tags: [...tags],
+    rules,
+    inputs: [...inputs],
+    executor: { mode: "script", command_uri },
+    version: 1,
+    created_at: AGO(6 * 24 * 60),
+    updated_at: AGO(6 * 24 * 60),
+    source: "builtin",
+    builtin: true,
+    history: [],
+  };
+}
+
+const builtinVerification = SIMPLE.find((entry) => entry.checkpoint_id === "verificationAccepted");
+
+/** Full checkpoint library entries, shared by the page's sample mode and the dev mock server. */
+export const SAMPLE_CHECKPOINTS = [
+  builtinCheckpoint({
+    checkpoint_id: "builtin-simple-requirements",
+    source_checkpoint_id: "simpleRequirementsAccepted",
+    title: "Requirements carry rationale and resolve",
+    description:
+      "Built-in deterministic checker for the SimpleFlow requirements gate: every declared requirement carries a rationale and every satisfy link resolves to a declared requirement.",
+    tags: ["requirements", "trace"],
+    inputs: ["mbse/model/requirements.sysml", "mbse/model/traceability.sysml"],
+    command_uri: "tools/checks/simple_requirements.py",
+  }),
+  builtinCheckpoint({
+    checkpoint_id: "builtin-simple-design",
+    source_checkpoint_id: "simpleDesignAccepted",
+    title: "Design satisfies every requirement",
+    description:
+      "Built-in deterministic checker for the SimpleFlow design gate: each requirement is satisfied by a design element and no orphan design element exists.",
+    tags: ["design", "trace"],
+    inputs: ["mbse/model/design.sysml", "mbse/model/requirements.sysml"],
+    command_uri: "tools/checks/simple_design.py",
+  }),
+  builtinCheckpoint({
+    checkpoint_id: "builtin-simple-implementation",
+    source_checkpoint_id: "simpleImplementationAccepted",
+    title: "Implementation artifacts present and stable",
+    description:
+      "Built-in deterministic checker for the SimpleFlow implementation gate: every artifact required by the design exists and its recorded digest is stable.",
+    tags: ["implementation", "artifacts"],
+    inputs: ["src/lib.rs", "web/assets/index.html"],
+    command_uri: "tools/checks/simple_implementation.py",
+  }),
+  builtinCheckpoint({
+    checkpoint_id: "builtin-simple-record",
+    source_checkpoint_id: "simpleRecordAccepted",
+    title: "Run record names assessments and evidence",
+    description:
+      "Built-in deterministic checker for the SimpleFlow record gate: every assessed checkpoint carries retained evidence and recorded revisions increase monotonically.",
+    tags: ["record", "evidence"],
+    inputs: ["cache/web/attempts/wish-0011-4f2a.json"],
+    command_uri: "tools/checks/simple_record.py",
+  }),
+  {
+    checkpoint_id: "builtin-simple-verification",
+    title: "Verification evidence accepted",
+    description:
+      "Built-in semantic gate for SimpleFlow verification: a permitted judge re-examines the retained evidence and confirms the implementation satisfies the requirements.",
+    kind: "semantic",
+    tags: ["verification", "semantic"],
+    criteria: [...(builtinVerification.criteria || [])],
+    judges: { agent: true, human: true },
+    version: 1,
+    created_at: AGO(6 * 24 * 60),
+    updated_at: AGO(6 * 24 * 60),
+    source: "builtin",
+    builtin: true,
+    history: [],
+  },
+  {
+    checkpoint_id: "energy-budget-positive",
+    title: "Energy budget stays non-negative",
+    description:
+      "Deterministic check that every actuator declares an energy budget and that no declared budget is negative.",
+    kind: "syntactic",
+    tags: ["energy", "design"],
+    rules: [
+      { rule_id: "budget-declared", condition: "Every actuator declares a numeric energyBudget.", reads: ["mbse/model/design.sysml"] },
+      { rule_id: "budget-non-negative", condition: "Every declared energyBudget is greater than or equal to zero.", reads: ["mbse/model/design.sysml"] },
+    ],
+    inputs: ["mbse/model/design.sysml"],
+    executor: { mode: "script", command_uri: "checkpoints/scripts/energy_budget_positive.py" },
+    version: 2,
+    created_at: AGO(4 * 24 * 60),
+    updated_at: AGO(2 * 24 * 60),
+    source: "generated",
+    builtin: false,
+    script_exists: true,
+    history: [
+      {
+        version: 1,
+        updated_at: AGO(4 * 24 * 60),
+        description: "Check that every actuator declares an energy budget.",
+        kind: "syntactic",
+        rules: [{ rule_id: "budget-declared", condition: "Every actuator declares a numeric energyBudget.", reads: ["mbse/model/design.sysml"] }],
+        inputs: ["mbse/model/design.sysml"],
+        executor: { mode: "script", command_uri: "checkpoints/scripts/energy_budget_positive.py" },
+        tags: ["energy"],
+      },
+    ],
+  },
+  {
+    checkpoint_id: "api-surface-declared",
+    title: "Public API surface is declared",
+    description:
+      "Agent review of the public HTTP surface: every route and error code in the interface document matches the implementation.",
+    kind: "syntactic",
+    tags: ["api", "review"],
+    rules: [
+      { rule_id: "public-api-documented", condition: "Every route implemented in the server is listed in the interface document.", reads: ["docs/interfaces/web-api.md"] },
+      { rule_id: "error-codes-enumerated", condition: "Every documented error code is reachable from at least one handler.", reads: ["web/server/api.rs"] },
+    ],
+    inputs: ["docs/interfaces/web-api.md", "web/server/api.rs"],
+    executor: { mode: "cli", cli: "codex", model: "gpt-5.6-terra" },
+    version: 1,
+    created_at: AGO(30),
+    updated_at: AGO(30),
+    source: "manual",
+    builtin: false,
+    script_exists: false,
+    history: [],
+  },
+  {
+    checkpoint_id: "design-trace-complete",
+    title: "Design trace covers every decision",
+    description:
+      "Deterministic check that each design decision names an alternative and a requirement it satisfies, so the trace does not stop at the design page.",
+    kind: "syntactic",
+    tags: ["design", "trace"],
+    rules: [
+      { rule_id: "decision-has-alternative", condition: "Every design decision records at least one rejected alternative.", reads: ["docs/design/"] },
+      { rule_id: "decision-satisfies-requirement", condition: "Every design decision names a requirement it satisfies.", reads: ["docs/design/", "mbse/model/requirements.sysml"] },
+      { rule_id: "trace-link-resolves", condition: "Every trace link resolves to a declaration in the project model.", reads: ["mbse/model/design.sysml"] },
+    ],
+    inputs: ["docs/design/", "mbse/model/requirements.sysml"],
+    executor: { mode: "script", command_uri: "checkpoints/scripts/design_trace_complete.py" },
+    version: 3,
+    created_at: AGO(5 * 24 * 60),
+    updated_at: AGO(180),
+    source: "manual",
+    builtin: false,
+    script_exists: true,
+    history: [
+      {
+        version: 2,
+        updated_at: AGO(600),
+        description: "Every design decision names a requirement it satisfies.",
+        kind: "syntactic",
+        rules: [{ rule_id: "decision-satisfies-requirement", condition: "Every design decision names a requirement it satisfies.", reads: ["docs/design/"] }],
+        inputs: ["docs/design/"],
+        executor: { mode: "script", command_uri: "checkpoints/scripts/design_trace_complete.py" },
+        tags: ["design"],
+      },
+    ],
+  },
+  {
+    checkpoint_id: "verification-evidence-complete",
+    title: "Verification evidence answers every requirement",
+    description:
+      "Semantic checkpoint: a permitted judge must be able to re-examine the retained evidence and see each requirement answered.",
+    kind: "semantic",
+    tags: ["verification", "evidence"],
+    criteria: [
+      "Every requirement has retained evidence that a reader can re-examine.",
+      "The evidence and the record stand on their own without re-asking the author.",
+    ],
+    judges: { agent: true, human: true },
+    version: 1,
+    created_at: AGO(3 * 24 * 60),
+    updated_at: AGO(3 * 24 * 60),
+    source: "manual",
+    builtin: false,
+    history: [],
+  },
+];
+
+export function getSampleCheckpointLibrary() {
+  return {
+    schema_version: 1,
+    library_uri: "checkpoints/library.json",
+    issues: [],
+    checkpoints: SAMPLE_CHECKPOINTS.map(toCheckpointListEntry),
+  };
+}
+
+export function getSampleCheckpoint(checkpointId) {
+  const entry = SAMPLE_CHECKPOINTS.find((checkpoint) => checkpoint.checkpoint_id === checkpointId);
+  if (!entry) return null;
+  return {
+    schema_version: 1,
+    checkpoint: {
+      ...entry,
+      builtin: Boolean(entry.builtin),
+      script_exists: entry.executor?.mode === "script" ? true : false,
+    },
+  };
+}
+
+export function toCheckpointListEntry(entry) {
+  return {
+    checkpoint_id: entry.checkpoint_id,
+    title: entry.title,
+    kind: entry.kind,
+    builtin: Boolean(entry.builtin),
+    version: entry.version,
+    updated_at: entry.updated_at,
+    tags: [...(entry.tags || [])],
+    executor: entry.executor || null,
+    rule_count: (entry.rules || []).length,
+    criteria_count: (entry.criteria || []).length,
+  };
+}
+
+export function findSampleCheckpointEntry(checkpointId) {
+  return SAMPLE_CHECKPOINTS.find((entry) => entry.checkpoint_id === checkpointId) || null;
+}
+
+/* ------------------------------------------------------------------ */
 /* Wish list                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -372,6 +607,18 @@ export const SAMPLE_WISHES = [
     head_revision: 3,
     source: "store",
     updated_at: AGO(18),
+  },
+  {
+    wish_id: "wish-0015",
+    title: "Energy budget gate",
+    description:
+      "Add a reusable deterministic energy-budget checkpoint and bind it to the requirements gate of SimpleFlow, with a semantic library gate for verification.",
+    flow_id: "simple-flow",
+    status: "active",
+    current_stage: "design",
+    head_revision: 2,
+    source: "store",
+    updated_at: AGO(12),
   },
   {
     wish_id: "wish-0006",
@@ -472,6 +719,12 @@ const PROFILES = {
     ],
   },
   "wish-0014": { visits: [] },
+  "wish-0015": {
+    visits: [
+      { stage: "requirements", status: "completed", assessments: ["passed"] },
+      { stage: "design", status: "active", assessments: [] },
+    ],
+  },
   "wish-0006": {
     visits: [
       { stage: "wish", status: "completed", assessments: ["passed"] },
@@ -494,8 +747,24 @@ const PROFILES = {
 const BINDINGS = {
   "wish-0009": {
     simpleDesignAccepted: { mode: "cli", cli: "codex", model: "gpt-5.6-terra", command_uri: null },
+    verificationAccepted: { mode: "library", library_id: "verification-evidence-complete" },
+  },
+  "wish-0015": {
+    simpleRequirementsAccepted: { mode: "library", library_id: "energy-budget-positive" },
+    verificationAccepted: { mode: "library", library_id: "verification-evidence-complete" },
+  },
+  "wish-0013": {
+    simpleRecordAccepted: { mode: "library", library_id: "retired-record-check" },
   },
 };
+
+function bindingsForWish(wish) {
+  const overrides = { ...(BINDINGS[wish.wish_id] || {}) };
+  for (const entry of wish.checks || []) {
+    if (entry && entry.checkpoint_id) overrides[entry.checkpoint_id] = { ...entry };
+  }
+  return overrides;
+}
 
 const SEMANTIC_ASSESSORS = {
   "wish-0011": { judged_by: "human", assessor: "operator", rationale: "The retained verification evidence and the deterministic gate reports satisfy every acceptance condition; residual risk is limited to the untested recovery path and is accepted." },
@@ -523,8 +792,39 @@ function stageCheckpoints(flow, stageId) {
   return flow.checkpoints.filter((entry) => entry.stage_id === stageId);
 }
 
+function checkpointLibrarySummary(entry) {
+  if (!entry) return null;
+  return {
+    checkpoint_id: entry.checkpoint_id,
+    title: entry.title,
+    kind: entry.kind,
+    version: entry.version,
+    builtin: Boolean(entry.builtin),
+  };
+}
+
+function resolveLibraryEntry(requested) {
+  if (!requested || requested.mode !== "library" || !requested.library_id) return null;
+  const entry = findSampleCheckpointEntry(requested.library_id);
+  return entry || null;
+}
+
+function bindingFromRequest(checkpoint, requested) {
+  const effective = requested || (checkpoint.checker ? { mode: "default", cli: null, model: null, command_uri: null } : { mode: "default" });
+  if (effective.mode === "library") {
+    return {
+      mode: "library",
+      library_id: effective.library_id || null,
+      cli: null,
+      model: null,
+      command_uri: null,
+    };
+  }
+  return { ...effective };
+}
+
 function buildPlan(wish, flow) {
-  const overrides = BINDINGS[wish.wish_id] || {};
+  const overrides = bindingsForWish(wish);
   return {
     plan_id: flow.flow_id === "simple-flow" ? "designedSimpleFlow" : "designedWishVerifyFlow",
     plan_sha256: digest(`plan:${wish.wish_id}:${flow.flow_id}`),
@@ -535,38 +835,98 @@ function buildPlan(wish, flow) {
       completes_flow: index + 1 === flow.stages.length,
     })),
     checkpoints: flow.checkpoints.map((checkpoint) => {
-      const binding = checkpoint.checker
-        ? overrides[checkpoint.checkpoint_id] || {
-            mode: "default",
-            cli: null,
-            model: null,
-            command_uri: null,
-          }
-        : null;
-      return { ...checkpoint, binding };
+      const requested = overrides[checkpoint.checkpoint_id];
+      const libraryEntry = resolveLibraryEntry(requested);
+      const kindMatches = libraryEntry && libraryEntry.kind === checkpoint.kind;
+      const binding = bindingFromRequest(checkpoint, requested);
+      const library = kindMatches ? checkpointLibrarySummary(libraryEntry) : null;
+
+      if (checkpoint.checker) {
+        const effectiveChecker = kindMatches && libraryEntry.executor?.mode === "script"
+          ? {
+              ...checkpoint.checker,
+              checker_id: libraryEntry.checkpoint_id,
+              command_uri: libraryEntry.executor.command_uri,
+              rules: libraryEntry.rules,
+              binding,
+            }
+          : { ...checkpoint.checker, binding };
+        return {
+          ...checkpoint,
+          checker: effectiveChecker,
+          binding,
+          library_id: binding.mode === "library" ? binding.library_id : null,
+          library,
+        };
+      }
+
+      const effective = {
+        ...checkpoint,
+        binding,
+        library_id: binding.mode === "library" ? binding.library_id : null,
+        library,
+      };
+      if (kindMatches && libraryEntry.kind === "semantic") {
+        effective.criteria = [...libraryEntry.criteria];
+        effective.agent_may_judge = Boolean(libraryEntry.judges && libraryEntry.judges.agent);
+        effective.human_may_judge = Boolean(libraryEntry.judges && libraryEntry.judges.human);
+      }
+      return effective;
     }),
   };
 }
 
-function buildAssessment(wish, flow, checkpoint, outcome, revision, at, binding) {
+function planBinding(planCheckpoint) {
+  if (planCheckpoint.checker && planCheckpoint.checker.binding) return planCheckpoint.checker.binding;
+  if (planCheckpoint.binding) return planCheckpoint.binding;
+  return { mode: "default" };
+}
+
+function buildAssessment(wish, flow, checkpoint, outcome, revision, at, planCheckpoint) {
   const semantic = checkpoint.kind === "semantic";
   const semanticMeta = SEMANTIC_ASSESSORS[wish.wish_id] || {
     judged_by: "human",
     assessor: "operator",
     rationale: "Evidence reviewed.",
   };
-  const cliBound = binding && binding.mode === "cli";
-  const judgedBy = semantic ? semanticMeta.judged_by : cliBound ? "agent" : "script";
-  const assessor = semantic ? semanticMeta.assessor : cliBound ? `${binding.cli}:${binding.model}` : checkpoint.checker.checker_id;
-  const rationale = semantic
-    ? outcome === "failed"
-      ? semanticMeta.rationale
-      : semanticMeta.rationale
-    : outcome === "passed"
-      ? cliBound
-        ? `Agent CLI execution reported all ${checkpoint.checker.rules.length} declared checker rules satisfied; stdout and stderr logs retained.`
-        : `All ${checkpoint.checker.rules.length} declared checker rules passed.`
-      : `Rule ${checkpoint.checker.rules[0].rule_id} failed: declared artifact is missing from the recorded revision.`;
+  const binding = planBinding(planCheckpoint || {});
+  const library = planCheckpoint && planCheckpoint.library;
+  const executor = library ? findSampleCheckpointEntry(library.checkpoint_id) : null;
+  const libraryExecutor = executor && executor.executor ? executor.executor.mode : "script";
+  const rules = (planCheckpoint && planCheckpoint.checker && planCheckpoint.checker.rules) || [];
+  const checkerId = (planCheckpoint && planCheckpoint.checker && planCheckpoint.checker.checker_id) || checkpoint.title;
+
+  let judgedBy;
+  let assessor;
+  let rationale;
+  if (semantic) {
+    judgedBy = semanticMeta.judged_by;
+    assessor = semanticMeta.assessor;
+    rationale = semanticMeta.rationale;
+  } else if (binding.mode === "cli") {
+    judgedBy = "agent";
+    assessor = `${binding.cli}:${binding.model}`;
+    rationale = outcome === "passed"
+      ? `Agent CLI execution reported all ${rules.length} declared checker rules satisfied; stdout and stderr logs retained.`
+      : `Agent CLI execution reported a failed rule on the recorded revision.`;
+  } else if (binding.mode === "library" && library) {
+    judgedBy = libraryExecutor === "cli" ? "agent" : "script";
+    assessor = libraryExecutor === "cli" ? `${executor.executor.cli}:${executor.executor.model}` : library.checkpoint_id;
+    rationale = outcome === "passed"
+      ? `All ${rules.length} rules from library checkpoint ${library.checkpoint_id} passed (frozen v${library.version}).`
+      : `Library checkpoint ${library.checkpoint_id} reported a failed rule on the recorded revision.`;
+  } else if (binding.mode === "library") {
+    judgedBy = "script";
+    assessor = "unresolved-library";
+    rationale = `The frozen library checkpoint ${binding.library_id || "unknown"} no longer resolves in the project library.`;
+  } else {
+    judgedBy = "script";
+    assessor = checkerId;
+    rationale = outcome === "passed"
+      ? `All ${rules.length} declared checker rules passed.`
+      : `Rule ${(rules[0] && rules[0].rule_id) || "unknown"} failed: declared artifact is missing from the recorded revision.`;
+  }
+
   return {
     checkpoint_id: checkpoint.checkpoint_id,
     evaluated_revision: revision,
@@ -576,7 +936,7 @@ function buildAssessment(wish, flow, checkpoint, outcome, revision, at, binding)
     assessor,
     rationale,
     evidence_uris: [
-      `cache/xdesign/${wish.wish_id}/reports/${checkpoint.title}_${revision}_${digest(`${wish.wish_id}:${checkpoint.checkpoint_id}`).slice(0, 12)}.json`,
+      `cache/xdesign/${wish.wish_id}/reports/${checkerId}_${revision}_${digest(`${wish.wish_id}:${checkpoint.checkpoint_id}`).slice(0, 12)}.json`,
       ...(semantic ? [`cache/xdesign/${wish.wish_id}/evidence/review_${revision}.md`] : []),
     ],
   };
@@ -639,8 +999,8 @@ function buildDetail(wish) {
     checkpoints.forEach((checkpoint, index) => {
       const outcome = visitProfile.assessments[index];
       if (!outcome) return;
-      const binding = plan.checkpoints.find((entry) => entry.checkpoint_id === checkpoint.checkpoint_id)?.binding;
-      assessments.push(buildAssessment(wish, flow, checkpoint, outcome, revision, at, binding));
+      const planCheckpoint = plan.checkpoints.find((entry) => entry.checkpoint_id === checkpoint.checkpoint_id);
+      assessments.push(buildAssessment(wish, flow, checkpoint, outcome, revision, at, planCheckpoint));
     });
 
     const visit = {
@@ -723,6 +1083,16 @@ function buildDetail(wish) {
           visits: [],
         };
 
+  const warnings = [];
+  for (const checkpoint of plan.checkpoints) {
+    const binding = planBinding(checkpoint);
+    if (binding.mode === "library" && !checkpoint.library) {
+      warnings.push(
+        `Frozen library checkpoint ${binding.library_id || checkpoint.library_id || "unknown"} for ${checkpoint.checkpoint_id} no longer resolves in the project library.`,
+      );
+    }
+  }
+
   const history = [];
   if (wish.source === "store") {
     const head = wish.head_revision ?? 1;
@@ -748,6 +1118,7 @@ function buildDetail(wish) {
     run,
     history,
     events,
+    warnings,
   };
 }
 
