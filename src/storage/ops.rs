@@ -1381,6 +1381,8 @@ struct PlanCheckpoint {
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PlanChecker {
+    #[serde(default)]
+    bundle: Option<crate::core::RsCheckerBundle>,
     checker_id: String,
     command_uri: String,
     establishes: Vec<RsConformanceKind>,

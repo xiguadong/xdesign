@@ -412,3 +412,5 @@ The `core` and `simple_flow` source modules landed with step 3 of the
 [restructure plan](../../records/plans/api-layering.md#p22); `src/wish_verify/` followed its
 flow plan. `src/storage/` is planned by the [storage plan](../../records/plans/storage.md#p35).
 The model's `XDesignRustUml::crate` packages and this directory layout are the contract.
+
+The optional [checker bundle](core/rs-checker-bundle.md#u110) and [resource adapter](../checker-execution.md#d111) define release-safe script execution.

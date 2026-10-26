@@ -1,6 +1,6 @@
 use super::store::{artifact_path, read_file};
 use serde::{Deserialize, Serialize};
-use std::{collections::BTreeSet, fs, path::Path, process::Command};
+use std::{collections::BTreeSet, fs, path::Path};
 use xdesign::core::{hash_artifact, snapshot_digest, RsArtifactDigest, RsFlowPlan, RsStageVisit};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -96,16 +96,24 @@ impl WorkDefinition {
                     work.frozen_paths = inputs.clone();
                     work.frozen_paths.sort();
                 } else {
-                    artifact_path(&checker.command_uri)?;
-                    let output = Command::new("python3")
-                        .env("PYTHONDONTWRITEBYTECODE", "1")
-                        .arg(&checker.command_uri)
-                        .arg("--list-inputs")
-                        .output()
-                        .map_err(|e| format!("cannot list {} inputs: {e}", checker.checker_id))?;
-                    if !output.status.success() {
+                    let attempt = format!(
+                        "{}/discovery/{}",
+                        Path::new(&plan.plan_uri).parent().unwrap().display(),
+                        uuid::Uuid::new_v4()
+                    );
+                    let mut command = xdesign::simple_flow::resources::python_command(
+                        checker,
+                        &attempt,
+                        &xdesign::simple_flow::resources::command_map(plan),
+                    )?;
+                    let output = xdesign::simple_flow::run_command_with_timeout(
+                        command.arg("--list-inputs"),
+                        xdesign::simple_flow::checker_timeout(),
+                    )
+                    .map_err(|e| format!("cannot list {} inputs: {e}", checker.checker_id))?;
+                    if output.timed_out || !output.success {
                         return Err(format!(
-                            "{} --list-inputs failed: {}",
+                            "{} --list-inputs failed or exceeded its deadline: {}",
                             checker.command_uri,
                             String::from_utf8_lossy(&output.stderr)
                         ));

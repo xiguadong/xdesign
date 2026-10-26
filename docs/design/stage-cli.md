@@ -255,6 +255,7 @@ authority is in [D88](flows/simple-flow/definition.md#d88), and the library form
 | `cli` | required for `cli`; `codex` or `kimi` |
 | `model` | required for `cli`; a non-empty model identifier passed to the agent CLI |
 | `command_uri` | required for `command`; a normalized project-relative `.py` path that exists in the repository and implements the invocation and report interface |
+| `files`, `python` | optional for `command`; declared helper/data paths and a project-local Python under `cache/`, as specified in [D111](checker-execution.md#d111) |
 | `library_id` | required for `library`; a checkpoint id resolvable in the project library; the entry's kind must match the gate (`command` and `cli` are not accepted on the semantic gate) |
 
 A checkpoint omitted from the file keeps the `default` binding. Unknown fields, unknown
@@ -392,3 +393,5 @@ changed judgment artifacts, corrupt state, plan/work drift, concurrent writers a
 paths. `StorageVerification` adds exact retry, crash, durability and checkout/replay cases
 in [verification design](../verification/design.md#d87). Figures are design views, not
 screenshots. Executed results belong to the [storage plan](../records/plans/storage.md#p39).
+
+New store-backed script bindings retain exact executor bundles. Command bindings accept optional `files` and `python`; library script executors accept the same fields in their definition. See [checker execution](checker-execution.md#d111) for release resources, dependency authoring, interpreter selection, attempt context and legacy limits.

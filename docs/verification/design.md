@@ -249,3 +249,31 @@ implementation flow and retained results before it may be reported passed.
 
 PROJECT-02..06 require interfaces beyond the current strict schemas. No passing SysML
 analysis, single-project test result or record backfill substitutes for those executions.
+
+<a id="d112"></a>
+
+## 18. Released checker and script isolation acceptance
+
+`CheckerIsolationVerification` plans the following executable cases. The design is
+[checker execution D111](../design/checker-execution.md#d111), covering
+[requirements R18](../requirements/requirements.md#r18). Freeze this matrix and review
+its methods before implementation. Results belong to store record
+`record-execution-checker-script-isolation`; a compiler pass is not case acceptance.
+
+| Case | Method and required observation |
+| --- | --- |
+| ISO-01 | Build a release, copy only its executable to a separate installation directory, invoke it in a consumer project without `tools/`; default input discovery and the real requirements checker use embedded scripts/helper/parser. A malformed requirement fails; valid fixture requirements pass. |
+| ISO-02 | Put an incompatible same-named `tools/checks/` script in the project; default selection still executes embedded bytes. Explicit command selection uses project bytes. Built-in library listing shows available resources without a customer script file. |
+| ISO-03 | Register an entry with a helper and rule data, edit or delete all authored files/library, then evaluate: only the retained bundle answers the frozen rules. A new registration sees the edited version. Undeclared/missing helper fails honestly. |
+| ISO-04 | Delete the run's executor cache after registration, recover with `next`, and execute. Check all recovered file hashes against revision 1 and checkout. No authoritative executor bytes exist only in cache. |
+| ISO-05 | Change a retained file, provide path traversal, symlink entry/helper, duplicate dependency or missing interpreter. Refuse initialization or evaluation with no passed gate and no source fallback. |
+| ISO-06 | Two independent projects use the same wish/checkpoint IDs and distinct helpers/data. Interleave process calls and verify cwd, root, outputs, reports and store manifests remain project-specific. |
+| ISO-07 | Select a Python environment under project `cache/`, inject inherited Python import settings, and check that execution uses the selected interpreter, clears import settings, disables user-site writes and retains interpreter version/digest plus all executor-file hashes. |
+| ISO-08 | Reevaluate a failing checker and compare attempt directories: temporary/cache paths and stdout/stderr do not overlap. Input discovery and evaluation obey deadlines; a failing/malformed/timed-out script never passes. |
+| ISO-09 | Run existing Rust/Python checks, model-only/full parse/check, documentation audit/build and affected figure checks; inspect old plans without `bundle`. Preserve diagnostics and unevaluated constraints; disclose unrelated failures. |
+
+The release demonstration is host-specific to the selected bundled parser. Retained lock
+files plus interpreter identity are inspectable provenance, not a copy of installed Python
+packages. No OS sandbox, full environment replay, unified history service or supported
+whole-store restore is established by these cases. Authoring-agent review and technical
+acceptance do not claim independent review or final human acceptance.

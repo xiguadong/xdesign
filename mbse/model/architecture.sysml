@@ -798,4 +798,14 @@ package XDesignArchitecture {
         expose ActivityRecord;
         expose CheckpointAssessment;
     }
+
+    part def CheckerResourceDistribution {
+        @XDesignCommon::DocSection { document = "docs/design/checker-execution.md"; section = "D111"; }
+        doc /* The executable embeds built-in Python sources, their helper and
+           the selected host SysML parser. Project Git owns editable checkpoints
+           and explicitly declared helper/data files. The project store retains
+           immutable run bundles; cache only materializes them. Logical built-in
+           source paths identify embedded resources and never search another project. */
+    }
+
 }

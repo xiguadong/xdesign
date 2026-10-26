@@ -75,4 +75,9 @@ package XDesignTraceability {
     satisfy workingCacheIsRecoverable by XDesignStorage::CheckoutOperation;
     satisfy wishStatusProjectsFlowExecution by XDesignStorage::WishProjection;
     satisfy storageInputAndIntegrityAreChecked by XDesignStorage::DoctorOperation;
+
+    satisfy releasedCheckersAreSelfContained by CheckerResourceDistribution;
+    satisfy checkerExecutorsAreRetained by CheckerExecutorBundle;
+    satisfy checkerExecutionUsesProjectContext by ProjectCheckerExecution;
+
 }

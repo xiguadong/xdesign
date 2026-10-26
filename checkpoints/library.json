@@ -33,7 +33,10 @@
       ],
       "executor": {
         "mode": "script",
-        "command_uri": "tools/checks/simple_requirements.py"
+        "command_uri": "tools/checks/simple_requirements.py",
+        "files": [
+          "tools/checks/common.py"
+        ]
       },
       "checker_id": "simpleRequirementsCheck",
       "criteria": [],

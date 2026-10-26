@@ -72,6 +72,10 @@ e2af4ce3-d0b1-5289-aa90-ffd1c11fbcaf</title>
 <title>XDesignArchitecture
 7def8b87-d29a-5822-b4d9-666bd91325c8
 part Stage
+part ProjectCheckContext
+part CheckpointLibrarySource
+item ReusableCheckpointDefinition
+part OperatorWebProgram
 part Checkpoint
 item Checker
 item CheckerRule
@@ -90,6 +94,7 @@ part Controller
 part XDesign
 part NestedFlowExample
 view recordStructure
+part CheckerResourceDistribution
 kind != CheckKind::syntactic or
             (size(checkers) &gt; 0 and not agentMayJudge and not humanMayJudge)
 kind != CheckKind::semantic or
@@ -282,6 +287,9 @@ CheckpointAssessment
 ref part xdesign : XDesign
 view stageCliPackageView
 controller
+store
+projectChecks
+cli
 vModel
 XDesignComposition
 XDesignWorkflow
@@ -297,6 +305,8 @@ XDesignVerification
 <g id="na1feb391c32f5b036614" class="node diagram-node shape-package" data-native-id="c51d2447-c5bd-5f59-8c8c-d63d6cd44461" data-shape="package">
 <title>XDesignDetailedDesign
 c51d2447-c5bd-5f59-8c8c-d63d6cd44461
+item FrozenCheckBinding
+part CheckpointLibraryService
 part DesignedSimpleFlow
 part SimpleFlowCheckpoint
 part SimpleFlowSyntacticCheckpoint
@@ -397,6 +407,8 @@ viewpoint wishVerifyActivityConcern : DocumentationViewpoint
 viewpoint wishVerifySequenceConcern : DocumentationViewpoint
 viewpoint wishVerifyStateMachineConcern : DocumentationViewpoint
 viewpoint wishVerifyPackageConcern : DocumentationViewpoint
+item CheckerExecutorBundle
+part ProjectCheckerExecution
 ConformanceKind::identifierConformance
 ConformanceKind::artifactPresence
 ConformanceKind::artifactPresence
@@ -713,6 +725,10 @@ action RsValidatePlan
 part RsStageSpec
 part RsCheckpointSpec
 part RsCheckerSpec
+part RsCustomChecker
+part RsCheckpointLibrary
+part RsCheckpointEntry
+part RsOperatorAppState
 part RsCheckerRuleSpec
 part RsStageVisit
 action RsRecordActivity
@@ -784,6 +800,8 @@ action RsStoreCheckout
 action RsStoreDoctor
 action RsRestoreRun
 part RsStageCliApplication
+item RsCheckerBundle
+part RsCheckerResources
 self
 run.status == RsFlowStatus::active
 run.status == RsFlowStatus::blocked
@@ -873,7 +891,10 @@ verificationcase SimpleFlowFilePlanVerification
 verificationcase WishVerifyFlowBehaviorVerification
 verificationcase WishVerifyFlowFilePlanVerification
 verificationcase LocalStageCliRuntimeVerification
+verificationcase CheckpointOperatorDesignReview
+verificationcase CrossProjectCheckpointReview
 verificationcase StorageVerification
+verificationcase CheckerIsolationVerification
 640470ec-0731-5073-b510-e03b3f6c7741</title>
 <polygon fill="white" stroke="#647a91" stroke-width="1.3" points="347.15,-501.08 344.15,-505.08 323.15,-505.08 320.15,-501.08 227.62,-501.08 227.62,-423.06 347.15,-423.06 347.15,-501.08" />
 <rect fill="white" stroke="none" x="236.26" y="-495.32" width="102.25" height="66.5" class="node" /><text xml:space="preserve" text-anchor="start" x="244.26" y="-474.57" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">package</text>

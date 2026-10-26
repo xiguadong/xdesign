@@ -105,6 +105,7 @@ impl RsJudge for ScriptedJudge {
 
 fn sneaky_checker() -> RsCheckerSpec {
     RsCheckerSpec {
+        bundle: None,
         checker_id: "unmodeledCheck".into(),
         command_uri: "tools/checks/simple_requirements.py".into(),
         establishes: vec![RsConformanceKind::ArtifactPresence],
@@ -474,6 +475,8 @@ fn custom_check_bindings_are_rejected_for_wish_verify() {
         command_uri: Option<&str>,
     ) -> RsCheckBinding {
         RsCheckBinding {
+            files: vec![],
+            python: None,
             checkpoint_id: checkpoint_id.into(),
             mode,
             cli: cli.map(str::to_owned),
@@ -545,6 +548,8 @@ fn library_check_bindings_are_rejected_for_wish_verify() {
         schema_version: 1,
         checks: vec![
             RsCheckBinding {
+                files: vec![],
+                python: None,
                 checkpoint_id: "simpleRequirementsAccepted".into(),
                 mode: RsCheckBindingMode::Library,
                 cli: None,
@@ -553,6 +558,8 @@ fn library_check_bindings_are_rejected_for_wish_verify() {
                 library_id: Some("some-library-checkpoint".into()),
             },
             RsCheckBinding {
+                files: vec![],
+                python: None,
                 checkpoint_id: "verificationAccepted".into(),
                 mode: RsCheckBindingMode::Library,
                 cli: None,

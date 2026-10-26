@@ -643,6 +643,8 @@ function openCheckpointForm(app, { entry = null, duplicate = false, onSaved = nu
     inputs: entry && entry.inputs ? entry.inputs.join("\n") : "",
     execMode: scriptExecutor ? "reuse" : cliExecutor ? "cli" : "reuse",
     command_uri: scriptExecutor ? scriptExecutor.command_uri : "",
+    files: scriptExecutor ? (scriptExecutor.files || []).join("\n") : "",
+    python: scriptExecutor ? scriptExecutor.python || "" : "",
     createScript: false,
     cli: cliExecutor ? cliExecutor.cli : (defaultAgent ? defaultAgent.cli : "codex"),
     model: cliExecutor ? cliExecutor.model : (defaultAgent ? defaultAgent.default_model || "" : ""),
@@ -1003,6 +1005,16 @@ function renderFormBody(app, form, { editing = false, sample = false } = {}) {
                       ${errorFor("executor")}
                     </div>`
             }
+            ${form.execMode !== "cli" ? `<div class="field" style="margin-top:12px">
+              <label class="label" for="cp-files">Helper and data files <span class="optional">optional, one project-relative path per line</span></label>
+              <textarea class="textarea textarea--mono" id="cp-files" data-form-field="files" rows="3" placeholder="checkpoints/scripts/budget/helper.py">${esc(form.files)}</textarea>
+              <div class="field__hint">The entry script is included automatically. New runs retain these files with it.</div>
+            </div>
+            <div class="field" style="margin-top:12px">
+              <label class="label" for="cp-python">Python environment <span class="optional">optional</span></label>
+              <input class="input input--mono" id="cp-python" data-form-field="python" value="${esc(form.python)}" placeholder="cache/checkers/budget/bin/python3" spellcheck="false" />
+              <div class="field__hint">Use an existing project environment under cache/. Leave empty to use python3 from PATH.</div>
+            </div>` : ""}
           </div>`
     }
     ${sample ? `<div class="lib-detail__note">${icon("info")}<span>Sample mode: the form is fully interactive for exploration, but saving is disabled.</span></div>` : ""}
@@ -1079,6 +1091,12 @@ function buildRequestBody(form) {
     } else {
       body.executor = { mode: "script", command_uri: (form.command_uri || "").trim() };
     }
+  }
+  if (body.executor && body.executor.mode === "script") {
+    const files = parseLines(form.files);
+    const python = (form.python || "").trim();
+    if (files.length) body.executor.files = files;
+    if (python) body.executor.python = python;
   }
   if (form.editingId) body.version = 0; // server derives the next version; field is advisory only
   return body;

@@ -422,14 +422,58 @@ impl RsProcessCheck {
             visit,
             plan_bytes: _,
         } = prepared;
-        if !Path::new(&checker.command_uri).is_file() {
+        if checker.bundle.is_none() && !Path::new(&checker.command_uri).is_file() {
             return Err(RsGateError::CommandFailed);
         }
         let (report_uri, timeout) = self.report_target(stage, artifact_revision)?;
+        let commands = plan_json["checkpoints"]
+            .as_array()
+            .ok_or(RsGateError::CommandFailed)?
+            .iter()
+            .filter_map(|g| {
+                let c = &g["checker"];
+                c["command_uri"].as_str().map(|uri| {
+                    (
+                        uri.to_owned(),
+                        c["bundle"]["entry_uri"].as_str().unwrap_or(uri).to_owned(),
+                    )
+                })
+            })
+            .collect();
+        let attempt = format!("{report_uri}.attempt");
+        let mut command = super::resources::python_command(checker, &attempt, &commands)
+            .map_err(|_| RsGateError::CommandFailed)?;
+        let interpreter = if checker.bundle.is_some() {
+            match super::resources::interpreter_identity(&command) {
+                Ok(identity) => Some(identity),
+                Err(error) => {
+                    let _ = fs::write(format!("{report_uri}.stdout.log"), "");
+                    let _ = fs::write(format!("{report_uri}.stderr.log"), &error);
+                    let _ = fs::write(format!("{report_uri}.execution.json"), serde_json::json!({"entry_uri": checker.bundle.as_ref().unwrap().entry_uri, "interpreter_error": error, "attempt_directory": attempt}).to_string());
+                    return Err(RsGateError::CommandFailed);
+                }
+            }
+        } else {
+            None
+        };
+        let execution = checker.bundle.as_ref().map(|bundle| {
+            serde_json::json!({
+                "source": bundle.source, "entry_uri": bundle.entry_uri, "files": bundle.files,
+                "interpreter": interpreter, "project_root": std::env::current_dir().ok(),
+                "attempt_directory": attempt,
+            })
+        });
+        let execution_uri = format!("{report_uri}.execution.json");
+        let execution_bytes = execution
+            .as_ref()
+            .map(serde_json::to_vec_pretty)
+            .transpose()
+            .map_err(|_| RsGateError::CommandFailed)?;
+        if let Some(bytes) = &execution_bytes {
+            fs::write(&execution_uri, bytes).map_err(|_| RsGateError::CommandFailed)?;
+        }
         let output = run_command_with_timeout(
-            Command::new("python3")
-                .env("PYTHONDONTWRITEBYTECODE", "1")
-                .arg(&checker.command_uri)
+            command
                 .arg("--wish-model")
                 .arg(wish_model)
                 .arg("--record")
@@ -471,6 +515,37 @@ impl RsProcessCheck {
         }
         if !output.success {
             return Err(RsGateError::CommandFailed);
+        }
+        if let Some(bundle) = &checker.bundle {
+            super::resources::verify_bundle(bundle).map_err(|_| RsGateError::CommandFailed)?;
+            let mut raw: serde_json::Value = serde_json::from_slice(
+                &fs::read(&report_uri).map_err(|_| RsGateError::CommandFailed)?,
+            )
+            .map_err(|_| RsGateError::CommandFailed)?;
+            let hashes = raw["input_sha256"]
+                .as_object_mut()
+                .ok_or(RsGateError::CommandFailed)?;
+            for file in &bundle.files {
+                if hashes
+                    .get(&file.uri)
+                    .is_some_and(|value| value.as_str() != Some(file.sha256.as_str()))
+                {
+                    return Err(RsGateError::CommandFailed);
+                }
+                hashes.insert(file.uri.clone(), serde_json::json!(file.sha256));
+            }
+            hashes.insert(
+                execution_uri,
+                serde_json::json!(sha256_bytes(
+                    execution_bytes.as_ref().ok_or(RsGateError::CommandFailed)?
+                )),
+            );
+            raw["execution"] = execution.ok_or(RsGateError::CommandFailed)?;
+            fs::write(
+                &report_uri,
+                serde_json::to_vec_pretty(&raw).map_err(|_| RsGateError::CommandFailed)?,
+            )
+            .map_err(|_| RsGateError::CommandFailed)?;
         }
         Self::validate_raw_report(
             checker,
@@ -715,7 +790,20 @@ impl RsProcessCheck {
             if sha256_bytes(&bytes) != *digest {
                 return Err(RsGateError::CommandFailed);
             }
+            let executor_input = plan_json["checkpoints"].as_array().is_some_and(|gates| {
+                gates.iter().any(|gate| {
+                    gate["checker"]["bundle"]["files"]
+                        .as_array()
+                        .is_some_and(|files| {
+                            files
+                                .iter()
+                                .any(|f| f["uri"] == *uri && f["sha256"] == *digest)
+                        })
+                })
+            }) || checker.bundle.is_some()
+                && uri == &format!("{report_uri}.execution.json");
             if (stage == "requirements" || stage == "design")
+                && !executor_input
                 && uri.as_str() != wish_model
                 && uri.as_str() != run_record
                 && uri.as_str() != plan_uri
@@ -815,7 +903,11 @@ impl RsProcessCheck {
                             plan_json["checkpoints"].as_array().is_some_and(|gates| {
                                 let commands: Vec<_> = gates
                                     .iter()
-                                    .filter_map(|gate| gate["checker"]["command_uri"].as_str())
+                                    .filter_map(|gate| {
+                                        gate["checker"]["bundle"]["entry_uri"]
+                                            .as_str()
+                                            .or_else(|| gate["checker"]["command_uri"].as_str())
+                                    })
                                     .collect();
                                 commands.len() == 4
                                     && commands.iter().all(|command| inputs.contains(command))

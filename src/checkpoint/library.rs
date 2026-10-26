@@ -68,6 +68,10 @@ pub struct RsCheckpointExecutor {
     pub mode: RsCheckpointExecutorMode,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub command_uri: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub files: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub python: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cli: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -79,6 +83,8 @@ impl RsCheckpointExecutor {
         Self {
             mode: RsCheckpointExecutorMode::Script,
             command_uri: Some(command_uri.to_owned()),
+            files: vec![],
+            python: None,
             cli: None,
             model: None,
         }
@@ -401,9 +407,11 @@ impl RsCheckpointLibrary {
 
     /// Whether the entry's script executor path exists in the project.
     pub fn script_exists(&self, entry: &RsCheckpointEntry) -> bool {
-        entry
-            .script_uri()
-            .is_some_and(|uri| self.root.join(uri).is_file())
+        entry.script_uri().is_some_and(|uri| {
+            BUILTIN_IDS.contains(&entry.checkpoint_id.as_str())
+                && crate::simple_flow::resources::is_builtin_command(uri)
+                || self.root.join(uri).is_file()
+        })
     }
 
     /// Non-fatal library concerns: currently entries whose script executor
@@ -734,6 +742,26 @@ fn validate_executor_shape(
                     entry.checkpoint_id
                 )));
             }
+            let mut seen = HashSet::from([uri]);
+            for file in &executor.files {
+                if !normalized_project_uri(file)
+                    || !seen.insert(file.as_str())
+                    || script_must_exist && !root.join(file).is_file()
+                {
+                    return Err(RsCheckpointError::Invalid(format!(
+                        "invalid, duplicate or missing checker dependency: {file}"
+                    )));
+                }
+            }
+            if executor
+                .python
+                .as_deref()
+                .is_some_and(|p| !normalized_project_uri(p) || !p.starts_with("cache/"))
+            {
+                return Err(RsCheckpointError::Invalid(
+                    "checker python must be project-relative under cache/".into(),
+                ));
+            }
             if script_must_exist && !root.join(uri).is_file() {
                 return Err(RsCheckpointError::Invalid(format!(
                     "checkpoint {}: script does not exist: {uri}",
@@ -742,7 +770,10 @@ fn validate_executor_shape(
             }
         }
         RsCheckpointExecutorMode::Cli => {
-            if executor.command_uri.is_some() {
+            if executor.command_uri.is_some()
+                || !executor.files.is_empty()
+                || executor.python.is_some()
+            {
                 return Err(RsCheckpointError::Invalid(format!(
                     "checkpoint {}: a cli executor cannot carry a command_uri",
                     entry.checkpoint_id
@@ -1530,6 +1561,8 @@ mod tests {
         expect_invalid(save(&root, invalid));
         let mut invalid = base.clone();
         invalid.executor = Some(RsCheckpointExecutor {
+            files: vec![],
+            python: None,
             mode: RsCheckpointExecutorMode::Cli,
             command_uri: None,
             cli: Some("other".into()),
@@ -1543,6 +1576,8 @@ mod tests {
         expect_invalid(save(&root, invalid));
         let mut invalid = base.clone();
         invalid.executor = Some(RsCheckpointExecutor {
+            files: vec![],
+            python: None,
             mode: RsCheckpointExecutorMode::Cli,
             command_uri: None,
             cli: Some("codex".into()),
@@ -1662,24 +1697,14 @@ mod tests {
     }
 
     #[test]
-    fn library_issues_report_missing_builtin_scripts() {
-        // User entries are validated to name existing scripts, but the built-in
-        // seeds can be listed in a project that does not carry tools/checks.
+    fn builtin_scripts_are_available_without_project_source_files() {
         let root = temp_project("issues");
         let library = RsCheckpointLibrary::load(&root).unwrap();
-        let issues = library.issues();
-        assert!(
-            issues
-                .iter()
-                .any(|issue| issue.contains("missing script: tools/checks/simple_requirements.py")),
-            "{issues:?}"
-        );
-        assert_eq!(
-            issues
-                .iter()
-                .filter(|issue| issue.starts_with("missing script:"))
-                .count(),
-            4
-        );
+        assert!(library.issues().is_empty());
+        assert!(library
+            .entries()
+            .filter(|(_, builtin)| *builtin)
+            .filter(|(entry, _)| entry.script_uri().is_some())
+            .all(|(entry, _)| library.script_exists(entry)));
     }
 }

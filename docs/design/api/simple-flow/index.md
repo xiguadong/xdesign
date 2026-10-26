@@ -41,3 +41,5 @@ blueprint plays the `SimpleFlowRun` role. The split's source move landed with
 step 3 of the
 [restructure plan](../../../records/plans/api-layering.md#p22);
 the code now lives in `src/core/` + `src/simple_flow/`.
+
+Release resources use [freeze_executors](freeze-executors.md#u111), [python_command](python-command.md#u112) and [command_map](command-map.md#u113).

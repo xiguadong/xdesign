@@ -692,6 +692,8 @@ fn binding(
     command_uri: Option<&str>,
 ) -> RsCheckBinding {
     RsCheckBinding {
+        files: vec![],
+        python: None,
         checkpoint_id: checkpoint_id.into(),
         mode,
         cli: cli.map(str::to_owned),
@@ -972,6 +974,8 @@ fn checkpoint_entry(
 
 fn library_binding(checkpoint_id: &str, library_id: &str) -> RsCheckBinding {
     RsCheckBinding {
+        files: vec![],
+        python: None,
         checkpoint_id: checkpoint_id.into(),
         mode: RsCheckBindingMode::Library,
         cli: None,

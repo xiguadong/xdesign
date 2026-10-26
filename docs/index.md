@@ -19,6 +19,7 @@ package, timeline, and swimlane diagrams together on one page.
 | What the system must do and why | [requirements/index.md](requirements/index.md) |
 | How the flows and runs are designed | [design/index.md](design/index.md) |
 | How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, a custom command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
+| How released scripts, project scripts and retained executor bundles are stored | [Checker execution](design/checker-execution.md#d111) |
 | How reusable checks are authored, versioned, and shared across wishes | [Checkpoint library](design/checkpoint-library.md#d97) |
 | Where checks and history belong in a real project, and the proposed cross-project boundary | [Project ownership and history](design/checkpoint-library.md#d107); [cross-project proposal](design/checkpoint-library.md#d108) |
 | The embedded operator web page and its local HTTP contract | [Operator web program](design/web-operator.md#d91) and [operator web API](interfaces/web-api.md#i16) |

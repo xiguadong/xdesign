@@ -21,7 +21,7 @@ package XDesignDetailedDesign {
         doc /* As-built projection across the frozen plan and work definition.
            libraryId is optional origin text, not a versioned package identity.
            Rules, criteria, permissions, runner and selected input paths are copied
-           at init; commandUri does not freeze script bytes or dependencies.
+           at init; new stored runs additionally retain the declared executor bundle.
            Library input selection replaces checker selectors only for the
            requirements and design stages in the current implementation. */
         attribute checkpointId : String;
@@ -928,6 +928,8 @@ package XDesignDetailedDesign {
             item checkerCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/test_simple_flow_checkers.py"; attribute redefines responsibility = "Rule and report contract cases"; }
             item designLayoutCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/test_simple_flow_design_layout.py"; attribute redefines responsibility = "Design declaration layout cases"; }
         }
+        item checkerResources : SimpleFlowFileEntry { attribute redefines repositoryPath = "src/simple_flow/resources.rs"; attribute redefines responsibility = "Embedded resources, executor freezing and project Python context"; }
+        item checkerIsolationCases : SimpleFlowFileEntry { attribute redefines repositoryPath = "tests/checker_isolation.rs"; attribute redefines responsibility = "Released-binary checker ownership, dependency and project isolation acceptance"; }
     }
 
     view simpleFlowFilePlanView : StandardViewDefinitions::BrowserView {
@@ -2160,4 +2162,29 @@ package XDesignDetailedDesign {
         attribute redefines concernText = "Which model packages carry this flow's design?";
         attribute redefines stakeholderRole = "model maintainer";
     }
+
+    item def CheckerExecutorBundle {
+        @XDesignCommon::DocSection { document = "docs/design/checker-execution.md"; section = "D111"; }
+        attribute source : String;
+        attribute entryUri : String;
+        attribute python : String [0..1];
+        attribute fileUris : String [1..*];
+        attribute fileSha256 : String [1..*];
+        doc /* A frozen plan binds each script entry to exact regular-file bytes.
+           Bundle files are run-confined cache URIs backed by store materials.
+           Python is an optional project-relative environment executable, not an
+           archived environment. Interpreter/version/digest are recorded per attempt. */
+    }
+    part def ProjectCheckerExecution {
+        @XDesignCommon::DocSection { document = "docs/design/checker-execution.md"; section = "D111"; }
+        ref item bundle : CheckerExecutorBundle;
+        attribute projectRoot : String;
+        attribute attemptDirectory : String;
+        doc /* Verify every retained executor digest before input discovery and
+           evaluation. Execute with project cwd, cleared inherited Python import
+           settings, user-site disabled and private temporary/cache paths. Augment
+           reports with all executor-file hashes and interpreter identity, then
+           apply the existing report and gate contracts. This is not an OS sandbox. */
+    }
+
 }

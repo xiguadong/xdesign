@@ -278,6 +278,8 @@ fn command_binding_runs_the_bound_project_script_with_the_raw_report_contract() 
     let config = RsCheckBindingConfig {
         schema_version: 1,
         checks: vec![RsCheckBinding {
+            files: vec![],
+            python: None,
             checkpoint_id: "simpleRequirementsAccepted".into(),
             mode: RsCheckBindingMode::Command,
             cli: None,
@@ -396,6 +398,8 @@ fn kimi_cli_binding_uses_the_override_program_and_its_argument_shape() {
     let config = RsCheckBindingConfig {
         schema_version: 1,
         checks: vec![RsCheckBinding {
+            files: vec![],
+            python: None,
             checkpoint_id: "simpleRequirementsAccepted".into(),
             mode: RsCheckBindingMode::Cli,
             cli: Some("kimi".into()),

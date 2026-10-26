@@ -38,3 +38,5 @@ Status: implemented. The source moved from `src/simple_flow/` to
 `src/core/` with step 3 of the
 [restructure plan](../../../records/plans/api-layering.md#p22);
 this map matches the code.
+
+The optional [checker bundle](rs-checker-bundle.md#u110) retains executor identity in new store-backed plans.

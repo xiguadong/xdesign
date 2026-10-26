@@ -5,3 +5,5 @@ pub mod factory;
 pub use blueprint::*;
 pub use check::*;
 pub use factory::*;
+
+pub mod resources;

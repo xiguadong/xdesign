@@ -952,6 +952,8 @@ fn custom_check_binding_plans_are_projected_while_unknown_checker_members_stay_r
     let config = xdesign::simple_flow::RsCheckBindingConfig {
         schema_version: 1,
         checks: vec![xdesign::simple_flow::RsCheckBinding {
+            files: vec![],
+            python: None,
             checkpoint_id: "simpleRequirementsAccepted".into(),
             mode: xdesign::simple_flow::RsCheckBindingMode::Cli,
             cli: Some("codex".into()),

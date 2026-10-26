@@ -288,6 +288,7 @@ attribute reads [1..*]
 <g id="nf335cd0826a73cbc7886" class="node diagram-node shape-box" data-native-id="398736ac-2f22-5ec9-ac93-1565f608ee15" data-shape="box">
 <title>XDesignRustUml::RsCheckerSpec
 398736ac-2f22-5ec9-ac93-1565f608ee15
+ref item bundle : RsCheckerBundle [0..1]
 attribute checkerId
 attribute commandUri
 attribute establishes : RsConformanceKind [1..*]

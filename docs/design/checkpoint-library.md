@@ -36,8 +36,9 @@ library separates the *reusable check definition* from the *gate binding*:
    work inputs are frozen into the plan and work definition. The run no longer reads the
    library entry.
 5. **Run** — `next` and `check` use the frozen rules, criteria and executor selection.
-   Library edits do not replace those fields. A script executor still reads its current
-   project file: script bytes and dependencies are not pinned at initialization.
+   Library edits do not replace those fields. New store-backed runs also retain the script
+   and declared helper/data bundle at initialization ([checker execution](checker-execution.md#d111));
+   legacy plans without a bundle keep their original path-based behavior.
 
 The library is project content, not a service or an operational record. `checkpoints/` is
 Git-tracked authoring source like the SysML model and the checker commands, reviewed and
@@ -137,7 +138,7 @@ A **syntactic** entry is a rule set that a deterministic or agent executor can a
 | --- | --- |
 | `rules` | At least one `{rule_id, condition, reads[1..]}`; `reads` uses the same vocabulary as checker reads |
 | `inputs` | At least one normalized project-relative file that exists; frozen into the stage's work at initialization |
-| `executor` | `{"mode": "script", "command_uri": "<project-relative .py>"}` or `{"mode": "cli", "cli": "codex"\|"kimi", "model": "<non-empty>"}` |
+| `executor` | Script mode accepts `command_uri` plus optional declared `files` and project-local `python` ([D111](checker-execution.md#d111)); otherwise `{"mode": "cli", "cli": "codex"\|"kimi", "model": "<non-empty>"}` |
 | `checker_id` | Optional checker identity `[A-Za-z0-9][A-Za-z0-9_-]{0,127}` used when the executor is a shipped checker script that reports its own hardcoded identity. When present it becomes the frozen `checker.checker_id` and the assessment assessor; otherwise the library id is the identity. Not allowed on a semantic entry |
 
 A **semantic** entry is a criterion set that a permitted judge reads:
@@ -272,21 +273,19 @@ The resolved plan fields are frozen, so the library is not re-read for evaluatio
 - `next`, `check`, restore, the record checker, and the operator page reconstruct the
   binding from the frozen plan; a later library edit, rename, or delete changes nothing for
   an existing run.
-- A default or non-library run is byte-identical to before; library mode adds frozen fields
-  only to the run that chose it.
+- New store-backed runs include frozen executor bundles. Legacy plans without a bundle
+  remain readable and keep their original execution contract.
 - The frozen checker id for a script binding is the entry's declared `checker_id`, or the
   library id when it declares none, so an assessment names the executor that answered the
   frozen rules rather than the built-in checker it replaced.
 - To use a changed definition, register a new wish; this round exposes no rebind action.
 
-The frozen provenance is only the library ID. It does not include the entry version,
-definition digest, upstream origin or script digest. The script path is frozen, while
-`run_process_check` invokes the current file at that path. A report's `input_sha256`
-materials retain the bytes that the report actually declares; generated scaffolds declare
-their own script bytes. This is evidence of a particular execution, not an initialization
-lock on the executor or its imported dependencies. Library-selected input paths replace
-the built-in selectors only for requirements and design; implement and verify retain
-their existing output selection (`src/stage_cli/work.rs::freeze_with_inputs`).
+The library ID remains the definition provenance; it is not a package version or upstream
+origin. New store-backed runs also freeze entry/helper/data digests and retain exact
+executor bytes at registration, as specified in [checker execution](checker-execution.md#d111).
+Script/library edits affect new runs. Legacy plans without `checker.bundle` retain their
+original live-path behavior. Library-selected input paths replace built-in selectors only
+for requirements and design; implement and verify retain their existing selection.
 
 The operator page shows the frozen plan's `library_id` and frozen rules or criteria first.
 It resolves the current library only for a display summary (`title`, `version`, `builtin`)
@@ -357,12 +356,13 @@ selected store when needed (`src/stage_cli/persistent.rs::init`).
 | Check attempts and judgments | Wish run visits and assessments in the store, with report/input/log/evidence materials | Preserve failed and unevaluated attempts as well as passes |
 | Working wish, plan, reports and exchanges | `cache/wishes/`, `cache/xdesign/` and other declared cache paths | Regenerable working copies when the corresponding materials were retained |
 
-The built-in SimpleFlow checks assume this repository's model and source layout, and the
-binary does not ship the default `tools/checks/*.py` files. A fresh customer project can
-list the built-in definitions without being able to execute them. It needs compatible
-project scripts and input mappings; copying only `library.json` is insufficient. Library
-input selection currently changes requirements/design only. General project templates and
-arbitrary stage output mapping remain unimplemented.
+The built-in requirements/design rules still assume xdesign's model conventions. The
+released binary now embeds their scripts, helper and selected parser; the logical
+`tools/checks/` source names require no customer `tools/` directory. Project-specific
+rules use explicit scripts and declared helpers/data, retained with new registrations
+([checker execution](checker-execution.md#d111)). Library input selection changes
+requirements/design only. General project templates and arbitrary stage output mapping
+remain separate work.
 
 ### 7.2 Three meanings of history
 
@@ -506,3 +506,5 @@ identity; add pinned package import; then add cross-project history projection. 
 [verification matrix](../verification/design.md#d110) states the current design review
 and future executable obligations separately. No cross-project execution, package import
 or portable store recovery is delivered by this reconciliation.
+
+The retained-executor realization also updates `src/storage/ops.rs` to accept the optional bundle in its strict read-only projection. `web/assets/js/views/checkpoints.js` exposes and preserves script helper/data declarations and project Python selection. Failed launches, timeouts and malformed reports retain direct output under the `checker-attempt` material role; those bytes are unvalidated output, never an authorized gate report.

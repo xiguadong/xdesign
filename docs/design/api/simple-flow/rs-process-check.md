@@ -25,7 +25,8 @@ provides its own `RsCheckCommand` adapter; `xdesign::core` owns only the trait
 and the report types.
 
 **Contract** — `run_check` first verifies the frozen plan file and the current JSON
-run record identity, stage, revision, and artifact snapshot bytes. It then runs
+run record identity, stage, revision, and artifact snapshot bytes. It then runs the retained entry with its selected Python when `checker.bundle` is present
+([execution design](../../checker-execution.md#d111)), otherwise the legacy
 `python3 <command_uri>` with the wish, record, checker, plan, stage, revision,
 snapshot digest, and report path arguments. The raw report must identify the same
 checker/stage/revision/digest, contain each declared rule once with a verdict,

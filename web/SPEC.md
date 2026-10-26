@@ -954,3 +954,5 @@ xdesign check WISH_ID --result FILE  # submit stage outputs; evaluates gates and
   zero external requests as before.
 - Docs: checkpoint library design + interface updates, stage CLI/library mode,
   start-work handoff semantics, verification cases; docs audit and build clean.
+
+Script executor objects also accept optional `files` (additional normalized project-relative helper/data paths) and `python` (a project-relative environment executable under `cache/`). The script editor exposes and preserves both values. New runs freeze and retain executor bundles; see `docs/design/checker-execution.md#d111`. Built-in availability refers to embedded resources and does not require a project `tools/` file.

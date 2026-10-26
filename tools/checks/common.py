@@ -11,6 +11,7 @@ import argparse
 from dataclasses import dataclass
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath
 import re
 import subprocess
@@ -18,7 +19,7 @@ import sys
 from typing import Any, Callable
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(os.environ["XDESIGN_PROJECT_ROOT"]).resolve() if "XDESIGN_PROJECT_ROOT" in os.environ else Path(__file__).resolve().parents[2]
 HEX64 = re.compile(r"[0-9a-f]{64}\Z")
 EXPECTED_STAGE = {
     "simpleRequirementsCheck": "requirements",
@@ -119,6 +120,13 @@ class Context:
         """Read only snapshot-bound rule input bytes."""
         normalized = relative_uri(self.root, uri)
         digest = self.artifact_hashes.get(normalized)
+        if digest is None:
+            # Executor resources are authenticated by the frozen plan, not stage outputs.
+            matches = [f["sha256"] for gate in self.plan.get("checkpoints", [])
+                       for f in ((gate.get("checker") or {}).get("bundle") or {}).get("files", [])
+                       if f.get("uri") == normalized]
+            if matches and len(set(matches)) == 1:
+                digest = matches[0]
         if digest is None:
             raise CheckInputError(f"rule input is absent from current artifact snapshot: {normalized}")
         data = read_bytes(self.root, normalized)
@@ -309,7 +317,7 @@ def attribute_string(body: str, name: str) -> str | None:
 
 def require_sysml_parse(root: Path, uris: list[str]) -> None:
     """Use the repository-pinned parser before inspecting SysML declarations."""
-    compiler = ROOT / "tools" / "sysml_web" / "bin" / "sysml"
+    compiler = Path(os.environ["XDESIGN_SYSML_COMPILER"]) if "XDESIGN_SYSML_COMPILER" in os.environ else ROOT / "tools" / "sysml_web" / "bin" / "sysml"
     if not compiler.is_file():
         raise CheckInputError("the pinned SysML compiler is missing")
     paths = [str(repository_path(root, uri)) for uri in uris]

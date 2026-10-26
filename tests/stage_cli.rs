@@ -134,12 +134,38 @@ impl Project {
     }
     fn legacy_init(&self, flow: &str) -> Value {
         self.json(&["init", "wish-test", "--flow", flow], 0);
+        // Recreate the actual legacy contract: no retained bundle and live source paths.
+        let plan_uri = "cache/xdesign/wish-test/plan.json";
+        let mut plan: Value =
+            serde_json::from_slice(&fs::read(self.root.join(plan_uri)).unwrap()).unwrap();
+        let commands: Vec<Value> = plan["checkpoints"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .filter_map(|gate| {
+                gate.get_mut("checker")
+                    .and_then(Value::as_object_mut)
+                    .map(|checker| {
+                        checker.remove("bundle");
+                        checker["command_uri"].clone()
+                    })
+            })
+            .collect();
+        let plan_bytes = serde_json::to_vec_pretty(&plan).unwrap();
+        let plan_sha256 = sha256_bytes(&plan_bytes);
+        self.write(plan_uri, &plan_bytes);
         let legacy_wish = "mbse/wishes/wish-test.sysml";
         let working_wish = "cache/wishes/wish-test.sysml";
         let work_uri = "cache/xdesign/wish-test/work.json";
         let mut work: Value =
             serde_json::from_slice(&fs::read(self.root.join(work_uri)).unwrap()).unwrap();
         for stage in work["stages"].as_array_mut().unwrap() {
+            if stage["stage_id"] == "design" {
+                stage["frozen_paths"]
+                    .as_array_mut()
+                    .unwrap()
+                    .extend(commands.iter().cloned());
+            }
             for path in stage["frozen_paths"].as_array_mut().unwrap() {
                 if path == working_wish {
                     *path = json!(legacy_wish);
@@ -152,11 +178,13 @@ impl Project {
         let mut run: Value =
             serde_json::from_slice(&fs::read(self.root.join(run_uri)).unwrap()).unwrap();
         run["wish_model_uri"] = json!(legacy_wish);
+        run["plan_sha256"] = json!(plan_sha256);
         self.write(run_uri, &serde_json::to_vec_pretty(&run).unwrap());
         let registry_uri = "cache/xdesign/wish-test/registry.json";
         let mut registry: Value =
             serde_json::from_slice(&fs::read(self.root.join(registry_uri)).unwrap()).unwrap();
         registry["wish_model_uri"] = json!(legacy_wish);
+        registry["plan_sha256"] = json!(plan_sha256);
         registry["work_sha256"] = json!(sha256_bytes(&work_bytes));
         self.write(registry_uri, &serde_json::to_vec_pretty(&registry).unwrap());
         fs::remove_dir_all(self.root.join(".xdesign")).unwrap();
@@ -697,8 +725,8 @@ fn init_checks_binds_an_agent_cli_and_the_frozen_plan_reloads_for_next() {
     let next = project.next();
     assert_eq!(next["work"]["stage_id"], "design");
 
-    // A run without --checks freezes the unchanged default plan and keeps the
-    // deterministic script authority.
+    // A run without --checks adds resource retention while preserving the logical
+    // default plan and deterministic script authority.
     project.write("mbse/wishes/wish-plain.sysml", b"package PlainWish {}\n");
     project.json(&["init", "wish-plain", "--flow", "simple-flow"], 0);
     let expected_dir = format!("cache/implementation/rust-tests/{}", uuid::Uuid::new_v4());
@@ -709,9 +737,17 @@ fn init_checks_binds_an_agent_cli_and_the_frozen_plan_reloads_for_next() {
         .unwrap();
     let expected_bytes = fs::read(format!("{expected_dir}/plan.json")).unwrap();
     let frozen = fs::read(project.root.join("cache/xdesign/wish-plain/plan.json")).unwrap();
+    let mut logical: Value = serde_json::from_slice(&frozen).unwrap();
+    for gate in logical["checkpoints"].as_array_mut().unwrap() {
+        if let Some(checker) = gate["checker"].as_object_mut() {
+            assert_eq!(checker["bundle"]["source"], "builtin-v1");
+            checker.remove("bundle");
+        }
+    }
     assert_eq!(
-        frozen, expected_bytes,
-        "a run without --checks must freeze the unchanged default plan"
+        logical,
+        serde_json::from_slice::<Value>(&expected_bytes).unwrap(),
+        "new executor retention must preserve the logical default gates and rules"
     );
     assert!(!String::from_utf8_lossy(&frozen).contains("\"custom\""));
     let plain = project.json(&["check", "wish-plain"], 0);
@@ -1162,10 +1198,11 @@ fn init_with_scaffolded_script_library_binding_runs_the_script() {
         serde_json::from_slice(&fs::read(project.root.join(report_uri)).unwrap()).unwrap();
     assert_eq!(report["checker_id"], "requirementsLibraryIdentity");
     assert_eq!(report["overall_verdict"], "passed");
-    assert!(report["input_sha256"]
-        .as_object()
-        .unwrap()
-        .contains_key(&script_uri));
+    assert!(report["input_sha256"].as_object().unwrap().contains_key(
+        project.plan_json("wish-test")["checkpoints"][0]["checker"]["bundle"]["entry_uri"]
+            .as_str()
+            .unwrap()
+    ));
     // next reloads the frozen library plan from the store.
     assert_eq!(project.next()["work"]["stage_id"], "design");
 }
@@ -1365,17 +1402,17 @@ fn init_with_semantic_library_binding_freezes_criteria_and_judges() {
 }
 
 #[test]
-fn init_without_checks_keeps_the_default_plan_bytes() {
+fn init_without_checks_retains_builtins_and_keeps_the_default_logical_plan() {
     let project = Project::simple(false);
     project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
-    let plan_path = project.root.join("cache/xdesign/wish-test/plan.json");
-    let bytes = fs::read(&plan_path).unwrap();
-    assert_eq!(
-        sha256_bytes(&bytes),
-        "10864848c1cae28233827d7cd8d82b7a4c6a677a9c16a5687fcbdc3e9227ca04",
-        "a run without --checks must freeze the unchanged default plan"
-    );
-    assert!(!String::from_utf8_lossy(&bytes).contains("\"library\""));
+    let plan = project.plan_json("wish-test");
+    for gate in plan["checkpoints"].as_array().unwrap() {
+        if gate["checker"].is_object() {
+            assert_eq!(gate["checker"]["bundle"]["source"], "builtin-v1");
+            assert!(gate["checker"].get("custom").is_none());
+        }
+        assert!(gate.get("library").is_none());
+    }
 }
 
 #[test]
@@ -1397,6 +1434,7 @@ fn init_with_reused_shipped_checker_library_binding_passes() {
     entry["executor"] = json!({
         "mode": "script",
         "command_uri": "tools/checks/simple_requirements.py",
+        "files": ["tools/checks/common.py"],
     });
     entry["checker_id"] = json!("simpleRequirementsCheck");
     project.save_checkpoint(&entry, 0);

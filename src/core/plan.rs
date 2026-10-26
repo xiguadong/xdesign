@@ -41,10 +41,42 @@ pub struct RsCustomChecker {
     pub model: Option<String>,
 }
 
+/// Exact executor files retained by a store-backed registration (D111/U110).
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct RsCheckerBundle {
+    pub source: String,
+    pub entry_uri: String,
+    pub files: Vec<crate::core::RsArtifactDigest>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub python: Option<String>,
+}
+
+impl RsCheckerBundle {
+    pub(crate) fn valid(&self) -> bool {
+        let mut seen = HashSet::new();
+        matches!(self.source.as_str(), "builtin-v1" | "project")
+            && valid_relative_path(&self.entry_uri)
+            && self.entry_uri.ends_with(".py")
+            && !self.files.is_empty()
+            && self.files.len() <= 256
+            && self.files.iter().all(|f| {
+                valid_relative_path(&f.uri) && valid_digest(&f.sha256) && seen.insert(&f.uri)
+            })
+            && self.files.iter().any(|f| f.uri == self.entry_uri)
+            && self
+                .python
+                .as_deref()
+                .is_none_or(|p| valid_relative_path(p) && p.starts_with("cache/"))
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct RsCheckerSpec {
     pub checker_id: String,
     pub command_uri: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle: Option<RsCheckerBundle>,
     pub establishes: Vec<RsConformanceKind>,
     pub rules: Vec<RsCheckerRuleSpec>,
     /// Absent for the deterministic default binding, so default plan bytes
@@ -234,6 +266,10 @@ impl RsFlowPlan {
                     || !checker_ids.insert(checker.checker_id.as_str())
                     || checker.checker_id.trim().is_empty()
                     || !valid_relative_path(&checker.command_uri)
+                    || checker
+                        .bundle
+                        .as_ref()
+                        .is_some_and(|bundle| !bundle.valid())
                     || checker.establishes.is_empty()
                     || checker.rules.is_empty()
                 {

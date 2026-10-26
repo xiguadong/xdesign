@@ -29,6 +29,7 @@ nav:
     - "Run lifecycle": design/lifecycle.md
     - "Stage CLI": design/stage-cli.md
     - "Checkpoint library": design/checkpoint-library.md
+    - "Checker execution": design/checker-execution.md
     - "Operator web program": design/web-operator.md
     - "Operational storage": design/storage.md
     - "Evidence and revisions": design/evidence-and-revisions.md
@@ -63,6 +64,7 @@ nav:
         - "RsStageSpec": design/api/core/rs-stage-spec.md
         - "RsCheckpointSpec": design/api/core/rs-checkpoint-spec.md
         - "RsCheckerSpec": design/api/core/rs-checker-spec.md
+        - "RsCheckerBundle": design/api/core/rs-checker-bundle.md
         - "RsCheckerRuleSpec": design/api/core/rs-checker-rule-spec.md
         - "RsStageVisit": design/api/core/rs-stage-visit.md
         - "RsStageVisit::record_activity": design/api/core/rs-stage-visit-record-activity.md
@@ -101,6 +103,9 @@ nav:
         - "validate_designed_plan": design/api/simple-flow/validate-designed-plan.md
         - "create_designed_run": design/api/simple-flow/create-designed-run.md
         - "RsProcessCheck": design/api/simple-flow/rs-process-check.md
+        - "freeze_executors": design/api/simple-flow/freeze-executors.md
+        - "python_command": design/api/simple-flow/python-command.md
+        - "command_map": design/api/simple-flow/command-map.md
       - "wish-verify: xdesign wish_verify API overview":
         - "xdesign wish_verify API overview": design/api/wish-verify/index.md
         - "wish_verify_flow_plan": design/api/wish-verify/wish-verify-flow-plan.md

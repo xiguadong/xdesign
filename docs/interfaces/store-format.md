@@ -443,3 +443,5 @@ this interface. Performance targets are unassigned. The executed [STORE acceptan
 matrix](../records/plans/storage.md#p38) records actual recovery, concurrency, checkout/replay,
 and two-flow behavior with their limits; it does not freeze compatibility or replace final
 human acceptance.
+
+New store-backed script registrations add the optional strict `checker.bundle` member to frozen plans, with executor materials retained from revision 1. The stage adapter checks run confinement and file identities; failed checker output is retained as unvalidated attempt materials. See [checker execution](../design/checker-execution.md#d111). New executables accept earlier plans without the member; older executables may refuse plans carrying it. This adds no store migration or restore operation.

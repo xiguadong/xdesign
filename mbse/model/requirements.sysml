@@ -373,4 +373,28 @@ package XDesignRequirements {
            integrity defects into successful reads or writes. */
         attribute redefines rationale = "Durability is not trust in whatever bytes happen to occupy a database or path; explicit refusal and diagnosis keep incompatible, unsafe or corrupted state out of engineering decisions.";
     }
+
+    requirement releasedCheckersAreSelfContained : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R18"; }
+        doc /* A released executable provides its built-in checker scripts, shared
+           helper and selected SysML parser without requiring a source checkout or
+           tools directory in the consumer project. Project commands are explicit. */
+        attribute redefines rationale = "A repository-relative developer path cannot locate a product resource after installation, and a same-named customer file must not silently replace a built-in.";
+    }
+    requirement checkerExecutorsAreRetained : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R18"; }
+        doc /* New store-backed runs freeze the script entry and declared helpers
+           and data by digest into the plan and retain their bytes from registration.
+           Edits, deletion, upgrade and cache loss do not replace that run's bundle. */
+        attribute redefines rationale = "Freezing a path alone lets a later edit change what an earlier binding executes; a retained bundle identifies and recovers the actual executable inputs.";
+    }
+    requirement checkerExecutionUsesProjectContext : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R18"; }
+        doc /* Execute a retained script with the selected project as its working
+           root, optional project-local Python, private attempt temporary/cache
+           paths, and recorded interpreter identity. Each project owns its sources,
+           store and attempts; no implicit cross-project workspace lookup exists. */
+        attribute redefines rationale = "The script installation directory is not the consumer project; inherited Python imports and shared writable output paths can mix project dependencies and evidence.";
+    }
+
 }

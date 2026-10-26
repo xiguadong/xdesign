@@ -293,16 +293,26 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
     for entry in &head.materials {
         let operational = matches!(
             entry.role.as_str(),
-            "checker-record"
+            "checker-attempt"
+                | "checker-executor"
+                | "checker-record"
                 | "checker-report"
                 | "checker-stdout"
                 | "checker-stderr"
                 | "checker-input"
         );
+        if entry.role == "checker-executor" && !entry.uri.starts_with(&format!("{dir}/executors/"))
+        {
+            return Err(format!("executor material escapes its run: {}", entry.uri));
+        }
         if operational {
             let report_confined = matches!(
                 entry.role.as_str(),
-                "checker-record" | "checker-report" | "checker-stdout" | "checker-stderr"
+                "checker-attempt"
+                    | "checker-record"
+                    | "checker-report"
+                    | "checker-stdout"
+                    | "checker-stderr"
             );
             if report_confined && !entry.uri.starts_with(&reports) {
                 return Err(format!(
@@ -317,6 +327,22 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
                 Existing::Verify
             };
             materialize(&entry.uri, &bytes, behavior)?;
+        }
+    }
+
+    for checker in plan.checkpoints.iter().filter_map(|g| g.checker.as_ref()) {
+        if let Some(bundle) = &checker.bundle {
+            for file in &bundle.files {
+                let stored_file = material(&head, &file.uri)?;
+                if !file.uri.starts_with(&format!("{dir}/executors/"))
+                    || stored_file.role != "checker-executor"
+                    || stored_file.sha256 != file.sha256
+                {
+                    return Err(
+                        "frozen executor identity differs from its retained material".into(),
+                    );
+                }
+            }
         }
     }
 
@@ -419,6 +445,13 @@ impl Manifest {
     }
 
     fn role_for(&self, uri: &str, proposed: &str) -> String {
+        if self
+            .entries
+            .get(uri)
+            .is_some_and(|entry| entry.role == "checker-executor")
+        {
+            return "checker-executor".into();
+        }
         self.entries
             .get(uri)
             .filter(|entry| {
@@ -816,6 +849,7 @@ pub fn init(
         let plan_uri = format!("{dir}/plan.json");
         let work_uri = format!("{dir}/work.json");
         let run_record_uri = format!("{dir}/run.json");
+        let executor_files = xdesign::simple_flow::resources::freeze_executors(&mut plan, &dir)?;
         plan.freeze(plan_uri.clone())
             .map_err(|error| format!("cannot freeze plan: {error:?}"))?;
         let work = WorkDefinition::freeze_with_inputs(flow, &plan, &working, &library_inputs)?;
@@ -869,6 +903,9 @@ pub fn init(
         manifest.put_file(&work_uri, "frozen-work")?;
         manifest.put_file(&stored.registry.run_record_uri, "run-record")?;
         manifest.put_file(&working, "wish-source")?;
+        for file in &executor_files {
+            manifest.put_expected(&file.uri, "checker-executor", &file.sha256)?;
+        }
         let response_uri = format!("{dir}/responses/init-{operation_id}.json");
         let response_bytes =
             serde_json::to_vec_pretty(&reply).map_err(|error| error.to_string())?;
@@ -994,6 +1031,19 @@ fn add_run_materials(
     )?;
     manifest.put_file(&stored.registry.wish_model_uri, "wish-source")?;
 
+    for checker in stored
+        .plan
+        .checkpoints
+        .iter()
+        .filter_map(|gate| gate.checker.as_ref())
+    {
+        if let Some(bundle) = &checker.bundle {
+            for file in &bundle.files {
+                manifest.put_expected(&file.uri, "checker-executor", &file.sha256)?;
+            }
+        }
+    }
+
     let mut artifacts = BTreeSet::new();
     let mut evidence = BTreeSet::new();
     let mut reports = BTreeSet::new();
@@ -1049,6 +1099,29 @@ fn add_run_materials(
         ] {
             let uri = format!("{report}{suffix}");
             manifest.put_file(&uri, role)?;
+        }
+    }
+    // Failed launches, timeouts and malformed reports have no trusted gate report,
+    // but their direct output bytes still belong to the attempted stage revision.
+    if let Ok(entries) = fs::read_dir(report_prefix.trim_end_matches('/')) {
+        for entry in entries {
+            let entry = entry.map_err(|e| e.to_string())?;
+            if !entry.file_type().map_err(|e| e.to_string())?.is_file() {
+                continue;
+            }
+            let uri = entry
+                .path()
+                .to_str()
+                .ok_or("non-UTF-8 attempt path")?
+                .to_owned();
+            if manifest.entries.contains_key(&uri) {
+                continue;
+            }
+            if let Some(previous) = manifest.previous.get(&uri).cloned() {
+                manifest.put_expected(&uri, &previous.role, &previous.sha256)?;
+            } else {
+                manifest.put_file(&uri, "checker-attempt")?;
+            }
         }
     }
     Ok(())

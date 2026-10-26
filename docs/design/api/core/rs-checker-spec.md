@@ -15,6 +15,8 @@ pub struct RsCheckerSpec {
     pub rules: Vec<RsCheckerRuleSpec>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub custom: Option<RsCustomChecker>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub bundle: Option<RsCheckerBundle>,
 }
 ```
 
@@ -25,16 +27,17 @@ RsCheckerSpec binds a syntactic gate to the command it runs and the rules its re
 | # | Field | Type | Visibility | Constraint | Description |
 | --- | --- | --- | --- | --- | --- |
 | 1 | `checker_id` | `String` | `pub` | unique in the plan | Recorded as the assessment's assessor |
-| 2 | `command_uri` | `String` | `pub` | repository-relative path of an existing command | What is invoked |
+| 2 | `command_uri` | `String` | `pub` | logical built-in source identifier or project-relative script | Bundle entry is invoked for retained executors |
 | 3 | `establishes` | `Vec<RsConformanceKind>` | `pub` | non-empty | Which conformance classes this checker establishes |
 | 4 | `rules` | `Vec<RsCheckerRuleSpec>` | `pub` | non-empty | What decides the verdict |
 | 5 | `custom` | `Option<RsCustomChecker>` | `pub` | absent for default; `process` or `cli` runner | Optional executor selection frozen in the plan |
+| 6 | `bundle` | `Option<RsCheckerBundle>` | `pub` | valid entry and unique digest-bound files | Exact retained script resources for new registrations |
 
 `RsCustomChecker` contains `runner: RsCustomRunner` (`Process` or `Cli`),
 `cli: Option<String>` and `model: Option<String>`. The two optional strings use serde
 default/omit-when-none attributes. CLI/model identify an agent executor; a process runner
 uses `command_uri`. The default omits `custom` to preserve prior frozen-plan bytes.
-The script path does not pin executable bytes. The
+New store-backed registrations also carry a [retained executor bundle](rs-checker-bundle.md#u110); legacy plans without it retain their earlier path-based contract. The
 [as-built model](../../checkpoint-library.md#d107) explains the agent-authority deviation
 from the generic scripted-only checkpoint contract.
 

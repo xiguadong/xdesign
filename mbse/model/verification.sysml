@@ -265,4 +265,19 @@ package XDesignVerification {
             verify requirement integrity :> XDesignRequirements::storageInputAndIntegrityAreChecked;
         }
     }
+
+    verification def CheckerIsolationVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D112"; }
+        doc /* ISO-01 through ISO-09 require copied-release execution without tools,
+           explicit project context, independent projects, declared helper pinning,
+           cache recovery, tamper/path refusal, interpreter and attempt evidence,
+           full regression checks and legacy compatibility. A declaration is not a pass. */
+        subject execution : XDesignDetailedDesign::ProjectCheckerExecution;
+        objective releaseAndIsolation {
+            verify requirement released :> XDesignRequirements::releasedCheckersAreSelfContained;
+            verify requirement retained :> XDesignRequirements::checkerExecutorsAreRetained;
+            verify requirement context :> XDesignRequirements::checkerExecutionUsesProjectContext;
+        }
+    }
+
 }

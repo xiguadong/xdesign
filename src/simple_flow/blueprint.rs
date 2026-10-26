@@ -23,6 +23,10 @@ pub const SIMPLE_FLOW_CHECK_BINDING_IDS: [&str; 4] = [
 #[serde(deny_unknown_fields)]
 pub struct RsCheckBinding {
     pub checkpoint_id: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub files: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub python: Option<String>,
     pub mode: RsCheckBindingMode,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub cli: Option<String>,
@@ -164,6 +168,14 @@ fn apply_bindings(
                 expected.join(", ")
             ));
         }
+        if binding.mode != RsCheckBindingMode::Command
+            && (!binding.files.is_empty() || binding.python.is_some())
+        {
+            return Err(
+                "files and python belong to command bindings or the selected library executor"
+                    .into(),
+            );
+        }
         match binding.mode {
             RsCheckBindingMode::Default => {}
             RsCheckBindingMode::Cli => {
@@ -222,6 +234,11 @@ fn apply_bindings(
                     ));
                 }
                 let checker = checker_mut(plan, &binding.checkpoint_id)?;
+                checker.bundle = Some(super::resources::project_bundle(
+                    command_uri,
+                    &binding.files,
+                    binding.python.as_deref(),
+                )?);
                 checker.command_uri = command_uri.to_owned();
                 checker.custom = Some(RsCustomChecker {
                     runner: RsCustomRunner::Process,
@@ -256,7 +273,7 @@ fn apply_bindings(
                         binding.checkpoint_id
                     ));
                 }
-                let Some((entry, _builtin)) = library.entry(library_id) else {
+                let Some((entry, builtin)) = library.entry(library_id) else {
                     return Err(format!(
                         "checkpoint {}: unknown library checkpoint: {library_id}",
                         binding.checkpoint_id
@@ -343,11 +360,20 @@ fn apply_bindings(
                                     )
                                 })?
                                 .to_owned();
-                            if !valid_custom_command_uri(&command_uri) {
+                            if !builtin && !valid_custom_command_uri(&command_uri) {
                                 return Err(format!(
                                     "checkpoint {library_id}: library script does not exist: {command_uri}"
                                 ));
                             }
+                            checker.bundle = if builtin {
+                                None
+                            } else {
+                                Some(super::resources::project_bundle(
+                                    &command_uri,
+                                    &executor.files,
+                                    executor.python.as_deref(),
+                                )?)
+                            };
                             checker.command_uri = command_uri;
                             checker.custom = Some(RsCustomChecker {
                                 runner: RsCustomRunner::Process,
@@ -423,6 +449,7 @@ pub fn designed_simple_flow_plan() -> RsFlowPlan {
     ) -> RsCheckerSpec {
         RsCheckerSpec {
             checker_id: id.into(),
+            bundle: None,
             command_uri: path.into(),
             establishes,
             rules,
@@ -615,7 +642,10 @@ pub fn validate_designed_plan(plan: &RsFlowPlan) -> Result<(), RsPlanError> {
                     RsCustomRunner::Process => {
                         if custom.cli.is_some()
                             || custom.model.is_some()
-                            || !valid_custom_command_uri(&checker.command_uri)
+                            || !(crate::core::valid_relative_path(&checker.command_uri)
+                                && checker.command_uri.ends_with(".py")
+                                && (checker.bundle.is_some()
+                                    || valid_custom_command_uri(&checker.command_uri)))
                         {
                             return Err(RsPlanError::InvalidChecker);
                         }
@@ -654,7 +684,10 @@ pub fn validate_designed_plan(plan: &RsFlowPlan) -> Result<(), RsPlanError> {
                 RsCustomRunner::Process => {
                     if custom.cli.is_some()
                         || custom.model.is_some()
-                        || !valid_custom_command_uri(&checker.command_uri)
+                        || !(crate::core::valid_relative_path(&checker.command_uri)
+                            && checker.command_uri.ends_with(".py")
+                            && (checker.bundle.is_some()
+                                || valid_custom_command_uri(&checker.command_uri)))
                     {
                         return Err(RsPlanError::InvalidChecker);
                     }
@@ -683,6 +716,7 @@ pub fn validate_designed_plan(plan: &RsFlowPlan) -> Result<(), RsPlanError> {
         gate.library = None;
         if let Some(checker) = gate.checker.as_mut() {
             checker.custom = None;
+            checker.bundle = None;
             checker.command_uri = expected_checkers[index].1.to_owned();
             if library_bound {
                 checker.checker_id = expected_checkers[index].0.to_owned();

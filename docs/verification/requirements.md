@@ -81,3 +81,8 @@ Compiler parse/check reports establish the supported syntactic checks. Semantic 
 must assess whether the design answers the wish, including blocked and rework behavior.
 Application execution, checker conformance, and engineering validation need their own
 evidence when implemented ([V05](../records/wishes/wish-history.md#v05)).
+
+Released-checker requirements have their acceptance mapping in
+[R18](../requirements/requirements.md#r18) and [ISO-01–09](design.md#d112).
+`CheckerIsolationVerification` verifies release resources, retained executors and project
+execution context; its declaration alone records no executed result.

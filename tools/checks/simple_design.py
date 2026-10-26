@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import ast
+import json
 import os
 from pathlib import Path
 import re
@@ -225,6 +226,12 @@ def _existing_file(root: Path, uri: str) -> bool:
         return False
 
 
+def command_uri(uri: str) -> str:
+    """Resolve logical built-in source names to this run's retained resources."""
+    mapping = json.loads(os.environ.get("XDESIGN_CHECKER_COMMANDS_JSON", "{}"))
+    return mapping.get(uri, uri)
+
+
 def list_inputs(root: Path = ROOT) -> list[str]:
     """Enumerate rule-read files for the CLI to snapshot before design evaluation."""
     source = (root / DESIGN).read_text(encoding="utf-8")
@@ -233,8 +240,8 @@ def list_inputs(root: Path = ROOT) -> list[str]:
     for document, figure in annotations(source, DOC_FIGURE):
         paths.add(document)
         paths.add(figure)
-    paths.update(entry["command"] for entry in checkers(source).values() if entry["command"])
-    return sorted(path for path in paths if _existing_file(root, path))
+    paths.update(command_uri(entry["command"]) for entry in checkers(source).values() if entry["command"])
+    return sorted(path for path in paths if not path.startswith("cache/xdesign/") and _existing_file(root, path))
 
 
 def evaluate(context: Context) -> list[dict]:
@@ -245,6 +252,9 @@ def evaluate(context: Context) -> list[dict]:
     flow_blocks = find_blocks(source, REQUIRED_DECLARATIONS["DesignedSimpleFlow"])
     flow = flow_blocks[0][1] if len(flow_blocks) == 1 else ""
     checker_map = checkers(flow)
+    for entry in checker_map.values():
+        if entry["command"]:
+            entry["command"] = command_uri(entry["command"])
     top = top_level(source)
     results = []
 

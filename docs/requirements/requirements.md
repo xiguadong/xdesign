@@ -433,3 +433,18 @@ requirements do not implicitly relax either requirement or the assessment constr
 The proposed requirements have planned verification links and no implemented satisfiers.
 No shared registry, project identity format, cross-project history API, executable
 dependency lock or store-transfer contract is delivered by their declaration.
+
+<a id="r18"></a>
+
+## 9. Released checker resources and project execution
+
+| Requirement | Required behavior and acceptance |
+| --- | --- |
+| `releasedCheckersAreSelfContained` | Built-in scripts, helper and parser come from the executable. A copied release runs without a source checkout or consumer `tools/`; defaults cannot be shadowed by a project file. ISO-01, ISO-02. |
+| `checkerExecutorsAreRetained` | New registrations retain the entry and every declared helper/data file by digest. Edits, source deletion, upgrade and cache loss preserve the selected bundle; retained-byte changes refuse execution. ISO-03–05. |
+| `checkerExecutionUsesProjectContext` | Execute against the selected project, project-owned environment and unique attempt paths, with retained interpreter identity. Independent projects retain independent results even for equal local IDs. ISO-06–08. |
+
+The model rationales remain normative. [Checker execution](../design/checker-execution.md#d111)
+states the ownership and trust boundary; [ISO-01–09](../verification/design.md#d112) defines
+observable acceptance. These requirements add no generic input mapper, shared-package
+registry, cross-project history federation or operating-system sandbox.

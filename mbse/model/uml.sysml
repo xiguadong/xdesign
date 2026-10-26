@@ -371,6 +371,7 @@ package XDesignRustUml {
     dependency rsCheckpointSpecSemantic from RsCheckpointSpec to XDesignDetailedDesign::SimpleFlowSemanticCheckpoint;
 
     part def RsCheckerSpec {
+        ref item bundle : RsCheckerBundle [0..1];
         @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checker-spec.md"; section = "U35"; }
         doc /* Rust struct realizing Checker: the command a syntactic gate runs
            and the rules its report must answer. */
@@ -1253,4 +1254,22 @@ package XDesignRustUml {
            libraries remain independent of SQLite and the storage adapter. */
     }
     dependency rsStageCliRealizes from RsStageCliApplication to XDesignWorkflow::LocalStageCliRuntime;
+
+    item def RsCheckerBundle {
+        @XDesignCommon::DocSection { document = "docs/design/api/core/rs-checker-bundle.md"; section = "U110"; }
+        attribute source : String;
+        attribute entryUri : String;
+        attribute python : String [0..1];
+        ref item files : RsArtifactDigest [1..*];
+    }
+    part def RsCheckerResources {
+        @XDesignCommon::DocSection { document = "docs/design/checker-execution.md"; section = "D111"; }
+        doc /* Source allocation: src/simple_flow/resources.rs embeds and
+           freezes resources, validates confined files and constructs Python
+           commands. The process adapter uses it and the stage adapter retains
+           executor materials from registration and recovers them on load. */
+    }
+    dependency rsCheckerBundleRealizes from RsCheckerBundle to XDesignDetailedDesign::CheckerExecutorBundle;
+    dependency rsCheckerResourcesRealizes from RsCheckerResources to XDesignDetailedDesign::ProjectCheckerExecution;
+
 }
