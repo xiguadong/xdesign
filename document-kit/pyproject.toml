@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xdesign-doc-kit"
+version = "0.1.0"
+description = "Contract-driven SysML documentation authoring"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+mcp = ["mcp>=2.3,<3"]
+
+[project.scripts]
+xdesign-doc-kit = "xdesign_doc_kit.__main__:main"
+xdesign-doc-mcp = "xdesign_doc_kit.mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["xdesign_doc_kit*"]

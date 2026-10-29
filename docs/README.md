@@ -22,6 +22,7 @@ xdesign records evidence and checks whether a stage may advance.
 | Flow implementations | Supply the four-stage SimpleFlow and two-stage WishVerifyFlow | `src/simple_flow/`, `src/wish_verify/` |
 | CLI | Initializes a local run and provides the repeated `next` / `check` interaction | `src/main.rs`, `src/stage_cli/`; [CLI contract](design/stage-cli.md#d85) |
 | Documentation and tools | Explain the model and provide checking, rendering, and build tools | `docs/`, `tools/` |
+| Portable document contract | Supplies versioned SysML document rules, templates, a shared CLI/MCP authoring tool, and an agent skill | `document-kit/`; [design](design/document-kit.md#d113) |
 | Working output | Holds ignored environments, build output, regenerable runtime copies and temporary evidence | `cache/` |
 
 The package diagram shows where the two-command CLI fits. `StageCli` retrieves work and
