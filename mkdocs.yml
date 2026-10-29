@@ -23,12 +23,14 @@ nav:
     - "System behavior and architecture design": architecture/system-behavior.md
     - "Wish lifecycle and delivery route": architecture/wish-lifecycle.md
     - "Toolchain and environment constraints": architecture/constraints.md
+    - "Portable document kit": architecture/document-kit.md
   - "Design":
     - "Overview": design/index.md
     - "Flow model and catalog": design/flow.md
     - "Run lifecycle": design/lifecycle.md
     - "Stage CLI": design/stage-cli.md
     - "Checkpoint library": design/checkpoint-library.md
+    - "Portable document kit": design/document-kit.md
     - "Checker execution": design/checker-execution.md
     - "Operator web program": design/web-operator.md
     - "Operational storage": design/storage.md
@@ -148,6 +150,7 @@ nav:
     - "Store format": interfaces/store-format.md
     - "Operator web API": interfaces/web-api.md
     - "Documentation and SysML contract": interfaces/documentation-contract.md
+    - "Portable document kit interaction contract": interfaces/document-kit-api.md
   - "Verification design":
     - "Verification design": verification/index.md
     - "Verification of requirements": verification/requirements.md

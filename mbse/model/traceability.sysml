@@ -80,4 +80,9 @@ package XDesignTraceability {
     satisfy checkerExecutorsAreRetained by CheckerExecutorBundle;
     satisfy checkerExecutionUsesProjectContext by ProjectCheckerExecution;
 
+    satisfy documentContractIsPortable by PortableDocumentKit;
+    satisfy documentAuthoringFollowsContract by DocumentContractEngine;
+    satisfy documentChecksReportContractGaps by DocumentContractEngine;
+    satisfy documentToolsShareOneContract by DocumentContractEngine;
+
 }

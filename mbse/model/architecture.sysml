@@ -96,6 +96,47 @@ package XDesignArchitecture {
         ref part cli : XDesignWorkflow::StageCli;
     }
 
+    part def DocumentContractSource {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
+        doc /* Versioned profile, rule explanation and Markdown templates that
+           supply one authoring contract to every adapter. */
+        attribute profileUri : String;
+        attribute rulesUri : String;
+        attribute templateUris : String [1..*];
+    }
+
+    part def DocumentAuthoringBoundary {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
+        doc /* Logical service that resolves routes, writes supplied content,
+           and checks structural conformance for one selected project. */
+    }
+
+    part def DocumentCliBoundary {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
+        doc /* Script and CI access to the authoring service. */
+    }
+
+    part def DocumentMcpBoundary {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
+        doc /* Stdio MCP access to the same authoring service for agents. */
+    }
+
+    part def PortableDocumentKit {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
+        doc /* A separate, versioned authoring component for a selected project.
+           The profile, rules, and templates are engineering source; document
+           writes and checks run against the selected project root. The CLI and
+           MCP adapter expose one contract engine, while the skill describes
+           when an agent invokes it. This component does not own the target
+           project's SysML model or replace engineering judgment. */
+        attribute projectRoot : String;
+        attribute contractVersion : String;
+        part contract : DocumentContractSource;
+        part authoring : DocumentAuthoringBoundary;
+        part cli : DocumentCliBoundary;
+        part mcp : DocumentMcpBoundary;
+    }
+
     part def Checkpoint {
         @XDesignCommon::DocSection { document = "docs/design/adapters.md"; section = "F02"; }
         doc /* Reusable gate definition, independent of a particular wish.

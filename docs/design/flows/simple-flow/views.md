@@ -58,6 +58,9 @@ events, operations and assertion; the factory and its creation steps; the two fu
 their paths; the ports, interfaces and the automation that wires them. The model carries
 the figure's location itself — a `DocFigure` annotation on the package — so the design says
 where its picture lives rather than leaving the correspondence to this prose.
+The file now also contains the separate, designed-only
+[document contract engine](../../document-kit.md#d113); its definitions appear
+in this broad inventory but are not part of SimpleFlow's run.
 The focused block definition view ([D13](#d13)) separates types and
 ownership from package organization ([D21](../../../architecture/system-composition.md#d21)).
 

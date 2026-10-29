@@ -397,4 +397,37 @@ package XDesignRequirements {
         attribute redefines rationale = "The script installation directory is not the consumer project; inherited Python imports and shared writable output paths can mix project dependencies and evidence.";
     }
 
+    requirement documentContractIsPortable : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* The documentation contract is a versioned, project-selectable
+           package of rules, templates, and class paths. It can be applied to a
+           different project root without relying on xdesign's Rust runtime. */
+        attribute redefines rationale = "Other projects need to keep the same design-first rules while choosing their own document roots and versioning the exact contract they use.";
+    }
+
+    requirement documentAuthoringFollowsContract : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* A document writer resolves the permitted path from the selected
+           class and slug, uses its template, requires the agreed ordered section
+           headings and substantive caller-supplied content, and refuses unsafe
+           paths or an unrequested overwrite. */
+        attribute redefines rationale = "A generic file writer cannot enforce where a design claim belongs or whether the required chapters and content were supplied.";
+    }
+
+    requirement documentChecksReportContractGaps : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Deterministic checks identify naming, section, content, locator,
+           figure-block, and source-asset defects with actionable diagnostics.
+           Semantic truth and final figure readability remain explicit reviews. */
+        attribute redefines rationale = "A syntactically valid Markdown file or successful write does not show that a model-linked design document meets its agreed contract.";
+    }
+
+    requirement documentToolsShareOneContract : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* CLI and MCP operations use the same project profile, templates,
+           authoring rules, and validator. A portable skill directs agents to
+           use those operations in the design-first sequence. */
+        attribute redefines rationale = "Different agents should receive equivalent paths and findings instead of accumulating model-specific prompt copies or protocol-specific rule forks.";
+    }
+
 }

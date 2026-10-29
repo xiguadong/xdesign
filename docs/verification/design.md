@@ -252,7 +252,7 @@ analysis, single-project test result or record backfill substitutes for those ex
 
 <a id="d112"></a>
 
-## 18. Released checker and script isolation acceptance
+## 8. Released checker and script isolation acceptance
 
 `CheckerIsolationVerification` plans the following executable cases. The design is
 [checker execution D111](../design/checker-execution.md#d111), covering
@@ -277,3 +277,29 @@ files plus interpreter identity are inspectable provenance, not a copy of instal
 packages. No OS sandbox, full environment replay, unified history service or supported
 whole-store restore is established by these cases. Authoring-agent review and technical
 acceptance do not claim independent review or final human acceptance.
+
+<a id="d114"></a>
+
+## 9. Portable document kit verification
+
+`DocumentKitVerification` covers [R19](../requirements/requirements.md#r19)
+and the [engine design](../design/document-kit.md#d113). These planned cases
+will test the reusable component against a temporary consumer project, not
+just this repository's existing pages.
+
+| Case | Method and required observation |
+| --- | --- |
+| DOC-01 | Select the versioned profile from a separate project root. Plan each declared document class and inspect its allowed destination, required ordered headings, anchor policy and template source; compare the contract digest before and after one template-byte change. |
+| DOC-02 | Create a complete document with caller-supplied content. Check the exact path, rendered chapters, stable anchors and managed registry entry; rerun the same request and refuse an unrequested overwrite without changing bytes. |
+| DOC-03 | Reject an empty required chapter, unresolved template slot, missing or duplicate heading, reordered chapter, duplicate anchor, invalid filename, broken `DocSection`/`DocFigure` target, unsupported annotation form and removed managed marker with specific diagnostics. An existing page remains byte-identical on failed update. |
+| DOC-04 | Refuse absolute paths, `..` traversal, symlink escapes and stale expected hashes. Keep all temporary output within the target project's `cache/` or an in-memory buffer, and reject a cross-filesystem atomic replacement cleanly. |
+| DOC-05 | Given an existing canonical SVG beneath the carrying page's `assets/` child, attach its embed and six ordered figure fields. Reject a missing source, duplicate figure label, wrong section, broken asset and incomplete block. |
+| DOC-06 | Compare the same plan/create/check request through the CLI and MCP adapter. A stdio MCP client can connect, list the tools and contract resources, and call a tool in the temporary project; a tool call cannot redirect to another project/profile. |
+| DOC-07 | Run xdesign's existing documentation audit and strict docs build; parse/check the changed model with the pinned compiler and retain diagnostics and unevaluated rules. Review final prose and any figure against their model source separately. |
+
+A deterministic pass establishes only the stated structural predicates. The
+review must record whether the rules and templates express the intended
+design-first practice and whether the sample document communicates a real
+design claim. A SimpleFlow verification assessment must cite the
+executed commands and final bytes; declaring these cases does not execute
+them. Executed case results belong to the wish's revision-bound record.

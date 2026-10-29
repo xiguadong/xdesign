@@ -9,7 +9,8 @@ Read [B30, the wish-to-delivery route](wish-lifecycle.md#b30) for the complete
 default stage and gate sequence, then [A03](wish-lifecycle.md#a03) for the controller behavior that
 repeats within each stage. [System composition](system-composition.md#b01)
 shows the parts; [architecture design](system-context.md#b05) records the design status
-and open decisions.
+and open decisions. The [portable document kit](document-kit.md#b33) is a
+separate contract authoring component for other project roots.
 
 <a id="a01"></a>
 
@@ -136,6 +137,7 @@ Where each model module and sub-module is documented. Section identifiers are st
 | Documentation set and per-flow growth | [D30](../interfaces/documentation-contract.md#d30) |
 | Documentation audit and SimpleFlow checker rules | [D31](../interfaces/documentation-contract.md#d31), [D06](../design/flows/simple-flow/definition.md#d06) |
 | `XDesignRequirements`, `XDesignRequirement`, every requirement | [R01](../requirements/requirements.md#r01) |
+| Portable document-contract requirements | [R19](../requirements/requirements.md#r19) |
 | `XDesignTraceability` | [R02](../requirements/requirements.md#r02) |
 | `XDesignStorage`, `ProjectStore`, revision/material/save/query/recovery elements | [D86](../design/storage.md#d86), [I11](../interfaces/store-format.md#i11), [storage API](../design/api/storage/index.md) |
 | `StorageVerification` | [D87](../verification/design.md#d87) |
@@ -144,6 +146,7 @@ Where each model module and sub-module is documented. Section identifiers are st
 | `simpleFlowFilePlan`, `simpleFlowFilePlanView` | [D53](../records/plans/simple-flow-file-plan.md#d53) |
 | `SimpleFlowGateBehaviorVerification`, `SimpleFlowRecoveryVerification`, `SimpleFlowFilePlanVerification` | [D54](../verification/design.md#d54) |
 | `XDesignArchitecture` | [A05](#a05), [B05](system-context.md#b05) |
+| `PortableDocumentKit`, `DocumentContractSource`, and the authoring/CLI/MCP boundaries | [B33](document-kit.md#b33) |
 | `Flow`, `Stage` | [F01](../design/flow.md#f01) |
 | `Checkpoint`, `Checker` | [F02](../design/adapters.md#f02) |
 | `CheckerRule` | [D06](../design/flows/simple-flow/definition.md#d06) |
@@ -156,6 +159,8 @@ Where each model module and sub-module is documented. Section identifiers are st
 | `CheckpointAssessment` | [E04](../design/evidence-and-revisions.md#e04) |
 | `Controller` | [F04](../design/lifecycle.md#f04) |
 | `XDesignDetailedDesign`, `designedSimpleFlow` | [D01](../design/flows/simple-flow/definition.md#d01), [D32](../design/flows/simple-flow/implementation.md#d32) |
+| `DocumentContractEngine`, its six actions, and CLI/MCP adapter designs | [D113](../design/document-kit.md#d113) |
+| `DocumentKitVerification` | [D114](../verification/design.md#d114) |
 | `SimpleFlowRun` | [D02](../design/flows/simple-flow/implementation.md#d02) |
 | `SimpleFlowRunFactory` | [D03](../design/flows/simple-flow/implementation.md#d03) |
 | `EvaluateSimpleFlowGate`, `AdvanceSimpleFlowRun` | [D04](../design/flows/simple-flow/implementation.md#d04) |

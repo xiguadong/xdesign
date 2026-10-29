@@ -436,7 +436,7 @@ dependency lock or store-transfer contract is delivered by their declaration.
 
 <a id="r18"></a>
 
-## 9. Released checker resources and project execution
+## 14. Released checker resources and project execution
 
 | Requirement | Required behavior and acceptance |
 | --- | --- |
@@ -448,3 +448,31 @@ The model rationales remain normative. [Checker execution](../design/checker-exe
 states the ownership and trust boundary; [ISO-01–09](../verification/design.md#d112) defines
 observable acceptance. These requirements add no generic input mapper, shared-package
 registry, cross-project history federation or operating-system sandbox.
+
+<a id="r19"></a>
+
+## 15. Portable documentation contract
+
+The document kit is a separate, versioned component under `document-kit/`. Its
+[rules and templates](../design/document-kit.md#d113) make the document path and
+required content visible before a writer creates a page. The selected project
+profile is an input to the kit, so a consumer project can use the same operations
+with its own root. The original authoring rules in `docs/AGENTS.md` and the
+[SysML documentation contract](../interfaces/documentation-contract.md#d27)
+remain the basis for this repository.
+
+| Requirement | Acceptance condition |
+| --- | --- |
+| `documentContractIsPortable` | A versioned profile, human-readable rules, and real Markdown templates reside together outside `docs/`; a temporary second project resolves paths from its own root. |
+| `documentAuthoringFollowsContract` | Given a document class and slug, planning resolves one permitted destination and required sections; creation and section updates enforce that contract, require caller-provided content, refuse traversal and unexpected overwrites, and leave an existing page intact on failure. |
+| `documentChecksReportContractGaps` | Validation reports missing or reordered headings, empty required content, unresolved template slots, invalid paths, broken model locators, and incomplete figure blocks as structured findings. Checks state their scope; model meaning and visual readability require review. |
+| `documentToolsShareOneContract` | The CLI and stdio MCP adapter call one engine and return equivalent contract decisions; the skill names when an agent plans, writes, checks, and reviews documents before implementation claims. |
+
+[DocumentKitVerification](../verification/design.md#d114) defines the
+cross-project and failure cases. The current SimpleFlow wish records actual
+commands and evidence separately; these acceptance conditions alone are not
+an executed result.
+
+The versioned profile, rules, templates, and skill are design source.
+Implementation status and executed DOC-01..07 results are tracked in the
+wish and review records, not inferred from these requirement statements.

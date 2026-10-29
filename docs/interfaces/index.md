@@ -38,3 +38,8 @@ create/work/check actions, and the [checkpoint library endpoints](web-api.md#i19
 [stage CLI](../design/stage-cli.md#d90) and its program design in the
 [operator web design](../design/web-operator.md#d91). It is a local operator surface, not
 one of the four modeled exchanges above and not the documentation site's interface.
+
+The [portable document kit interaction contract](document-kit-api.md#i20)
+specifies planned CLI/MCP arguments, results, path and update guards, and the
+validation boundary for the separate template/rule component. It is designed
+only; no CLI or MCP endpoint is implemented in the current delivery.

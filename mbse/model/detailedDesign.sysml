@@ -45,6 +45,85 @@ package XDesignDetailedDesign {
         ref part source : CheckpointLibrarySource;
     }
 
+    action def ReadDocumentContract {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute profileRoot : String;
+        out attribute contractDigest : String;
+    }
+
+    action def PlanContractDocument {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute documentClass : String;
+        in attribute name : String;
+        out attribute documentPath : String;
+        out attribute requiredSections : String;
+    }
+
+    action def CreateContractDocument {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute documentClass : String;
+        in attribute name : String;
+        in attribute callerContent : String;
+        out attribute documentSha256 : String;
+    }
+
+    action def UpdateContractSection {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute documentPath : String;
+        in attribute sectionKey : String;
+        in attribute callerContent : String;
+        in attribute expectedSha256 : String;
+        out attribute documentSha256 : String;
+    }
+
+    action def AttachContractFigure {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute documentPath : String;
+        in attribute sectionKey : String;
+        in attribute canonicalSvg : String;
+        in attribute expectedSha256 : String;
+        out attribute documentSha256 : String;
+    }
+
+    action def CheckContractDocuments {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute projectRoot : String;
+        out attribute diagnosticReport : String;
+    }
+
+    part def DocumentContractEngine :> DocumentAuthoringBoundary {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* Resolve a document class and slug through a selected profile,
+           render its versioned template from caller-supplied section content,
+           update anchored sections and attach a model figure, then validate
+           the authored document set. The CLI and MCP adapter invoke the same
+           operations. Structural diagnostics do not assert design truth or
+           visual readability. */
+        attribute profileVersion : String;
+        attribute projectRoot : String;
+        attribute contractDigest : String;
+        attribute supportedDocumentClasses : String [1..*];
+        ref part contract : DocumentContractSource;
+        perform action readContract : ReadDocumentContract;
+        perform action planDocument : PlanContractDocument;
+        perform action createDocument : CreateContractDocument;
+        perform action updateSection : UpdateContractSection;
+        perform action attachFigure : AttachContractFigure;
+        perform action checkDocuments : CheckContractDocuments;
+    }
+
+    part def DocumentCliAdapter :> DocumentCliBoundary {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* Deterministic JSON command line over DocumentContractEngine. */
+        ref part engine : DocumentContractEngine;
+    }
+
+    part def DocumentMcpAdapter :> DocumentMcpBoundary {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* Stdio MCP tool/resource adapter over DocumentContractEngine. */
+        ref part engine : DocumentContractEngine;
+    }
+
     package ProposedProjectChecks {
         @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D108"; }
         doc /* Discussion proposal only. No runtime, serialized contract, project

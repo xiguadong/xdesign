@@ -27,3 +27,6 @@ individual measurable acceptance criterion, verification method, phase, or execu
 case. No SRR outcome or configuration-controlled functional baseline is recorded.
 Per-wish passed assessments apply to the revisions they name; they do not close these
 project-level requirements gaps.
+
+The [portable documentation contract](requirements.md#r19) adds explicit
+requirements for templates, constrained writes, and cross-project checks.

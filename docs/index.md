@@ -20,6 +20,7 @@ package, timeline, and swimlane diagrams together on one page.
 | How the flows and runs are designed | [design/index.md](design/index.md) |
 | How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, a custom command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
 | How released scripts, project scripts and retained executor bundles are stored | [Checker execution](design/checker-execution.md#d111) |
+| How the portable templates and rules are organized, and how CLI/MCP authoring is designed | [Document kit design](design/document-kit.md#d113) and [component boundary](architecture/document-kit.md#b33) |
 | How reusable checks are authored, versioned, and shared across wishes | [Checkpoint library](design/checkpoint-library.md#d97) |
 | Where checks and history belong in a real project, and the proposed cross-project boundary | [Project ownership and history](design/checkpoint-library.md#d107); [cross-project proposal](design/checkpoint-library.md#d108) |
 | The embedded operator web page and its local HTTP contract | [Operator web program](design/web-operator.md#d91) and [operator web API](interfaces/web-api.md#i16) |
@@ -27,6 +28,7 @@ package, timeline, and swimlane diagrams together on one page.
 | The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
+| The proposed document-kit CLI/MCP tool contract | [Portable document kit interaction contract](interfaces/document-kit-api.md#i20) |
 | How the design is verified and accepted | [verification/index.md](verification/index.md) |
 | What currently runs, what is open, and what evidence exists | `python3 tools/records.py show record-status`; frozen 2026-10-25 summary in [records/status.md](records/status.md) |
 | Plans, reviews, executions, and wish history | `python3 tools/records.py list` for maintained records; frozen history in [records/index.md](records/index.md) |
@@ -86,6 +88,7 @@ interfaces and meaning of those annotations are defined in
 | `mbse/model/architecture.sysml`, `composition.sysml`, `workflow.sysml` | `architecture/`, `design/flow.md`, `design/lifecycle.md` |
 | `mbse/model/detailedDesign.sysml` | `design/flows/simple-flow/`, `design/flows/wish-verify/` |
 | Project/operator additions in `architecture.sysml`, `composition.sysml`, `detailedDesign.sysml`, `uml.sysml` | `design/checkpoint-library.md#d107`, `design/web-operator.md`; proposed cross-project definitions are explicitly designed-only |
+| Portable document-kit definitions in `requirements.sysml`, `architecture.sysml`, `detailedDesign.sysml`, `verification.sysml` | `requirements/requirements.md#r19`, `architecture/document-kit.md#b33`, `design/document-kit.md#d113`, `verification/design.md#d114` |
 | `mbse/model/verification.sysml` | `verification/` |
 | `mbse/model/uml.sysml` | `design/api/` and the module designs |
 | `mbse/model/storage.sysml` | `design/storage.md`, `interfaces/store-format.md`, `design/api/storage/` |

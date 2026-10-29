@@ -8,6 +8,24 @@ package XDesignVerification {
        and its verify relationships specifies coverage; run evidence belongs to the
        independent trace record, and compiler checks do not execute this review. */
 
+    verification def DocumentKitVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D114"; }
+        doc /* In a second project, plan and create each document class from a
+           pinned profile, check exact paths, headings and supplied content,
+           then exercise section update and figure attachment. Reject traversal,
+           symlink escape, overwrite, incomplete content, stale locators,
+           removed managed markers, stale hashes and malformed figure blocks.
+           Compare the pinned contract digest and CLI/MCP results; inspect
+           structural diagnostics separately from model and visual review. */
+        subject engine : XDesignDetailedDesign::DocumentContractEngine;
+        objective contract {
+            verify requirement portable :> XDesignRequirements::documentContractIsPortable;
+            verify requirement authoring :> XDesignRequirements::documentAuthoringFollowsContract;
+            verify requirement diagnostics :> XDesignRequirements::documentChecksReportContractGaps;
+            verify requirement shared :> XDesignRequirements::documentToolsShareOneContract;
+        }
+    }
+
     verification def StageCliInteractionVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned verification of the two-command stage interaction, not
