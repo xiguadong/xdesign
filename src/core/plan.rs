@@ -18,9 +18,8 @@ pub struct RsCheckerRuleSpec {
     pub reads: Vec<String>,
 }
 
-/// How a checkpoint's custom binding executes: either the project's checker
-/// script (the default contract) or an agent CLI that answers the declared
-/// rules directly.
+/// How a checkpoint's custom binding executes. `Cli` remains decodable for
+/// historical frozen plans, but new plans cannot freeze it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RsCustomRunner {
@@ -173,6 +172,14 @@ impl RsFlowPlan {
     /// Freeze the plan bytes once and store their hash outside the hashed file.
     pub fn freeze(&mut self, uri: impl Into<String>) -> Result<(), RsPlanError> {
         let uri = uri.into();
+        if self.checkpoints.iter().any(|gate| {
+            gate.checker
+                .as_ref()
+                .and_then(|checker| checker.custom.as_ref())
+                .is_some_and(|custom| custom.runner == RsCustomRunner::Cli)
+        }) {
+            return Err(RsPlanError::InvalidChecker);
+        }
         if !valid_relative_path(&uri) {
             return Err(RsPlanError::InvalidPlanFile);
         }

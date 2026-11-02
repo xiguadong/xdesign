@@ -234,8 +234,7 @@ authority is in [D88](flows/simple-flow/definition.md#d88), and the library form
   "schema_version": 1,
   "checks": [
     {"checkpoint_id": "simpleRequirementsAccepted", "mode": "default"},
-    {"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
-     "cli": "codex", "model": "gpt-6-astra"},
+    {"checkpoint_id": "simpleDesignAccepted", "mode": "default"},
     {"checkpoint_id": "simpleImplementationAccepted", "mode": "command",
      "command_uri": "tools/checks/custom_implementation.py"},
     {"checkpoint_id": "simpleRecordAccepted", "mode": "library",
@@ -251,16 +250,14 @@ authority is in [D88](flows/simple-flow/definition.md#d88), and the library form
 | `schema_version` | required, exactly `1` |
 | `checks` | required array; an empty array is equivalent to an all-default binding |
 | `checkpoint_id` | required; one of the four syntactic SimpleFlow checkpoint ids, or the semantic id `verificationAccepted` (which accepts only `library` mode); no duplicates |
-| `mode` | required; `default`, `cli`, `command` or `library` |
-| `cli` | required for `cli`; `codex` or `kimi` |
-| `model` | required for `cli`; a non-empty model identifier passed to the agent CLI |
+| `mode` | required; `default`, `command` or `library`; `cli` is rejected for new bindings |
 | `command_uri` | required for `command`; a normalized project-relative `.py` path that exists in the repository and implements the invocation and report interface |
 | `files`, `python` | optional for `command`; declared helper/data paths and a project-local Python under `cache/`, as specified in [D111](checker-execution.md#d111) |
-| `library_id` | required for `library`; a checkpoint id resolvable in the project library; the entry's kind must match the gate (`command` and `cli` are not accepted on the semantic gate) |
+| `library_id` | required for `library`; a checkpoint id resolvable in the project library; the entry's kind must match the gate (`command` is not accepted on the semantic gate) |
 
 A checkpoint omitted from the file keeps the `default` binding. Unknown fields, unknown
 checkpoint ids, duplicate checkpoints, unknown modes, missing required members, empty
-`cli`/`model`/`command_uri` values, a missing or unknown `library_id`, and a library entry
+`command_uri` values, a missing or unknown `library_id`, and a library entry
 whose kind does not match the gate are invalid requests: `init` exits 2 with the error on
 stderr before it creates the run or commits a store revision. A non-default binding with
 `--flow wish-verify` is rejected because that flow has no library binding in this round; a
@@ -268,6 +265,8 @@ default-only file for that flow is accepted as a no-op.
 The validated binding is frozen into the plan; `next` and `check` accept no binding
 option, and editing the file or the library later does not rebind a registered run
 ([D88](flows/simple-flow/definition.md#d88), [D101](checkpoint-library.md#d101)).
+Historical frozen plans with a `cli` runner remain readable, but `check` cannot invoke
+that runner; it returns an unevaluated/blocked result rather than launching an agent.
 
 ### 1.6 Checkpoint library commands
 

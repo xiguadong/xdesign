@@ -344,7 +344,26 @@ fn command_binding_runs_the_bound_project_script_with_the_raw_report_contract() 
 fn prepared_requirements_for_plan(dir: &str, mut plan: RsFlowPlan) -> (RsFlowRun, String) {
     let wish = format!("{dir}/wish.sysml");
     fs::write(&wish, "package Wish {}\n").unwrap();
-    plan.freeze(format!("{dir}/plan.json")).unwrap();
+    let plan_uri = format!("{dir}/plan.json");
+    if plan.checkpoints.iter().any(|gate| {
+        gate.checker
+            .as_ref()
+            .and_then(|checker| checker.custom.as_ref())
+            .is_some_and(|custom| custom.runner == RsCustomRunner::Cli)
+    }) {
+        // Simulate bytes frozen by a prior release; new freezes reject this runner.
+        let bytes = serde_json::to_vec_pretty(&serde_json::json!({
+            "plan_id": &plan.plan_id,
+            "initial_stage_id": &plan.initial_stage_id,
+            "stages": &plan.stages,
+            "checkpoints": &plan.checkpoints,
+        }))
+        .unwrap();
+        fs::write(&plan_uri, &bytes).unwrap();
+        plan = RsFlowPlan::load_frozen(&plan_uri, &sha256_bytes(&bytes)).unwrap();
+    } else {
+        plan.freeze(plan_uri).unwrap();
+    }
     let mut run = create_designed_run(
         plan,
         wish.clone(),
@@ -382,54 +401,28 @@ fn prepared_requirements_for_plan(dir: &str, mut plan: RsFlowPlan) -> (RsFlowRun
 
 #[cfg(unix)]
 #[test]
-fn kimi_cli_binding_uses_the_override_program_and_its_argument_shape() {
+fn historical_cli_binding_fails_closed_without_launching_an_agent() {
     use std::os::unix::fs::PermissionsExt;
     let dir = fixture_dir();
     let stub = format!("{dir}/kimi-stub.py");
-    fs::write(
-        &stub,
-        format!(
-            "#!/usr/bin/env python3\nimport json\nimport sys\nwith open('{dir}/kimi-argv.json', 'w', encoding='utf-8') as output:\n    json.dump(sys.argv[1:], output)\nprint(json.dumps({{\"overall_verdict\": \"passed\", \"rules\": [{{\"rule_id\": \"requirements-carry-rationale\", \"verdict\": \"passed\", \"failures\": []}}, {{\"rule_id\": \"satisfy-links-resolve\", \"verdict\": \"passed\", \"failures\": []}}]}}))\n"
-        ),
-    )
-    .unwrap();
+    let marker = format!("{dir}/agent-invoked");
+    fs::write(&stub, format!("#!/bin/sh\nprintf invoked > '{marker}'\n")).unwrap();
     fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
     let mut plan = designed_simple_flow_plan();
-    let config = RsCheckBindingConfig {
-        schema_version: 1,
-        checks: vec![RsCheckBinding {
-            files: vec![],
-            python: None,
-            checkpoint_id: "simpleRequirementsAccepted".into(),
-            mode: RsCheckBindingMode::Cli,
-            cli: Some("kimi".into()),
-            model: Some("kimi-code/k3".into()),
-            command_uri: None,
-            library_id: None,
-        }],
-    };
-    apply_check_bindings(&mut plan, &config).unwrap();
-    let (run, wish) = prepared_requirements_for_plan(&dir, plan);
+    plan.checkpoints[0].checker.as_mut().unwrap().custom = Some(RsCustomChecker {
+        runner: RsCustomRunner::Cli,
+        cli: Some("kimi".into()),
+        model: Some("kimi-code/k3".into()),
+    });
+    let (mut run, wish) = prepared_requirements_for_plan(&dir, plan);
     let checker = run.plan().checkpoints[0].checker.as_ref().unwrap();
     std::env::set_var("XDESIGN_AGENT_KIMI_BIN", &stub);
     let result = invoke_requirements(&run, &wish, &dir, checker);
     std::env::remove_var("XDESIGN_AGENT_KIMI_BIN");
-    let report = result.unwrap();
-    assert!(report.holds);
-    assert_eq!(report.rules.len(), 2);
-    let raw: serde_json::Value =
-        serde_json::from_slice(&fs::read(&report.report_uri).unwrap()).unwrap();
-    assert_eq!(raw["runner"]["kind"], "cli");
-    assert_eq!(raw["runner"]["cli"], "kimi");
-    assert_eq!(raw["runner"]["model"], "kimi-code/k3");
-    assert_eq!(raw["runner"]["program"], stub);
-    assert_eq!(raw["runner"]["prompt_sha256"].as_str().unwrap().len(), 64);
-    let argv: Vec<String> =
-        serde_json::from_slice(&fs::read(format!("{dir}/kimi-argv.json")).unwrap()).unwrap();
-    assert_eq!(argv.len(), 4);
-    assert_eq!(argv[0], "-m");
-    assert_eq!(argv[1], "kimi-code/k3");
-    assert_eq!(argv[2], "-p");
-    assert!(argv[3].contains("requirements-carry-rationale"));
-    assert!(argv[3].contains("read-only"));
+    assert!(result.is_err());
+    assert!(!std::path::Path::new(&marker).exists());
+    let assessments = run.evaluate_gates();
+    assert_eq!(assessments[0].outcome, RsCheckpointOutcome::Unevaluated);
+    assert_eq!(run.advance(), RsAdvanceOutcome::RemainBlocked);
+    assert!(!std::path::Path::new(&marker).exists());
 }

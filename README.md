@@ -160,8 +160,8 @@ shows and copies this handoff but does not launch stage work.
 ### Customize checks with the checkpoint library
 
 Each of the four syntactic SimpleFlow gates can run the built-in deterministic checker,
-an agent CLI (codex or kimi with a model), or a reusable definition from the project
-checkpoint library. The choice is frozen into the run plan at `init`, so later library
+an explicit project checker script, or a reusable definition from the project checkpoint
+library. The choice is frozen into the run plan at `init`, so later library
 edits never change an existing run.
 
 ```bash
@@ -173,7 +173,7 @@ xdesign init WISH_ID --flow simple-flow --checks cache/checks.json
 
 A syntactic library entry declares its rules, the project inputs the rules read, and an
 executor: a project checker script (reuse an existing one, or generate a scaffold under
-`checkpoints/scripts/`), or an agent CLI plus model. Reusing a shipped
+`checkpoints/scripts/`). Reusing a shipped
 `tools/checks/*.py` script also needs the entry's optional `checker_id` (for example
 `simpleRequirementsCheck`) because those scripts enforce their own identity. A semantic
 entry records reusable criteria and permitted judges and can be bound to the SimpleFlow

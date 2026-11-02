@@ -35,7 +35,7 @@ criteria/judges, one generated scaffold-style entry, including version history).
 description, tags, rules/inputs/executor or criteria/judges; `create_script:
 "scaffold"` for a generated script), rejects built-in ids with 409
 `builtin_checkpoint`, and returns the save reply with `created` / `version` /
-`script_uri`. Library-bound wishes (`wish-0015`, `wish-0009`) exercise the
+`script_uri`. Library-bound wish `wish-0015` exercises the
 wizard/library binding, lifecycle join, and the unresolved-id warning
 (`wish-0013` binds `retired-record-check`, which is not in the library).
 

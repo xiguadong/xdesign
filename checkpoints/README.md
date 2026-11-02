@@ -3,9 +3,9 @@
 Project-level, Git-tracked authoring source for reusable checkpoints. A checkpoint is a
 named verification recipe that a flow can bind at wish creation:
 
-- **syntactic** — a fixed rule set with an executor (a project checker script or an agent
-  CLI + model) and the project files the rules read. The executor answers the declared
-  rules; assessments record script or agent authority accordingly.
+- **syntactic** — a fixed rule set with a project checker script and the project files
+  the rules read. The script answers the declared rules, and assessments record script
+  authority.
 - **semantic** — criteria and permitted judges (agent/human) for a semantic gate.
 
 The operational run store (`.xdesign/`) stays separate: a wish freezes the library
@@ -65,10 +65,6 @@ syntactic entry field `"checker_id"` to that identity (for example
 `"simpleRequirementsCheck"`); the frozen plan then uses it as the assessment assessor while
 `checkpoint.library` keeps the library provenance. Generated scaffolds echo whatever
 `--checker-id` the runtime passes, so they need no `checker_id`.
-
-A syntactic entry with an agent CLI executor omits `command_uri` and uses
-`"executor": {"mode": "cli", "cli": "codex", "model": "gpt-6-astra"}`; no scaffold is
-generated for CLI entries.
 
 Semantic example:
 

@@ -949,20 +949,12 @@ fn custom_check_binding_plans_are_projected_while_unknown_checker_members_stay_r
     let fixture = Fixture::new();
     let store = fixture.store();
     let mut plan = xdesign::simple_flow::designed_simple_flow_plan();
-    let config = xdesign::simple_flow::RsCheckBindingConfig {
-        schema_version: 1,
-        checks: vec![xdesign::simple_flow::RsCheckBinding {
-            files: vec![],
-            python: None,
-            checkpoint_id: "simpleRequirementsAccepted".into(),
-            mode: xdesign::simple_flow::RsCheckBindingMode::Cli,
-            cli: Some("codex".into()),
-            model: Some("gpt-6-astra".into()),
-            command_uri: None,
-            library_id: None,
-        }],
-    };
-    xdesign::simple_flow::apply_check_bindings(&mut plan, &config).unwrap();
+    // Historical frozen plans remain readable after new CLI bindings are retired.
+    plan.checkpoints[0].checker.as_mut().unwrap().custom = Some(xdesign::core::RsCustomChecker {
+        runner: xdesign::core::RsCustomRunner::Cli,
+        cli: Some("codex".into()),
+        model: Some("gpt-6-astra".into()),
+    });
     let plan_bytes = serde_json::to_vec_pretty(&json!({
         "plan_id": plan.plan_id,
         "initial_stage_id": plan.initial_stage_id,

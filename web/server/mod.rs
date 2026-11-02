@@ -8,12 +8,11 @@
 //! dependency at runtime.
 //!
 //! This file is the module root; `web/server/` also contains the HTTP layer,
-//! API assembly, agent catalog, and tests. The page itself is authored under
+//! API assembly and tests. The page itself is authored under
 //! `web/assets/` and is served from memory.
 
 #![allow(dead_code)]
 
-mod agents;
 mod api;
 mod http;
 

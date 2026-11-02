@@ -242,8 +242,8 @@ package XDesignVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D110"; }
         doc /* Planned review of current source/model/doc mappings and the
            CUSTOM, LIB, WEB and WEB2 case families. Inspect project ownership,
-           frozen fields, actual assessor authority, missing executable pinning,
-           and the explicit generic-model authority deviation. Run parse/check,
+           frozen fields, script assessor identity, missing executable pinning,
+           and the exclusion of launched agent checkers. Run parse/check,
            documentation audit and strict build. This declaration is not a pass. */
         subject operator : XDesignArchitecture::OperatorWebProgram;
         objective currentContract {

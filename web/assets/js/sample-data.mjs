@@ -41,10 +41,6 @@ export const SAMPLE_HEALTH = {
   project_root: "/Users/operator/projects/xdesign",
   store_root: "/Users/operator/projects/xdesign/.xdesign",
   store_present: true,
-  agents: [
-    { cli: "codex", available: true, version: "codex-cli 0.162.1" },
-    { cli: "kimi", available: false, version: null },
-  ],
   now: new Date(NOW).toISOString(),
 };
 
@@ -125,7 +121,7 @@ const simpleFlow = {
             reads: ["cache/web/wishes/wish-0012.sysml"],
           },
         ],
-        modes: ["default", "cli"],
+        modes: ["default", "library"],
       },
     },
     {
@@ -155,7 +151,7 @@ const simpleFlow = {
             reads: ["mbse/model/design.sysml"],
           },
         ],
-        modes: ["default", "cli"],
+        modes: ["default", "library"],
       },
     },
     {
@@ -185,7 +181,7 @@ const simpleFlow = {
             reads: ["src/lib.rs", "web/assets/styles.css"],
           },
         ],
-        modes: ["default", "cli"],
+        modes: ["default", "library"],
       },
     },
     {
@@ -215,7 +211,7 @@ const simpleFlow = {
             reads: [".xdesign/items/wish-0011"],
           },
         ],
-        modes: ["default", "cli"],
+        modes: ["default", "library"],
       },
     },
     {
@@ -289,48 +285,14 @@ const wishVerifyFlow = {
 
 export const SAMPLE_FLOWS = {
   flows: [simpleFlow, wishVerifyFlow],
-  agents: [
-    {
-      cli: "codex",
-      label: "Codex CLI",
-      command: "codex",
-      available: true,
-      version: "codex-cli 0.162.1",
-      default_model: "gpt-6-astra",
-      models: [
-        { id: "gpt-6-astra", label: "GPT-6 Astra" },
-        { id: "gpt-5.6-terra", label: "GPT-5.6 Terra" },
-        { id: "gpt-5.1-codex", label: "GPT-5.1 Codex" },
-        { id: "gpt-5-codex", label: "GPT-5 Codex" },
-        { id: "o4-mini", label: "o4-mini" },
-      ],
-    },
-    {
-      cli: "kimi",
-      label: "Kimi Code CLI",
-      command: "kimi",
-      available: false,
-      version: null,
-      default_model: "kimi-code/k3.1-pro",
-      models: [
-        { id: "kimi-code/k3.1-pro", label: "K3.1 Pro" },
-        { id: "kimi-code/k3.1-pro-highspeed", label: "K3.1 Pro Highspeed" },
-        { id: "kimi-code/k3", label: "K3" },
-        { id: "kimi-code/k3-256k", label: "K3 256k" },
-        { id: "kimi-code/kimi-for-coding", label: "K2.8 Preview" },
-        { id: "kimi-code/kimi-for-coding-highspeed", label: "K2.7 Code Highspeed" },
-      ],
-    },
-  ],
+
 };
 
 export function getSampleFlow(flowId) {
   return SAMPLE_FLOWS.flows.find((flow) => flow.flow_id === flowId) || null;
 }
 
-export function getSampleAgent(cli) {
-  return SAMPLE_FLOWS.agents.find((agent) => agent.cli === cli) || null;
-}
+
 
 /* ------------------------------------------------------------------ */
 /* Checkpoint library                                                 */
@@ -455,7 +417,7 @@ export const SAMPLE_CHECKPOINTS = [
     checkpoint_id: "api-surface-declared",
     title: "Public API surface is declared",
     description:
-      "Agent review of the public HTTP surface: every route and error code in the interface document matches the implementation.",
+      "Script review of the public HTTP surface: every route and error code in the interface document matches the implementation.",
     kind: "syntactic",
     tags: ["api", "review"],
     rules: [
@@ -463,7 +425,7 @@ export const SAMPLE_CHECKPOINTS = [
       { rule_id: "error-codes-enumerated", condition: "Every documented error code is reachable from at least one handler.", reads: ["web/server/api.rs"] },
     ],
     inputs: ["docs/interfaces/web-api.md", "web/server/api.rs"],
-    executor: { mode: "cli", cli: "codex", model: "gpt-5.6-terra" },
+    executor: { mode: "script", command_uri: "checkpoints/scripts/api_surface_declared.py" },
     version: 1,
     created_at: AGO(30),
     updated_at: AGO(30),
@@ -600,7 +562,7 @@ export const SAMPLE_WISHES = [
     wish_id: "wish-0012",
     title: "Custom check bindings",
     description:
-      "Bind an agent CLI verdict to the design gate and freeze the binding into the plan without changing the deterministic defaults.",
+      "Bind a project script to the design gate and freeze the binding into the plan without changing the deterministic defaults.",
     flow_id: "simple-flow",
     status: "active",
     current_stage: "design",
@@ -746,7 +708,6 @@ const PROFILES = {
 
 const BINDINGS = {
   "wish-0009": {
-    simpleDesignAccepted: { mode: "cli", cli: "codex", model: "gpt-5.6-terra", command_uri: null },
     verificationAccepted: { mode: "library", library_id: "verification-evidence-complete" },
   },
   "wish-0015": {
@@ -770,7 +731,7 @@ const SEMANTIC_ASSESSORS = {
   "wish-0011": { judged_by: "human", assessor: "operator", rationale: "The retained verification evidence and the deterministic gate reports satisfy every acceptance condition; residual risk is limited to the untested recovery path and is accepted." },
   "wish-0005": { judged_by: "human", assessor: "operator", rationale: "Every acceptance condition in the wish is addressed by the docs audit evidence." },
   "wish-0006": { judged_by: "agent", assessor: "codex:gpt-6-astra", rationale: "The evidence set covers both acceptance conditions." },
-  "wish-0009": { judged_by: "agent", assessor: "codex:gpt-5.6-terra", rationale: "The CLI-executed design check reports the declared rules and retains its logs." },
+  "wish-0009": { judged_by: "human", assessor: "operator", rationale: "The retained checker reports and evidence support the outcome." },
   "wish-0013": { judged_by: "agent", assessor: "xdesign web operator", rationale: "Stage blocked: declared checker rules did not pass." },
   "wish-0007": { judged_by: "human", assessor: "operator", rationale: "The wish statement does not state testable acceptance conditions." },
 };

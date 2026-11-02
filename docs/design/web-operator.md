@@ -56,8 +56,8 @@ projection (`received`, `active`, `blocked`, `delivered`), and legacy writable
 its plan, run, visits, assessments, and event timeline from the stored run record and the
 frozen plan; the plan's per-checkpoint binding is shown from the frozen plan, not from the
 create request or any workspace configuration file. The flow catalog joins the built-in
-plan declarations with static display metadata, and the agent catalog is static metadata
-plus a best-effort runtime version check with a three-second deadline.
+plan declarations with static display metadata. The page does not probe or launch agent
+CLIs.
 
 The create-wish action is the one place where the server prepares input for a lifecycle
 command. It validates the request, writes the wish source and the optional check-binding
@@ -133,7 +133,7 @@ criteria, inputs and executor, and surfaces `invalid_checkpoint`/`builtin_checkp
 errors inline; a built-in entry is read-only and can pre-fill a new user entry.
 
 The wizard's check cards keep the resource-selection analogy rather than adding a second
-workflow: a `Check executor` choice with `Built-in script`, `Agent CLI`, and `Library`
+workflow: a `Check executor` choice with `Built-in script` and `Library`
 (the `Library checkpoint` form is used in chips and detail rows). The distinction is
 necessary because the whole flow's stage work is performed by the working agent regardless
 of this choice; the choice selects only who verifies the checkpoint:
@@ -141,16 +141,15 @@ of this choice; the choice selects only who verifies the checkpoint:
 | Choice | Meaning |
 | --- | --- |
 | Built-in script | The repository's deterministic checker, recorded with script authority |
-| Agent CLI | A separate `codex`/`kimi` run judges the same declared rules, recorded with agent authority `<cli>:<model>` |
 | Library checkpoint | The frozen library entry's rules or criteria are used with the executor that entry declares ([D100](checkpoint-library.md#d100)) |
 
 The four syntactic cards share one stable grid, so the executor control and its dependent
-columns (CLI, model, or library selector) stay aligned when the mode changes and at the
+library selector stay aligned when the mode changes and at the
 narrow responsive widths; the choice never overlaps or reflows another control. Each check
 node states the working-agent distinction in plain language, and every chip, wizard review
 line, lifecycle node, and assessment row uses the same vocabulary. An assessment always
-shows `judged_by` (`script`/`agent`/`human`) and the assessor, so a library script, a
-built-in script, and an agent run are not presented as the same executor.
+shows `judged_by` (`script` for syntactic checks, or `agent`/`human` for supplied semantic
+judgments) and the assessor, so a library script and built-in script remain identifiable.
 
 The Flows view lists library availability alongside `custom_checks_supported` so an
 operator can see which library entries a flow's gates can accept. The wizard's review step
@@ -172,7 +171,9 @@ xdesign check WISH_ID --result FILE      # submit the stage outputs and let the 
 
 The web program is an operator console, not a worker: it can run `next` and `check` at the
 operator's request and display the resulting work order and assessments, but it never
-launches the stage work and never bypasses the check. The handoff is explicit in the page:
+launches the stage work and never bypasses the check. Agent selection, launch, monitoring,
+cancellation, retries, and session recovery belong to the caller's agent environment, not
+the operator API. The handoff is explicit in the page:
 
 - a one-line explanation on every non-delivered wish that the flow does not auto-run;
 - a copyable handoff prompt built from the wish detail — wish id and title, flow and
@@ -201,7 +202,6 @@ automation.
 | `web/server/mod.rs` | `serve()` entry, option parsing, project-root change, listener, module root |
 | `web/server/http.rs` | Minimal HTTP/1.1 request and response handling, limits, JSON envelopes |
 | `web/server/api.rs` | Endpoint data assembly, store reads, lifecycle subprocesses, material serving |
-| `web/server/agents.rs` | Static codex/kimi catalog and best-effort availability detection |
 | `src/checkpoint/` | Checkpoint library model, validation, built-in seeds, version/history, scaffold generation, and the `checkpoint` command replies |
 | `checkpoints/` | Project-level authoring source: `library.json`, `README.md`, and generated scripts under `scripts/` |
 | `web/server/build.rs` | Compile-time embedding of `web/assets/` |

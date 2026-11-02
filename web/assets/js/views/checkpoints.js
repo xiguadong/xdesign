@@ -604,9 +604,9 @@ function renderExecutorBlock(executor) {
   if (executor.mode === "cli") {
     return `<div class="lib-detail__executor">
       <span class="agent-card__icon tone-violet" style="width:30px;height:30px">${icon("cpu")}</span>
-      <div><div class="lib-detail__executor-title">Agent CLI</div>
+      <div><div class="lib-detail__executor-title">Historical Agent CLI</div>
       <div class="mono lib-detail__executor-meta">${esc(executor.cli)}:${esc(executor.model)}</div>
-      <div class="lib-detail__note" style="padding:6px 0 0">The agent CLI judges the declared rules; the assessment is recorded with agent authority.</div></div>
+      <div class="lib-detail__note" style="padding:6px 0 0">Historical executor. New runs cannot bind or launch this checker.</div></div>
     </div>`;
   }
   return `<div class="lib-detail__executor">
@@ -626,10 +626,7 @@ function openCheckpointForm(app, { entry = null, duplicate = false, onSaved = nu
   const editing = Boolean(entry) && !duplicate;
   const baseKind = entry ? entry.kind : "";
   const derivedId = entry ? (duplicate ? `${entry.checkpoint_id}-copy` : entry.checkpoint_id) : "";
-  const agents = app.state.agents || [];
-  const defaultAgent = agents.find((agent) => agent.available) || agents[0] || null;
   const scriptExecutor = entry && entry.executor && entry.executor.mode === "script" ? entry.executor : null;
-  const cliExecutor = entry && entry.executor && entry.executor.mode === "cli" ? entry.executor : null;
   const form = {
     mode: editing ? "edit" : "create",
     kind: baseKind,
@@ -641,13 +638,11 @@ function openCheckpointForm(app, { entry = null, duplicate = false, onSaved = nu
       ? entry.rules.map((rule) => ({ rule_id: rule.rule_id, condition: rule.condition, reads: (rule.reads || []).join(", ") }))
       : [{ rule_id: "", condition: "", reads: "" }],
     inputs: entry && entry.inputs ? entry.inputs.join("\n") : "",
-    execMode: scriptExecutor ? "reuse" : cliExecutor ? "cli" : "reuse",
+    execMode: "reuse",
     command_uri: scriptExecutor ? scriptExecutor.command_uri : "",
     files: scriptExecutor ? (scriptExecutor.files || []).join("\n") : "",
     python: scriptExecutor ? scriptExecutor.python || "" : "",
     createScript: false,
-    cli: cliExecutor ? cliExecutor.cli : (defaultAgent ? defaultAgent.cli : "codex"),
-    model: cliExecutor ? cliExecutor.model : (defaultAgent ? defaultAgent.default_model || "" : ""),
     criteria: entry && entry.criteria && entry.criteria.length ? [...entry.criteria] : [""],
     judges: {
       agent: entry && entry.judges ? Boolean(entry.judges.agent) : true,
@@ -845,9 +840,6 @@ function openCheckpointForm(app, { entry = null, duplicate = false, onSaved = nu
 function renderFormBody(app, form, { editing = false, sample = false } = {}) {
   const semantic = form.kind === "semantic";
   const syntactic = form.kind === "syntactic";
-  const agents = app.state.agents || [];
-  const agent = agents.find((entry) => entry.cli === form.cli) || agents[0] || null;
-  const models = (agent && agent.models) || [];
   const errorFor = (key) => (form.errors[key] ? `<div class="field__error" data-form-error-field="${key}">${icon("alert-circle")}${esc(form.errors[key])}</div>` : `<div class="field__error" data-form-error-field="${key}"></div>`);
   const scaffold = scaffoldUri(form.checkpoint_id);
   return `<form class="lib-form" data-checkpoint-form autocomplete="off" novalidate>
@@ -859,7 +851,7 @@ function renderFormBody(app, form, { editing = false, sample = false } = {}) {
           <span class="kind-option__icon tone-cyan">${icon("shield")}</span>
           <span class="kind-option__body">
             <span class="kind-option__name">Syntactic rule set</span>
-            <span class="kind-option__sub">Deterministic rules run by a project script or a separate agent CLI. Rule ids, conditions and reads.</span>
+            <span class="kind-option__sub">Deterministic rules run by a project script. Rule ids, conditions and reads.</span>
           </span>
         </button>
         <button class="kind-option ${semantic ? "is-selected" : ""}" type="button" data-form-kind="semantic" aria-pressed="${semantic}">
@@ -972,26 +964,9 @@ function renderFormBody(app, form, { editing = false, sample = false } = {}) {
                 <span class="executor-option__icon tone-cyan">${icon("sparkle")}</span>
                 <span><span class="executor-option__name">Generate scaffold script</span><span class="executor-option__sub">Write a deterministic checker with TODO rules.</span></span>
               </button>
-              <button class="executor-option ${form.execMode === "cli" ? "is-selected" : ""}" type="button" data-form-exec="cli" aria-pressed="${form.execMode === "cli"}">
-                <span class="executor-option__icon tone-violet">${icon("cpu")}</span>
-                <span><span class="executor-option__name">Agent CLI</span><span class="executor-option__sub">A codex/kimi run judges the same rules.</span></span>
-              </button>
             </div>
             ${
-              form.execMode === "cli"
-                ? `<div class="form-grid" style="margin-top:12px">
-                    <div class="field">
-                      <label class="label" for="cp-cli">CLI <span class="req">*</span></label>
-                      <select class="select" id="cp-cli" data-form-field="cli">${agents.map((entry) => `<option value="${esc(entry.cli)}" ${entry.cli === form.cli ? "selected" : ""}>${esc(entry.cli)}${entry.available ? "" : " · off"}</option>`).join("")}</select>
-                      ${errorFor("executor")}
-                    </div>
-                    <div class="field">
-                      <label class="label" for="cp-model">Model <span class="req">*</span></label>
-                      <select class="select" id="cp-model" data-form-field="model">${models.map((model) => `<option value="${esc(model.id)}" ${model.id === form.model ? "selected" : ""}>${esc(model.label || model.id)}</option>`).join("") || `<option value="${esc(form.model)}" selected>${esc(form.model || "default")}</option>`}</select>
-                      <div class="field__hint">Executor summary: <span class="mono">${esc(form.cli)}:${esc(form.model)}</span></div>
-                    </div>
-                  </div>`
-                : form.execMode === "scaffold"
+              form.execMode === "scaffold"
                   ? `<div class="field" style="margin-top:12px">
                       <label class="label">Scaffold script</label>
                       <input class="input input--mono" value="${esc(scaffold)}" readonly />
@@ -1005,7 +980,7 @@ function renderFormBody(app, form, { editing = false, sample = false } = {}) {
                       ${errorFor("executor")}
                     </div>`
             }
-            ${form.execMode !== "cli" ? `<div class="field" style="margin-top:12px">
+            <div class="field" style="margin-top:12px">
               <label class="label" for="cp-files">Helper and data files <span class="optional">optional, one project-relative path per line</span></label>
               <textarea class="textarea textarea--mono" id="cp-files" data-form-field="files" rows="3" placeholder="checkpoints/scripts/budget/helper.py">${esc(form.files)}</textarea>
               <div class="field__hint">The entry script is included automatically. New runs retain these files with it.</div>
@@ -1014,7 +989,7 @@ function renderFormBody(app, form, { editing = false, sample = false } = {}) {
               <label class="label" for="cp-python">Python environment <span class="optional">optional</span></label>
               <input class="input input--mono" id="cp-python" data-form-field="python" value="${esc(form.python)}" placeholder="cache/checkers/budget/bin/python3" spellcheck="false" />
               <div class="field__hint">Use an existing project environment under cache/. Leave empty to use python3 from PATH.</div>
-            </div>` : ""}
+            </div>
           </div>`
     }
     ${sample ? `<div class="lib-detail__note">${icon("info")}<span>Sample mode: the form is fully interactive for exploration, but saving is disabled.</span></div>` : ""}
@@ -1046,11 +1021,7 @@ function validateCheckpointForm(form) {
     }
     const inputs = parseLines(form.inputs);
     if (inputs.length === 0) errors.inputs = "A syntactic checkpoint needs at least one input path.";
-    if (form.execMode === "cli") {
-      if (!["codex", "kimi"].includes(form.cli)) errors.executor = "Choose codex or kimi.";
-      else if (!(form.model || "").trim()) errors.executor = "An agent CLI executor needs a model id.";
-      else if ((form.model || "").trim().length > 200) errors.executor = "The model id must be 200 characters or fewer.";
-    } else if (form.execMode === "reuse") {
+    if (form.execMode === "reuse") {
       const command = (form.command_uri || "").trim();
       if (!command) errors.executor = "Enter the project-relative script path.";
       else if (!command.endsWith(".py")) errors.executor = "The script path must end with .py.";
@@ -1083,9 +1054,7 @@ function buildRequestBody(form) {
         reads: parseLines(rule.reads),
       }));
     body.inputs = parseLines(form.inputs);
-    if (form.execMode === "cli") {
-      body.executor = { mode: "cli", cli: form.cli, model: (form.model || "").trim() };
-    } else if (form.execMode === "scaffold") {
+    if (form.execMode === "scaffold") {
       body.executor = { mode: "script", command_uri: scaffoldUri(body.checkpoint_id) };
       body.create_script = "scaffold";
     } else {

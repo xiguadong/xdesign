@@ -22,10 +22,11 @@ These are coverage categories, not verdicts about engineering adequacy.
 | `CheckKind::syntactic` | yes, at least one | none set | a script (`JudgeAuthority::script`) | `requirementsAccepted` — "requirements and their verification criteria trace to the wish", fixed by `requirementTraceCheck` |
 | `CheckKind::semantic` | no | `agentMayJudge` and/or `humanMayJudge` | an agent or a human | `verificationAccepted` — "verification evidence demonstrates that the implementation satisfies the requirements" |
 
-This is the generic modeled contract. The implemented custom CLI binding permits agent
-authority on a gate still labeled syntactic and therefore deviates from the third
-assertion below. The [as-built authority review](checkpoint-library.md#d107) records the
-deviation and policy alternatives; the compiler does not evaluate assertion bodies.
+This is the generic modeled contract and the current binding policy: syntactic gates use
+script checkers; agent or human judgments are supplied only for permitted semantic gates.
+Historical Agent CLI assessments remain readable, but new Agent CLI check bindings are
+rejected ([D107](checkpoint-library.md#d107)). The compiler does not evaluate assertion
+bodies.
 
 Three assertions specify the split:
 

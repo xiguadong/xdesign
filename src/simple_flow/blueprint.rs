@@ -38,8 +38,8 @@ pub struct RsCheckBinding {
     pub library_id: Option<String>,
 }
 
-/// How a bound checkpoint is executed: the built-in deterministic checker, an
-/// agent CLI, or a project command that keeps the checker contract.
+/// How a bound checkpoint is executed. `Cli` remains decodable for legacy
+/// binding files, but new registrations reject it.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum RsCheckBindingMode {
@@ -92,9 +92,8 @@ fn is_simple_flow_plan(plan: &RsFlowPlan) -> bool {
 }
 
 /// Apply validated non-library check bindings to an unfrozen plan. Default
-/// bindings are a no-op; `Cli` keeps the covered checker's default command and
-/// rules and only replaces the executor; `Command` swaps the command URI; a
-/// library binding needs the project library and is refused here.
+/// bindings are a no-op; `Command` swaps the command URI; a library binding
+/// needs the project library and is refused here.
 pub fn apply_check_bindings(
     plan: &mut RsFlowPlan,
     config: &RsCheckBindingConfig,
@@ -124,16 +123,6 @@ fn expected_binding_ids(library_mode: bool) -> Vec<&'static str> {
     } else {
         SIMPLE_FLOW_CHECK_BINDING_IDS.to_vec()
     }
-}
-
-fn expected_command_uri(checkpoint_id: &str) -> String {
-    designed_simple_flow_plan()
-        .checkpoints
-        .iter()
-        .find(|gate| gate.checkpoint_id == checkpoint_id)
-        .and_then(|gate| gate.checker.as_ref())
-        .map(|checker| checker.command_uri.clone())
-        .expect("designed SimpleFlow gate has a checker")
 }
 
 fn apply_bindings(
@@ -168,6 +157,14 @@ fn apply_bindings(
                 expected.join(", ")
             ));
         }
+        if binding.mode != RsCheckBindingMode::Cli
+            && (binding.cli.is_some() || binding.model.is_some())
+        {
+            return Err(format!(
+                "checkpoint {}: cli and model fields are no longer supported",
+                binding.checkpoint_id
+            ));
+        }
         if binding.mode != RsCheckBindingMode::Command
             && (!binding.files.is_empty() || binding.python.is_some())
         {
@@ -179,43 +176,10 @@ fn apply_bindings(
         match binding.mode {
             RsCheckBindingMode::Default => {}
             RsCheckBindingMode::Cli => {
-                if !simple_flow {
-                    return Err("custom checks are supported for simple-flow only".into());
-                }
-                let cli = binding
-                    .cli
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|value| !value.is_empty());
-                let Some(cli) = cli else {
-                    return Err(format!(
-                        "checkpoint {}: cli mode requires cli codex or kimi",
-                        binding.checkpoint_id
-                    ));
-                };
-                if !matches!(cli, "codex" | "kimi") {
-                    return Err(format!(
-                        "checkpoint {}: cli mode requires cli codex or kimi",
-                        binding.checkpoint_id
-                    ));
-                }
-                let model = binding
-                    .model
-                    .as_deref()
-                    .map(str::trim)
-                    .filter(|value| !value.is_empty());
-                let Some(model) = model else {
-                    return Err(format!(
-                        "checkpoint {}: cli mode requires a nonempty model",
-                        binding.checkpoint_id
-                    ));
-                };
-                let checker = checker_mut(plan, &binding.checkpoint_id)?;
-                checker.custom = Some(RsCustomChecker {
-                    runner: RsCustomRunner::Cli,
-                    cli: Some(cli.to_owned()),
-                    model: Some(model.to_owned()),
-                });
+                return Err(format!(
+                    "checkpoint {}: agent CLI check bindings are no longer supported",
+                    binding.checkpoint_id
+                ));
             }
             RsCheckBindingMode::Command => {
                 if !simple_flow {
@@ -328,6 +292,11 @@ fn apply_bindings(
                             "checkpoint {library_id}: syntactic library entry has no executor"
                         ));
                     };
+                    if executor.mode == RsCheckpointExecutorMode::Cli {
+                        return Err(format!(
+                            "checkpoint {library_id}: agent CLI executors are no longer supported"
+                        ));
+                    }
                     let gate = plan
                         .checkpoints
                         .iter_mut()
@@ -381,35 +350,7 @@ fn apply_bindings(
                                 model: None,
                             });
                         }
-                        RsCheckpointExecutorMode::Cli => {
-                            let cli = executor
-                                .cli
-                                .as_deref()
-                                .map(str::trim)
-                                .filter(|value| !value.is_empty())
-                                .ok_or_else(|| {
-                                    format!("checkpoint {library_id}: cli executor has no cli")
-                                })?;
-                            if !matches!(cli, "codex" | "kimi") {
-                                return Err(format!(
-                                    "checkpoint {library_id}: cli executor requires codex or kimi"
-                                ));
-                            }
-                            let model = executor
-                                .model
-                                .as_deref()
-                                .map(str::trim)
-                                .filter(|value| !value.is_empty())
-                                .ok_or_else(|| {
-                                    format!("checkpoint {library_id}: cli executor has no model")
-                                })?;
-                            checker.command_uri = expected_command_uri(&binding.checkpoint_id);
-                            checker.custom = Some(RsCustomChecker {
-                                runner: RsCustomRunner::Cli,
-                                cli: Some(cli.to_owned()),
-                                model: Some(model.to_owned()),
-                            });
-                        }
+                        RsCheckpointExecutorMode::Cli => unreachable!("rejected above"),
                     }
                     gate.library = Some(entry.checkpoint_id.clone());
                     library_inputs.insert(gate.stage_id.clone(), entry.inputs.clone());

@@ -18,7 +18,7 @@ package, timeline, and swimlane diagrams together on one page.
 | The project, its parts, and how they collaborate | [architecture/index.md](architecture/index.md) |
 | What the system must do and why | [requirements/index.md](requirements/index.md) |
 | How the flows and runs are designed | [design/index.md](design/index.md) |
-| How a wish's four SimpleFlow checks are bound to a default check, an agent CLI, a custom command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
+| How a wish's four SimpleFlow checks are bound to a default check, a project command, or a reusable library checkpoint | [Configurable check bindings](design/flows/simple-flow/definition.md#d88) |
 | How released scripts, project scripts and retained executor bundles are stored | [Checker execution](design/checker-execution.md#d111) |
 | How the portable templates and rules are organized, and how CLI/MCP authoring is designed | [Document kit design](design/document-kit.md#d113) and [component boundary](architecture/document-kit.md#b33) |
 | How reusable checks are authored, versioned, and shared across wishes | [Checkpoint library](design/checkpoint-library.md#d97) |

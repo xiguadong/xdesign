@@ -416,7 +416,7 @@ export function mountRawJson(root) {
 
 export const EXECUTOR_LABELS = {
   default: "Built-in script",
-  cli: "Agent CLI",
+  cli: "Historical Agent CLI",
   library: "Library checkpoint",
   command: "Project command",
 };
@@ -427,7 +427,7 @@ export function executorLabel(mode) {
 
 export function executorChip(mode, { library = null, cli = null, model = null, size = "chip--sm" } = {}) {
   if (mode === "cli") {
-    return `<span class="chip chip--violet ${size}">${icon("cpu")}Agent CLI · <span class="mono">${esc(cli || "?")}:${esc(model || "?")}</span></span>`;
+    return `<span class="chip chip--violet ${size}">${icon("cpu")}Historical CLI · <span class="mono">${esc(cli || "?")}:${esc(model || "?")}</span></span>`;
   }
   if (mode === "library") {
     const title = library ? library.title : `missing · ${library?.checkpoint_id || ""}`;
@@ -439,7 +439,7 @@ export function executorChip(mode, { library = null, cli = null, model = null, s
 export function executorSummary(executor) {
   if (!executor) return "judged (no executor)";
   if (executor.mode === "script") return `script · ${executor.command_uri}`;
-  if (executor.mode === "cli") return `agent CLI · ${executor.cli}:${executor.model}`;
+  if (executor.mode === "cli") return `historical Agent CLI · ${executor.cli}:${executor.model}`;
   return executor.mode;
 }
 
@@ -466,7 +466,7 @@ export function loadingBlock(label = "Loading…") {
 export function fmtBinding(binding, ctx) {
   if (!binding) return `<span class="text-faint">not bound</span>`;
   if (binding.mode === "cli") {
-    return `<span class="badge chip--violet badge--mono">${icon("cpu")} ${esc(binding.cli)}:${esc(binding.model)}</span>`;
+    return `<span class="badge chip--violet badge--mono" title="Historical Agent CLI binding">${icon("cpu")} ${esc(binding.cli)}:${esc(binding.model)}</span>`;
   }
   if (binding.mode === "library") {
     return `<span class="badge chip--cyan badge--mono">${icon("library")} ${esc(binding.library_id || "library")}</span>`;

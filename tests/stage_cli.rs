@@ -78,33 +78,6 @@ impl Project {
             .output()
             .unwrap()
     }
-    fn call_env(&self, args: &[&str], env: &[(&str, &str)]) -> Output {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_xdesign"));
-        command
-            .current_dir(&self.root)
-            .env_remove("XDESIGN_STORE_ROOT")
-            .args(args);
-        for (key, value) in env {
-            command.env(key, value);
-        }
-        command.output().unwrap()
-    }
-    fn json_env(&self, args: &[&str], code: i32, env: &[(&str, &str)]) -> Value {
-        let output = self.call_env(args, env);
-        assert_eq!(
-            output.status.code(),
-            Some(code),
-            "args={args:?}, stderr={}, stdout={}",
-            String::from_utf8_lossy(&output.stderr),
-            String::from_utf8_lossy(&output.stdout)
-        );
-        assert!(
-            output.stderr.is_empty(),
-            "{}",
-            String::from_utf8_lossy(&output.stderr)
-        );
-        serde_json::from_slice(&output.stdout).unwrap()
-    }
     fn json(&self, args: &[&str], code: i32) -> Value {
         let output = self.call(args);
         assert_eq!(
@@ -620,110 +593,28 @@ fn simultaneous_check_processes_cannot_overwrite_each_other() {
         .exists());
 }
 
-#[cfg(unix)]
 #[test]
-fn init_checks_binds_an_agent_cli_and_the_frozen_plan_reloads_for_next() {
-    use std::os::unix::fs::PermissionsExt;
+fn init_rejects_agent_cli_checks_and_default_plan_remains_stable() {
     let project = Project::simple(false);
-    let stub = project.root.join("cache/agent-stub.py");
-    fs::create_dir_all(stub.parent().unwrap()).unwrap();
-    fs::write(
-        &stub,
-        "#!/usr/bin/env python3\nimport json\nimport sys\nwith open('cache/agent-codex-argv.json', 'w', encoding='utf-8') as output:\n    json.dump(sys.argv[1:], output)\nprint(json.dumps({\"overall_verdict\": \"passed\", \"rules\": [{\"rule_id\": \"requirements-carry-rationale\", \"verdict\": \"passed\", \"failures\": []}, {\"rule_id\": \"satisfy-links-resolve\", \"verdict\": \"passed\", \"failures\": []}]}))\n",
-    )
-    .unwrap();
-    fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
-    let stub = stub.to_string_lossy().into_owned();
     project.write(
         "checks.json",
         br#"{"schema_version":1,"checks":[{"checkpoint_id":"simpleRequirementsAccepted","mode":"cli","cli":"codex","model":"gpt-test-model"}]}"#,
     );
-    // The exact order the web backend uses.
-    let initialized = project.json(
-        &[
-            "init",
-            "wish-test",
-            "--flow",
-            "simple-flow",
-            "--wish",
-            "mbse/wishes/wish-test.sysml",
-            "--checks",
-            "checks.json",
-        ],
-        0,
-    );
-    assert_eq!(initialized["flow_id"], "simple-flow");
-    let plan: Value = serde_json::from_slice(
-        &fs::read(project.root.join("cache/xdesign/wish-test/plan.json")).unwrap(),
-    )
-    .unwrap();
-    assert_eq!(plan["plan_id"], "designedSimpleFlow");
-    assert_eq!(
-        plan["checkpoints"][0]["checker"]["custom"],
-        json!({"runner": "cli", "cli": "codex", "model": "gpt-test-model"})
-    );
-    assert_eq!(
-        plan["checkpoints"][0]["checker"]["command_uri"],
-        "tools/checks/simple_requirements.py"
-    );
-    assert!(plan["checkpoints"][1]["checker"].get("custom").is_none());
-
-    let checked = project.json_env(
-        &["check", "wish-test"],
-        0,
-        &[("XDESIGN_AGENT_CODEX_BIN", stub.as_str())],
-    );
-    let assessment = &checked["assessed"]["assessments"][0];
-    assert_eq!(assessment["checkpoint_id"], "simpleRequirementsAccepted");
-    assert_eq!(assessment["outcome"], "passed");
-    assert_eq!(assessment["judged_by"], "agent");
-    assert_eq!(assessment["assessor"], "codex:gpt-test-model");
-    assert_eq!(checked["advance"], "enter_next_stage");
-    assert_eq!(checked["work"]["stage_id"], "design");
-    let report_uri = assessment["evidence_uris"][0].as_str().unwrap();
-    let report: Value =
-        serde_json::from_slice(&fs::read(project.root.join(report_uri)).unwrap()).unwrap();
-    assert_eq!(report["overall_verdict"], "passed");
-    assert_eq!(report["rules"].as_array().unwrap().len(), 2);
-    assert_eq!(report["runner"]["kind"], "cli");
-    assert_eq!(report["runner"]["cli"], "codex");
-    assert_eq!(report["runner"]["model"], "gpt-test-model");
-    assert_eq!(report["runner"]["program"], stub.as_str());
-    assert_eq!(
-        report["runner"]["prompt_sha256"].as_str().unwrap().len(),
-        64
-    );
-    let argv: Vec<String> = serde_json::from_slice(
-        &fs::read(project.root.join("cache/agent-codex-argv.json")).unwrap(),
-    )
-    .unwrap();
-    assert_eq!(argv.len(), 7);
-    assert_eq!(
-        &argv[..6],
-        &[
-            "exec",
-            "--skip-git-repo-check",
-            "--sandbox",
-            "read-only",
-            "-m",
-            "gpt-test-model"
-        ]
-    );
-    assert!(argv[6].contains("requirements-carry-rationale"));
-    assert!(argv[6].contains("read-only"));
-    assert!(project
+    let error = project.error(&[
+        "init",
+        "wish-test",
+        "--flow",
+        "simple-flow",
+        "--wish",
+        "mbse/wishes/wish-test.sysml",
+        "--checks",
+        "checks.json",
+    ]);
+    assert!(error.to_ascii_lowercase().contains("cli"), "{error}");
+    assert!(!project
         .root
-        .join(format!("{report_uri}.stdout.log"))
-        .is_file());
-    assert!(project
-        .root
-        .join(format!("{report_uri}.stderr.log"))
-        .is_file());
-
-    // next reloads the frozen plan from the store, re-validates the agent
-    // assessment, and advances to the successor stage.
-    let next = project.next();
-    assert_eq!(next["work"]["stage_id"], "design");
+        .join("cache/xdesign/wish-test/plan.json")
+        .exists());
 
     // A run without --checks adds resource retention while preserving the logical
     // default plan and deterministic script authority.
@@ -1238,10 +1129,8 @@ fn init_with_unedited_scaffold_library_binding_reports_honest_failure() {
     assert_eq!(blocked["advance"], "remain_blocked");
 }
 
-#[cfg(unix)]
 #[test]
-fn init_with_cli_library_binding_records_agent_authority() {
-    use std::os::unix::fs::PermissionsExt;
+fn checkpoint_library_rejects_agent_cli_executor() {
     let project = Project::simple(false);
     let entry = cli_library_entry(
         "agent-requirements-library",
@@ -1250,47 +1139,50 @@ fn init_with_cli_library_binding_records_agent_authority() {
         "mbse/model/requirements.sysml",
         "requirements-agent-rule",
     );
-    let saved = project.save_checkpoint(&entry, 0);
-    assert_eq!(saved["script_uri"], Value::Null);
-    let stub = project.root.join("cache/library-agent-stub.py");
-    fs::create_dir_all(stub.parent().unwrap()).unwrap();
-    fs::write(
-        &stub,
-        "#!/usr/bin/env python3\nimport json\nprint(json.dumps({\"overall_verdict\":\"passed\",\"rules\":[{\"rule_id\":\"requirements-agent-rule\",\"verdict\":\"passed\",\"failures\":[]}]}))\n",
-    )
-    .unwrap();
-    fs::set_permissions(&stub, fs::Permissions::from_mode(0o755)).unwrap();
-    let stub = stub.to_string_lossy().into_owned();
-    project.init_with_checks(
+    let response = project.save_checkpoint(&entry, 2);
+    assert_eq!(response["ok"], false);
+    assert!(response["error"]["message"]
+        .as_str()
+        .unwrap()
+        .to_ascii_lowercase()
+        .contains("cli"));
+    assert!(!project.root.join("checkpoints/library.json").exists());
+}
+
+#[test]
+fn existing_cli_library_entry_is_readable_but_cannot_bind_a_new_run() {
+    let project = Project::simple(false);
+    let entry = cli_library_entry(
+        "legacy-agent-check",
+        "codex",
+        "legacy-model",
+        "mbse/model/requirements.sysml",
+        "legacy-rule",
+    );
+    project.library(&[entry]);
+    let shown = project.json(&["checkpoint", "show", "legacy-agent-check"], 0);
+    assert_eq!(shown["checkpoint"]["executor"]["mode"], "cli");
+    project.write(
+        "checks.json",
+        &serde_json::to_vec(&json!({
+            "schema_version": 1,
+            "checks": [library_binding("simpleRequirementsAccepted", "legacy-agent-check")]
+        }))
+        .unwrap(),
+    );
+    let error = project.error(&[
+        "init",
         "wish-test",
-        &[library_binding(
-            "simpleRequirementsAccepted",
-            "agent-requirements-library",
-        )],
-    );
-    let plan = project.plan_json("wish-test");
-    let checker = &plan["checkpoints"][0]["checker"];
-    assert_eq!(checker["checker_id"], "agent-requirements-library");
-    assert_eq!(
-        checker["command_uri"],
-        "tools/checks/simple_requirements.py"
-    );
-    assert_eq!(
-        checker["custom"],
-        json!({"runner": "cli", "cli": "codex", "model": "gpt-library-model"})
-    );
-    assert_eq!(checker["rules"][0]["rule_id"], "requirements-agent-rule");
-    let checked = project.json_env(
-        &["check", "wish-test"],
-        0,
-        &[("XDESIGN_AGENT_CODEX_BIN", stub.as_str())],
-    );
-    let assessment = &checked["assessed"]["assessments"][0];
-    assert_eq!(assessment["outcome"], "passed");
-    assert_eq!(assessment["judged_by"], "agent");
-    assert_eq!(assessment["assessor"], "codex:gpt-library-model");
-    assert_eq!(checked["advance"], "enter_next_stage");
-    assert_eq!(project.next()["work"]["stage_id"], "design");
+        "--flow",
+        "simple-flow",
+        "--checks",
+        "checks.json",
+    ]);
+    assert!(error.to_ascii_lowercase().contains("cli"), "{error}");
+    assert!(!project
+        .root
+        .join("cache/xdesign/wish-test/plan.json")
+        .exists());
 }
 
 #[test]

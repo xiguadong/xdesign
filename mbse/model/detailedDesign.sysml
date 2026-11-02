@@ -23,7 +23,8 @@ package XDesignDetailedDesign {
            Rules, criteria, permissions, runner and selected input paths are copied
            at init; new stored runs additionally retain the declared executor bundle.
            Library input selection replaces checker selectors only for the
-           requirements and design stages in the current implementation. */
+           requirements and design stages in the current implementation.
+           cli/model fields remain for historical-plan decoding only. */
         attribute checkpointId : String;
         attribute libraryId : String [0..1];
         attribute executorMode : String;

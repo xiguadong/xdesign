@@ -23,6 +23,13 @@ pub fn evaluate_checkpoint(
     match spec.kind {
         RsCheckKind::Syntactic => {
             let checker = spec.checker.as_ref().ok_or(RsGateError::CheckerMissing)?;
+            if checker
+                .custom
+                .as_ref()
+                .is_some_and(|custom| custom.runner == RsCustomRunner::Cli)
+            {
+                return Err(RsGateError::CommandFailed);
+            }
             let report = check.run_check(
                 checker,
                 plan_id,
@@ -56,30 +63,6 @@ pub fn evaluate_checkpoint(
                 .filter_map(|r| r.diagnostic.as_deref())
                 .collect::<Vec<_>>()
                 .join("; ");
-            // A CLI-bound syntactic gate is answered by an agent, not by the
-            // deterministic script; the assessment records that authority and
-            // the exact `<cli>:<model>` executor so a replay can bind it.
-            let agent = checker
-                .custom
-                .as_ref()
-                .and_then(|custom| match custom.runner {
-                    RsCustomRunner::Cli => custom.cli.as_ref().zip(custom.model.as_ref()),
-                    RsCustomRunner::Process => None,
-                });
-            let (judged_by, assessor, passed_rationale) = match agent {
-                Some((cli, model)) => (
-                    RsJudgeAuthority::Agent,
-                    format!("{cli}:{model}"),
-                    format!(
-                        "Agent CLI {cli} (model {model}) reported that all declared checker rules passed"
-                    ),
-                ),
-                None => (
-                    RsJudgeAuthority::Script,
-                    checker.checker_id.clone(),
-                    "All declared checker rules passed".to_owned(),
-                ),
-            };
             Ok(RsAssessmentEntry {
                 checkpoint_id: spec.checkpoint_id.clone(),
                 evaluated_revision: visit.artifact_revision(),
@@ -89,10 +72,10 @@ pub fn evaluate_checkpoint(
                 } else {
                     RsCheckpointOutcome::Failed
                 },
-                judged_by,
-                assessor,
+                judged_by: RsJudgeAuthority::Script,
+                assessor: checker.checker_id.clone(),
                 rationale: if report.holds {
-                    passed_rationale
+                    "All declared checker rules passed".to_owned()
                 } else {
                     failures
                 },

@@ -749,7 +749,7 @@ fn default_plan_serialization_and_validation_are_unchanged() {
 }
 
 #[test]
-fn designed_plan_accepts_cli_and_command_bindings_and_rejects_invalid_ones() {
+fn designed_plan_rejects_new_cli_bindings_but_reads_legacy_plans() {
     let dir = test_dir();
     let mut plan = designed_simple_flow_plan();
     let config = RsCheckBindingConfig {
@@ -762,8 +762,27 @@ fn designed_plan_accepts_cli_and_command_bindings_and_rejects_invalid_ones() {
             None,
         )],
     };
-    apply_check_bindings(&mut plan, &config).unwrap();
-    plan.freeze(format!("{dir}/cli-plan.json")).unwrap();
+    assert!(apply_check_bindings(&mut plan, &config).is_err());
+    let mut plan = designed_simple_flow_plan();
+    plan.checkpoints[0].checker.as_mut().unwrap().custom = Some(RsCustomChecker {
+        runner: RsCustomRunner::Cli,
+        cli: Some("codex".into()),
+        model: Some("gpt-6-astra".into()),
+    });
+    let legacy_uri = format!("{dir}/cli-plan.json");
+    assert_eq!(
+        plan.clone().freeze(&legacy_uri),
+        Err(RsPlanError::InvalidChecker)
+    );
+    let legacy_bytes = serde_json::to_vec_pretty(&serde_json::json!({
+        "plan_id": &plan.plan_id,
+        "initial_stage_id": &plan.initial_stage_id,
+        "stages": &plan.stages,
+        "checkpoints": &plan.checkpoints,
+    }))
+    .unwrap();
+    fs::write(&legacy_uri, &legacy_bytes).unwrap();
+    let plan = RsFlowPlan::load_frozen(&legacy_uri, &sha256_bytes(&legacy_bytes)).unwrap();
     assert_eq!(validate_designed_plan(&plan), Ok(()));
     let checker = plan.checkpoints[0].checker.as_ref().unwrap();
     assert_eq!(
@@ -903,9 +922,9 @@ fn designed_plan_accepts_cli_and_command_bindings_and_rejects_invalid_ones() {
             ),
             binding(
                 "simpleRequirementsAccepted",
-                RsCheckBindingMode::Cli,
-                Some("kimi"),
-                Some("model"),
+                RsCheckBindingMode::Default,
+                None,
+                None,
                 None,
             ),
         ],

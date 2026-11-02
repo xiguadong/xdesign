@@ -385,9 +385,9 @@ package XDesignRustUml {
 
     part def RsCustomChecker {
         @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D107"; }
-        doc /* Existing src/core/plan.rs struct. The runner is process or cli;
-           cli/model are present for agent execution. This records the current
-           extension and does not redefine the generic scripted-only invariant. */
+        doc /* Existing src/core/plan.rs struct. New bindings use the process
+           runner. The cli runner and cli/model fields remain only to decode
+           historical plans; they do not enable new Agent CLI checks. */
         attribute runner : String;
         attribute cli : String [0..1];
         attribute model : String [0..1];

@@ -22,12 +22,11 @@ export const flowsView = {
   async load(app) {
     if (!app.state.flows.length) await app.loadMeta();
     await app.loadCheckpoints();
-    return { flows: app.state.flows, agents: app.state.agents, checkpoints: app.state.checkpoints };
+    return { flows: app.state.flows, checkpoints: app.state.checkpoints };
   },
 
   render(app, data) {
     const flows = (data && data.flows) || app.state.flows;
-    const agents = (data && data.agents) || app.state.agents;
     const checkpoints = (data && data.checkpoints) || app.state.checkpoints || [];
     const stageCount = flows.reduce((total, flow) => total + (flow.stages || []).length, 0);
     const checkpointCount = flows.reduce((total, flow) => total + (flow.checkpoints || []).length, 0);
@@ -57,7 +56,7 @@ export const flowsView = {
     </div>
 
     <div class="catalog animate-rise is-delay-2" style="margin-top:18px">
-      ${flows.map((flow) => renderFlowCard(flow, agents, checkpoints)).join("")}
+      ${flows.map((flow) => renderFlowCard(flow, checkpoints)).join("")}
     </div>
 
     ${renderBindingModes()}`;
@@ -76,7 +75,7 @@ function catalogStat(label, value, iconName, tone, meta) {
   </div>`;
 }
 
-function renderFlowCard(flow, agents, libraryEntries) {
+function renderFlowCard(flow, libraryEntries) {
   const stages = flow.stages || [];
   const checkpoints = flow.checkpoints || [];
   const checkerCount = checkpoints.filter((checkpoint) => checkpoint.checker).length;
@@ -130,9 +129,9 @@ function renderFlowCard(flow, agents, libraryEntries) {
       ${
         flow.custom_checks_supported
           ? (() => {
-              const syntacticEntries = (libraryEntries || []).filter((entry) => entry.kind === "syntactic");
+              const syntacticEntries = (libraryEntries || []).filter((entry) => entry.kind === "syntactic" && entry.executor?.mode !== "cli");
               const semanticEntries = (libraryEntries || []).filter((entry) => entry.kind === "semantic");
-              return `<div class="check-note">${icon("library")}<span><strong>Bindable check executors.</strong> Each syntactic checkpoint can bind the <span class="mono">built-in script</span>, an <span class="mono">agent CLI</span> run, or a frozen <span class="mono">library checkpoint</span>. The semantic verification gate can bind a semantic library entry. The chosen executor is frozen into the plan.</span></div>
+              return `<div class="check-note">${icon("library")}<span><strong>Bindable check executors.</strong> Each syntactic checkpoint can bind the <span class="mono">built-in script</span> or a frozen <span class="mono">library checkpoint</span>. The semantic verification gate can bind a semantic library entry. The chosen executor is frozen into the plan.</span></div>
                 <div class="catalog-library">
                   <div class="catalog-library__row">
                     <span class="catalog-library__label">${icon("shield")}Syntactic entries</span>
@@ -149,15 +148,6 @@ function renderFlowCard(flow, agents, libraryEntries) {
                         ? semanticEntries.map((entry) => `<a class="chip chip--sm chip--violet" href="#/checkpoints?open=${encodeURIComponent(entry.checkpoint_id)}">${esc(entry.title)} · <span class="mono">${esc(entry.checkpoint_id)}</span></a>`).join("")
                         : '<span class="text-faint" style="font-size:11px">No semantic library entries yet.</span>'
                     }</span>
-                  </div>
-                  <div class="catalog-library__row">
-                    <span class="catalog-library__label">${icon("cpu")}Agent CLIs</span>
-                    <span class="catalog-library__list">${["codex", "kimi"]
-                      .map((cli) => {
-                        const agent = (agents || []).find((entry) => entry.cli === cli);
-                        return `<span class="chip chip--sm ${agent && agent.available ? "chip--green" : "chip--rose"}">${icon(agent && agent.available ? "check" : "alert-circle")}${esc(cli)} · ${agent && agent.available ? "available" : "not detected"}</span>`;
-                      })
-                      .join("")}</span>
                   </div>
                 </div>`;
             })()
@@ -219,18 +209,11 @@ function renderBindingModes() {
       text: "Runs the repository's deterministic checker inside xdesign. The plan bytes match the default plan. The assessment is recorded with script authority and the checker id as assessor.",
     },
     {
-      tone: "violet",
-      iconName: "cpu",
-      name: "Agent CLI",
-      tag: "agent authority",
-      text: "Runs a separate codex or kimi review of the same declared rules. The verdict is retained with an assessor of <span class=\"mono\">cli:model</span> and recorded as agent authority.",
-    },
-    {
       tone: "cyan",
       iconName: "library",
       name: "Library checkpoint",
       tag: "frozen definition",
-      text: "Freezes a project library entry's rules/criteria, inputs and declared executor into the plan. Later library edits never change an existing run; script entries keep script authority, CLI entries agent authority.",
+      text: "Freezes a project library entry's rules/criteria, inputs and declared executor into the plan. Later library edits never change an existing run; syntactic script entries keep script authority.",
     },
   ];
   return `<section class="panel" style="margin-top:18px">
@@ -238,7 +221,7 @@ function renderBindingModes() {
       <div class="panel__title">${icon("sliders")}How check bindings are frozen</div>
       <div class="panel__subtitle">one plan, one reconstructable executor</div>
     </div>
-    <div class="panel__body" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px" data-binding-modes>
+    <div class="panel__body" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px" data-binding-modes>
       ${modes
         .map(
           (mode) => `<div class="card" style="padding:14px 15px;border-color:var(--tone-line)">

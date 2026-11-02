@@ -65,10 +65,12 @@ package XDesignArchitecture {
     item def ReusableCheckpointDefinition {
         @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D98"; }
         doc /* Existing library entry, before per-run resolution. Syntactic
-           entries own rules, declared input paths and a script or CLI executor;
+           entries own rules, declared input paths and a script executor;
            semantic entries own criteria and permitted judges. These are source
            definitions, not passed assessments. Entry versions are local authoring
-           counters and are not frozen into today's run provenance. */
+           counters and are not frozen into today's run provenance. The optional
+           cli/model fields decode historical entries only; new CLI selections
+           are rejected. */
         attribute checkpointId : String;
         attribute title : String;
         attribute description : String;

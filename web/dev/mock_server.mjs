@@ -135,13 +135,9 @@ function validateCheckpointSave(body) {
     const inputs = Array.isArray(body.inputs) ? body.inputs : [];
     if (inputs.length === 0) return "a syntactic checkpoint needs at least one input.";
     const executor = body.executor || {};
-    if (!["script", "cli"].includes(executor.mode)) return "executor.mode must be script or cli.";
+    if (executor.mode !== "script") return "executor.mode must be script.";
     if (executor.mode === "script" && !String(executor.command_uri || "").endsWith(".py")) {
       return "a script executor needs a project-relative .py command_uri.";
-    }
-    if (executor.mode === "cli") {
-      if (!["codex", "kimi"].includes(executor.cli)) return "a CLI executor needs cli codex or kimi.";
-      if (!String(executor.model || "").trim()) return "a CLI executor needs a non-empty model.";
     }
     if (body.create_script !== undefined && body.create_script !== "scaffold") return "create_script must be scaffold when present.";
     if (body.create_script === "scaffold") {
@@ -184,9 +180,6 @@ function saveCheckpoint(body) {
     entry.rules = body.rules.map((rule) => ({ rule_id: rule.rule_id, condition: rule.condition, reads: Array.isArray(rule.reads) ? rule.reads : [] }));
     entry.inputs = Array.isArray(body.inputs) ? body.inputs : [];
     entry.executor = { mode: body.executor.mode, command_uri: body.executor.command_uri };
-    if (body.executor.mode === "cli") {
-      entry.executor = { mode: "cli", cli: body.executor.cli, model: body.executor.model };
-    }
     if (body.create_script === "scaffold") scriptUri = entry.executor.command_uri;
   } else {
     entry.criteria = body.criteria.map((criterion) => String(criterion)).filter(Boolean);
@@ -314,17 +307,15 @@ function validateWishChecks(checks) {
     if (!allowed) return `checkpoint ${checkpointId} cannot take a check binding.`;
     const mode = entry.mode || "default";
     if (mode === "default") continue;
-    if (mode === "cli") {
-      if (!["codex", "kimi"].includes(entry.cli)) return `checkpoint ${checkpointId} needs cli codex or kimi.`;
-      if (!String(entry.model || "").trim()) return `checkpoint ${checkpointId} needs a non-empty model.`;
-      continue;
-    }
     if (mode === "library") {
       const libraryEntry = library.find((candidate) => candidate.checkpoint_id === entry.library_id);
       if (!libraryEntry) return `checkpoint ${checkpointId} binds unknown library id ${entry.library_id || "(missing)"}.`;
       const expectedKind = SYNTHETIC_GATE_IDS.includes(checkpointId) ? "syntactic" : "semantic";
       if (libraryEntry.kind !== expectedKind) {
         return `checkpoint ${checkpointId} requires a ${expectedKind} library entry; ${entry.library_id} is ${libraryEntry.kind}.`;
+      }
+      if (libraryEntry.executor?.mode === "cli") {
+        return `checkpoint ${checkpointId} cannot bind a historical Agent CLI entry.`;
       }
       continue;
     }

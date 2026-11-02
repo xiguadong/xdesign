@@ -1,8 +1,10 @@
 # xdesign web contract (working specification)
 
 This file is the implementation contract between the web server module
-(`web/server/`) and the operator page (`web/assets/`). It is a working
-specification for the feature branch; the published design lives under `docs/`.
+(`web/server/`) and the operator page (`web/assets/`). The published design
+lives under `docs/`. The operator does not launch stage workers or agent CLI
+checkpoint checkers. Existing CLI-bound plans remain readable as historical
+records, but cannot run that checker again.
 
 ## 1. Product constraints
 
@@ -38,7 +40,6 @@ web/
     mod.rs                serve() entry, option parsing, module root
     http.rs               minimal HTTP/1.1 request/response layer
     api.rs                API data assembly
-    agents.rs             CLI/model catalog and availability detection
 ```
 
 New files under `web/assets/` are embedded automatically; the frontend may split
@@ -92,10 +93,6 @@ All payloads below are the `data` member of the envelope.
   "project_root": "/abs/path",
   "store_root": "/abs/path/.xdesign",
   "store_present": true,
-  "agents": [
-    {"cli": "codex", "available": true, "version": "codex-cli 0.162.1"},
-    {"cli": "kimi", "available": true, "version": "2.2.0"}
-  ],
   "now": "2026-10-25T23:59:00Z"
 }
 ```
@@ -138,7 +135,7 @@ All payloads below are the `data` member of the envelope.
                "reads": ["mbse/model/requirements.sysml"]},
               {"rule_id": "satisfy-links-resolve", "...": "..."}
             ],
-            "modes": ["default", "cli"]
+            "modes": ["default", "library"]
           }
         },
         {
@@ -164,50 +161,12 @@ All payloads below are the `data` member of the envelope.
         {"checkpoint_id": "outcomeAccepted", "kind": "semantic", "checker": null, "...": "..."}
       ]
     }
-  ],
-  "agents": [
-    {
-      "cli": "codex",
-      "label": "Codex CLI",
-      "command": "codex",
-      "available": true,
-      "version": "codex-cli 0.162.1",
-      "default_model": "gpt-6-astra",
-      "models": [
-        {"id": "gpt-6-astra", "label": "GPT-6 Astra"},
-        {"id": "gpt-5.6-terra", "label": "GPT-5.6 Terra"},
-        {"id": "gpt-5.1-codex", "label": "GPT-5.1 Codex"},
-        {"id": "gpt-5-codex", "label": "GPT-5 Codex"},
-        {"id": "o4-mini", "label": "o4-mini"}
-      ]
-    },
-    {
-      "cli": "kimi",
-      "label": "Kimi Code CLI",
-      "command": "kimi",
-      "available": true,
-      "version": "2.2.0",
-      "default_model": "kimi-code/k3.1-pro",
-      "models": [
-        {"id": "kimi-code/k3.1-pro", "label": "K3.1 Pro"},
-        {"id": "kimi-code/k3.1-pro-highspeed", "label": "K3.1 Pro Highspeed"},
-        {"id": "kimi-code/k3", "label": "K3"},
-        {"id": "kimi-code/k3-256k", "label": "K3 256k"},
-        {"id": "kimi-code/kimi-for-coding", "label": "K2.8 Preview"},
-        {"id": "kimi-code/kimi-for-coding-highspeed", "label": "K2.7 Code Highspeed"}
-      ]
-    }
   ]
 }
 ```
 
-The catalog is static display metadata plus runtime detection. Detection runs
-`<command> --version` with a 3 s deadline and reports the first non-empty line.
-A detected default model from the user's CLI configuration replaces/precedes the
-static default when found (`~/.codex/config.toml` `model =` line,
-`~/.kimi-code/config.toml` `default_model =` line; best effort, missing files are
-not an error). Unknown extra models are allowed in creation requests; the page
-offers the listed ones plus a free-text value.
+The flow catalog exposes the built-in and library binding choices. It does not
+probe local agent executables or return an agent catalog.
 
 ### 5.3 `GET /api/wishes`
 
@@ -288,7 +247,7 @@ Sources:
           "command_uri": "tools/checks/simple_requirements.py",
           "establishes": ["identifier_conformance"],
           "rules": [{"rule_id": "...", "condition": "...", "reads": ["..."]}],
-          "binding": {"mode": "default", "cli": null, "model": null, "command_uri": null}
+          "binding": {"mode": "default"}
         }
       },
       {
@@ -363,16 +322,17 @@ Sources:
 `history` for store wishes uses the store revision history (newest last);
 legacy wishes have `"history": []`. `events` are derived in visit order:
 one `init` event, then per visit its activities (`at` = activity time), its
-assessments in recorded order (actor is the assessor; for syntactic checker
-bindings the plan binding tells whether the executor was default or CLI),
+assessments in recorded order (actor is the assessor; the frozen plan identifies
+the checker binding),
 then an `advance` event when the visit status is `completed` and a next stage
 exists (`"Entered <next stage>"`) or the run is `completed`
 (`"Run completed"`). `detail` is a short human string and may be null.
 
 `title` for a checkpoint: syntactic → checker id; semantic → checkpoint id.
 `binding` is derived from the frozen plan checkpoint: no custom runner means
-`{"mode":"default"}`, runner `cli` means `{"mode":"cli","cli":...,"model":...}`,
-runner `process` means `{"mode":"command","command_uri":<checker command_uri>}`.
+`{"mode":"default"}`, runner `process` means
+`{"mode":"command","command_uri":<checker command_uri>}`. Historical runner
+`cli` is projected read-only as `{"mode":"cli","cli":...,"model":...}`.
 Only the fields relevant to the mode are emitted; clients must treat the others
 as absent/null.
 
@@ -458,8 +418,8 @@ Request:
   "flow_id": "simple-flow",
   "checks": [
     {"checkpoint_id": "simpleRequirementsAccepted", "mode": "default"},
-    {"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
-     "cli": "codex", "model": "gpt-6-astra"},
+    {"checkpoint_id": "simpleDesignAccepted", "mode": "library",
+     "library_id": "energy-budget-positive"},
     {"checkpoint_id": "simpleImplementationAccepted", "mode": "default"},
     {"checkpoint_id": "simpleRecordAccepted", "mode": "default"}
   ]
@@ -469,8 +429,8 @@ Request:
 - Validation: id pattern above; title 1–200 chars; description ≤ 4000; flow in
   `simple-flow|wish-verify`; `checks` only allowed (and required for no reason to
   be complete) with `simple-flow`; each `checkpoint_id` must be one of the four
-  syntactic simple-flow checkpoints, no duplicates; `mode` `default` or `cli`;
-  `cli` in `codex|kimi`; `model` non-empty ≤ 200. Bindings not needed for a
+  syntactic simple-flow checkpoints plus `verificationAccepted` for semantic
+  library bindings, no duplicates; `mode` `default` or `library`. Bindings not needed for a
   checkpoint default to `default`. `mode: "command"` is rejected here: custom
   command checkers are configured through `xdesign init --checks` only.
 - Existing store item or legacy directory → 409 `already_exists`.
@@ -533,8 +493,8 @@ xdesign init WISH_ID --flow simple-flow --wish FILE --checks FILE
   "schema_version": 1,
   "checks": [
     {"checkpoint_id": "simpleRequirementsAccepted", "mode": "default"},
-    {"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
-     "cli": "codex", "model": "gpt-6-astra"},
+    {"checkpoint_id": "simpleDesignAccepted", "mode": "library",
+     "library_id": "energy-budget-positive"},
     {"checkpoint_id": "simpleImplementationAccepted", "mode": "command",
      "command_uri": "tools/checks/custom_implementation.py"},
     {"checkpoint_id": "simpleRecordAccepted", "mode": "default"}
@@ -547,11 +507,8 @@ xdesign init WISH_ID --flow simple-flow --wish FILE --checks FILE
   `simpleImplementationAccepted`, `simpleRecordAccepted`).
 - `mode: default`: run the flow's built-in deterministic checker. Bindings
   omitted from the file default to this mode.
-- `mode: cli`: execute the checkpoint with an agent CLI. `cli` is `codex` or
-  `kimi`; `model` is any non-empty model identifier the CLI accepts. The agent
-  answers exactly the checkpoint's declared checker rules and its verdict is
-  retained as an `agent`-authority assessment whose assessor is
-  `<cli>:<model>`.
+- `mode: library`: use a project checkpoint definition whose syntactic executor
+  is a script. A semantic library entry may bind `verificationAccepted`.
 - `mode: command`: run a project-relative checker command that implements the
   existing checker interface (`--wish-model --record --checker-id --plan-id
   --plan-uri --plan-sha256 --stage --artifact-revision --snapshot-digest
@@ -563,22 +520,8 @@ xdesign init WISH_ID --flow simple-flow --wish FILE --checks FILE
   with a custom binding freezes the binding into its plan, so
   `xdesign next`, `xdesign check` and the web page can reconstruct the choice
   from the store without a separate config file.
-- Agent CLI execution environment:
-  - `codex`: `codex exec --skip-git-repo-check --sandbox read-only -m <model> <prompt>`
-    (the prompt is the final positional argument; it is a single bounded argv entry,
-    never shell-interpreted).
-  - `kimi`: `kimi -m <model> -p <prompt>`.
-  - Programs can be overridden for development and tests with
-    `XDESIGN_AGENT_CODEX_BIN` / `XDESIGN_AGENT_KIMI_BIN` (path to an
-    executable). Tests use stub executables and never call a real agent.
-  - The whole invocation is bounded by `XDESIGN_CHECKER_TIMEOUT_SECS`
-    (default 600 s), the same deadline as process checkers.
-  - The prompt instructs a read-only review and requires one JSON verdict
-    object; the runtime validates the reported rule set, writes the retained
-    report plus `.stdout.log`/`.stderr.log`, and records the assessment.
-- Agent runs are non-deterministic. The page and CLI surface the executor in the
-  binding and the assessment authority/assessor, so a custom run is never
-  presented as a deterministic default check.
+- New CLI executor bindings are rejected. A frozen historical CLI binding remains
+  visible in detail responses but its checker fails closed without launching an agent.
 
 ## 7. Frontend direction (visual and interaction)
 
@@ -594,16 +537,15 @@ xdesign init WISH_ID --flow simple-flow --wish FILE --checks FILE
   `#/flows`):
   1. **Overview**: hero row (title + short explanation), four stat cards
      (total, active, blocked, delivered), the flow pipeline visualization,
-     recent wishes, agent availability.
+     recent wishes and the local environment.
   2. **Wishes**: filter chips (all / active / blocked / delivered / received,
      flow filter), searchable table/cards with a mini stage pipeline, flow chip,
      status chip, head revision, age; row click opens the wish.
   3. **New wish wizard**: steps Identity → Flow → Checks → Review with a stepper;
      flow cards (SimpleFlow four stages/five gates, WishVerifyFlow two judged
      stages); for SimpleFlow each of the four check nodes gets a card with the
-     checker name, rule count, live "default / agent CLI" segmented control, CLI
-     selector (codex/kimi with availability badge), model selector from
-     `/api/flows`, and a free-text model override; validation inline; successful
+     checker name, rule count, built-in script / library checkpoint control,
+     library selector and validation inline; successful
      creation navigates to the new wish.
   4. **Wish detail**: header with status, flow, head revision, actions; lifecycle
      board (stages as connected nodes with the current stage highlighted and
@@ -649,9 +591,8 @@ earlier section, this section wins; otherwise the earlier rules still apply.
 
 Operator feedback on the first web delivery:
 
-1. The check-node control row is misaligned when "Agent CLI" is selected.
-2. "Default" versus "Agent CLI" is ambiguous because the whole flow's stage work is also
-   performed by an agent; the choice selects the **check executor**, not the stage worker.
+1. The check-node control row must stay aligned when the selected binding changes.
+2. The check executor choice must be distinct from the external stage worker.
 3. Development produces many syntactic and semantic check rules; most repeat. The product
    needs a reusable **checkpoint library** that records the tools/rules and offers them in
    flows, with an explicit statement of whether a checkpoint is a syntactic rule set or a
@@ -738,8 +679,9 @@ Rules:
   When absent it defaults to `checkpoint_id`. Generated scaffold scripts echo whatever
   `--checker-id` the runtime passes, so a default is fine for them. The value matches
   `[A-Za-z0-9][A-Za-z0-9_-]{0,127}`.
-- Syntactic executor: `{"mode":"script","command_uri":<project-relative .py>}` or
-  `{"mode":"cli","cli":"codex"|"kimi","model":<non-empty>}`.
+- Syntactic executor: `{"mode":"script","command_uri":<project-relative .py>}`.
+  Existing CLI executor entries remain readable, but cannot be saved or bound
+  to a new run.
 - `source` is `builtin`, `generated`, or `manual`.
 - `version` increments on each successful update of a user entry; `history` keeps the
   previous snapshot objects (at most 10, newest first) in the library file itself. The
@@ -826,9 +768,7 @@ Resolution at `init` (the project library is read from the project root):
 - A syntactic gate requires a syntactic entry. The frozen plan records
   `checkpoint.library = <checkpoint_id>`; the gate's checker becomes the library entry:
   `checker_id = entry.checker_id` (or `<checkpoint_id>` when absent), `rules = entry.rules`,
-  `command_uri = entry.executor.command_uri` (script mode) or the default command URI (cli
-  mode), and `custom.runner = "process"` (script) or
-  `{"runner":"cli","cli":...,"model":...}`.
+  `command_uri = entry.executor.command_uri`, and `custom.runner = "process"`.
   The work definition freezes `entry.inputs` for that stage instead of invoking
   `--list-inputs`.
 - The semantic gate requires a semantic entry: `checkpoint.library = <checkpoint_id>`,
@@ -840,10 +780,9 @@ Resolution at `init` (the project library is read from the project root):
   default plan bytes and all non-library runs stay exactly as before.
 - `wish-verify` keeps its two semantic gates and has no library binding in this round.
 
-Assessment semantics follow the existing rules: script executor records script authority
-named by the frozen checker id; cli executor records agent authority `<cli>:<model>`;
-semantic library gates are judged by the caller's permitted judgment (agent/human) as
-today.
+Assessment semantics follow the existing rules: a script executor records script authority
+named by the frozen checker id; semantic library gates are judged by the caller's
+permitted judgment (agent/human) as today. Historical CLI assessments remain readable.
 
 ### 9.4 HTTP API additions
 
@@ -899,29 +838,27 @@ xdesign check WISH_ID --result FILE  # submit stage outputs; evaluates gates and
 
 1. **Check-node control alignment.** The check-card control row is a stable grid, not a
    flex row whose track widths depend on the selected mode. In all four cards the
-   executor control column and the dependent columns (CLI, model, override, or library
+   executor control column and the dependent library columns
    selector) use the same tracks and vertical baseline; no control may overlap another.
-   The row must stay aligned when switching Default → Agent CLI → Library and at 980/720
+   The row must stay aligned when switching Built-in script → Library and at 980/720
    responsive widths.
 2. **Unambiguous executor language.** The option group is labelled "Check executor" with
-   options `Built-in script`, `Agent CLI`, and `Library checkpoint` (or `Library`).
+   options `Built-in script` and `Library checkpoint` (or `Library`).
    Every check node explains that stage work is performed by the working agent regardless
    of this choice, and the choice selects only who verifies the checkpoint:
    - Built-in script: the repository's deterministic checker, recorded with script
      authority.
-   - Agent CLI: a separate codex/kimi run judges the same declared rules, recorded with
-     agent authority `<cli>:<model>`.
    - Library checkpoint: the frozen library definition's rules/criteria are used, with
      the executor the library entry declares.
    Chips and detail rows use the same vocabulary; an assessment shows judged-by
-   (script/agent/human) and the assessor.
+   (script/agent/human) and the assessor for retained assessments.
 3. **Checkpoints view** (`#/checkpoints`): watch/reuse/filter the library. Cards/rows show
    title, id, kind chip (syntactic/semantic), source (built-in/user), executor summary,
    rule/criteria count, version, updated time, tags. A detail drawer shows the full
    description, rule table (rule id/condition/reads), inputs, executor, criteria/judges,
    and the version history. A "New checkpoint" form selects kind explicitly, requires a
-   description, edits rules/criteria, inputs and executor (reuse script path, generate
-   scaffold script, or agent CLI+model), and surfaces backend validation errors inline.
+   description, edits rules/criteria, inputs and script executor (reuse script path or
+   generate scaffold script), and surfaces backend validation errors inline.
    Built-in entries are read-only and are marked as templates from which a new user entry
    can be pre-filled/duplicated.
 4. **Wizard library binding.** Each syntactic check card gets the `Library` mode with a
@@ -929,8 +866,8 @@ xdesign check WISH_ID --result FILE  # submit stage outputs; evaluates gates and
    preview of the selected entry's rules. The SimpleFlow semantic gate gets a separate
    small card with `Default criteria` vs a semantic library checkpoint selector. The
    review step lists library bindings with the entry title/kind.
-5. **Wish detail**: lifecycle check nodes show the binding (built-in script / agent
-   `<cli>:<model>` / library `<id>` + title), the frozen rules/criteria of a library gate,
+5. **Wish detail**: lifecycle check nodes show the binding (built-in script or
+   library `<id>` + title), the frozen rules/criteria of a library gate,
    and the assessment authority. The "Start work" handoff card from 9.5 sits above the
    work/check actions; Get next work and Run check stay available for the operator.
 6. **Flows view** lists library availability per flow (`custom_checks_supported`, library
@@ -940,9 +877,8 @@ xdesign check WISH_ID --result FILE  # submit stage outputs; evaluates gates and
 
 ### 9.7 Acceptance for this round
 
-- `cargo test` green; the new library model, CLI, plan binding, work freezing and restore
-  paths have unit and CLI-level tests using temporary project roots and stub executables
-  (no real agent calls).
+- `cargo test` green; library model, CLI, plan binding, work freezing and restore
+  paths have unit and CLI-level tests using temporary project roots and script stubs.
 - Lead acceptance: `xdesign checkpoint list/show/save` round-trip; `init --checks` with a
   syntactic library binding and a semantic library binding; frozen plan carries
   `library`/rules/criteria; check executes the bound script and records the expected

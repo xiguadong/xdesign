@@ -37,7 +37,6 @@ class WishFlowApp {
       version: APP_VERSION,
       health: null,
       flows: [],
-      agents: [],
       flowById: new Map(),
       wishes: [],
       checkpoints: [],
@@ -113,7 +112,6 @@ class WishFlowApp {
     }
     this.state.health = health;
     this.state.flows = flowData.flows || [];
-    this.state.agents = flowData.agents || [];
     this.state.flowById = new Map(this.state.flows.map((flow) => [flow.flow_id, flow]));
     this.updateShell();
   }
@@ -191,7 +189,6 @@ class WishFlowApp {
     this.setCheckpoints(getSampleCheckpointLibrary().checkpoints);
     if (this.state.metaFromSample || this.state.flows.length === 0) {
       this.state.flows = SAMPLE_FLOWS.flows;
-      this.state.agents = SAMPLE_FLOWS.agents;
       this.state.flowById = new Map(this.state.flows.map((flow) => [flow.flow_id, flow]));
     }
     this.updateShell();
@@ -272,19 +269,7 @@ class WishFlowApp {
   }
 
   updateShell() {
-    const { health, agents, wishes, sampleMode, flows } = this.state;
-
-    const agentChips = document.getElementById("agent-chips");
-    if (agentChips) {
-      agentChips.innerHTML = agents
-        .map((agent) => {
-          const on = Boolean(agent.available);
-          return `<span class="agent-chip ${on ? "is-on" : "is-off"}" title="${on ? `${agent.cli} detected${agent.version ? " · " + agent.version : ""}` : `${agent.cli} not detected on this machine`}">
-            <span class="dot"></span><span>${agent.cli}</span>
-          </span>`;
-        })
-        .join("");
-    }
+    const { health, wishes, sampleMode, flows } = this.state;
 
     const projectPath = document.getElementById("project-path-value");
     if (projectPath && health) {

@@ -38,7 +38,7 @@ imports and a unified cross-project history view remain separate work in [D108](
 
 A script library executor accepts the following optional additions to its existing
 schema. Command bindings accept the same `files` and `python` fields beside
-`command_uri`. Agent CLI, default and library-selection bindings cannot carry them;
+`command_uri`. Default and library-selection bindings cannot carry them;
 for library mode these fields belong to the selected definition.
 
 ```json

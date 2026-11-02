@@ -60,8 +60,8 @@ pub enum RsCheckpointExecutorMode {
     Cli,
 }
 
-/// How a syntactic checkpoint is executed: an existing project `.py` script
-/// that keeps the checker contract, or an agent CLI answering the rules.
+/// How a syntactic checkpoint is executed. `Cli` remains decodable for
+/// historical library entries, but new saves and bindings reject it.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RsCheckpointExecutor {
@@ -812,6 +812,15 @@ pub fn save(
     root: &Path,
     request: RsCheckpointSaveRequest,
 ) -> Result<RsCheckpointSaveOutcome, RsCheckpointError> {
+    if request
+        .executor
+        .as_ref()
+        .is_some_and(|executor| executor.mode == RsCheckpointExecutorMode::Cli)
+    {
+        return Err(RsCheckpointError::Invalid(
+            "agent CLI checkpoint executors are no longer supported".into(),
+        ));
+    }
     if !valid_library_id(&request.checkpoint_id) {
         return Err(RsCheckpointError::Invalid(format!(
             "invalid checkpoint id: {} (expected [a-z0-9][a-z0-9_-]{{0,63}})",

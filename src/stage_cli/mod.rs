@@ -27,9 +27,9 @@ pub const HELP: &str =
        xdesign --help
 
 Run from the project root. init imports mbse/wishes/WISH_ID.sysml by default.
---checks FILE binds SimpleFlow checkpoints to the default deterministic checker, an
-agent CLI (codex or kimi with a model), a project command script, or a reusable
-checkpoint from checkpoints/library.json (mode library with library_id); the
+--checks FILE binds SimpleFlow checkpoints to the default deterministic checker, a
+project command script, or a reusable checkpoint from checkpoints/library.json
+(mode library with library_id); the
 binding is frozen into the run plan. The checkpoint command lists, shows and saves
 the project checkpoint library. next returns current work without changing the stored head.
 check records outputs, evaluates the stage's gates and returns correction work,

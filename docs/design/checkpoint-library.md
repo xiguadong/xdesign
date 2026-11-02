@@ -132,13 +132,13 @@ of the entry takes:
 | `source` | `builtin`, `generated`, or `manual`; set by the save path |
 | `history` | Previous entry snapshots, newest first, at most 10 (see [D99](#d99)) |
 
-A **syntactic** entry is a rule set that a deterministic or agent executor can answer:
+A **syntactic** entry is a rule set that a script checker answers:
 
 | Syntactic field | Rule |
 | --- | --- |
 | `rules` | At least one `{rule_id, condition, reads[1..]}`; `reads` uses the same vocabulary as checker reads |
 | `inputs` | At least one normalized project-relative file that exists; frozen into the stage's work at initialization |
-| `executor` | Script mode accepts `command_uri` plus optional declared `files` and project-local `python` ([D111](checker-execution.md#d111)); otherwise `{"mode": "cli", "cli": "codex"\|"kimi", "model": "<non-empty>"}` |
+| `executor` | Script mode requires `command_uri` and accepts optional declared `files` and project-local `python` ([D111](checker-execution.md#d111)); new CLI executors are rejected |
 | `checker_id` | Optional checker identity `[A-Za-z0-9][A-Za-z0-9_-]{0,127}` used when the executor is a shipped checker script that reports its own hardcoded identity. When present it becomes the frozen `checker.checker_id` and the assessment assessor; otherwise the library id is the identity. Not allowed on a semantic entry |
 
 A **semantic** entry is a criterion set that a permitted judge reads:
@@ -204,7 +204,6 @@ criteria are judged by a permitted agent or human through the stage interaction.
 | --- | --- | --- |
 | Script, existing file | Run the entry's `command_uri` as a deterministic checker under the frozen checker id | `script`, assessor = frozen checker id (the entry's `checker_id` when declared, otherwise the library id) |
 | Script, generated scaffold | Generate a self-contained checker at `checkpoints/scripts/<id-with-underscore>.py`, then behave as the existing-file case | `script`, assessor = frozen checker id |
-| Agent CLI | Invoke `codex` or `kimi` with the named model; it answers the entry's frozen rules | `agent`, assessor = `<cli>:<model>` |
 | Semantic entry | No executor; the caller supplies a permitted agent or human judgment over the frozen criteria | the caller's permitted authority |
 
 Script reuse is the normal path: set `executor.mode = "script"` with a `command_uri` that
@@ -260,7 +259,7 @@ The supported gates are the four syntactic SimpleFlow gates and the semantic
 
 | Gate kind | Frozen plan fields | Frozen work fields |
 | --- | --- | --- |
-| Syntactic | `checkpoint.library = <library id>`; `checker.checker_id = entry.checker_id` when declared, otherwise the library id; `checker.rules = entry.rules`; `checker.command_uri = entry.script command` (script mode) or the default command URI (CLI mode); `checker.custom` names `process` or `cli` + CLI/model | Requirements/design freeze `entry.inputs` instead of invoking `--list-inputs`; implement/verify keep their built-in selectors |
+| Syntactic | `checkpoint.library = <library id>`; `checker.checker_id = entry.checker_id` when declared, otherwise the library id; `checker.rules = entry.rules`; `checker.command_uri = entry.script command`; `checker.custom` names `process` | Requirements/design freeze `entry.inputs` instead of invoking `--list-inputs`; implement/verify keep their built-in selectors |
 | Semantic | `checkpoint.library = <library id>`; `criteria = entry.criteria`; `agent_may_judge`/`human_may_judge` from `entry.judges`; `checker: null` | No work-input change; the caller's permitted judgment evaluates the frozen criteria as today |
 
 Kind mismatch, a missing entry, an unknown library id, or a `library` binding on a gate
@@ -380,16 +379,17 @@ is a live lookup and must not be read as the historical version used by the run.
 and evidence. It belongs to each project's immutable wish revisions and assessments.
 Neither the ten definition snapshots nor a current library listing can replace it.
 
-### 7.3 Authority deviation and preservation limit
+### 7.3 Script authority and preservation limit
 
 The generic requirements `syntacticCheckIsFixed` and `syntacticAssessmentIsScripted`, and
-`CheckpointAssessment::judgmentMatchesCheckpointKind`, specify deterministic script
-assessment of syntactic checkpoints. The current CLI binding retains `kind = syntactic`
-while recording `judged_by = agent`. `RsCustomChecker` models that implemented selection;
-it does not make the generic constraint true. The compiler does not evaluate that
-constraint body. The policy needs a separate design decision: retain the scripted-only
-contract and reclassify agent gates, or explicitly model rule kind and permitted executor
-authority as separate dimensions. No generic authority requirement is weakened here.
+`CheckpointAssessment::judgmentMatchesCheckpointKind`, specify fixed commands and script
+assessment of syntactic checkpoints. New bindings follow the scripted-only contract:
+`default`, project-command, and syntactic library executors record script authority.
+The compatibility fields in `RsCustomChecker` and library entries decode historical
+Agent CLI selections and their assessments; they do not permit new CLI bindings or
+launch an agent for a later check. Historical evidence remains readable without changing
+the original assessment. The compiler does not evaluate the constraint body, so runtime
+verification is still required to establish this policy.
 
 An external `--store-root` or `XDESIGN_STORE_ROOT` changes a local storage location; it
 does not establish project identity or a multi-project namespace. Sharing one store among
@@ -441,8 +441,8 @@ record. It never rewrites an earlier assessment.
 Pinning the script entry file alone is insufficient: declare and retain imported helper
 modules, rule data and required tool/environment versions. Input selectors need an
 explicit mapping to the consumer project's layout. A historical evaluation records the
-bundle actually used. Re-execution is a new attempt and does not promise identical agent
-answers or erase the old result.
+bundle actually used. Re-execution is a new attempt and does not erase the old result;
+project scripts may depend on their declared environment and inputs.
 
 ### 8.2 History identity and project lifecycle
 

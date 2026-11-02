@@ -417,18 +417,19 @@ They do not supply a missing historical requirements review.
 | Requirement | Acceptance condition | Verification allocation |
 | --- | --- | --- |
 | `checkpointSourceIsProjectOwned` | Selecting project B reads/writes B's checkpoint source; initializing a run retains resolved rules/criteria independently of subsequent library edits | `CheckpointOperatorDesignReview`; existing LIB-01, LIB-04, LIB-05, LIB-08 and WEB2-01 cases |
-| `configuredChecksRetainAuthority` | Script and CLI evaluations identify their actual authority and assessor, reviewed snapshot and retained report/log bytes; no agent result is described as deterministic | `CheckpointOperatorDesignReview`; CUSTOM-02, CUSTOM-03, CUSTOM-06 and LIB-07 |
+| `configuredChecksRetainAuthority` | Configured syntactic evaluations identify script authority, checker identity, reviewed snapshot and retained report/log bytes; semantic judgments remain separately supplied | `CheckpointOperatorDesignReview`; CUSTOM-02, CUSTOM-03, CUSTOM-06 and LIB-07 |
 | `operatorDelegatesRunState` | Operator status/history derive from the selected store; lifecycle actions use the stage CLI; source saves do not assess gates or launch stage work | `CheckpointOperatorDesignReview`; WEB-02..05 and WEB2-01..05 |
 | `sharedChecksHavePinnedOrigins` (proposed) | Two projects import an identified immutable definition/bundle with explicit input mapping; updating or removing upstream cannot change an existing binding; ambiguity and digest drift fail explicitly | `CrossProjectCheckpointReview`; future PROJECT-02 and PROJECT-03 |
 | `crossProjectHistoryKeepsItsOwner` (proposed) | Colliding wish IDs remain distinct; history links identify a pinned source revision/assessment; unavailable stores remain visible; a supported archival/restore exercise retains original evidence and provenance | `CrossProjectCheckpointReview`; future PROJECT-04..06 |
 
-The legacy generic requirement `syntacticAssessmentIsScripted` still requires a script.
-The implemented CLI binding keeps a syntactic gate kind while recording agent authority,
-so it does not satisfy that requirement. `syntacticCheckIsFixed` also cannot establish
-deterministic reproducibility for an agent runner. Their existing generic satisfaction
-links do not establish conformance of the extension. The
-[authority policy decision](../design/checkpoint-library.md#d107) is open; these new
-requirements do not implicitly relax either requirement or the assessment constraint.
+Launching and managing a working agent, including its selection, monitoring, cancellation,
+and session recovery, is outside this requirement baseline. The operator hands off the
+current work order and records submitted stage results. Agent CLI execution is also outside
+the syntactic checkpoint executor contract: a new binding selects a built-in script, a
+project script, or a script-backed library entry. A permitted agent may still supply a
+semantic judgment through the stage result; xdesign does not launch that agent. Earlier
+agent-authority syntactic assessments remain historical records and do not authorize a new
+Agent CLI binding.
 
 The proposed requirements have planned verification links and no implemented satisfiers.
 No shared registry, project identity format, cross-project history API, executable

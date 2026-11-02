@@ -1,12 +1,12 @@
 // xdesign · WishFlow Studio — New wish wizard.
 //
 // Steps: Identity → Flow → Checks → Review. For SimpleFlow each syntactic gate
-// can bind either the deterministic default checker or an agent CLI execution;
+// can bind either the deterministic default checker or a library checkpoint;
 // the chosen bindings are frozen into the plan by `xdesign init`.
 
 import { api, ApiError } from "../api.js";
 import { esc, icon, suggestWishId, flowChip, parseHash, relativeTime } from "../util.js";
-import { toastOk, toastError, toastWarn } from "../components.js";
+import { toastOk, toastError } from "../components.js";
 
 const STEPS = [
   { key: "identity", label: "Identity", title: "Name the wish", sub: "A stable wish id, a short title and the intent behind it." },
@@ -27,10 +27,6 @@ let draft = null;
 
 function flowFor(app, flowId) {
   return (app.state.flows || []).find((flow) => flow.flow_id === flowId) || null;
-}
-
-function agentFor(app, cli) {
-  return (app.state.agents || []).find((agent) => agent.cli === cli) || null;
 }
 
 function checkNodeInfo(app, flow) {
@@ -57,29 +53,15 @@ function checkNodeInfo(app, flow) {
   }));
 }
 
-function defaultCli(app) {
-  const agents = app.state.agents || [];
-  const available = agents.find((agent) => agent.available);
-  return (available || agents[0] || {}).cli || "codex";
-}
-
-function defaultModelFor(app, cli) {
-  const agent = agentFor(app, cli);
-  return (agent && agent.default_model) || (agent && agent.models && agent.models[0] && agent.models[0].id) || "";
-}
-
 function ensureDraft(app) {
   const flow = flowFor(app, "simple-flow") || { flow_id: "simple-flow", stages: [], checkpoints: [] };
   if (!draft) {
-    const cli = defaultCli(app);
     const checks = {};
     for (const node of checkNodeInfo(app, flow)) {
       checks[node.checkpoint_id] = {
         checkpoint_id: node.checkpoint_id,
         mode: "default",
-        cli,
-        model: defaultModelFor(app, cli),
-        modelOverride: "",
+        libraryId: "",
       };
     }
     draft = {
@@ -99,13 +81,9 @@ function ensureDraft(app) {
   const nodes = checkNodeInfo(app, flow);
   for (const node of nodes) {
     if (!draft.checks[node.checkpoint_id]) {
-      const cli = defaultCli(app);
       draft.checks[node.checkpoint_id] = {
         checkpoint_id: node.checkpoint_id,
         mode: "default",
-        cli,
-        model: defaultModelFor(app, cli),
-        modelOverride: "",
         libraryId: "",
       };
     }
@@ -146,135 +124,86 @@ function selectedLibraryDetail(app, libraryId) {
   return (app.state.checkpointDetailById && app.state.checkpointDetailById.get(libraryId)) || null;
 }
 
-function renderCheckCard(app, current, flow, node, index, agents, { libraryError = null } = {}) {
-  const binding = current.checks[node.checkpoint_id] || {
-    mode: "default",
-    cli: defaultCli(app),
-    model: defaultModelFor(app, defaultCli(app)),
-    modelOverride: "",
-    libraryId: "",
-  };
+function renderCheckCard(app, current, flow, node, index, { libraryError = null } = {}) {
+  const binding = current.checks[node.checkpoint_id] || { mode: "default", libraryId: "" };
   const mode = binding.mode || "default";
-  const isCli = mode === "cli";
   const isLibrary = mode === "library";
-  const agent = agentFor(app, binding.cli);
-  const available = Boolean(agent && agent.available);
   const checker = node.checker || {};
   const ruleCount = (checker.rules || []).length;
   const stage = (flow.stages || []).find((entry) => entry.stage_id === node.stage_id);
-  const models = (agent && agent.models) || [];
-  const effectiveModel = (binding.modelOverride || "").trim() || binding.model;
-  const libraryChoices = libraryEntries(app, "syntactic");
+  const libraryChoices = libraryEntries(app, "syntactic").filter((entry) => entry.executor?.mode !== "cli");
   const entry = findLibraryEntry(app, binding.libraryId);
   const entryDetail = selectedLibraryDetail(app, binding.libraryId);
   const entryRules = entryDetail && entryDetail.rules ? entryDetail.rules : [];
   const previewDefinition = entryDetail || entry;
-  const effectiveRuleCount = isLibrary ? (previewDefinition ? previewDefinition.rule_count ?? (entryRules || []).length : 0) : ruleCount;
+  const effectiveRuleCount = isLibrary ? (previewDefinition ? previewDefinition.rule_count ?? entryRules.length : 0) : ruleCount;
   const error = current.errors[node.checkpoint_id];
-  const modeChip = isCli
-    ? `<span class="chip chip--violet chip--sm">${icon("cpu")}Agent CLI</span>`
-    : isLibrary
-      ? `<span class="chip chip--cyan chip--sm">${icon("library")}Library checkpoint</span>`
-      : `<span class="chip chip--green chip--sm">${icon("shield")}Built-in script</span>`;
+  const modeChip = isLibrary
+    ? `<span class="chip chip--cyan chip--sm">${icon("library")}Library checkpoint</span>`
+    : `<span class="chip chip--green chip--sm">${icon("shield")}Built-in script</span>`;
 
   const executorCell = `<div class="check-card__control">
-      <span class="check-card__control-label">Check executor</span>
-      <div class="segmented" role="group" aria-label="Check executor for ${esc(node.checkpoint_id)}">
-        <button class="segmented__opt ${mode === "default" ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="default" aria-pressed="${mode === "default"}">${icon("shield")}Built-in script</button>
-        <button class="segmented__opt ${isCli ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="cli" aria-pressed="${isCli}">${icon("cpu")}Agent CLI</button>
-        <button class="segmented__opt ${isLibrary ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="library" aria-pressed="${isLibrary}" ${libraryError ? "disabled" : ""}>${icon("library")}Library</button>
-      </div>
-      <span class="check-card__hint">${mode === "default" ? "Repository checker · script authority." : isCli ? "Separate CLI run · agent authority." : "Frozen library rules and executor."}</span>
-    </div>`;
-
-  const primaryCell = isCli
+    <span class="check-card__control-label">Check executor</span>
+    <div class="segmented" role="group" aria-label="Check executor for ${esc(node.checkpoint_id)}">
+      <button class="segmented__opt ${mode === "default" ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="default" aria-pressed="${mode === "default"}">${icon("shield")}Built-in script</button>
+      <button class="segmented__opt ${isLibrary ? "is-active" : ""}" type="button" data-check-mode="${esc(node.checkpoint_id)}" data-mode="library" aria-pressed="${isLibrary}" ${libraryError ? "disabled" : ""}>${icon("library")}Library</button>
+    </div>
+    <span class="check-card__hint">${isLibrary ? "Frozen library rules and script executor." : "Repository checker · script authority."}</span>
+  </div>`;
+  const primaryCell = isLibrary
     ? `<div class="check-card__control">
-        <span class="check-card__control-label">CLI</span>
-        <select class="select" data-check-cli="${esc(node.checkpoint_id)}" aria-label="Agent CLI for ${esc(node.checkpoint_id)}">
-          ${agents.map((entry2) => `<option value="${esc(entry2.cli)}" ${entry2.cli === binding.cli ? "selected" : ""}>${esc(entry2.cli)}${entry2.available ? "" : " · off"}</option>`).join("")}
+        <span class="check-card__control-label">Library checkpoint</span>
+        <select class="select" data-check-library="${esc(node.checkpoint_id)}" aria-label="Library checkpoint for ${esc(node.checkpoint_id)}" ${libraryError ? "disabled" : ""}>
+          <option value="">Select a syntactic entry…</option>
+          ${libraryChoices.map((candidate) => {
+            const rules = candidate.rule_count ?? 0;
+            const executor = candidate.executor?.command_uri || "script";
+            return `<option value="${esc(candidate.checkpoint_id)}" ${candidate.checkpoint_id === binding.libraryId ? "selected" : ""}>${esc(candidate.title)} · ${esc(candidate.checkpoint_id)} · ${rules} rule${rules === 1 ? "" : "s"} · ${esc(executor)}</option>`;
+          }).join("")}
         </select>
-        <span class="check-card__hint">${available ? esc(agent.version || "detected") : "not detected on this machine"}</span>
+        <span class="check-card__hint">${libraryChoices.length} syntactic entr${libraryChoices.length === 1 ? "y" : "ies"} available</span>
       </div>`
-    : isLibrary
-      ? `<div class="check-card__control">
-          <span class="check-card__control-label">Library checkpoint</span>
-          <select class="select" data-check-library="${esc(node.checkpoint_id)}" aria-label="Library checkpoint for ${esc(node.checkpoint_id)}" ${libraryError ? "disabled" : ""}>
-            <option value="">Select a syntactic entry…</option>
-            ${libraryChoices
-              .map((candidate) => {
-                const rules = candidate.rule_count ?? 0;
-                const executor = candidate.executor
-                  ? candidate.executor.mode === "cli"
-                    ? `agent CLI ${candidate.executor.cli}:${candidate.executor.model}`
-                    : `script ${candidate.executor.command_uri}`
-                  : "judged";
-                return `<option value="${esc(candidate.checkpoint_id)}" ${candidate.checkpoint_id === binding.libraryId ? "selected" : ""}>${esc(candidate.title)} · ${esc(candidate.checkpoint_id)} · ${rules} rule${rules === 1 ? "" : "s"} · ${esc(executor)}</option>`;
-              })
-              .join("")}
-          </select>
-          <span class="check-card__hint">${libraryChoices.length} syntactic entr${libraryChoices.length === 1 ? "y" : "ies"} available</span>
-        </div>`
-      : `<div class="check-card__control">
-          <span class="check-card__control-label">Built-in checker</span>
-          <div class="check-card__static" title="${esc(checker.command_uri || "")}">${icon("terminal")}${esc(checker.checker_id || node.title)}</div>
-          <span class="check-card__hint">${esc(truncateMiddle(checker.command_uri || "built-in checker", 34))}</span>
-        </div>`;
-
-  const secondaryCell = isCli
+    : `<div class="check-card__control">
+        <span class="check-card__control-label">Built-in checker</span>
+        <div class="check-card__static" title="${esc(checker.command_uri || "")}">${icon("terminal")}${esc(checker.checker_id || node.title)}</div>
+        <span class="check-card__hint">${esc(truncateMiddle(checker.command_uri || "built-in checker", 34))}</span>
+      </div>`;
+  const secondaryCell = isLibrary
     ? `<div class="check-card__control">
-        <span class="check-card__control-label">Model</span>
-        <select class="select" data-check-model="${esc(node.checkpoint_id)}" aria-label="Model for ${esc(node.checkpoint_id)}">
-          ${models.map((model) => `<option value="${esc(model.id)}" ${model.id === binding.model ? "selected" : ""}>${esc(model.label || model.id)}</option>`).join("")}
-          ${models.length === 0 ? `<option value="${esc(binding.model)}" selected>${esc(binding.model || "default")}</option>` : ""}
-        </select>
-        <span class="check-card__hint">from <span class="mono">/api/flows</span></span>
+        <span class="check-card__control-label">Entry executor</span>
+        <div class="check-card__static" title="${esc(entry?.executor?.command_uri || "no entry selected")}">
+          ${icon("terminal")}${esc(entry?.executor?.command_uri?.split("/").pop() || "no entry selected")}
+        </div>
+        <span class="check-card__hint">${entry ? (entry.builtin ? "built-in" : "user") : "choose an entry"} · script execution</span>
       </div>`
-    : isLibrary
-      ? `<div class="check-card__control">
-          <span class="check-card__control-label">Entry executor</span>
-          <div class="check-card__static" title="${esc(entry ? (entry.executor && entry.executor.mode === "cli" ? `${entry.executor.cli}:${entry.executor.model}` : (entry.executor && entry.executor.command_uri) || "judged") : "no entry selected")}">
-            ${icon("terminal")}${esc(entry ? (entry.executor && entry.executor.mode === "cli" ? `${entry.executor.cli}:${entry.executor.model}` : (entry.executor && entry.executor.command_uri ? entry.executor.command_uri.split("/").pop() : "judged")) : "no entry selected")}
-          </div>
-          <span class="check-card__hint" title="${esc(entry && entry.executor && entry.executor.command_uri ? entry.executor.command_uri : "")}">${entry ? (entry.executor && entry.executor.mode === "cli" ? "agent execution" : "script execution") : "choose an entry"} · ${entry ? (entry.builtin ? "built-in" : "user") : ""}</span>
-        </div>`
-      : `<div class="check-card__control">
-          <span class="check-card__control-label">Authority</span>
-          <div class="check-card__static">${icon("shield")}script authority</div>
-          <span class="check-card__hint">recorded assessor ${esc(checker.checker_id || node.title)}</span>
-        </div>`;
-
-  const tertiaryCell = isCli
+    : `<div class="check-card__control">
+        <span class="check-card__control-label">Authority</span>
+        <div class="check-card__static">${icon("shield")}script authority</div>
+        <span class="check-card__hint">recorded assessor ${esc(checker.checker_id || node.title)}</span>
+      </div>`;
+  const tertiaryCell = isLibrary
     ? `<div class="check-card__control">
-        <span class="check-card__control-label">Model override</span>
-        <input class="input input--mono" data-check-model-override="${esc(node.checkpoint_id)}" value="${esc(binding.modelOverride || "")}" placeholder="optional model id" spellcheck="false" autocomplete="off" aria-label="Free-text model override for ${esc(node.checkpoint_id)}" />
-        <span class="check-card__hint">effective <span class="mono" data-effective-model="${esc(node.checkpoint_id)}">${esc(effectiveModel || "—")}</span></span>
+        <span class="check-card__control-label">Version</span>
+        <div class="check-card__static">${icon("git-commit")}${entry ? `v${esc(entry.version)} · ${effectiveRuleCount} rule${effectiveRuleCount === 1 ? "" : "s"}` : "—"}</div>
+        <span class="check-card__hint">${entry ? `updated ${esc(relativeTime(entry.updated_at))}` : "select an entry to preview rules"}</span>
       </div>`
-    : isLibrary
-      ? `<div class="check-card__control">
-          <span class="check-card__control-label">Version</span>
-          <div class="check-card__static">${icon("git-commit")}${entry ? `v${esc(entry.version)} · ${effectiveRuleCount} rule${effectiveRuleCount === 1 ? "" : "s"}` : "—"}</div>
-          <span class="check-card__hint">${entry ? `updated ${esc(relativeTime(entry.updated_at))}` : "select an entry to preview rules"}</span>
-        </div>`
-      : `<div class="check-card__control">
-          <span class="check-card__control-label">Declared rules</span>
-          <div class="check-card__static">${icon("diamond")}${ruleCount} rule${ruleCount === 1 ? "" : "s"}</div>
-          <span class="check-card__hint">${esc((checker.establishes || []).slice(0, 2).join(", ") || "deterministic checker")}</span>
-        </div>`;
-
+    : `<div class="check-card__control">
+        <span class="check-card__control-label">Declared rules</span>
+        <div class="check-card__static">${icon("diamond")}${ruleCount} rule${ruleCount === 1 ? "" : "s"}</div>
+        <span class="check-card__hint">${esc((checker.establishes || []).slice(0, 2).join(", ") || "deterministic checker")}</span>
+      </div>`;
   const preview = isLibrary
     ? `<div class="check-card__preview">
         <div class="check-card__preview-head"><span>${icon("library")}rules frozen into the plan</span>${entry ? `<span class="check-card__preview-title">${esc(entry.title)}</span>` : ""}</div>
-        ${
-          !binding.libraryId
-            ? '<span class="check-card__preview-empty">Select a library checkpoint to preview its rules.</span>'
-            : entryRules.length
-              ? entryRules.map((rule) => `<div class="check-card__preview-rule"><span class="mono">${esc(rule.rule_id)}</span><span>${esc(rule.condition)}</span></div>`).join("")
-              : '<span class="check-card__preview-empty">Loading library rules…</span>'
-        }
+        ${!binding.libraryId
+          ? '<span class="check-card__preview-empty">Select a library checkpoint to preview its rules.</span>'
+          : entryRules.length
+            ? entryRules.map((rule) => `<div class="check-card__preview-rule"><span class="mono">${esc(rule.rule_id)}</span><span>${esc(rule.condition)}</span></div>`).join("")
+            : '<span class="check-card__preview-empty">Loading library rules…</span>'}
       </div>`
     : "";
 
-  return `<div class="check-card ${isCli ? "is-cli" : ""} ${isLibrary ? "is-library" : ""}" data-check-card="${esc(node.checkpoint_id)}" data-executor="${esc(mode)}">
+  return `<div class="check-card ${isLibrary ? "is-library" : ""}" data-check-card="${esc(node.checkpoint_id)}" data-executor="${esc(mode)}">
     <div class="check-card__head">
       <span class="check-card__order">${String(index + 1).padStart(2, "0")}</span>
       <div class="check-card__titles">
@@ -287,7 +216,7 @@ function renderCheckCard(app, current, flow, node, index, agents, { libraryError
         <div class="check-card__meta">
           <span>${effectiveRuleCount} rule${effectiveRuleCount === 1 ? "" : "s"}</span>
           <span class="sep-dot"></span>
-          <span class="mono">${esc(isCli ? "agent CLI execution" : isLibrary ? (entry ? entry.checkpoint_id : "library entry pending") : checker.command_uri || "built-in checker")}</span>
+          <span class="mono">${esc(isLibrary ? (entry ? entry.checkpoint_id : "library entry pending") : checker.command_uri || "built-in checker")}</span>
         </div>
       </div>
     </div>
@@ -416,19 +345,15 @@ function renderReview(app, current) {
           ? `<div class="review__bindings">${nodes
               .map((node) => {
                 const binding = current.checks[node.checkpoint_id] || { mode: "default" };
-                const model = (binding.modelOverride || "").trim() || binding.model;
                 const entry = findLibraryEntry(app, binding.libraryId);
-                const isCli = binding.mode === "cli";
                 const isLibrary = binding.mode === "library";
-                return `<div class="review-binding ${isCli ? "is-cli" : ""} ${isLibrary ? "is-library" : ""}">
+                return `<div class="review-binding ${isLibrary ? "is-library" : ""}">
                   <span class="review-binding__name">${esc(node.checker.checker_id || node.title)}</span>
                   <span class="review-binding__mode">
                     ${
-                      isCli
-                        ? `${icon("cpu")}<span class="badge chip--violet badge--mono">Agent CLI · ${esc(binding.cli)}:${esc(model)}</span>`
-                        : isLibrary
-                          ? `${icon("library")}<span class="badge chip--cyan badge--mono">Library · ${esc(entry ? entry.title : binding.libraryId || "not selected")}</span>`
-                          : `${icon("shield")}<span class="badge badge--soft badge--mono">Built-in script</span>`
+                      isLibrary
+                        ? `${icon("library")}<span class="badge chip--cyan badge--mono">Library · ${esc(entry ? entry.title : binding.libraryId || "not selected")}</span>`
+                        : `${icon("shield")}<span class="badge badge--soft badge--mono">Built-in script</span>`
                     }
                   </span>
                 </div>`;
@@ -475,7 +400,6 @@ function renderStepFoot(app, current) {
 function renderSummary(app, current) {
   const flow = flowFor(app, current.flowId);
   const nodes = flow && flow.flow_id === "simple-flow" ? checkNodeInfo(app, flow) : [];
-  const cliCount = nodes.filter((node) => current.checks[node.checkpoint_id] && current.checks[node.checkpoint_id].mode === "cli").length;
   const libraryCount = nodes.filter((node) => current.checks[node.checkpoint_id] && current.checks[node.checkpoint_id].mode === "library").length + (current.semantic && current.semantic.mode === "library" ? 1 : 0);
   return `<div class="card summary-card">
     <div class="summary-card__title">${icon("sparkle")}Draft summary</div>
@@ -483,7 +407,6 @@ function renderSummary(app, current) {
     <div class="summary-row"><span class="summary-row__key">Title</span><span class="summary-row__value">${esc(current.title || "—")}</span></div>
     <div class="summary-row"><span class="summary-row__key">Flow</span><span class="summary-row__value mono">${esc(current.flowId)}</span></div>
     <div class="summary-row"><span class="summary-row__key">Gates</span><span class="summary-row__value mono">${nodes.length || (flow ? flow.checkpoints.length : 0)}</span></div>
-    <div class="summary-row"><span class="summary-row__key">Agent CLI</span><span class="summary-row__value mono">${cliCount} of ${nodes.length || 0}</span></div>
     <div class="summary-row"><span class="summary-row__key">Library</span><span class="summary-row__value mono">${libraryCount} bound</span></div>
     <div class="summary-progress" aria-hidden="true">
       ${STEPS.map((step, index) => `<i class="${index < current.step ? "is-done" : index === current.step ? "is-active" : ""}"></i>`).join("")}
@@ -526,21 +449,14 @@ function validateChecks(app) {
   for (const node of checkNodeInfo(app, flow)) {
     const binding = draft.checks[node.checkpoint_id];
     if (!binding) continue;
-    if (binding.mode === "cli") {
-      if (!["codex", "kimi"].includes(binding.cli)) {
-        errors[node.checkpoint_id] = "Choose codex or kimi for an Agent CLI executor.";
-        continue;
-      }
-      const model = (binding.modelOverride || "").trim() || binding.model;
-      if (!model) errors[node.checkpoint_id] = "An Agent CLI executor needs a non-empty model id.";
-      else if (model.length > 200) errors[node.checkpoint_id] = "The model id must be 200 characters or fewer.";
-      continue;
-    }
     if (binding.mode === "library") {
       const entry = findLibraryEntry(app, binding.libraryId);
       if (!binding.libraryId) errors[node.checkpoint_id] = "Select a library checkpoint for this gate.";
       else if (!entry) errors[node.checkpoint_id] = `Library checkpoint ${binding.libraryId} is no longer available.`;
       else if (entry.kind !== "syntactic") errors[node.checkpoint_id] = "This gate needs a syntactic library checkpoint.";
+      else if (entry.executor?.mode === "cli") errors[node.checkpoint_id] = "This historical Agent CLI entry cannot be bound to a new wish.";
+    } else if (binding.mode !== "default") {
+      errors[node.checkpoint_id] = "This check executor is no longer available.";
     }
   }
   if (draft.semantic && draft.semantic.mode === "library") {
@@ -745,45 +661,6 @@ export const wizardView = {
           rerender();
         });
       });
-      root.querySelectorAll("[data-check-cli]").forEach((select) => {
-        select.addEventListener("change", () => {
-          const checkpointId = select.dataset.checkCli;
-          const binding = current.checks[checkpointId];
-          if (!binding) return;
-          binding.cli = select.value;
-          const agent = agentFor(app, binding.cli);
-          binding.model = defaultModelFor(app, binding.cli);
-          binding.modelOverride = "";
-          if (agent && !agent.available) {
-            toastWarn(`${agent.cli} is not detected`, "The binding is recorded, but the agent CLI must be available when the check runs.");
-          }
-          rerender();
-        });
-      });
-      const updateEffectiveModel = (checkpointId) => {
-        const binding = current.checks[checkpointId];
-        const hint = root.querySelector(`[data-effective-model="${CSS.escape(checkpointId)}"]`);
-        if (binding && hint) hint.textContent = (binding.modelOverride || "").trim() || binding.model || "—";
-      };
-      root.querySelectorAll("[data-check-model]").forEach((select) => {
-        select.addEventListener("change", () => {
-          const checkpointId = select.dataset.checkModel;
-          const binding = current.checks[checkpointId];
-          if (binding) binding.model = select.value;
-          updateEffectiveModel(checkpointId);
-        });
-      });
-      root.querySelectorAll("[data-check-model-override]").forEach((input) => {
-        input.addEventListener("input", () => {
-          const checkpointId = input.dataset.checkModelOverride;
-          const binding = current.checks[checkpointId];
-          if (binding) binding.modelOverride = input.value;
-          updateEffectiveModel(checkpointId);
-          const errorEl = root.querySelector(`[data-check-error="${CSS.escape(checkpointId)}"]`);
-          if (errorEl) errorEl.hidden = true;
-        });
-      });
-
       // ---- create ----
       const createButton = root.querySelector("[data-create-wish]");
       if (createButton) {
@@ -958,7 +835,7 @@ function renderFlowStep(app, current) {
   ${
     current.flowId === "wish-verify"
       ? `<div class="check-note">${icon("info")}<span><strong>WishVerifyFlow keeps its semantic judgments.</strong> Non-default check executors are rejected for this flow in the current slice, so the wizard creates it with the two judged checkpoints only.</span></div>`
-      : `<div class="check-note">${icon("library")}<span><strong>SimpleFlow supports library and agent executors.</strong> Each syntactic gate can bind the built-in script, a separate Agent CLI run, or a frozen library checkpoint; the semantic verification gate can bind a semantic library entry. The choice is frozen into the plan.</span></div>`
+      : `<div class="check-note">${icon("library")}<span><strong>SimpleFlow supports built-in and library executors.</strong> Each syntactic gate can bind the built-in script or a frozen library checkpoint; the semantic verification gate can bind a semantic library entry. The choice is frozen into the plan.</span></div>`
   }`;
 }
 
@@ -994,14 +871,6 @@ async function submit(app, root, current, rerender) {
   if (flow && flow.flow_id === "simple-flow") {
     body.checks = checkNodeInfo(app, flow).map((node) => {
       const binding = current.checks[node.checkpoint_id] || { mode: "default" };
-      if (binding.mode === "cli") {
-        return {
-          checkpoint_id: node.checkpoint_id,
-          mode: "cli",
-          cli: binding.cli,
-          model: (binding.modelOverride || "").trim() || binding.model,
-        };
-      }
       if (binding.mode === "library") {
         return { checkpoint_id: node.checkpoint_id, mode: "library", library_id: binding.libraryId };
       }
@@ -1061,13 +930,12 @@ function renderChecksStep(app, current) {
     </div>`;
   }
   const nodes = checkNodeInfo(app, flow);
-  const agents = app.state.agents || [];
   const libraryError = app.state.checkpointsError;
-  return `<div class="check-note check-executor-note">${icon("info")}<span><strong>Stage work is always performed by the working agent.</strong> The <strong>check executor</strong> selects only who verifies a checkpoint: the repository's <strong>built-in script</strong> (deterministic, script authority), a separate <strong>Agent CLI</strong> run (agent authority <span class="mono">cli:model</span>), or a <strong>library checkpoint</strong> whose frozen rules and declared executor are used. The choice is frozen into the plan by <span class="mono">xdesign init</span>.</span></div>
+  return `<div class="check-note check-executor-note">${icon("info")}<span><strong>Stage work is handed to a working agent outside this console.</strong> The <strong>check executor</strong> selects the repository's <strong>built-in script</strong> or a <strong>library checkpoint</strong> with a frozen script. The choice is frozen into the plan by <span class="mono">xdesign init</span>.</span></div>
   ${libraryError ? `<div class="form-inline-error" style="margin-top:10px">${icon("alert-circle")}<span>Checkpoint library unavailable (${esc(libraryError.message || "request failed")}). Library mode stays disabled until the service returns.</span></div>` : ""}
   <div class="check-cards">
-    ${nodes.map((node, index) => renderCheckCard(app, current, flow, node, index, agents, { libraryError })).join("")}
+    ${nodes.map((node, index) => renderCheckCard(app, current, flow, node, index, { libraryError })).join("")}
   </div>
   ${renderSemanticCard(app, current, flow, { libraryError })}
-  <div class="check-note">${icon("info")}<span><strong>Built-in script bindings are deterministic</strong> and recorded with script authority. <strong>Agent CLI bindings</strong> run a separate codex/kimi review of the same declared rules and record agent authority. <strong>Library bindings</strong> freeze the library entry's rules, inputs and executor; later library edits never change a frozen plan.</span></div>`;
+  <div class="check-note">${icon("info")}<span><strong>Built-in script bindings are deterministic</strong> and recorded with script authority. <strong>Library bindings</strong> freeze the library entry's rules, inputs and script executor; later library edits never change a frozen plan.</span></div>`;
 }

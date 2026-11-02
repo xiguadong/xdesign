@@ -34,7 +34,7 @@ The project SysML model is the structural source. These pages explain the modele
 | Revision, assessment, artifact, or evidence semantics | [evidence-and-revisions.md](evidence-and-revisions.md); record fields in [interfaces/record-format.md](../interfaces/record-format.md) |
 | Store schema, save/recovery, queries, material integrity or checkout | [storage.md](storage.md); [store format](../interfaces/store-format.md); storage API pages |
 | Checker command, judge authority, reports, refusal/error boundary | [adapters.md](adapters.md); a flow's definition.md for its commands and rules |
-| Per-wish check binding (default, agent CLI, custom command, library checkpoint) | the flow's definition.md and [stage-cli.md](stage-cli.md#d89) |
+| Per-wish check binding (default, project command, library checkpoint) | the flow's definition.md and [stage-cli.md](stage-cli.md#d89) |
 | A reusable checkpoint definition, its script, or its version history | [checkpoint-library.md](checkpoint-library.md); [D88](flows/simple-flow/definition.md#d88) for the binding |
 | A document profile, template, section writer, or document validation rule | [document-kit.md](document-kit.md#d113); versioned source under `document-kit/` |
 | Real-project check ownership, definition/binding/execution history, or cross-project reuse | [As-built project boundary](checkpoint-library.md#d107), [proposed sharing and federation](checkpoint-library.md#d108), [remediation flow](checkpoint-library.md#d109) |

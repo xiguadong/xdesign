@@ -447,7 +447,7 @@ function libraryFor(detail, checkpointId) {
 function bindingLabel(binding, checkpoint = null) {
   const semantic = Boolean(checkpoint && checkpoint.kind === "semantic");
   if (!binding || !binding.mode) return semantic ? "judged" : "built-in script";
-  if (binding.mode === "cli") return `${binding.cli}:${binding.model}`;
+  if (binding.mode === "cli") return `historical CLI · ${binding.cli}:${binding.model}`;
   if (binding.mode === "library") return `library · ${binding.library_id || "unresolved"}`;
   if (binding.mode === "command") return truncate(binding.command_uri || "command", 22);
   return semantic ? "judged" : "built-in script";
@@ -608,7 +608,7 @@ function renderCheckpointRow(detail, checkpoint) {
           binding && binding.mode === "library"
             ? `<span class="chip chip--cyan chip--sm">${icon("library")}library checkpoint</span>`
             : binding && binding.mode === "cli"
-              ? `<span class="chip chip--violet chip--sm">${icon("cpu")}agent CLI · ${esc(binding.cli)}:${esc(binding.model)}</span>`
+              ? `<span class="chip chip--violet chip--sm" title="Historical binding; agent checker execution is no longer available">${icon("cpu")}historical CLI · ${esc(binding.cli)}:${esc(binding.model)}</span>`
               : isSemantic
                 ? `<span class="chip chip--violet chip--sm">${icon("sparkle")}default criteria · judged</span>`
                 : `<span class="chip chip--green chip--sm">${icon("shield")}built-in script</span>`

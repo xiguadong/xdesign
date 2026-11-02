@@ -1,5 +1,5 @@
 // xdesign · WishFlow Studio — Overview: hero, lifecycle map, stat cards,
-// flow pipelines, recent wishes and agent runtimes.
+// flow pipelines, recent wishes and the local environment.
 
 import {
   esc,
@@ -65,12 +65,11 @@ export const overviewView = {
   render(app, data) {
     const wishes = (data && data.wishes) || app.state.wishes;
     const health = app.state.health || {};
-    const agents = app.state.agents || [];
     const flows = app.state.flows || [];
 
     return `
       <div class="animate-rise">
-        ${renderHero(app, wishes, flows, agents)}
+        ${renderHero(app, wishes, flows)}
       </div>
       <div class="stat-grid animate-rise is-delay-1" data-stat-grid>
         ${renderStats(wishes)}
@@ -93,17 +92,6 @@ export const overviewView = {
           </section>
         </div>
         <div class="overview-col">
-          <section class="panel">
-            <div class="panel__head">
-              <div class="panel__title">${icon("cpu")}Agent runtimes</div>
-              <div class="panel__subtitle">${agents.filter((agent) => agent.available).length}/${agents.length} detected</div>
-            </div>
-            <div class="agent-list">${renderAgents(agents)}</div>
-            <div class="agent-note">
-              <span class="icon">${icon("info")}</span>
-              <span>Stage work is always performed by the working agent. The <strong>built-in script</strong> executor records script authority; <strong>Agent CLI</strong> records agent authority; <strong>library checkpoints</strong> freeze a project definition into the plan.</span>
-            </div>
-          </section>
           <section class="panel">
             <div class="panel__head">
               <div class="panel__title">${icon("database")}Environment</div>
@@ -148,7 +136,7 @@ function signature(wishes) {
 /* Hero                                                               */
 /* ------------------------------------------------------------------ */
 
-function renderHero(app, wishes, flows, agents) {
+function renderHero(app, wishes, flows) {
   const sample = app.state.sampleMode;
   const activeCount = wishes.filter((wish) => wish.status === "active").length;
   const blockedCount = wishes.filter((wish) => wish.status === "blocked").length;
@@ -156,7 +144,6 @@ function renderHero(app, wishes, flows, agents) {
     (total, flow) => total + (flow.checkpoints || []).filter((checkpoint) => checkpoint.kind === "syntactic").length,
     0,
   );
-  const availableAgents = agents.filter((agent) => agent.available).length;
 
   return `<section class="hero">
     <div class="hero__top">
@@ -180,7 +167,6 @@ function renderHero(app, wishes, flows, agents) {
         <div class="hero__meta">${icon("pulse")}<span>active</span><span class="mono">${activeCount}</span></div>
         <div class="hero__meta">${icon("alert-triangle")}<span>blocked</span><span class="mono">${blockedCount}</span></div>
         <div class="hero__meta">${icon("shield")}<span>deterministic gates</span><span class="mono">${gateCount}</span></div>
-        <div class="hero__meta">${icon("cpu")}<span>agent runtimes</span><span class="mono">${availableAgents}/${agents.length}</span></div>
       </div>
     </div>
     <div class="hero__art">
@@ -344,38 +330,6 @@ function renderRecent(app, wishes) {
     });
   }
   return recent.map((wish) => wishRow(wish, app)).join("");
-}
-
-/* ------------------------------------------------------------------ */
-/* Agents                                                             */
-/* ------------------------------------------------------------------ */
-
-function renderAgents(agents) {
-  if (!agents || agents.length === 0) {
-    return `<div class="text-faint" style="font-size:11.5px">No agent catalog reported by the local server.</div>`;
-  }
-  return agents
-    .map((agent) => {
-      const available = Boolean(agent.available);
-      const models = agent.models || [];
-      const shown = models.slice(0, 3);
-      return `<div class="agent-card tone-${available ? "green" : "rose"}">
-        <span class="agent-card__icon">${icon("terminal")}</span>
-        <div class="agent-card__body">
-          <div class="agent-card__head">
-            <span class="agent-card__name">${esc(agent.label || agent.cli)}</span>
-            <span class="chip ${available ? "chip--green" : "chip--rose"} chip--sm"><span class="dot"></span>${available ? "available" : "not found"}</span>
-          </div>
-          <div class="agent-card__version">${esc(available ? agent.version || "version unknown" : "not detected on this machine")}</div>
-          <div class="agent-card__models">
-            ${shown.map((model) => `<span class="chip chip--mono">${esc(model.label || model.id)}</span>`).join("")}
-            ${models.length > shown.length ? `<span class="chip chip--mono">+${models.length - shown.length} more</span>` : ""}
-            <span class="chip chip--mono" title="Default model when a binding is created">default · ${esc(agent.default_model || "—")}</span>
-          </div>
-        </div>
-      </div>`;
-    })
-    .join("");
 }
 
 function envRow(label, value, mono = false) {

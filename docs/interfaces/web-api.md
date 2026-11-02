@@ -67,8 +67,8 @@ routes are described in [§4](#i19).
 
 | Method and path | Purpose |
 | --- | --- |
-| `GET /api/health` | Build version, project and store roots, store presence, agent availability, server time |
-| `GET /api/flows` | Flow catalog with stages, checkpoints, checker rules, supported binding modes, and the agent catalog |
+| `GET /api/health` | Build version, project and store roots, store presence, server time |
+| `GET /api/flows` | Flow catalog with stages, checkpoints, checker rules, and supported binding modes |
 | `GET /api/wishes` | Wish list with flow, status, current stage, head revision, and source |
 | `GET /api/wishes/{wish_id}` | Wish detail: plan with frozen bindings, run visits and assessments, revision history, and derived events |
 | `GET /api/wishes/{wish_id}/work` | Current work order from `xdesign next` |
@@ -85,7 +85,6 @@ routes are described in [§4](#i19).
 | `project_root` | string | Absolute project root the server changed into |
 | `store_root` | string | Absolute store root in use |
 | `store_present` | boolean | Whether the store exists at `store_root` |
-| `agents` | array | `{cli, available, version}` entries from runtime detection |
 | `now` | string | Server time, RFC 3339 |
 
 ### 2.2 `GET /api/flows`
@@ -102,17 +101,10 @@ for syntactic checkpoints, a `checker` object:
 | `command_uri` | Built-in command path |
 | `establishes` | Conformance kinds the checker states |
 | `rules` | Array of `{rule_id, condition, reads}` |
-| `modes` | Executors advertised for the checker: `["default", "cli"]`. The operator page adds the `library` choice for the supported gates from `GET /api/checkpoints`; a semantic checkpoint has `checker: null` and can accept a semantic library entry |
+| `modes` | Executors advertised for the checker: `["default"]`. The operator page adds the `library` choice for supported gates from `GET /api/checkpoints`; a semantic checkpoint has `checker: null` and can accept a semantic library entry |
 
 `custom_checks_supported` is `true` only for `simple-flow`, the flow whose four syntactic
 checkpoints can be bound ([D88](../design/flows/simple-flow/definition.md#d88)).
-
-`agents` follows the static codex/kimi catalog plus runtime detection: each entry has
-`cli`, `label`, `command`, `available`, `version`, `default_model`, and `models` as
-`{id, label}` pairs. Detection runs `<command> --version` with a three-second deadline and
-reports the first non-empty line; a detected default model from the user's CLI
-configuration replaces or precedes the static default. Unknown extra models are accepted
-in create requests, so the page offers the listed values plus a free-text model.
 
 ### 2.3 `GET /api/wishes`
 
@@ -142,9 +134,11 @@ id, or `null`), and `checker`, whose `binding` is derived from the frozen plan:
 | `binding.mode` | Other binding fields | Meaning |
 | --- | --- | --- |
 | `default` | none (the object is just `{"mode": "default"}`) | Built-in deterministic command |
-| `cli` | `cli` and `model` | Agent CLI executor with the named model |
 | `command` | `command_uri` (the frozen checker's command path) | Custom project-relative checker command |
 | `library` | `library_id` | Frozen library checkpoint; its executor, rules or criteria are read from the plan, not the current library |
+
+An older frozen plan can still display a `cli` binding and its retained assessment for
+historical inspection. This does not enable new agent execution.
 
 For a frozen library binding the `binding` object is `{"mode": "library", "library_id":
 "<id>"}`. A syntactic checkpoint carries it inside its `checker` object, where the other
@@ -245,9 +239,8 @@ A `checks` entry has `checkpoint_id`, `mode`, and the mode's fields:
 
 | Field | Rule |
 | --- | --- |
-| `checkpoint_id` | `default` and `cli` accept the four syntactic ids `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted`; `library` also accepts the semantic `verificationAccepted`. No duplicates |
-| `mode` | `default`, `cli`, or `library`; `command` is rejected here because a custom command is configured through `xdesign init --checks` |
-| `cli`, `model` | Required for `cli`; `cli` is `codex` or `kimi` and `model` is a non-empty identifier of 1–200 characters |
+| `checkpoint_id` | `default` accepts the four syntactic ids `simpleRequirementsAccepted`, `simpleDesignAccepted`, `simpleImplementationAccepted`, `simpleRecordAccepted`; `library` also accepts the semantic `verificationAccepted`. No duplicates |
+| `mode` | `default` or `library`; `cli` is rejected, and `command` is configured through `xdesign init --checks` rather than this route. `cli` and `model` fields are rejected with any mode |
 | `library_id` | Required for `library`; a lower-case checkpoint id slug. The server rejects a missing or non-slug value as `400 invalid_checks`, then best-effort pre-validates the id and kind against the current library: an unknown id or a syntactic/semantic kind mismatch is `400 invalid_checks`. If the library cannot be read, `init` stays authoritative and its binding rejection maps to the same `400 invalid_checks`; a valid binding is passed through unchanged |
 
 A checkpoint omitted from `checks` defaults to `default`; bindings are not required to be

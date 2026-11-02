@@ -39,5 +39,5 @@ enabled.
 ## Layout
 
 - `assets/` — the page (HTML, CSS, JavaScript, SVG); all local, no CDN.
-- `server/` — embedded Rust module: HTTP layer, API assembly, agent catalog.
+- `server/` — embedded Rust module: HTTP layer and API assembly.
 - `SPEC.md` — contract; `README.md` — this file.

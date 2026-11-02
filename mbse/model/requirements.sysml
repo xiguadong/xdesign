@@ -26,10 +26,10 @@ package XDesignRequirements {
 
     requirement configuredChecksRetainAuthority : XDesignRequirement {
         @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R16"; }
-        doc /* Configured evaluations retain the actual script or agent authority,
-           executor identity, assessed revision and evidence. A CLI agent's answer
-           must not be represented as deterministic script evidence. */
-        attribute redefines rationale = "Executor selection changes the strength and repeatability of an assessment; readers need the actual authority to interpret its result.";
+        doc /* Configured syntactic evaluations retain script authority, the
+           checker identity, assessed revision and evidence. A working agent's
+           supplied semantic judgment is a separate result, not a check executor. */
+        attribute redefines rationale = "Readers need the actual checker and reviewed snapshot to interpret a result without confusing a supplied semantic judgment with a script assessment.";
     }
 
     requirement operatorDelegatesRunState : XDesignRequirement {

@@ -498,7 +498,7 @@ fn custom_check_bindings_are_rejected_for_wish_verify() {
     };
     assert_eq!(
         apply_check_bindings(&mut plan, &non_default),
-        Err("custom checks are supported for simple-flow only".to_string())
+        Err("checkpoint simpleRequirementsAccepted: agent CLI check bindings are no longer supported".to_string())
     );
     let command = RsCheckBindingConfig {
         schema_version: 1,

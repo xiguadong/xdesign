@@ -17,7 +17,6 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use super::agents::AgentCatalog;
 use super::http::{self, Method, Request, Response};
 
 /// Largest material payload served by the material endpoint (512 KiB).
@@ -108,33 +107,28 @@ fn blocked_check_output(stdout: &[u8]) -> bool {
 pub struct AppState {
     pub project_root: PathBuf,
     pub store_root: PathBuf,
-    pub agents: AgentCatalog,
     pub lifecycle: Box<dyn Lifecycle>,
 }
 
 impl AppState {
-    /// Production state: detect local agent CLIs and spawn the current binary
-    /// for lifecycle actions.
+    /// Production state: spawn the current binary for lifecycle actions.
     pub fn new(project_root: PathBuf, store_root: PathBuf) -> Self {
         Self {
             project_root,
             store_root,
-            agents: AgentCatalog::detect(),
             lifecycle: Box::new(ProcessLifecycle),
         }
     }
 
-    /// Structured state for tests: injected lifecycle runner and catalog.
+    /// Structured state for tests: injected lifecycle runner.
     pub fn with_parts(
         project_root: PathBuf,
         store_root: PathBuf,
-        agents: AgentCatalog,
         lifecycle: Box<dyn Lifecycle>,
     ) -> Self {
         Self {
             project_root,
             store_root,
-            agents,
             lifecycle,
         }
     }
@@ -305,7 +299,6 @@ fn health(state: &AppState) -> Response {
         "project_root": state.project_root.to_string_lossy(),
         "store_root": state.store_root.to_string_lossy(),
         "store_present": store_present,
-        "agents": state.agents.health_json(),
         "now": utc_now(),
     }))
 }
@@ -373,7 +366,7 @@ const WISH_VERIFY_STAGES: &[StageDisplay] = &[
     },
 ];
 
-fn flows(state: &AppState) -> Response {
+fn flows(_state: &AppState) -> Response {
     let simple_flow = designed_simple_flow_plan();
     let wish_verify_flow = wish_verify_flow_plan();
     http::json_ok(json!({
@@ -395,7 +388,6 @@ fn flows(state: &AppState) -> Response {
                 WISH_VERIFY_STAGES,
             ),
         ],
-        "agents": state.agents.to_json(),
     }))
 }
 
@@ -446,9 +438,7 @@ fn checkpoint_catalog_json(checkpoint: &RsCheckpointSpec) -> Value {
                 "condition": rule.condition,
                 "reads": rule.reads,
             })).collect::<Vec<_>>(),
-            // The page offers the two selectable executors for a supported
-            // deterministic checker.
-            "modes": ["default", "cli"],
+            "modes": ["default", "library"],
         })
     });
     json!({
@@ -1582,8 +1572,6 @@ fn library_bindable_checkpoint(checkpoint_id: &str) -> bool {
 struct BindingRequest {
     checkpoint_id: String,
     mode: String,
-    cli: Option<String>,
-    model: Option<String>,
     library_id: Option<String>,
 }
 
@@ -1653,10 +1641,6 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
                     entry.insert("checkpoint_id".into(), json!(binding.checkpoint_id));
                     entry.insert("mode".into(), json!(binding.mode));
                     match binding.mode.as_str() {
-                        "cli" => {
-                            entry.insert("cli".into(), json!(binding.cli));
-                            entry.insert("model".into(), json!(binding.model));
-                        }
                         "library" => {
                             entry.insert("library_id".into(), json!(binding.library_id));
                         }
@@ -1857,6 +1841,12 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
         let object = entry.as_object().ok_or_else(|| {
             ApiError::bad_request("invalid_checks", "each checks entry must be an object.")
         })?;
+        if object.contains_key("cli") || object.contains_key("model") {
+            return Err(ApiError::bad_request(
+                "invalid_checks",
+                "Agent CLI check bindings are no longer supported.",
+            ));
+        }
         let checkpoint_id = required_string(object, "checkpoint_id")?;
         if !seen.insert(checkpoint_id.clone()) {
             return Err(ApiError::bad_request(
@@ -1875,42 +1865,16 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
             }
         };
         match mode.as_str() {
-            "default" | "cli" => {
+            "default" => {
                 if !SIMPLE_FLOW_CHECKPOINTS.contains(&checkpoint_id.as_str()) {
                     return Err(ApiError::bad_request(
                         "invalid_checks",
                         format!("{checkpoint_id} is not a simple-flow syntactic checkpoint."),
                     ));
                 }
-                if mode == "default" {
-                    bindings.push(BindingRequest {
-                        checkpoint_id,
-                        mode,
-                        cli: None,
-                        model: None,
-                        library_id: None,
-                    });
-                    continue;
-                }
-                let cli = required_string(object, "cli")?;
-                if !matches!(cli.as_str(), "codex" | "kimi") {
-                    return Err(ApiError::bad_request(
-                        "invalid_checks",
-                        "cli must be codex or kimi.",
-                    ));
-                }
-                let model = required_string(object, "model")?;
-                if model.trim().is_empty() || model.chars().count() > 200 {
-                    return Err(ApiError::bad_request(
-                        "invalid_checks",
-                        "model must be 1 to 200 characters.",
-                    ));
-                }
                 bindings.push(BindingRequest {
                     checkpoint_id,
                     mode,
-                    cli: Some(cli),
-                    model: Some(model),
                     library_id: None,
                 });
             }
@@ -1947,8 +1911,6 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
                 bindings.push(BindingRequest {
                     checkpoint_id,
                     mode,
-                    cli: None,
-                    model: None,
                     library_id: Some(library_id),
                 });
             }
@@ -1961,7 +1923,7 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
             _ => {
                 return Err(ApiError::bad_request(
                     "invalid_checks",
-                    "mode must be default, cli, or library.",
+                    "mode must be default or library.",
                 ))
             }
         }
@@ -2752,27 +2714,6 @@ mod tests {
         }
     }
 
-    /// Injected agent detector: never spawns a process.
-    struct StubDetector;
-
-    impl super::super::agents::Detector for StubDetector {
-        fn version(&self, command: &str) -> Option<String> {
-            match command {
-                "codex" => Some("codex-cli 0.162.1".into()),
-                "kimi" => Some("2.2.0".into()),
-                _ => None,
-            }
-        }
-
-        fn config(&self, _relative: &str) -> Option<String> {
-            None
-        }
-    }
-
-    fn fake_agents() -> AgentCatalog {
-        AgentCatalog::detect_with(&StubDetector)
-    }
-
     type LifecycleReply = Result<LifecycleOutput, String>;
 
     #[derive(Clone, Default)]
@@ -2849,7 +2790,6 @@ mod tests {
         AppState::with_parts(
             project.root().to_path_buf(),
             project.store_root(),
-            fake_agents(),
             Box::new(lifecycle),
         )
     }
@@ -3263,7 +3203,7 @@ mod tests {
     // ------------------------------------------------------------------
 
     #[test]
-    fn health_reports_missing_store_and_agents() {
+    fn health_reports_missing_store() {
         let project = TestProject::new("health");
         let state = test_state(&project, FakeLifecycle::default());
         let data = ok_data(&get(&state, "/api/health"));
@@ -3277,13 +3217,7 @@ mod tests {
             project.store_root().to_str().unwrap()
         );
         assert_eq!(data["store_present"], false);
-        assert_eq!(
-            data["agents"],
-            json!([
-                {"cli": "codex", "available": true, "version": "codex-cli 0.162.1"},
-                {"cli": "kimi", "available": true, "version": "2.2.0"},
-            ])
-        );
+        assert!(data.get("agents").is_none());
         let now = data["now"].as_str().unwrap();
         assert_eq!(now.len(), 20, "{now}");
         assert!(now.ends_with('Z'), "{now}");
@@ -3310,7 +3244,7 @@ mod tests {
     }
 
     #[test]
-    fn flows_catalog_exposes_stages_checkpoints_and_agents() {
+    fn flows_catalog_exposes_stages_and_checkpoints() {
         let project = TestProject::new("flows");
         let state = test_state(&project, FakeLifecycle::default());
         let data = ok_data(&get(&state, "/api/flows"));
@@ -3356,7 +3290,10 @@ mod tests {
             requirements["checker"]["command_uri"],
             "tools/checks/simple_requirements.py"
         );
-        assert_eq!(requirements["checker"]["modes"], json!(["default", "cli"]));
+        assert_eq!(
+            requirements["checker"]["modes"],
+            json!(["default", "library"])
+        );
         assert_eq!(
             requirements["checker"]["establishes"],
             json!(["identifier_conformance", "trace_conformance"])
@@ -3380,9 +3317,7 @@ mod tests {
         assert_eq!(wish_verify["stages"][0]["title"], "Wish");
         assert_eq!(wish_verify["stages"][1]["title"], "Verification");
 
-        assert_eq!(data["agents"].as_array().unwrap().len(), 2);
-        assert_eq!(data["agents"][0]["cli"], "codex");
-        assert_eq!(data["agents"][0]["default_model"], "gpt-6-astra");
+        assert!(data.get("agents").is_none());
     }
 
     // ------------------------------------------------------------------
@@ -3648,8 +3583,8 @@ mod tests {
             "flow_id": "simple-flow",
             "checks": [
                 {"checkpoint_id": "simpleRequirementsAccepted", "mode": "default"},
-                {"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
-                 "cli": "codex", "model": "gpt-6-astra"},
+                {"checkpoint_id": "simpleDesignAccepted", "mode": "library",
+                 "library_id": "energy-budget-positive"},
             ],
         })
     }
@@ -3708,7 +3643,13 @@ mod tests {
             (
                 json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
                        "checks": [{"checkpoint_id": "simpleDesignAccepted", "mode": "cli",
-                                   "cli": "gemini", "model": "m"}]}),
+                                   "cli": "codex", "model": "m"}]}),
+                "invalid_checks",
+            ),
+            (
+                json!({"wish_id": "w1", "title": "T", "flow_id": "simple-flow",
+                       "checks": [{"checkpoint_id": "simpleDesignAccepted", "mode": "default",
+                                   "cli": "codex", "model": "m"}]}),
                 "invalid_checks",
             ),
         ];
@@ -3729,6 +3670,7 @@ mod tests {
     fn create_wish_writes_source_and_checks_then_runs_init() {
         let project = TestProject::new("create-ok");
         let lifecycle = FakeLifecycle::default();
+        lifecycle.push(lifecycle_reply(0, checkpoint_list_reply()));
         lifecycle.push(lifecycle_reply(
             0,
             json!({"schema_version": 1, "wish_id": "wish-web-0001",
@@ -3770,14 +3712,14 @@ mod tests {
         let checks = config["checks"].as_array().unwrap();
         assert_eq!(checks.len(), 2);
         assert_eq!(checks[0]["mode"], "default");
-        assert_eq!(checks[1]["mode"], "cli");
-        assert_eq!(checks[1]["cli"], "codex");
-        assert_eq!(checks[1]["model"], "gpt-6-astra");
+        assert_eq!(checks[1]["mode"], "library");
+        assert_eq!(checks[1]["library_id"], "energy-budget-positive");
 
         let calls = lifecycle.calls();
-        assert_eq!(calls.len(), 1);
+        assert_eq!(calls.len(), 2);
+        assert_eq!(calls[0].0, vec!["checkpoint", "list"]);
         assert_eq!(
-            calls[0].0,
+            calls[1].0,
             vec![
                 "init",
                 "wish-web-0001",
@@ -3789,7 +3731,7 @@ mod tests {
                 "cache/web/checks/wish-web-0001.json",
             ]
         );
-        assert_eq!(calls[0].1, project.root());
+        assert_eq!(calls[1].1, project.root());
     }
 
     #[test]

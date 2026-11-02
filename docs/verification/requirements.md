@@ -11,7 +11,7 @@ declared case or a clean compiler result as an executed acceptance test.
 
 | Scope | Method and phase | Evidence or case | Acceptance state |
 | --- | --- | --- | --- |
-| Checkpoint source, configured authority and local operator | Source/model inspection at design reconciliation, with existing runtime case families | `CheckpointOperatorDesignReview`; [R16](../requirements/requirements.md#r16), [D110](design.md#d110) | As-built allocation; generic scripted-only authority policy remains unresolved |
+| Checkpoint source, configured authority and local operator | Source/model inspection at design reconciliation, with existing runtime case families | `CheckpointOperatorDesignReview`; [R16](../requirements/requirements.md#r16), [D110](design.md#d110) | Current script-only syntactic scope; prior Agent CLI assessments remain historical evidence |
 | Shared checkpoint origins and cross-project history | Future integration test and restore demonstration | `CrossProjectCheckpointReview`; PROJECT-01..06 in [D110](design.md#d110) | Proposed requirements; no implemented satisfier or executed cross-project result |
 | Portable document contract and agent interfaces | Cross-project CLI/MCP demonstration, negative-path tests, and design review | `DocumentKitVerification`; DOC-01..07 in [D114](design.md#d114) | Planned case coverage; executed status belongs to the wish record |
 | SysML syntax and supported references | Automated analysis at design delivery | pinned compiler `parse` and `check`, including model-only check ([T02](../architecture/constraints.md#t02)) | Executed for design-stage wishes; unevaluated rules remain |
