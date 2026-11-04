@@ -16,10 +16,13 @@ content. Do not generate engineering claims from the template alone.
 1. Select the target project root and a pinned, checked-out `document-kit`
    profile. Read the project's `AGENTS.md` and document map, if present, to
    find owning pages and stricter local rules.
-2. Read `profile.json`, `RULES.md`, and the applicable `templates/*.md`.
-   When an MCP/CLI adapter is configured, call `get_contract` and read the
-   rules and applicable template resource from the same pinned pack. Use
-   its reported contract digest for the wish.
+2. Read `profile.json`, `RULES.md`, and `catalog/routing.md`. Choose the
+   generic default or an explicit `template_id`, then read that entry's guide
+   and exact template resource; its example is fictional and is not evidence.
+   When an MCP/CLI adapter is configured, call `get_contract`, inspect the
+   catalog, and read the applicable template from the same pinned pack. Use
+   its reported actual contract digest for the wish. A schema 1.0 pack has no
+   selectable template IDs and keeps its original class template behavior.
 3. Inspect existing SysML elements, documentation, stable section IDs, and
    relevant wish records. Preserve existing page ownership and anchors.
 
@@ -36,7 +39,7 @@ project's compiler and documentation checks separately.
 | --- | --- | --- |
 | Requirements | Register the wish in the project's authority, then model requirements. Call `plan_document` for each owning page and `create_document` or `update_section` with rationale, measurable acceptance conditions, and model links. | Call `check_documents`; run the model compiler for changed SysML and review requirement adequacy. |
 | Architecture and design | Establish composition, behavior, constraints, decisions, interfaces, and planned verification in SysML. Plan and author architecture, design, interface, and verification pages through their class templates. | Call `check_documents`, run the compiler and strict docs build, and judge whether the documents explain the model and wish. |
-| Figures | Use the project's separate drawing component to render selected SysML views. Place the canonical SVG beside its owning page; call `attach_figure` using `templates/figure-block.md` and keep `DocSection`, `DocFigure`, renderer mapping, embed, and six-field block aligned. | Inspect the final SVG for source fidelity and readability; rerun model/document checks. |
+| Figures | Use the project's separate drawing component to render selected SysML views. Place the canonical SVG beside its owning page; call `attach_figure` using the selected pack's figure block and the declared `concern` when the entry has view concerns. Keep `DocSection`, `DocFigure`, renderer mapping, diagram decision, embed, and six-field block aligned. | Inspect the final SVG for source fidelity and readability; rerun model/document checks. |
 | Implementation | Implement against the reviewed design and link the relevant source and tests to its sections. Reassess any design revision made during coding. | Run applicable code and integration checks; rerun document and model checks for changed inputs. |
 | Verification | Execute the planned cases, retain exact commands, outputs, artifact revision, judgment, and residual risks in the project's evidence store. | Call `check_documents` again and obtain the separate engineering judgment required by the flow. |
 

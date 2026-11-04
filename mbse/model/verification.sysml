@@ -16,13 +16,66 @@ package XDesignVerification {
            symlink escape, overwrite, incomplete content, stale locators,
            removed managed markers, stale hashes and malformed figure blocks.
            Compare the pinned contract digest and CLI/MCP results; inspect
-           structural diagnostics separately from model and visual review. */
-        subject engine : XDesignDetailedDesign::DocumentContractEngine;
+           structural diagnostics separately from model and visual review.
+           For the scenario catalog, enumerate every entry, guide, example,
+           source and check; exercise explicit and default selection, mixed
+           templates in one class, selected-template updates, figure or
+           alternative decisions, complete digest drift coverage, and safe links.
+           Exercise original bundled and custom-derived v1 packs, original 1.1
+           release selection, effective-contract precedence, unknown identity
+           refusal, and identity-preserving updates. Mixed checks report selected
+           and per-document effective identities and preserve registry bytes.
+           Require exactly one generic default per class, all 16 isolated examples,
+           and one mixed example with five classes, two templates in one class,
+           and a concern-to-template or omission list. Keep full plan/create caller
+           inputs, model stubs, conditional figures, and selected profile/version/
+           digest-version identity in digest-covered bundled fixtures without actual
+           or sentinel digests. External acceptance manifests contain exactly actual
+           expected digest, fixture_path, and fixture_sha256, never a second full-input
+           copy or self-hash field. Separate S-12/S-16 evidence computes and retains
+           each external manifest's SHA-256. S-12 submits manifest_sha256, self_sha256,
+           and equivalent fields and rejects each as fixture-mismatch before creation
+           without field-exclusion normalization; digest, fixture, or retained
+           manifest-hash drift is stale. Each stored example
+           has exactly one whole-file 64-zero sentinel only in its exact first-line
+           marker contract field, actual non-contract identity, and no actual digest;
+           the v2 digest covers those exact bytes without normalization. Pack sentinel
+           defects are invalid-catalog, target marker/registry sentinel identities are
+           registry-mismatch, expected zero digest is invalid-request, recomputed zero
+           digest is invalid-catalog, and a zero descriptor with nonzero recomputation
+           is contract-drift, all without writes. S-06 injects a test-only provider
+           returning zero at the catalog loader/digest-strategy seam while production
+           SHA-256 and CLI/MCP wiring remain unchanged and cannot reach the stub; no
+           real preimage is attempted. DOC-11 independently asserts actual managed
+           created marker/registry identity, substitutes only the stored example marker
+           contract with actual digest in memory, compares all bytes, and reuses the
+           same examples for mixed references. S-01 through S-16 allocate inventory,
+           exclusivity, malformed/zero identities, normalization, isolated/mixed
+           positives, drift, propagation, v1 compatibility, CLI/MCP surface, deferred
+           design/product work, and correction evidence without adding top-level DOC
+           cases. Independent and runner judgments permitted by the applicable semantic
+           checkpoint remain separate and judge scenario fit, sources, examples,
+           coverage, diagrams, figures, and sentinel consistency. Evidence records
+           parent preservation, revision-bound commands, full-input bundled fixture
+           paths/SHA-256, external acceptance-manifest SHA-256 and fixture references,
+           diagnostics, all 26 unevaluated checks, and both authorities.
+           The synthesized schema 1.0 projection is checked for null template and
+           scenario-only fields rather than the 1.1 entry package; v1 has no examples
+           or sentinel and its digest and behavior remain unchanged. DOC-01 through
+           DOC-15 are planned cases; their declaration records no executed result. */
+        subject kit : XDesignArchitecture::PortableDocumentKit;
         objective contract {
             verify requirement portable :> XDesignRequirements::documentContractIsPortable;
             verify requirement authoring :> XDesignRequirements::documentAuthoringFollowsContract;
             verify requirement diagnostics :> XDesignRequirements::documentChecksReportContractGaps;
             verify requirement shared :> XDesignRequirements::documentToolsShareOneContract;
+            verify requirement scenarioCatalog :> XDesignRequirements::documentTemplatesCoverScenarios;
+            verify requirement provenance :> XDesignRequirements::documentTemplateSourcesAreInspectable;
+            verify requirement selection :> XDesignRequirements::documentTemplateSelectionIsExplicit;
+            verify requirement selectedChecks :> XDesignRequirements::documentTemplateChecksUseSelectedContract;
+            verify requirement compatibility :> XDesignRequirements::documentTemplateCatalogPreservesCompatibility;
+            verify requirement evidence :> XDesignRequirements::documentTemplateEvidenceIsBound;
+            verify requirement catalogSurface :> XDesignRequirements::documentTemplateCatalogSurfaceIsShared;
         }
     }
 

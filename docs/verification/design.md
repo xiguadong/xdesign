@@ -281,9 +281,13 @@ acceptance do not claim independent review or final human acceptance.
 ## 9. Portable document kit verification
 
 `DocumentKitVerification` covers [R19](../requirements/requirements.md#r19)
-and the [engine design](../design/document-kit.md#d113). These planned cases
-will test the reusable component against a temporary consumer project, not
-just this repository's existing pages.
+and the [engine design](../design/document-kit.md#d113). Its subject is
+`PortableDocumentKit` because the cases cover both catalog/source obligations
+and engine/adapter behavior. These planned cases will test the reusable
+component against a temporary consumer project, not just this repository's
+existing pages. DOC-01 through DOC-07 retain their original regression meaning.
+DOC-08 through DOC-15 add the scenario catalog, mixed selection, provenance,
+and retained-compatibility acceptance boundary.
 
 | Case | Method and required observation |
 | --- | --- |
@@ -294,10 +298,132 @@ just this repository's existing pages.
 | DOC-05 | Given an existing canonical SVG beneath the carrying page's `assets/` child, attach its embed and six ordered figure fields. Reject a missing source, duplicate figure label, wrong section, broken asset and incomplete block. |
 | DOC-06 | Compare the same plan/create/check request through the CLI and MCP adapter. A stdio MCP client can connect, list the tools and contract resources, and call a tool in the temporary project; a tool call cannot redirect to another project/profile. |
 | DOC-07 | Run xdesign's existing documentation audit and strict docs build; parse/check the changed model with the pinned compiler and retain diagnostics and unevaluated rules. Review final prose and any figure against their model source separately. |
+| DOC-08 | Load bundled 1.1.0 and a reviewed derived 1.1 fixture; enumerate every schema 1.1 entry/resource and corrupt each required declaration and default cardinality. Require every entry's nonempty known-source list, all eight research IDs in at least one bundled entry, primary/additional source links, license fields, and a `not-copied`/`copied` decision per entry-source pair; submit `copied` without `copying_review`. The bundled catalog has exactly 16 entries while derived inventory is unconstrained; invalid catalogs fail before writes. Execute S-01 through S-05: exact first-line/non-contract identity, no actual `D` in examples, total-file and whole-pack sentinel scans, and missing/duplicate/misplaced/malformed sentinel rejection as `invalid-catalog`. Retain the source matrix, inventory, example hashes/locations, diagnostics, and unchanged-target evidence; copying adequacy remains DOC-15. |
+| DOC-09 | Explicitly plan/create all eleven scenario and five generic IDs; repeat generic selection by omission and compare effective identity and section contract. Exercise unknown, malformed, cross-class and output-path inputs and zero/two defaults for one class. Explicit generic IDs and omission select the same entry; invalid requests and malformed default cardinality fail with stable diagnostics and no writes. For S-06, inject a test-only provider returning `Z` at the catalog loader/digest-strategy test seam and call get/plan/create/check only in that test process; production SHA-256 and CLI/MCP wiring remain unchanged and product/pack inputs cannot reach the stub. Injected recomputation `D=Z` is `invalid-catalog` even if a descriptor agrees; independently, descriptor `contract_sha256=Z` with real nonzero recomputation is `contract-drift`, and request `expected_contract_sha256=Z` under the production provider is `invalid-request`. Neither identity is selected or written, and the injection is never exposed through CLI/MCP. |
+| DOC-10 | In one temporary project create all five classes and at least two templates in one class with a concern-to-template/omission list; update sections, attach figures, change the current default, and independently alter the document's own marker, registry, class, template ID, profile/version, digest, or digest version. Inspect the mixed check response's selected catalog identity and every per-document `effective_identity`, digest, and digest version. Operations use the resolved original template and the check reports selected and per-document effective identities/digests/versions; actual mismatches fail without rewrites; the valid mixed example passes with its coverage list. A recognized legacy difference from the selected catalog is resolved under DOC-13 rather than treated as a mismatch. For S-07, sentinel markers/registries, copied examples, and forged sentinel registries are `registry-mismatch` without adoption, registration, or writes. Retain response identities and registry/before/after hashes. |
+| DOC-11 | Under `cache/document-template-library-acceptance/`, create one temporary consumer root per bundled entry (all five generic and eleven scenario entries) and one separate root for the single mixed-template example; the mixed root is not required to instantiate all 16 examples. Require that example to use all five bundled classes, at least two template IDs in one class, and a concern-to-template/omission list. Record full plan/create caller inputs and selected profile/version/digest-version identity in each digest-covered bundled fixture, and materialize an external acceptance manifest outside the pack and its digest closure containing only actual expected `D` plus `fixture_path` and `fixture_sha256` references to that bundled fixture, not a second full-input copy; instantiate examples through those operations so creation establishes the registry. Supply parser-valid fictional `mbse/model/example.sysml` locators and, only for an example page that embeds a model figure, valid canonical SVGs beneath its `assets/` child; figure-free examples require no SVG. Apply section 9.1's exact one-field comparison and S-01, S-03/S-04, S-07 through S-12, then run `xdesign-doc-kit check-documents --target-root <temporary-project> --profile-root <bundled-1.1-pack>` for every isolated root and once for the mixed root. Exercise figure, reasoned table/prose alternative, missing decision, empty rationale, and malformed block fixtures. Every one of the 16 isolated examples and the single mixed whole-project example exit 0; the mixed example's five-class/two-template/coverage-list content is verified; invalid alternatives fail without a class-wide diagram mandate. Sentinel, stale-digest, copied-example, and unapproved-normalization cases fail closed with section 9.1 diagnostics. Retain bundled fixture paths/SHA-256 and full caller inputs, external acceptance-manifest SHA-256/actual `D`/fixture references, model/SVG hashes, commands, identities/hashes, unchanged example/registry evidence, and findings. |
+| DOC-12 | Against derived v1 and bundled 1.1 packs, compare every named response field for get/plan/create/update/attach/check: catalog/source data, `template_id`, per-operation and per-path `effective_identity`, exact template bytes, and top-level/per-identity `contract_digest_version` (`"1"` for v1, `"2"` for 1.1). Compare existing MCP contract/rules/class-template resources and additive `xdesign-doc-kit://catalog` and `xdesign-doc-kit://template/{document_class}/{template_id}` with CLI `get_contract`; assert the synthesized v1 projection has `template_id=null` and null scenario-only fields, identifies only the actual pack, and is exempt from the 1.1 manifest/guide/example/source package rather than rejected as malformed. Attempt root/profile redirection and selected/compatibility drift. All existing and enumerated additive surfaces agree, including synthesized v1 data; redirection and drift fail closed. For S-06, S-12, and S-14, DOC-09's zero provider is unreachable through both adapters, selected and MCP-pinned identities use actual nonzero `D`, recomputed actual digests propagate, stale/zero digests fail without refresh, examples are not templates, and no example bytes become a selected contract. Retain actual stdio MCP transcripts and CLI JSON. |
+| DOC-13 | Run unchanged DOC-01 through DOC-07 against bundled and custom-derived v1 packs, including creation of a new schema 1.0 document whose effective identity has `template_id=null` and digest version `"1"`. Positively check/update/attach an exact bundled-v1 document in a 1.1 mixed project, resolving retained v1 before any own-identity mismatch check and inferring absent legacy fields without rewriting them; independently mismatch its marker/registry/class/template/profile/version/digest/digest-version, including sentinel identities. Create a 1.1.0 document, derive 1.1.1 by a guide-only change, try the old identity under 1.1.1, then select retained 1.1.0 and update it. Attempt kit update/attach on an unmanaged page. Existing and newly created schema 1.0 documents use `template_id=null`; recognized legacy operations pass despite different selected-catalog identity; actual mismatches, unknown identities, and the 1.1.1 route fail without writes; original-pack operations succeed without migration and preserve marker/effective identity/registry bytes; unmanaged updates are refused byte-identically. For S-13, reproduce `1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6`, verify v1 has no examples/sentinel and unchanged marker/registry behavior, require no migration, and apply the new rule to derived 1.1 profiles. Retain independent contract/document hashes and marker/registry snapshots. |
+| DOC-14 | Change one byte in every template, manifest, guide, example body, example non-contract marker, example sentinel, source register, rule, profile, fixture, and compatibility resource. Exercise traversal, absolute paths, symlinks, conflicting resources, malformed UTF-8/JSON, unsupported schemas/digest versions, supplied schema 1.0 `template_id`, `javascript:`, `file:`, `data:`, protocol-relative, credential-bearing, control-character, and unsafe Markdown URLs, plus `<script>`, event handlers, and disallowed raw HTML. Positively test `license_name=unknown` and `license_name=unlicensed` with `license_url=null`; negatively test `license_url` values `unknown`, `unlicensed`, and each forbidden scheme, and a known license with null URL. Covered raw changes alter the applicable digest even when the mutated catalog is invalid. License sentinel strings are valid only in license name/version with null URL; the separate 64-zero example sentinel is valid only in section 9.1's exact stored-example contract field and never as actual/registered identity. Execute S-02 through S-06, S-11, and S-12 using DOC-09's isolated test provider, leaving production SHA-256 and CLI/MCP wiring unchanged and attempting no real preimage; test-only injected zero recomputation and descriptor/request zero cases, misplaced sentinels, stale actual digests or fixture/external-manifest hashes, supplied v1 selection, and every unsafe fixture fail before writes with no digest-time normalization, network, or code execution/import/evaluation and unchanged pages/registry. Retain raw/released digests, fixtures, propagation evidence, and network-observation evidence. |
+| DOC-15 | DeepSeek supplies the independent semantic review and Kimi supplies a separate runner evidence/limitations judgment for this wish, both permitted by the applicable SimpleFlow semantic checkpoint and neither substituting for the other. DeepSeek reviews all guides, examples, source/license/copying records, mixed coverage, final figures or diagram decisions, and S-01 through S-16 allocation/evidence together with DOC-08 through DOC-14 at one revision; Kimi separately reviews the assembled evidence and limits. The record identifies assessed correction run/revision, parent artifact preservation, effective digests and digest versions, commands/transcripts, isolated/mixed bundled fixture caller inputs and paths/SHA-256, external acceptance-manifest SHA-256, actual digest values, and fixture references, model stubs and conditional SVG hashes, before/after document/example/registry hashes, diagnostics, unevaluated checks, both identities/checkpoint authorities, findings, and residual risks. Judge scenario fit, useful depth, coverage/omissions, technical correctness, source/attribution/license/copying adequacy, sentinel/comparison consistency, figure fidelity/readability, and diagram alternatives. S-15 records design/API/model/product/test follow-up without claiming completion; S-16 retains correction hashes/logs and all 26 unevaluated rules. Mechanical reports and requirements-stage checks cannot substitute or execute the product cases. |
+
+### 9.1 Example sentinel and digest correction
+
+For all schema 1.1 stored examples, `Z` is exactly `0000000000000000000000000000000000000000000000000000000000000000`. The bundled scope is the 16
+manifest-named files under `document-kit/catalog/examples/`; derived 1.1 profiles apply the same rule to
+their declared examples. Each first line is exactly
+`<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} contract=0000000000000000000000000000000000000000000000000000000000000000 digest-version=2 -->`
+with actual non-contract identity and no leading whitespace or extra marker. `Z` occurs exactly once in
+the entire example and nowhere else in any pack resource; target marker/registry sentinel identity is
+separately `registry-mismatch` under S-07. Actual `D` occurs nowhere in the stored example. Every stored
+example byte, including `Z`, is hashed exactly as stored with no digest-time normalization; computed
+`D == Z` is explicitly invalid. Each digest-covered bundled fixture is the canonical full plan/create
+caller-input record with selected profile/version/digest-version identity, but neither `D` nor `Z`.
+An acceptance manifest outside the pack and digest closure contains exactly actual `D`, `fixture_path`,
+and `fixture_sha256`, never a self-hash field. Separate S-12/S-16 evidence computes and retains the
+manifest's SHA-256; any `manifest_sha256`, `self_sha256`, or equivalent field is `fixture-mismatch`
+before creation without field-exclusion normalization. Digest, fixture, or retained manifest-hash
+drift fails as stale.
+
+For each comparison, let `E` be the exact stored example bytes, `C` the exact created
+bytes, `Z` the fixed 64-zero sentinel, and `D` the actual selected catalog digest. The only
+permitted comparison transformation is the following deterministic, test-only algorithm:
+
+1. Recompute `D` from the exact selected pack and reject the catalog if `D == Z`. Each bundled
+   caller-input fixture is digest-covered and is the canonical full plan/create caller-input
+   record, including model/figure inputs, plus selected `profile_id`, `version`, and
+   `contract_digest_version`; it stores neither `D` nor `Z`, because storing `D` there would
+   reintroduce self-reference. Before creation, materialize an acceptance manifest outside the
+   selected pack and its digest closure containing exactly three fields: actual
+   `expected_contract_sha256=D`, `fixture_path`, and `fixture_sha256` for that bundled fixture.
+   Do not duplicate caller inputs or put any manifest/self/own digest field in the external
+   manifest. S-12 submits `manifest_sha256`, `self_sha256`, and equivalent self-hash fields and
+   rejects each as `fixture-mismatch` before creation, with no field exclusion or other
+   normalization. Separately computed S-12/S-16 evidence records the external manifest's SHA-256;
+   the hash is never read from the manifest. Recompute the bundled fixture hash. On reuse, any
+   digest, fixture path/hash, or retained external-manifest hash mismatch is a stale-fixture
+   failure, never a silent refresh. Neither fixture form uses `Z` as expected or selected identity.
+2. Validate that `E` is one of the manifest's stored examples and has exactly one first-line
+   managed marker in the exact profile form, actual profile/version/class/template identity,
+   `digest-version=2`, and `Z` only as its `contract` value. Validate the whole pack and all of
+   `E` for sentinel location and count, and assert that `D` does not occur in `E`.
+3. Independently parse and assert the actual `C` marker and registry entry before comparison:
+   path, profile/version, class, template, `D`, and digest version must agree, and neither marker
+   nor registry may contain `Z` as identity. Missing, duplicate, or mismatched markers/registries
+   fail closed. A copied example or forged sentinel registry is not adopted or registered.
+4. Locate only the `contract=` value span in `E`'s first-line marker. In an in-memory copy `E'`,
+   replace that one field value, `Z`, with `D`. Do not globally replace either value and do not
+   alter any other marker field, body byte, whitespace, line ending, or trailing newline.
+5. Assert that the created marker equals the `E'` marker, including actual `D`, then compare all
+   of `E'` with all of `C`. Any other difference is `fixture-mismatch`. The comparison never
+   changes `E`, `C`, the selected digest, or the registry; assert their before/after hashes.
+6. Run `check-documents` against the unchanged created document and registry and require the
+   declared structural predicates to pass. The fixture transformation is not a product operation
+   and is never applied by plan/create/update/attach/check to product bytes.
+7. Apply the same algorithm separately to every mixed `documents[].expected_document` reference.
+   Those references reuse the same 16 stored examples; the mixed fixture has no second stored
+   example-byte convention. Retain its five-class, two-templates-in-one-class, and coverage-list
+   assertions.
+
+Marker stripping, body-only comparison, whitespace or line-ending normalization, normalization
+of another field, global replacement, and every other shortcut are unapproved normalization.
+They must fail crafted negative fixtures with `fixture-mismatch`; a comparator that accepts them
+fails DOC-11 even if its positive fixtures pass. The actual digest may legitimately occur in a
+created body, so only the parsed first-marker field span may be substituted.
+
+Use existing stable diagnostics by context and evaluate request shape, selected pack, target
+identity, then fixture comparison, in that order. `expected_contract_sha256=Z` is
+`invalid-request` before any catalog or target write. A selected pack whose recomputed `D == Z`
+is `invalid-catalog`, even when a test descriptor also claims `Z`; a descriptor that claims `Z`
+while actual recomputation is nonzero is `contract-drift`. S-05 covers only sentinel defects in
+the selected pack and its digest-covered resources, all reported as `invalid-catalog` before
+target operations. S-07 covers a target document marker or target registry identity containing
+`Z`, a copied example page, and a forged target registry, all reported as `registry-mismatch`;
+a valid stored example does not make its copied target page a pack-validation case. Only after
+the selected pack and target identity pass does a byte-comparison discrepancy become
+`fixture-mismatch`. Every rejection leaves target documents and registry bytes unchanged and
+never adopts, migrates, or registers an example.
+
+The correction subcases below refine, but do not renumber or expand, DOC-01 through DOC-15. Their
+DTL/project allocations preserve the canonical case unions. Every negative case asserts unchanged
+target/registry bytes. S-01 through S-14 remain future product acceptance cases; S-15 is an obligation
+and S-16 is requirements evidence, so declaring them here is not execution or acceptance.
+
+| Case | Acceptance obligation | DTL / project requirement | DOC coverage |
+| --- | --- | --- | --- |
+| S-01 | Inventory all 16 bundled examples and mixed references; assert first-line exact marker, actual non-contract identity, one whole-file `Z` only in `contract`, and no actual `D` in stored example bytes. | DTL-002, DTL-011 / `documentTemplatesCoverScenarios` | DOC-08, DOC-11 |
+| S-02 | Scan every example and every other pack resource; permit `Z` only in the 16 example contract fields and reject a planted sentinel elsewhere. | DTL-002, DTL-015 / coverage and compatibility | DOC-08, DOC-14 |
+| S-03 | Replace the example contract with actual `D`, other 64-hex, empty, 63/65-zero, uppercase, prefixed, or unknown values. | DTL-002, DTL-011 / coverage | DOC-08, DOC-11, DOC-14 |
+| S-04 | Plant two markers, two contract sentinels, or a second sentinel in the body; structural validation rejects every duplication. | DTL-002, DTL-011 / coverage | DOC-08, DOC-11, DOC-14 |
+| S-05 | Plant `Z` in a stored example's non-contract marker field or another digest-covered pack resource: guide, template, bundled fixture, manifest, source register, model/asset, compatibility pack, mixed fixture, or coverage; expect `invalid-catalog`. Target markers/registries are excluded and belong to S-07. | DTL-002, DTL-015 / coverage and compatibility | DOC-08, DOC-14 |
+| S-06 | At the catalog loader/digest-strategy test seam, inject a test-only provider returning `Z` with production SHA-256 and CLI/MCP wiring unchanged and no product/pack access to the stub. Call get/plan/create/check in that test process; independently test descriptor `contract_sha256=Z` with real nonzero recomputation and request `expected_contract_sha256=Z`. Expect `invalid-catalog`, `contract-drift`, and `invalid-request` respectively, with no selection or writes. | DTL-005, DTL-008, DTL-012 / selection, surface, compatibility | DOC-09, DOC-12, DOC-14 |
+| S-07 | Use a sentinel target registry entry or created target marker, copy an example page, and forge a target sentinel registry. Expect `registry-mismatch` without adoption, registration, or writes; these are not S-05 pack defects. | DTL-006, DTL-007, DTL-011 / selection, coverage, compatibility | DOC-10, DOC-11, DOC-13 |
+| S-08 | Exercise marker stripping, body-only comparison, whitespace/line-ending normalization, other-field normalization, and global replacement; only exact one-field substitution is accepted. | DTL-011 / coverage | DOC-11 |
+| S-09 | Create each of the 16 isolated fixtures; independently assert actual marker/registry `D`, apply only the stored-example field substitution, and require full-byte equality and structural pass. | DTL-011 / coverage | DOC-11 |
+| S-10 | Apply the same comparison to all six current mixed references; assert all five classes, two template IDs in one class, and the coverage list. | DTL-011 / coverage | DOC-10, DOC-11 |
+| S-11 | Independently mutate one example body byte, one non-contract marker byte, and the sentinel; the raw v2 digest changes each time, invalid mutations are rejected, and valid drift needs a new release/digest with no stale acceptance. | DTL-011, DTL-012 / coverage and compatibility | DOC-11, DOC-14 |
+| S-12 | Recompute actual `D` after valid drift, create documents, assert actual marker/registry propagation and unchanged stored sentinel, and reject stale actual `D`, `fixture_path`, `fixture_sha256`, or retained external-manifest SHA-256 without silent update. Submit `manifest_sha256`, `self_sha256`, and equivalent self-hash fields and reject each as `fixture-mismatch` before creation without field-exclusion normalization. The bundled fixture remains the full caller-input source with catalog identity but no `D`/`Z`; the external manifest contains exactly actual `D`, `fixture_path`, and `fixture_sha256`, while separate S-12/S-16 evidence computes and retains its SHA-256. | DTL-008, DTL-011, DTL-012 / coverage, surface, compatibility | DOC-11, DOC-12, DOC-14 |
+| S-13 | Reproduce v1 digest `1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6`; verify v1 has no examples/sentinel and unchanged marker/registry behavior, with no migration; derived 1.1 profiles use the new rule. | DTL-012, DTL-013 / compatibility | DOC-13 |
+| S-14 | Compare CLI/MCP get/catalog/template resources and pins: they use actual `D`, examples are not templates, no example bytes or sentinel become a selected contract, and S-06's test provider is unreachable through either adapter. | DTL-008 / `documentTemplateCatalogSurfaceIsShared` | DOC-12 |
+| S-15 | Record later design/API/model reconciliation, comparator and sentinel validation, `test_examples.py` S-09/S-10, and catalog/security tests for isolated zero-digest injection; the correction requirements stage claims none complete. | DTL-016 / `documentTemplateEvidenceIsBound` | DOC-15 obligation |
+| S-16 | Retain correction-run/revision identity, old evidence, changed files and hashes, commands/logs, bundled fixture paths/SHA-256, external acceptance-manifest SHA-256 and fixture references, SysML/docs/build/consistency results, and all 26 unevaluated rules; no old-evidence, design, product, frozen-record, or xdesign-state mutation is claimed. | DTL-016 / `documentTemplateEvidenceIsBound` | DOC-15 evidence |
+
+S-15 separately requires later reconciliation of `docs/design/document-kit.md#d113`,
+`docs/architecture/document-kit.md#b33`, `docs/interfaces/document-kit-api.md#i20`, the architecture and
+detailed-design models, product validation/comparison code, full-input bundled fixtures with identity
+references but no digest values, and external manifests with only actual `D` and fixture references.
+`document-kit/tests/test_examples.py` owns S-09/S-10; catalog/security suites own S-06's test-only
+catalog-loader/digest-strategy provider returning `Z`, descriptor and request negatives, proof that
+production SHA-256 and CLI/MCP wiring are unchanged and cannot reach the stub, and S-12/S-16 manifest
+hash binding. The current approved design's raw DOC-11 comparison and concurrent zero-bearing product
+examples are not evidence that this correction is designed or implemented. The correction requirements
+stage does not edit those design/product files or any parent evidence.
 
 A deterministic pass establishes only the stated structural predicates. The
 review must record whether the rules and templates express the intended
-design-first practice and whether the sample document communicates a real
-design claim. A SimpleFlow verification assessment must cite the
-executed commands and final bytes; declaring these cases does not execute
-them. Executed case results belong to the wish's revision-bound record.
+design-first practice and whether each sample communicates its stated engineering
+claim. Scenario coverage, source suitability, and a reasoned decision not to draw
+a figure remain semantic judgments. A SimpleFlow verification assessment must
+cite the executed commands and final bytes at one implementation revision;
+declaring these cases does not execute them. Executed case results belong to
+the wish's revision-bound record.

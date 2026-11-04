@@ -1,0 +1,65 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "design",
+  "name": "sensor-generic-design",
+  "template_id": "generic-design",
+  "metadata": {
+    "title": "Aster reading pipeline design",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "D100",
+      "content": "The design allocates validation, buffering, and export for the fictional Aster hub while preserving the latest valid reading during controller outages.",
+      "fields": {
+        "design_subject": "The reading pipeline from probe value to controller response, including validation and bounded history.",
+        "requirements_links": "The sampling, UTC timestamp, invalid-value rejection, and latest-valid-reading requirements drive this design."
+      }
+    },
+    "structure": {
+      "anchor": "D101",
+      "content": "A validator returns either a UTC Reading or an error, the buffer appends only valid readings, and the exporter exposes readLatest without exposing buffer mutation.",
+      "fields": {
+        "components": "ProbeValidator, UtcClock, RingBuffer, and ReadLatestExporter form the design's small internal structure.",
+        "interfaces": "Validator accepts ProbeSample, buffer accepts Reading, and exporter returns Reading or NOT_READY without mutation operations."
+      }
+    },
+    "behavior": {
+      "anchor": "D102",
+      "content": "Invalid samples are dropped before buffering, the eleventh valid sample evicts the oldest, and an empty buffer produces NOT_READY rather than a fabricated value.",
+      "fields": {
+        "behavior": "Validate then timestamp then append; export newest valid value or NOT_READY, preserving history during controller failure.",
+        "constraints": "No NaN or infinity crosses validation, buffer capacity is ten, and export never changes reading order or content."
+      }
+    },
+    "rationale": {
+      "anchor": "D103",
+      "content": "Validation before buffering avoids later error handling in every reader, while a ring buffer favors predictable memory over unlimited history.",
+      "fields": {
+        "chosen_design": "Use single-point validation and a ten-entry FIFO ring with a read-only exporter.",
+        "tradeoffs": "Older history is intentionally lost; this is simpler and bounded but cannot answer long-term trend queries."
+      }
+    },
+    "projection": {
+      "anchor": "D104",
+      "content": "The fictional source projection names validator, buffer, and exporter units plus capacity, invalid-input, empty-export, and outage cases.",
+      "fields": {
+        "source_projection": "ProbeValidator, RingBuffer, and ReadLatestExporter are intended source units; tests target their public contracts.",
+        "verification_links": "Invalid-value rejection, FIFO eviction, empty NOT_READY, and latest-valid outage cases are planned checks.",
+        "model_elements": "Example::Sensor and Example::Controller are the model participants represented by the design boundaries."
+      }
+    },
+    "limits": {
+      "anchor": "D105",
+      "content": "Concurrency, persistence after restart, and production API transport are deliberately excluded from this focused design example.",
+      "fields": {"unresolved_items": "Thread safety, durable storage, transport security, and deployment configuration need separate design decisions."}
+    }
+  },
+  "expected_document": "catalog/examples/generic-design.md"
+}

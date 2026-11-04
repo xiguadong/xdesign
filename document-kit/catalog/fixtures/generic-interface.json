@@ -1,0 +1,59 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "interface",
+  "name": "sensor-generic-interface",
+  "template_id": "generic-interface",
+  "metadata": {
+    "title": "Aster latest-reading interface",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "I100",
+      "content": "The interface lets the external controller read the newest valid Aster sample without exposing internal buffer mutation or probe control.",
+      "fields": {
+        "boundary": "The boundary exposes read-only access to buffered readings and hides validation, storage, and sampling implementation.",
+        "participants": "The external controller is the caller; the Aster export adapter is the provider."
+      }
+    },
+    "contract": {
+      "anchor": "I101",
+      "content": "getLatestReading(sensorId) returns a Reading for a known sensor or NOT_READY when no valid sample exists; unknown identifiers fail explicitly.",
+      "fields": {
+        "operations": "getLatestReading(sensorId) is synchronous, read-only, and returns Reading, NOT_READY, or UNKNOWN_SENSOR.",
+        "data_shapes": "Reading contains sensorId, utcTimestamp, Celsius value, and quality; no internal buffer index or mutable reference is returned."
+      }
+    },
+    "errors": {
+      "anchor": "I102",
+      "content": "An empty history is NOT_READY rather than an error, while an unknown sensor is UNKNOWN_SENSOR; every response leaves buffered history unchanged.",
+      "fields": {
+        "error_behavior": "Return UNKNOWN_SENSOR for unrecognized identifiers and NOT_READY for an empty buffer; transport failures are outside this contract.",
+        "invariants": "The operation never creates, modifies, reorders, or deletes a reading and never invents a timestamp or value."
+      }
+    },
+    "compatibility": {
+      "anchor": "I103",
+      "content": "Version 1 clients require the original three reading fields; version 2 adds optional quality without changing operation name or error meanings.",
+      "fields": {
+        "version_policy": "Increment the major version only for removed fields, changed meanings, or new error behavior; optional additions remain minor changes.",
+        "compatibility_policy": "Version 1 readers may ignore quality, while version 2 readers must handle its absence for older exporters."
+      }
+    },
+    "trace": {
+      "anchor": "I104",
+      "content": "The contract traces to Example::Controller and planned unknown-sensor, empty-history, valid-reading, and optional-quality compatibility checks.",
+      "fields": {
+        "model_elements": "Example::Controller is the external participant in the fictional read operation.",
+        "verification_links": "Planned interface cases cover NOT_READY, UNKNOWN_SENSOR, immutable history, and version 1/2 field handling."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/generic-interface.md"
+}

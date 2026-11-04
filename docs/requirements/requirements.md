@@ -12,6 +12,7 @@ source.
 | Revision | Date | Change | Review state |
 | --- | --- | --- | --- |
 | Working update | 2026-10-19 | Organized the requirements-stage topics around the existing model inventory and trace | Not an SRR or frozen functional baseline |
+| Working update | 2026-11-03 | Added scenario-based document template catalog requirements and acceptance allocation | Proposed; independent wish requirements review pending |
 
 <a id="r04"></a>
 
@@ -327,12 +328,20 @@ model features allocated to answer them:
 | `checkpointSourceIsProjectOwned` | `CheckpointLibrarySource` |
 | `configuredChecksRetainAuthority` | `RsCustomChecker` |
 | `operatorDelegatesRunState` | `OperatorWebProgram` |
+| `documentContractIsPortable` | `PortableDocumentKit` |
+| `documentAuthoringFollowsContract` | `DocumentContractEngine` |
+| `documentChecksReportContractGaps` | `DocumentContractEngine` |
+| `documentToolsShareOneContract` | `DocumentContractEngine` |
 
 `semanticCheckNamesItsJudges` is the one requirement with two links; every requirement
 with a model satisfier added since has one link. The compiler export cannot attribute
 two `satisfy` usages of one requirement to their requirement — the question wish-0004
 keeps open ([V04](../records/wishes/wish-history.md#v04)). Four later requirements have no
 model satisfier, as described below; they are not counterexamples to that attribution rule.
+The seven proposed scenario-template requirements in [R19](#r19) also have no `satisfy` links at
+this requirements stage. `DocumentContractSource` and `DocumentContractEngine` are candidates for
+later design allocation, not established satisfaction; design reconciliation must establish
+an answer before adding those links.
 
 `wishProductsAreRetained` and `modelStandsWithoutWishes` have no satisfier: nothing in the
 model holds a wish's products to the model, and nothing keeps wish identity out of it.
@@ -394,7 +403,7 @@ repository does not implement formal change approval or a frozen RTM workflow.
 | Document concern | Model source | Current limit |
 | --- | --- | --- |
 | Requirement and rationale | `XDesignRequirements::XDesignRequirement` usages; `DocSection` to [R01](#r01) | Requirement fields are not yet a full SRS acceptance record. |
-| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations, four documentation obligations and two proposed cross-project requirements have no implemented satisfier. |
+| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations, four documentation obligations, two proposed cross-project requirements, and seven proposed scenario-template requirements have no design or implemented satisfier. |
 | Software design documentation | UML guide and SimpleFlow design; [D52](../design/flows/simple-flow/views.md#d52) | UML applicability and status have a planned review, not a model satisfier. |
 | Planned verification | `XDesignVerification` cases and `verify` links | Case declaration does not record a passed result. |
 | User goals | `XDesignDetailedDesign::ProgressWish`, `ReviewEvidence`, and `useCaseDiagram`; [R06](#r06) | The view concerns SimpleFlow and is not a complete deployed-product scenario set. |
@@ -460,7 +469,10 @@ required content visible before a writer creates a page. The selected project
 profile is an input to the kit, so a consumer project can use the same operations
 with its own root. The original authoring rules in `docs/AGENTS.md` and the
 [SysML documentation contract](../interfaces/documentation-contract.md#d27)
-remain the basis for this repository.
+remain the basis for this repository. The bundled initial scenario extension
+stays within one selected profile and preserves the five existing document
+classes and routes; a reviewed derived profile may extend them under its own
+identity and digest.
 
 | Requirement | Acceptance condition |
 | --- | --- |
@@ -468,12 +480,61 @@ remain the basis for this repository.
 | `documentAuthoringFollowsContract` | Given a document class and slug, planning resolves one permitted destination and required sections; creation and section updates enforce that contract, require caller-provided content, refuse traversal and unexpected overwrites, and leave an existing page intact on failure. |
 | `documentChecksReportContractGaps` | Validation reports missing or reordered headings, empty required content, unresolved template slots, invalid paths, broken model locators, and incomplete figure blocks as structured findings. Checks state their scope; model meaning and visual readability require review. |
 | `documentToolsShareOneContract` | The CLI and stdio MCP adapter call one engine and return equivalent contract decisions; the skill names when an agent plans, writes, checks, and reviews documents before implementation claims. |
+| `documentTemplatesCoverScenarios` (proposed) | The bundled schema 1.1, version 1.1.0 initial catalog contains exactly the five generic defaults and eleven scenario entries below, with exactly one generic default per class; derived 1.1 profiles do not inherit that exact inventory. Every schema 1.1 entry supplies unique identity, class, selection and omission guidance, required inputs/dependencies, template, guide, complete fictional example, implemented checks, view concerns, and sources. Each stored example has exactly one 64-zero sentinel in its exact first-line managed marker's `contract` field, actual non-contract identity and digest version `"2"`, no actual catalog digest, and no sentinel elsewhere in its bytes or another pack resource; missing, duplicate, misplaced, or malformed sentinels fail before writes. All 16 generic/scenario examples pass isolated consumer checks using only DOC-11's exact one-field full-byte comparison and independent actual marker/registry assertions. The single mixed-template example uses all five bundled classes, at least two template IDs in one class, and a concern-to-template/omission list, reuses those stored examples for its `expected_document` references, and passes one whole-project check; it is not a requirement to instantiate all 16 examples in that mixed root. DOC-08, DOC-09, DOC-10, DOC-11, DOC-14; correction subcases S-01 through S-05 and S-07 through S-12. |
+| `documentTemplateSourcesAreInspectable` (proposed) | Every schema 1.1 entry has a nonempty known-source list; all eight named research IDs occur in at least one bundled entry. Sources record primary/additional links, retrieval, ideas, and limits. License name/version may be `unknown`/`unlicensed`; `license_url` is then `null`, otherwise it is an absolute HTTP(S) URL without credentials/control characters. Each entry-source pair records `not-copied` or `copied`, and `copied` requires a reviewer/date/permission/evidence record. Originality applies to all catalog content; permitted reviewers judge adequacy. DOC-08, DOC-14, DOC-15. |
+| `documentTemplateSelectionIsExplicit` (proposed) | For schema 1.1 plan/create, every generic or scenario ID is valid explicitly and omission selects the same generic default; schema 1.0 projections have no selectable template IDs and reject a supplied selection. New 1.1 creation records the same actual nonzero effective identity in marker and registry. Mixed checks report each document's effective identity, including `template_id=null` and digest version `"1"` for any existing or newly created schema 1.0 document. Operations first resolve the original or bundled-v1 contract, then compare the document's own identity against that contract. Unknown/class-mismatched IDs, caller-supplied output paths, zero or multiple generic defaults for a class, and actual identity mismatches fail without writes. `expected_contract_sha256=Z` is `invalid-request`; sentinel marker/registry identities, copied examples, and forged sentinel registries are `registry-mismatch` without adoption or registration. DOC-09, DOC-10, DOC-13, DOC-14; S-06 and S-07. |
+| `documentTemplateChecksUseSelectedContract` (proposed) | The validator applies each document's effective sections, fields, and checks. Every applicable view concern has either a conforming figure or a nonempty decision naming the concern, table/prose/not-applicable alternative, and rationale; there is no class-wide diagram mandate. Missing decisions and malformed figures produce diagnostics with the existing structured fields, failed updates leave existing document bytes unchanged, and rationale and figure quality require review. DOC-03, DOC-10, DOC-11, DOC-15. |
+| `documentTemplateCatalogSurfaceIsShared` (proposed) | CLI and MCP expose the same catalog/source data and exact template bytes, optional `template_id`, per-operation and per-path `effective_identity`, and `contract_digest_version` (`"1"` for schema 1.0, `"2"` for 1.1) in every result. Existing MCP resources remain; additive `xdesign-doc-kit://catalog` and `xdesign-doc-kit://template/{document_class}/{template_id}` correspond to CLI `get_contract`. The synthesized v1 projection has `template_id=null` and null scenario-only fields, is exempt from the 1.1 manifest/guide/example/source package, and identifies only the actual selected pack. Selected and MCP-pinned identities use actual `D`, never the example sentinel; examples are not templates and no example bytes become a selected contract. DOC-12, DOC-13; S-06, S-12, and S-14. |
+| `documentTemplateCatalogPreservesCompatibility` (proposed) | Explicitly selected valid schema 1.0 and 1.1 packs retain their computed digests and original behavior; every 1.1 release is immutable and later distributions retain prior selectable packs. Under 1.1, automatic legacy routing requires exact bundled `xdesign-sysml-docs@1.0.0` marker/registry identity and digest `1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6`; unknown/custom identities and different 1.1 releases fail without migration. Unmanaged pages are not registered, reclassified, rewritten, or forced into a template, and kit update/attach refuses them. Valid updates preserve effective identity and registry bytes while changing only authorized document content. The v2 digest covers exact sentinel-bearing example bytes without normalization, computed `D=Z` is rejected, and valid example drift requires a new version/digest and refreshed actual `D`. The bundled fixture remains the canonical full caller-input record with catalog identity but neither `D` nor `Z`; the external manifest contains only actual `D`, `fixture_path`, and `fixture_sha256`, while separate S-12/S-16 evidence computes and retains the external manifest's SHA-256; v1 has no examples/sentinel and remains unchanged. Digest drift, unsafe paths/links/HTML, unsupported versions, and network-dependent resources fail closed. DOC-01–07, DOC-10, and DOC-12–14; S-02, S-05 through S-07, and S-11 through S-13. |
+| `documentTemplateEvidenceIsBound` (proposed) | Verification records assessed revision, effective contract digests and digest versions, commands/transcripts, isolated and mixed bundled fixtures with full caller inputs and paths/SHA-256, external acceptance-manifest SHA-256/actual digests/fixture references, before/after hashes, diagnostics, unevaluated checks, reviewer identities and semantic-checkpoint authorities, findings, and residual risks. Correction evidence also binds S-01 through S-16, preserves the parent run/revisions and evidence, records the separate design/API/model/product/test follow-up without claiming it complete, and retains all 26 unevaluated SysML rules. DeepSeek supplies the independent semantic review for this wish and Kimi supplies a separate runner evidence/limitations judgment; both are required and neither substitutes for the other or for structural output. DOC-15; S-15 and S-16 are obligations/evidence, not executed product cases. |
+
+The bundled initial scenario IDs are normative scope, not a requirement to use every
+scenario in every project or to constrain a reviewed derived profile:
+
+- Requirements: `system-requirements`, `change-requirements`.
+- Architecture: `system-context`, `component-composition`.
+- Design: `interaction-flow`, `state-machine`, `data-model`.
+- Interface: `operation-contract`, `data-contract`.
+- Verification: `verification-test-plan`, `design-review`.
+
+The retained generic IDs map one-to-one to their named classes: `generic-requirements`,
+`generic-architecture`, `generic-design`, `generic-interface`, and `generic-verification`.
+They preserve the corresponding v1 chapter and field contracts and are valid explicit
+selections as well as omission defaults. Each class declares exactly one default. A catalog
+routing guide and mixed-template example map concerns to selected templates or reasoned
+omissions; neither automatic selection nor the list establishes semantic coverage. A new
+SysML template catalog or skeleton generator, in-place template migration, bundled
+flow-specific/per-API route generation, remote retrieval, and automatic engineering acceptance
+are outside this extension. Reviewed derived profiles may own additional entries/routes under
+their own identity and digest.
+
+For schema 1.1 stored examples, `Z` means exactly 64 lowercase ASCII zero characters and `D`
+means the actual selected catalog digest. The first line has the exact managed-marker form
+`<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} contract=0000000000000000000000000000000000000000000000000000000000000000 digest-version=2 -->`.
+`Z` occurs exactly once in the complete example and nowhere else in the pack. The digest covers those
+exact stored bytes without normalization, and `D == Z` is always invalid. Each digest-covered bundled
+fixture is the canonical full plan/create caller-input record with selected profile/version/digest-version
+identity, but neither `D` nor `Z`. An external acceptance manifest outside the digest closure contains
+exactly actual `D`, `fixture_path`, and `fixture_sha256`, never a self-hash field. Separate S-12/S-16
+evidence computes and retains the manifest's SHA-256; any `manifest_sha256`, `self_sha256`, or
+equivalent field is `fixture-mismatch` before creation without field-exclusion normalization. Digest,
+fixture, or retained manifest-hash drift fails as stale. DOC-11 copies the stored example only in
+memory, replacing only its parsed first-marker `contract`
+span with `D`, and compares every resulting byte with the created document after independently asserting
+actual created marker/registry identity. It does not modify product bytes, stored examples, digests, or
+registries. Global replacement, marker stripping, body-only comparison, whitespace/line-ending
+normalization, and other-field normalization are forbidden.
 
 [DocumentKitVerification](../verification/design.md#d114) defines the
 cross-project and failure cases. The current SimpleFlow wish records actual
 commands and evidence separately; these acceptance conditions alone are not
-an executed result.
+an executed result. DOC-01 through DOC-07 retain their regression meaning;
+DOC-08 through DOC-15 are planned coverage, not passed results.
 
-The versioned profile, rules, templates, and skill are design source.
-Implementation status and executed DOC-01..07 results are tracked in the
-wish and review records, not inferred from these requirement statements.
+The versioned profile, rules, templates, and skill are design source. The
+scenario catalog and new acceptance cases are proposed requirements, not a
+claim of implementation. Their seven proposed requirements have planned verification
+links but no `satisfy` links until design establishes an answer; the existing
+source and engine elements are allocation candidates only. Implementation status
+and executed results are tracked in wish and review records, not inferred from
+these requirement statements.

@@ -47,6 +47,10 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--name", required=True)
         elif name == "check-documents":
             command.add_argument("--class", dest="document_class")
+        if name in ("plan-document", "create-document"):
+            command.add_argument("--template-id")
+        if name == "attach-figure":
+            command.add_argument("--concern")
         if name in ("create-document", "update-section", "attach-figure"):
             command.add_argument("--input", required=True)
         if name in ("update-section", "attach-figure"):
@@ -62,11 +66,12 @@ def main(argv: list[str] | None = None) -> int:
             result = get_contract(args.profile_root)
         elif args.operation == "plan-document":
             result = plan_document(args.target_root, args.document_class, args.name,
-                                   args.profile_root)
+                                   args.profile_root, template_id=args.template_id)
         elif args.operation == "create-document":
             payload = _input(args.input)
             result = create_document(args.target_root, args.document_class, args.name,
-                                     payload.get("metadata"), payload.get("sections"), args.profile_root)
+                                     payload.get("metadata"), payload.get("sections"), args.profile_root,
+                                     template_id=args.template_id)
         elif args.operation == "update-section":
             payload = _input(args.input)
             result = update_section(args.target_root, args.document_class, args.name,
@@ -76,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
             payload = _input(args.input)
             result = attach_figure(args.target_root, args.document_class, args.name,
                                    args.section, payload.get("figure"), payload.get("expected_sha256"),
-                                   args.profile_root)
+                                   args.profile_root, concern=args.concern)
         else:
             result = check_documents(args.target_root, args.document_class, args.profile_root)
     except DocumentKitError as error:

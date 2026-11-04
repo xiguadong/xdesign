@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="280" viewBox="0 0 600 280" role="img" aria-labelledby="title description">
+  <title id="title">Aster boundary and external exchanges</title>
+  <desc id="description">AsterHub is inside a dashed boundary. Operator and WeatherService are outside. Readings leave AsterHub for Operator; calibration commands and forecasts enter it.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#333"/></marker>
+  </defs>
+  <rect x="160" y="55" width="280" height="170" rx="8" fill="#f7fbff" stroke="#225577" stroke-dasharray="7 5"/>
+  <text x="180" y="82" font-size="15" fill="#225577">AsterHub boundary</text>
+  <rect x="240" y="115" width="120" height="62" rx="4" fill="#ddeeff" stroke="#225577"/>
+  <text x="275" y="151" font-size="16">AsterHub</text>
+  <rect x="20" y="105" width="105" height="60" rx="4" fill="#fff2cc" stroke="#886600"/>
+  <text x="43" y="140" font-size="15">Operator</text>
+  <rect x="460" y="105" width="120" height="60" rx="4" fill="#eeffdd" stroke="#557722"/>
+  <text x="475" y="140" font-size="14">WeatherService</text>
+  <path d="M240 145 H125" stroke="#333" marker-end="url(#arrow)"/>
+  <text x="145" y="132" font-size="13">readings</text>
+  <path d="M125 185 H240" stroke="#333" marker-end="url(#arrow)"/>
+  <text x="133" y="205" font-size="13">calibration</text>
+  <path d="M460 165 H360" stroke="#333" marker-end="url(#arrow)"/>
+  <text x="390" y="153" font-size="13">forecast</text>
+  <text x="180" y="250" font-size="12" fill="#555">Inside: sampling and buffering. Outside: operator and forecast provider.</text>
+</svg>

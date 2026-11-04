@@ -1,6 +1,6 @@
 # SysML documentation authoring contract
 
-> Contract: `xdesign-sysml-docs` 1.0.0. The adjacent `profile.json` is the
+> Contract: `xdesign-sysml-docs` 1.1.0. The adjacent `profile.json` is the
 > machine-readable route and template contract. Rule IDs below are stable within
 > this version. A project pins the version it uses and reviews any upgrade.
 
@@ -8,6 +8,13 @@ This pack makes SysML-backed documentation the design source that code must answ
 It governs authored documents in a selected project root. It does not prescribe a
 particular agent, model provider, file writer, diagram renderer, or execution flow.
 MCP, CLI, and a human author must apply the same rules to the same files.
+
+Schema 1.1 adds a catalog of generic defaults and scenario entries. Read the routing
+and entry guides, select an explicit `template_id` or accept the class's generic
+default, and keep that effective identity in the managed marker and registry. Later
+updates and checks use the persisted entry rather than reselecting a changed default.
+Examples are fictional and never become selected contracts or acceptance evidence.
+The byte-exact schema 1.0 compatibility pack retains its original class behavior.
 
 ## Reusable rules
 

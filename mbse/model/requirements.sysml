@@ -430,4 +430,122 @@ package XDesignRequirements {
         attribute redefines rationale = "Different agents should receive equivalent paths and findings instead of accumulating model-specific prompt copies or protocol-specific rule forks.";
     }
 
+    requirement documentTemplatesCoverScenarios : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. The bundled initial catalog retains
+           exactly one generic default per class and multiple scenario-specific
+           Markdown templates in every class. Each schema 1.1 generic or scenario
+           entry packages selection and omission guidance, required inputs, a guide,
+           a complete fictional example, view concerns, dependencies, deterministic
+           checks, and source references. Every stored example has exactly one 64-zero
+           sentinel only in its exact first-line managed marker's contract field,
+           actual non-contract identity and digest version 2, no actual catalog digest,
+           and no sentinel elsewhere in its bytes or another pack resource. Missing,
+           duplicate, misplaced, or malformed sentinels fail before writes. All 16
+           examples pass isolated consumer checks through exact one-field full-byte
+           comparison and independent actual created marker/registry assertions. The
+           single mixed-template example uses all five bundled classes, at least two
+           template IDs in one class, and a concern-to-template or omission list,
+           reuses those stored examples, and passes one whole-project check. Reviewed
+           derived catalogs have their own inventory and identity and the same rule. */
+        attribute redefines rationale = "A single fixed chapter list cannot guide materially different engineering questions, while unguided templates or an undefined mixed example would leave selection, depth, and coverage opaque.";
+    }
+
+    requirement documentTemplateSourcesAreInspectable : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. Every schema 1.1 catalog entry
+           identifies its official or project-local sources, ideas used, retrieval and
+           license facts, copying decision and any required copying review, and limits.
+           A schema 1.0 compatibility projection is exempt from this entry package and
+           identifies only the actual selected pack. Originality covers every catalog
+           text and example; source and license adequacy receive separate review. */
+        attribute redefines rationale = "Catalog content derived from research needs an inspectable basis so authors can distinguish borrowed practice, original prose, and unresolved permission or applicability questions.";
+    }
+
+    requirement documentTemplateSelectionIsExplicit : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. Within a schema 1.1 catalog,
+           planning and creation accept an optional stable template identifier;
+           omission or explicit selection of the generic ID selects that generic
+           default. Schema 1.0 compatibility projections have no selectable template
+           IDs. Creation records actual nonzero effective identity, mixed templates
+           coexist in one project, and later operations never switch a document to a
+           changed default. Mixed checks report each document's effective identity,
+           including null template ID and digest version 1 for any schema 1.0 document.
+           Reject unknown or class-mismatched IDs, caller-supplied output paths, and zero
+           or multiple generic defaults for a class without writes. A 64-zero expected
+           contract is invalid-request; a sentinel marker or registry identity, copied
+           example, or forged sentinel registry is registry-mismatch without adoption,
+           registration, or writes. */
+        attribute redefines rationale = "Authors need scenario choice and inspectable per-document identity without losing existing class routes or allowing later catalog changes to redefine documents that were already authored.";
+    }
+
+    requirement documentTemplateChecksUseSelectedContract : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. Updates and deterministic checks
+           first resolve the document's retained contract, including a recognized
+           legacy contract, then enforce its sections, fields, and view concerns.
+           Identity disagreement is judged against that effective contract, not the
+           selected catalog's different release identity. An applicable concern has
+           a conforming figure or a stated alternative and rationale. Diagnostics
+           use the existing structured fields, and failed updates leave existing
+           document bytes unchanged. No class-wide figure mandate or structural
+           pass establishes semantic adequacy. */
+        attribute redefines rationale = "Checks must follow the contract actually selected for each document, produce actionable evidence without destructive failure, and leave view choices and engineering meaning open to judgment.";
+    }
+
+    requirement documentTemplateCatalogPreservesCompatibility : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. Explicitly selected valid schema 1.0
+           and schema 1.1 packs retain their computed digests and original behavior.
+           Automatic legacy routing under a 1.1 catalog requires the exact bundled
+           v1 identity; other identities fail rather than being guessed. Every 1.1
+           release is immutable and later releases retain prior selectable packs.
+           Unmanaged pages are not registered, reclassified, rewritten, or forced
+           into a template, and managed update or figure operations refuse them.
+           Valid updates preserve effective identity and registry bytes while
+           changing only authorized document content. Catalog digests cover every
+           authoring, checking, and compatibility resource, including exact stored
+           example bytes and their one contract sentinel without digest normalization.
+           A computed zero digest is invalid; valid example drift needs a new release
+           and actual-digest propagation. Full-input bundled fixtures retain selected
+           identity references but no actual or sentinel digest; external manifests
+           contain exactly actual digest, fixture_path, and fixture_sha256, never a
+           self-hash field. Separate S-12/S-16 evidence computes and retains each
+           manifest's SHA-256 for stale detection. Schema 1.0 has no examples or example
+           sentinel and retains digest 1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6.
+           Drift fails closed, and resources and rendered links remain local and safe. */
+        attribute redefines rationale = "Adding or upgrading a catalog must not strand existing documents or callers, confuse distinct profiles or releases, rewrite registry authority, or allow changed resources to redefine the contract under which a document was authored.";
+    }
+
+    requirement documentTemplateEvidenceIsBound : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. Template verification evidence
+           identifies the assessed revision, effective contract digests and versions,
+           commands and transcripts, full-input bundled fixture paths and SHA-256,
+           external acceptance-manifest SHA-256 and fixture references, before and after
+           hashes, diagnostics, unevaluated checks, reviewer identities and authority,
+           findings, and residual risks. Correction evidence binds S-01 through S-16,
+           preserves the parent run
+           and evidence, retains all 26 unevaluated rules, and records later design, API,
+           model, product, and test obligations without claiming them complete.
+           Independent and runner judgments remain separate when both are required;
+           structural output cannot substitute for either judgment. */
+        attribute redefines rationale = "A catalog result is meaningful only when reviewers can inspect the exact bytes, operations, fixtures, and judgments behind it and distinguish mechanical findings from independent and runner acceptance roles.";
+    }
+
+    requirement documentTemplateCatalogSurfaceIsShared : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R19"; }
+        doc /* Proposed; no design satisfier yet. CLI and MCP expose the same additive
+           catalog and source data, exact template bytes, template selection and
+           effective identity fields, and contract digest versions, with named catalog
+           and template resources. The schema 1.0 synthesized compatibility projection
+           carries null template and scenario-only fields and is not a schema 1.1
+           manifest package. Selected and MCP-pinned identities use only the actual
+           nonzero catalog digest; examples are not templates and neither example bytes
+           nor the example sentinel become a selected contract. Existing adapter
+           behavior remains separately satisfied. */
+        attribute redefines rationale = "The additive catalog surface needs its own design answer rather than expanding an already satisfied adapter requirement and claiming that the current engine implements behavior it does not contain.";
+    }
+
 }

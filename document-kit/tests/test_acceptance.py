@@ -91,13 +91,9 @@ class AcceptanceTests(unittest.TestCase):
                 self.assertFalse(plan["exists"])
                 self.assertFalse((self.project / plan["path"]).exists())
         profile_copy = self.project / "cache/profile-copy"
-        (profile_copy / "templates").mkdir(parents=True)
-        for name in ("profile.json", "RULES.md"):
-            shutil.copy2(KIT / name, profile_copy / name)
-        for source in (KIT / "templates").glob("*.md"):
-            shutil.copy2(source, profile_copy / "templates" / source.name)
+        shutil.copytree(KIT, profile_copy)
         self.assertEqual(get_contract(profile_copy)["contract_sha256"], original_digest)
-        changed = profile_copy / "templates/requirements.md"
+        changed = profile_copy / "catalog/templates/generic-requirements.md"
         changed.write_bytes(changed.read_bytes() + b"\n")
         self.assertNotEqual(get_contract(profile_copy)["contract_sha256"], original_digest)
         unsafe_profile = get_contract(profile_copy)["profile"]
@@ -150,8 +146,7 @@ class AcceptanceTests(unittest.TestCase):
             (original.replace("The sensor project's purpose is explained here.",
                               "[missing](missing.md)"), "invalid-link"),
             (original.replace('<a id="R100"></a>', '<a id="R101"></a>'), "duplicate-anchor"),
-            (original.replace("<!-- document-kit: profile=xdesign-sysml-docs@1.0.0 class=requirements -->", ""),
-             "registry-mismatch"),
+            (original.split("\n", 1)[1], "registry-mismatch"),
         )
         for changed, expected in changes:
             with self.subTest(expected=expected):

@@ -1,0 +1,59 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "interface",
+  "name": "sensor-operation-contract",
+  "template_id": "operation-contract",
+  "metadata": {
+    "title": "Aster getCurrentReading operation contract",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "I100",
+      "content": "getCurrentReading returns the newest valid value for one known sensor without exposing history mutation or acting as a generic data schema.",
+      "fields": {
+        "boundary": "The operation is the public query boundary; validation, buffering, and controller orchestration remain internal or external respectively.",
+        "participants": "Controller invokes the operation and Aster export adapter executes it read-only."
+      }
+    },
+    "operation": {
+      "anchor": "I101",
+      "content": "The request contains only sensorId; success returns the current Reading and does not accept time ranges, writes, or arbitrary buffer indices.",
+      "fields": {
+        "operations": "getCurrentReading(sensorId) returns Reading, NOT_READY, UNKNOWN_SENSOR, or TIMEOUT and has no retry or mutation side effect.",
+        "data_shapes": "Request is {sensorId: string}; Reading is {sensorId, utcTimestamp, celsius, quality?} with finite numeric celsius."
+      }
+    },
+    "errors": {
+      "anchor": "I102",
+      "content": "Unknown identifiers return UNKNOWN_SENSOR before buffer access, empty history returns NOT_READY, and timeout returns no value or fallback timestamp.",
+      "fields": {
+        "error_behavior": "UNKNOWN_SENSOR, NOT_READY, and TIMEOUT are terminal outcomes; none creates, updates, or backdates a Reading.",
+        "invariants": "At most one terminal outcome per request, no history mutation, and success always returns the newest valid value at read time."
+      }
+    },
+    "compatibility": {
+      "anchor": "I103",
+      "content": "Version 1 returns three required fields; version 2 may add optional quality while preserving request shape, operation name, and all error meanings.",
+      "fields": {
+        "version_policy": "Major changes alter required fields or outcomes; optional response fields and additive documentation are minor compatible changes.",
+        "compatibility_policy": "Old callers may ignore quality and new callers must accept its absence; UNKNOWN_SENSOR and NOT_READY never change meaning."
+      }
+    },
+    "trace": {
+      "anchor": "I104",
+      "content": "The operation traces to Example::InteractionFlow and planned success, unknown, empty, timeout, and compatibility checks.",
+      "fields": {
+        "model_elements": "Example::InteractionFlow defines the fictional request/validation/response order exercised by the operation.",
+        "verification_links": "Success, unknown, empty, timeout, no-mutation, and version 1/2 response checks are planned verification cases."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/operation-contract.md"
+}

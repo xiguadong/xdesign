@@ -127,10 +127,12 @@ def plan_document(
     project_root: str | None = None,
     profile_root: str | None = None,
     profile: str | None = None,
+    template_id: str | None = None,
 ) -> dict[str, Any]:
     """Resolve a class route, required metadata, and ordered sections without writing."""
     _reject_selectors(target_root, project_root, profile_root, profile)
-    return _tool_call(core.plan_document, _selected().project_root, document_class, name)
+    return _tool_call(core.plan_document, _selected().project_root, document_class, name,
+                      template_id=template_id)
 
 
 @mcp.tool()
@@ -143,6 +145,7 @@ def create_document(
     project_root: str | None = None,
     profile_root: str | None = None,
     profile: str | None = None,
+    template_id: str | None = None,
 ) -> dict[str, Any]:
     """Write a complete new document from caller-supplied engineering content."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -155,6 +158,7 @@ def create_document(
         metadata,
         sections,
         expected_contract_sha256=selected.contract_sha256,
+        template_id=template_id,
     )
 
 
@@ -198,6 +202,7 @@ def attach_figure(
     project_root: str | None = None,
     profile_root: str | None = None,
     profile: str | None = None,
+    concern: str | None = None,
 ) -> dict[str, Any]:
     """Embed an existing canonical SVG with the six required figure fields."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -211,6 +216,7 @@ def attach_figure(
         figure,
         expected_sha256,
         expected_contract_sha256=selected.contract_sha256,
+        concern=concern,
     )
 
 
@@ -246,13 +252,30 @@ def rules_resource() -> str:
     return str(_resource_contract()["rules"])
 
 
+@mcp.resource("xdesign-doc-kit://catalog", mime_type="application/json")
+def catalog_resource() -> str:
+    """Catalog entries and source register identical to get_contract."""
+    return json.dumps(_resource_contract()["catalog"], ensure_ascii=False, sort_keys=True)
+
+
 @mcp.resource("xdesign-doc-kit://template/{document_class}", mime_type="text/markdown")
 def template_resource(document_class: str) -> str:
-    """Markdown template for one document class."""
-    templates = _resource_contract()["templates"]
-    if document_class not in templates:
+    """Generic default Markdown template for one document class."""
+    contract = _resource_contract()
+    if document_class not in contract["profile"]["document_classes"]:
         raise ResourceNotFoundError(f"Unknown document class: {document_class}")
-    return str(templates[document_class])
+    return str(contract["templates"][document_class])
+
+
+@mcp.resource("xdesign-doc-kit://template/{document_class}/{template_id}", mime_type="text/markdown")
+def selected_template_resource(document_class: str, template_id: str) -> str:
+    """Exact Markdown template for one selected catalog entry."""
+    contract = _resource_contract()
+    entries = {entry["template_id"]: entry for entry in contract["catalog"]["entries"]}
+    entry = entries.get(template_id)
+    if entry is None or entry["document_class"] != document_class:
+        raise ResourceNotFoundError(f"Unknown template selection: {document_class}/{template_id}")
+    return str(contract["templates"][template_id])
 
 
 def main(argv: list[str] | None = None) -> int:

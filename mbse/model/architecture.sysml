@@ -100,11 +100,20 @@ package XDesignArchitecture {
 
     part def DocumentContractSource {
         @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B33"; }
-        doc /* Versioned profile, rule explanation and Markdown templates that
-           supply one authoring contract to every adapter. */
+        doc /* Versioned profile, rules, templates, catalog/source manifests and
+           compatibility roots that supply one authoring contract to every adapter.
+           Catalog fields are optional for a schema 1.0 source. Exact schema 1.1
+           stored-example and full-input fixture bytes are digest resources;
+           external acceptance manifests and their separately recorded hashes stay
+           outside this source and its digest closure. */
         attribute profileUri : String;
         attribute rulesUri : String;
         attribute templateUris : String [1..*];
+        attribute catalogUri : String [0..1];
+        attribute sourceRegisterUri : String [0..1];
+        attribute compatibilityRootUris : String [0..*];
+        attribute contractDigestVersion : String;
+        attribute contractSha256 : String;
     }
 
     part def DocumentAuthoringBoundary {

@@ -1,0 +1,70 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [{
+    "pack": "catalog/mixed/assets/system-context.svg",
+    "target": "docs/architecture/assets/system-context.svg",
+    "title": "Aster boundary and external exchanges",
+    "Question": "Which parts are inside Aster and what crosses its boundary?",
+    "Model view": "Example::SystemContext",
+    "Companions": "The external interface table and component-composition example.",
+    "Status": "renderable-now; designed-only",
+    "Reading": "AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.",
+    "Limits": "The view shows context and exchange direction, not internal components, protocols, or deployment nodes."
+  }],
+  "document_class": "architecture",
+  "name": "sensor-system-context",
+  "template_id": "system-context",
+  "metadata": {
+    "title": "Aster system context and boundary",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "boundary": {
+      "anchor": "B100",
+      "content": "AsterHub is the only element inside the product boundary. Operator and WeatherService are external actors; the figure shows exchange direction without implying internal decomposition.\n\n![Aster boundary and exchanges](assets/system-context.svg)\n\n> **Figure B100-1 — Aster boundary and exchanges.**  \n> **Question:** Which parts are inside Aster and what crosses its boundary?  \n> **Model view:** Example::SystemContext  \n> **Companions:** The external interface table and component-composition example.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.  \n> **Limits:** The view shows context and exchange direction, not internal components, protocols, or deployment nodes.\n",
+      "fields": {
+        "system_boundary": "AsterHub owns sampling and buffering; Operator and WeatherService, probe power supply, and irrigation decisions are outside.",
+        "external_actors": "Operator requests current readings and sends calibration commands; WeatherService supplies forecast data used only for display context.",
+        "diagram_decisions": "[{\"concern\":\"system-boundary\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"A boundary view makes inside/outside ownership and exchange direction unambiguous.\",\"asset\":\"assets/system-context.svg\",\"model_view\":\"Example::SystemContext\"}]"
+      }
+    },
+    "interfaces": {
+      "anchor": "B101",
+      "content": "Validated readings leave AsterHub for Operator, calibration commands enter from Operator, and forecast records arrive from WeatherService without being stored as sensor measurements.",
+      "fields": {
+        "information_flows": "Outgoing Reading and HistoryResponse, incoming CalibrationCommand, and incoming ForecastRecord have distinct meanings and owners.",
+        "interface_participants": "AsterHub is provider for readings and receiver for calibration; Operator consumes readings; WeatherService is a read-only forecast source."
+      }
+    },
+    "behavior": {
+      "anchor": "B102",
+      "content": "AsterHub continues sampling when Operator disconnects and labels forecast data as external context rather than using it to alter readings.",
+      "fields": {
+        "interactions": "Operator queries and calibrates, WeatherService publishes forecasts, and AsterHub samples and responds independently of forecast availability.",
+        "states": "Online, operator-disconnected, and forecast-unavailable states clarify which external losses do and do not affect collection."
+      }
+    },
+    "constraints": {
+      "anchor": "B103",
+      "content": "No external actor may rewrite buffered history, and calibration commands never change the meaning of the Reading timestamp or measured value.",
+      "fields": {
+        "constraints": "History is read-only externally, forecast data is informational, and calibration applies only to subsequent samples.",
+        "design_rationale": "These boundaries prevent external systems from silently corrupting measurement provenance or becoming hidden sampling dependencies."
+      }
+    },
+    "trace": {
+      "anchor": "B104",
+      "content": "Example::SystemContext names the fictional view behind the figure; the component-composition and operation-contract examples own internal and protocol details.",
+      "fields": {
+        "model_elements": "Example::SystemContext, Example::Sensor, Example::Controller, and Example::WeatherService define the context participants and view.",
+        "verification_links": "A planned context review checks boundary placement, actor coverage, exchange direction, and the absence of internal-only details."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/system-context.md"
+}

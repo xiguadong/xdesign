@@ -88,10 +88,7 @@ class CoreTests(unittest.TestCase):
 
     def test_invalid_contract_bytes_fail_with_structured_error(self) -> None:
         profile_copy = self.target / "cache/profile-copy"
-        (profile_copy / "templates").mkdir(parents=True)
-        for source in (KIT / "templates").glob("*.md"):
-            shutil.copy2(source, profile_copy / "templates" / source.name)
-        shutil.copy2(KIT / "RULES.md", profile_copy / "RULES.md")
+        shutil.copytree(KIT, profile_copy, dirs_exist_ok=True)
         profile = json.loads((KIT / "profile.json").read_text(encoding="utf-8"))
         profile["document_classes"]["design"]["required_sections"][0]["key"] = []
         (profile_copy / "profile.json").write_text(json.dumps(profile), encoding="utf-8")
@@ -145,10 +142,7 @@ class CoreTests(unittest.TestCase):
 
     def test_derived_profile_cannot_relax_name_or_repeat_fields(self) -> None:
         profile_copy = self.target / "cache/profile-copy"
-        (profile_copy / "templates").mkdir(parents=True)
-        for source in (KIT / "templates").glob("*.md"):
-            shutil.copy2(source, profile_copy / "templates" / source.name)
-        shutil.copy2(KIT / "RULES.md", profile_copy / "RULES.md")
+        shutil.copytree(KIT, profile_copy, dirs_exist_ok=True)
         profile = json.loads((KIT / "profile.json").read_text(encoding="utf-8"))
         profile["document_classes"]["design"]["filename_pattern"] = ".*"
         (profile_copy / "profile.json").write_text(json.dumps(profile), encoding="utf-8")

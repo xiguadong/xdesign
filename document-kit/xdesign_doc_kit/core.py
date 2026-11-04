@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import fcntl
 import hashlib
+import html
 import json
 import os
 import re
@@ -34,145 +35,16 @@ ANNOTATION_START = re.compile(r"@(?:[A-Za-z_]\w*::)*(DocSection|DocFigure)\b")
 FIELD_ASSIGNMENT = re.compile(r'\b([A-Za-z_]\w*)\s*=\s*"([^"]*)"\s*;?')
 
 
-def diagnostic(rule: str, code: str, file: str, detail: str, line: int | None = None) -> dict[str, Any]:
-    """Return the exact I20 diagnostic shape."""
-    return {"rule": rule, "code": code, "file": file, "line": line, "detail": detail}
-
-
-class DocumentKitError(ValueError):
-    """A refused operation with a stable code and structured diagnostics."""
-
-    def __init__(self, code: str, message: str, diagnostics: list[dict[str, Any]] | None = None):
-        super().__init__(message)
-        self.code = code
-        self.message = message
-        self.diagnostics = diagnostics if diagnostics is not None else [
-            diagnostic("input", code, "", message)
-        ]
-
-    def as_dict(self) -> dict[str, Any]:
-        return {"ok": False, "error": {"code": self.code, "message": self.message},
-                "diagnostics": self.diagnostics}
-
-
-def _error(code: str, detail: str, rule: str = "input", file: str = "",
-           line: int | None = None) -> DocumentKitError:
-    return DocumentKitError(code, detail, [diagnostic(rule, code, file, detail, line)])
-
-
-def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
-    result: dict[str, Any] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError(f"Duplicate JSON key: {key}")
-        result[key] = value
-    return result
-
-
-def _safe_rel(value: Any, label: str, code: str = "unsafe-path") -> PurePosixPath:
-    if (not isinstance(value, str) or not value or "\\" in value or "\x00" in value
-            or ":" in value or value.startswith("/") or "//" in value):
-        raise _error(code, f"{label} must be a normalized POSIX relative path", "DOC-001")
-    parts = value.split("/")
-    if any(part in ("", ".", "..") for part in parts):
-        raise _error(code, f"{label} contains an unsafe path component", "DOC-001")
-    path = PurePosixPath(value)
-    if path.is_absolute() or path.as_posix() != value:
-        raise _error(code, f"{label} is not normalized", "DOC-001")
-    return path
-
-
-def _root(value: str | Path, label: str) -> Path:
-    try:
-        path = Path(value).expanduser().absolute()
-    except (TypeError, ValueError) as error:
-        raise _error("invalid-request", f"{label} is not a directory path") from error
-    if path.is_symlink() or not path.is_dir():
-        raise _error("unsafe-path", f"{label} must be an existing nonsymlink directory", "DOC-001")
-    return path.resolve()
-
-
-def _reject_symlinks(root: Path, relative: PurePosixPath) -> None:
-    current = root
-    for part in relative.parts:
-        current = current / part
-        try:
-            mode = current.lstat().st_mode
-        except FileNotFoundError:
-            continue
-        except OSError as error:
-            raise _error("unreadable-input", f"Cannot inspect {relative}: {error}") from error
-        if stat.S_ISLNK(mode):
-            raise _error("unsafe-path", f"Symlink in selected path: {relative}", "DOC-001",
-                         relative.as_posix())
-
-
-@contextmanager
-def _parent_fd(root: Path, relative: PurePosixPath, create: bool = False) -> Iterator[tuple[int, str]]:
-    """Walk one project-relative parent without following symlinks."""
-    fd = os.open(str(root), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
-    try:
-        for part in relative.parts[:-1]:
-            try:
-                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-            except FileNotFoundError:
-                if not create:
-                    raise _error("missing-document", f"Missing parent of {relative}", "DOC-001",
-                                 relative.as_posix())
-                os.mkdir(part, dir_fd=fd)
-                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-            os.close(fd)
-            fd = next_fd
-        yield fd, relative.name
-    except OSError as error:
-        raise _error("unsafe-path", f"Cannot safely access {relative}: {error}", "DOC-001",
-                     relative.as_posix()) from error
-    finally:
-        os.close(fd)
-
-
-def _read_project_file(root: Path, relative: str, missing_code: str = "missing-document") -> bytes:
-    path = _safe_rel(relative, "Project file")
-    with _parent_fd(root, path) as (parent, name):
-        try:
-            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
-        except FileNotFoundError as error:
-            raise _error(missing_code, f"File does not exist: {relative}", "DOC-001", relative) from error
-        except OSError as error:
-            raise _error("unreadable-input", f"Cannot open {relative}: {error}", "input", relative) from error
-        try:
-            if not stat.S_ISREG(os.fstat(fd).st_mode):
-                raise _error("unreadable-input", f"Not a regular file: {relative}", "input", relative)
-            with os.fdopen(fd, "rb") as stream:
-                fd = -1
-                return stream.read()
-        finally:
-            if fd >= 0:
-                os.close(fd)
-
-
-def _read_pack_file(root: Path, relative: str) -> bytes:
-    path = _safe_rel(relative, "Contract resource", "invalid-profile")
-    try:
-        with _parent_fd(root, path) as (parent, name):
-            fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
-            try:
-                if not stat.S_ISREG(os.fstat(fd).st_mode):
-                    raise OSError("resource is not a regular file")
-                with os.fdopen(fd, "rb") as stream:
-                    fd = -1
-                    return stream.read()
-            finally:
-                if fd >= 0:
-                    os.close(fd)
-    except (OSError, DocumentKitError) as error:
-        raise _error("invalid-profile", f"Cannot read contract resource {relative}: {error}") from error
-
-
-def _text(value: Any, label: str, code: str = "missing-metadata") -> str:
-    if not isinstance(value, str) or not value.strip():
-        raise _error(code, f"{label} must be nonempty text", "DOC-002")
-    return value.strip()
+from .catalog import (
+    attachment_decision, diagram_decision_findings, load_catalog_contract,
+    select_template, synthesize_v1_catalog, _markdown_security_findings,
+)
+from .compatibility import (
+    DocumentKitError, _error, _parent_fd, _read_pack_file, _read_project_file,
+    _reject_symlinks, _root, _safe_rel, _text, _unique_pairs, diagnostic,
+    identity as effective_identity_for_contract, marker, registry_entry,
+    resolve_document,
+)
 
 
 def _contract(profile_root: str | Path | None = None) -> dict[str, Any]:
@@ -182,7 +54,11 @@ def _contract(profile_root: str | Path | None = None) -> dict[str, Any]:
         profile = json.loads(raw_profile.decode("utf-8"), object_pairs_hook=_unique_pairs)
     except (UnicodeError, ValueError) as error:
         raise _error("invalid-profile", f"Invalid profile.json: {error}") from error
-    if not isinstance(profile, dict) or profile.get("schema_version") != "1.0":
+    if not isinstance(profile, dict):
+        raise _error("invalid-profile", "Profile must be a JSON object")
+    if profile.get("schema_version") == "1.1":
+        return load_catalog_contract(root, _contract)
+    if profile.get("schema_version") != "1.0":
         raise _error("invalid-profile", "Unsupported profile schema")
     for key in ("profile_id", "version", "rules_file", "document_classes", "project",
                 "anchor_policy", "figure_block", "validation"):
@@ -328,34 +204,52 @@ def _contract(profile_root: str | Path | None = None) -> dict[str, Any]:
         hasher.update(b"\0")
         hasher.update(data)
     return {"root": root, "profile": profile, "rules": rules, "templates": templates,
-            "contract_sha256": hasher.hexdigest(), "resources": resources}
+            "contract_sha256": hasher.hexdigest(), "contract_digest_version": "1",
+            "resources": resources}
 
 
 def _identity(contract: Mapping[str, Any]) -> dict[str, Any]:
-    profile = contract["profile"]
-    return {"profile_id": profile["profile_id"], "version": profile["version"],
-            "contract_sha256": contract["contract_sha256"]}
+    return effective_identity_for_contract(contract)
 
 
 def get_contract(profile_root: str | Path | None = None) -> dict[str, Any]:
     """Return the complete versioned pack; no target project is needed."""
     contract = _contract(profile_root)
+    catalog = synthesize_v1_catalog(contract) if contract["profile"]["schema_version"] == "1.0" else contract["catalog"]
+    templates = dict(contract["templates"])
+    if contract["profile"]["schema_version"] == "1.1":
+        for entry_id, entry in contract["entries_by_id"].items():
+            templates[entry_id] = contract["resources"][entry["template"]].decode("utf-8")
     return {"ok": True, **_identity(contract), "profile": contract["profile"],
-            "rules": contract["rules"], "templates": contract["templates"],
-            "semantic_review_required": True}
+            "rules": contract["rules"], "templates": templates,
+            "catalog": catalog, "semantic_review_required": True}
+
+
+def _validate_expected_contract_request(expected: str | None) -> None:
+    if expected is not None and (not isinstance(expected, str)
+                                 or re.fullmatch(r"[0-9a-f]{64}", expected) is None
+                                 or expected == "0" * 64):
+        raise _error("invalid-request", "expected_contract_sha256 must be an actual nonzero lowercase SHA-256 digest")
 
 
 def _class_plan(target_root: str | Path, document_class: str, name: str,
-                profile_root: str | Path | None) -> tuple[dict[str, Any], Path, dict[str, Any], str]:
-    contract = _contract(profile_root)
+                profile_root: str | Path | None,
+                template_id: str | None = None) -> tuple[dict[str, Any], Path, dict[str, Any], str, dict[str, Any]]:
+    if not isinstance(document_class, str) or not document_class:
+        raise _error("invalid-request", "document_class must be nonempty text")
+    if not isinstance(name, str) or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) is None:
+        raise _error("invalid-document-name", f"Invalid document name: {name}", "DOC-001")
+    if template_id is not None and (not isinstance(template_id, str)
+                                    or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", template_id) is None):
+        raise _error("unknown-template", f"Malformed template ID: {template_id}")
     target = _root(target_root, "Target project root")
+    contract = _contract(profile_root)
     profile = contract["profile"]
-    if not isinstance(document_class, str) or document_class not in profile["document_classes"]:
+    if document_class not in profile["document_classes"]:
         raise _error("invalid-request", f"Unknown document class: {document_class}")
-    spec = profile["document_classes"][document_class]
-    if (not isinstance(name, str)
-            or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) is None
-            or re.fullmatch(spec["filename_pattern"], name) is None):
+    selection = select_template(contract, document_class, template_id)
+    spec = selection["spec"]
+    if re.fullmatch(spec["filename_pattern"], name) is None:
         raise _error("invalid-document-name", f"Invalid document name: {name}", "DOC-001")
     relative = _safe_rel(spec["path_template"].replace("{name}", name), "Document path").as_posix()
     docs_root = _safe_rel(profile["project"]["docs_root"], "Documentation root").parts
@@ -363,18 +257,21 @@ def _class_plan(target_root: str | Path, document_class: str, name: str,
     if path_parts[:len(docs_root)] != docs_root or not relative.endswith(".md"):
         raise _error("invalid-profile", "Document route must stay under docs_root")
     _reject_symlinks(target, PurePosixPath(relative))
-    return contract, target, spec, relative
+    return contract, target, spec, relative, selection["effective_identity"]
 
 
 def plan_document(target_root: str | Path, document_class: str, name: str,
-                  profile_root: str | Path | None = None) -> dict[str, Any]:
+                  profile_root: str | Path | None = None,
+                  template_id: str | None = None) -> dict[str, Any]:
     """Resolve a class route and required inputs without writing."""
-    contract, target, spec, relative = _class_plan(target_root, document_class, name, profile_root)
+    contract, target, spec, relative, effective = _class_plan(
+        target_root, document_class, name, profile_root, template_id)
     path = target.joinpath(*PurePosixPath(relative).parts)
     exists = path.exists()
     digest = hashlib.sha256(_read_project_file(target, relative)).hexdigest() if exists else None
     return {"ok": True, **_identity(contract), "document_class": document_class,
             "name": name, "path": relative, "exists": exists, "sha256": digest,
+            "template_id": effective["template_id"], "effective_identity": effective,
             "required_metadata": ["title", "status", "revision", "model_sources"],
             "required_sections": spec["required_sections"],
             "anchor_policy": contract["profile"]["anchor_policy"],
@@ -458,14 +355,21 @@ def _root_list(project: Mapping[str, Any], key: str) -> list[str]:
 
 
 def _document_parts(contract: Mapping[str, Any], target: Path, document_class: str,
-                    metadata: Any, sections: Any, known_models: list[str]) -> tuple[str, list[str]]:
-    spec = contract["profile"]["document_classes"][document_class]
+                    metadata: Any, sections: Any, known_models: list[str],
+                    spec: Mapping[str, Any] | None = None,
+                    effective: Mapping[str, Any] | None = None) -> tuple[str, list[str]]:
+    spec = spec or contract["profile"]["document_classes"][document_class]
+    effective = effective or effective_identity_for_contract(contract, document_class, None)
     if not isinstance(metadata, dict) or set(metadata) != {"title", "status", "revision", "model_sources"}:
         raise _error("missing-metadata", "Metadata needs title, status, revision, and model_sources", "DOC-002")
     if not isinstance(sections, dict) or set(sections) != {item["key"] for item in spec["required_sections"]}:
         raise _error("invalid-request", "Sections must match the class's required keys", "DOC-002")
     values: dict[str, str] = {key: _text(metadata[key], key) for key in ("title", "status", "revision")}
     values["model_sources"] = _model_sources(target, contract["profile"], metadata["model_sources"], known_models)
+    values.update({"profile_id": effective["profile_id"], "version": effective["version"],
+                   "document_class": document_class, "template_id": effective["template_id"],
+                   "contract_sha256": effective["contract_sha256"],
+                   "contract_digest_version": effective["contract_digest_version"]})
     anchors: list[str] = []
     for part in spec["required_sections"]:
         key = part["key"]
@@ -486,7 +390,7 @@ def _document_parts(contract: Mapping[str, Any], target: Path, document_class: s
             raise _error("missing-field", f"Fields in section {key} do not match the template", "DOC-002")
         for field in part["required_fields"]:
             values[f"field:{field}"] = _text(fields[field], field, "missing-field")
-    template = contract["templates"][document_class]
+    template = spec["_template_text"]
     def substitute(match: re.Match[str]) -> str:
         token = match.group(1)
         if token not in values:
@@ -511,15 +415,20 @@ def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
         data = json.loads(_read_project_file(target, relative).decode("utf-8"), object_pairs_hook=_unique_pairs)
     except (UnicodeError, ValueError) as error:
         raise _error("registry-mismatch", f"Registry is invalid: {error}", "DOC-002", relative) from error
-    if (not isinstance(data, dict) or data.get("schema_version") != 1
-            or not isinstance(data.get("entries"), list)):
+    if (not isinstance(data, dict) or set(data) != {"schema_version", "entries"}
+            or data.get("schema_version") != 1 or not isinstance(data.get("entries"), list)):
         raise _error("registry-mismatch", "Registry shape is invalid", "DOC-002", relative)
     paths: set[str] = set()
+    required = {"path", "class", "profile_id", "version", "contract_sha256"}
+    allowed = {*required, "template_id", "contract_digest_version"}
     for entry in data["entries"]:
-        if (not isinstance(entry, dict) or not all(key in entry for key in
-                ("path", "class", "profile_id", "version", "contract_sha256"))
-                or not all(isinstance(entry[key], str) for key in
-                           ("path", "class", "profile_id", "version", "contract_sha256"))):
+        if not isinstance(entry, dict) or not required.issubset(entry) or not set(entry).issubset(allowed) \
+                or any(not isinstance(entry[key], str) or not entry[key] for key in required) \
+                or re.fullmatch(r"[0-9a-f]{64}", entry["contract_sha256"]) is None \
+                or ("template_id" in entry and entry["template_id"] is not None
+                    and not isinstance(entry["template_id"], str)) \
+                or ("contract_digest_version" in entry
+                    and entry["contract_digest_version"] not in ("1", "2")):
             raise _error("registry-mismatch", "Registry entry is invalid", "DOC-002", relative)
         path = _safe_rel(entry["path"], "Registered document")
         if path.as_posix() in paths:
@@ -528,8 +437,10 @@ def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
     return data
 
 
-def _registry_entry(contract: Mapping[str, Any], relative: str, document_class: str) -> dict[str, Any]:
-    return {"path": relative, "class": document_class, **_identity(contract)}
+def _registry_entry(contract: Mapping[str, Any], relative: str, document_class: str,
+                    effective: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    effective = effective or effective_identity_for_contract(contract, document_class, None)
+    return registry_entry(effective, relative)
 
 
 def _registry_bytes(data: Mapping[str, Any]) -> bytes:
@@ -594,9 +505,8 @@ def _replace(target: Path, relative: str, data: bytes, *, create: bool = False) 
 
 
 def _expected_contract(contract: Mapping[str, Any], expected: str | None) -> None:
-    if expected is None:
-        return
-    if not isinstance(expected, str) or contract["contract_sha256"] != expected:
+    _validate_expected_contract_request(expected)
+    if expected is not None and contract["contract_sha256"] != expected:
         raise _error("contract-drift", "Selected contract changed during the operation")
 
 
@@ -643,7 +553,7 @@ def _anchor_map(texts: Mapping[str, str]) -> tuple[dict[str, tuple[str, int]], l
 
 
 def _rel_target(source: str, target: str) -> tuple[str, str | None] | None:
-    if target.startswith(("https://", "http://", "mailto:", "tel:", "data:")):
+    if target.startswith("//") or re.match(r"^[A-Za-z][A-Za-z0-9+.-]*:", target):
         return None
     without_query = target.split("?", 1)[0]
     path_text, separator, fragment = without_query.partition("#")
@@ -698,7 +608,7 @@ def _local_link_findings(target: Path, relative: str, text: str,
 
     for number, line in enumerate(_masked_lines(text), 1):
         for found in INLINE_LINK.finditer(line):
-            raw = found.group(1) or found.group(2)
+            raw = html.unescape((found.group(1) or found.group(2)).strip())
             destination = _rel_target(relative, raw)
             if destination is None:
                 continue
@@ -719,14 +629,19 @@ def _local_link_findings(target: Path, relative: str, text: str,
     return findings
 
 
-def _managed_findings(relative: str, text: str, document_class: str,
+def _content_security_findings(relative: str, text: str, expected_marker: str) -> list[dict[str, Any]]:
+    return _markdown_security_findings(text, relative, expected_marker)
+
+
+def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
                       contract: Mapping[str, Any], target: Path,
-                      known_models: list[str]) -> list[dict[str, Any]]:
-    spec = contract["profile"]["document_classes"][document_class]
+                      known_models: list[str], effective: Mapping[str, Any]) -> list[dict[str, Any]]:
+    document_class = spec["document_class"]
     lines = _masked_lines(text)
     findings: list[dict[str, Any]] = []
-    marker = contract["profile"]["validation"]["managed_marker"].replace("{document_class}", document_class)
-    if not lines or lines[0].strip() != marker:
+    expected_marker = marker(effective)
+    findings.extend(_content_security_findings(relative, text, expected_marker))
+    if not lines or lines[0].strip() != expected_marker:
         findings.append(diagnostic("DOC-002", "registry-mismatch", relative,
                                    "Managed marker is missing or differs from registry", 1))
     h1 = [(index, line[2:].strip()) for index, line in enumerate(lines, 1) if line.startswith("# ")]
@@ -797,6 +712,10 @@ def _managed_findings(relative: str, text: str, document_class: str,
             findings.append(diagnostic("DOC-003", "empty-content", relative,
                                        f"Section {key} prose is empty or boundaries are damaged", heading_line))
     findings.extend(_figure_findings(target, relative, text, contract, managed=True))
+    decision_findings = diagram_decision_findings(text, spec)
+    for finding in decision_findings:
+        finding["file"] = relative
+    findings.extend(decision_findings)
     return findings
 
 
@@ -810,7 +729,7 @@ def _figure_findings(target: Path, relative: str, text: str,
         image = IMAGE.fullmatch(line)
         if image is None:
             continue
-        asset = image.group(2)
+        asset = html.unescape(image.group(2).strip())
         if managed and re.fullmatch(r"assets/[a-z0-9]+(?:-[a-z0-9]+)*\.svg", asset) is None:
             findings.append(diagnostic("DOC-005", "figure-block", relative,
                                        f"Figure asset path is not semantic: {asset}", number))
@@ -976,7 +895,7 @@ def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, st
                 for row in _masked_lines(texts[document]):
                     image = IMAGE.fullmatch(row)
                     if image:
-                        resolved = _rel_target(document, image.group(2))
+                        resolved = _rel_target(document, html.unescape(image.group(2).strip()))
                         if resolved:
                             embedded.append(resolved[0])
                 if not (target / figure).is_file() or figure not in embedded:
@@ -988,6 +907,8 @@ def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, st
 def check_documents(target_root: str | Path, document_class: str | None = None,
                     profile_root: str | Path | None = None) -> dict[str, Any]:
     """Validate managed and legacy docs with model locator targets."""
+    if document_class is not None and not isinstance(document_class, str):
+        raise _error("invalid-request", "document_class must be text or null")
     contract = _contract(profile_root)
     target = _root(target_root, "Target project root")
     profile = contract["profile"]
@@ -1015,13 +936,11 @@ def check_documents(target_root: str | Path, document_class: str | None = None,
     anchors, global_findings = _anchor_map(texts)
     document_findings: list[dict[str, Any]] = []
     registry_paths = {entry["path"]: entry for entry in registry["entries"]}
-    for relative, entry in sorted(registry_paths.items()):
+    for relative in sorted(registry_paths):
         if relative not in texts:
             global_findings.append(diagnostic("DOC-002", "registry-mismatch", relative,
                                               "Registered document is missing"))
-        elif entry != _registry_entry(contract, relative, entry["class"]):
-            global_findings.append(diagnostic("DOC-002", "registry-mismatch", relative,
-                                              "Registry contract identity differs from selected profile"))
+    effective_identity_by_path: dict[str, Any] = {}
     for relative, text in sorted(texts.items()):
         if document_class is not None:
             route = profile["document_classes"][document_class]["path_template"]
@@ -1035,13 +954,18 @@ def check_documents(target_root: str | Path, document_class: str | None = None,
                 global_findings.append(diagnostic("DOC-001", "registry-mismatch", relative,
                                                   "Registered class is unknown"))
                 continue
-            spec = profile["document_classes"][class_name]
+            try:
+                spec, effective_contract, effective = resolve_document(contract, entry, text, relative)
+            except DocumentKitError as error:
+                global_findings.extend(error.diagnostics)
+                continue
+            effective_identity_by_path[relative] = effective
             stem = PurePosixPath(relative).stem
             if (re.fullmatch(spec["filename_pattern"], stem) is None or
                     spec["path_template"].replace("{name}", stem) != relative):
                 document_findings.append(diagnostic("DOC-001", "invalid-document-name", relative,
                                                     "Managed path differs from class route"))
-            document_findings.extend(_managed_findings(relative, text, class_name, contract, target, models))
+            document_findings.extend(_managed_findings(relative, text, spec, effective_contract, target, models, effective))
         else:
             # Existing pages keep baseline navigation and model/figure checks.
             if text.startswith("<!-- document-kit: profile="):
@@ -1061,6 +985,7 @@ def check_documents(target_root: str | Path, document_class: str | None = None,
     hashes = {path: _sha(bytes_by_path[path]) for path in checked}
     return {"ok": not findings, **_identity(contract), "checked_paths": checked,
             "sha256_by_path": hashes, "document_hashes": hashes,
+            "effective_identity_by_path": effective_identity_by_path,
             "scanned_paths": sorted(bytes_by_path),
             "document_class_scope": document_class,
             "scope": {"document_class": document_class,
@@ -1109,19 +1034,21 @@ def _docs_files(target: Path, docs_root: str) -> list[Path]:
 
 
 def _candidate_findings(target: Path, contract: Mapping[str, Any], relative: str,
-                        document_class: str, text: str) -> list[dict[str, Any]]:
+                        spec: Mapping[str, Any], text: str,
+                        effective: Mapping[str, Any]) -> list[dict[str, Any]]:
     texts = _existing_texts(target, contract["profile"]["project"]["docs_root"])
     texts[relative] = text
     anchors, findings = _anchor_map(texts)
-    findings.extend(_managed_findings(relative, text, document_class, contract, target,
-                                      _model_files(target, contract["profile"])))
+    findings.extend(_managed_findings(relative, text, spec, contract, target,
+                                      _model_files(target, contract["profile"]), effective))
     findings.extend(_local_link_findings(target, relative, text, anchors))
     return findings
 
 
 def _validate_candidate(target: Path, contract: Mapping[str, Any], relative: str,
-                        document_class: str, text: str) -> None:
-    findings = _candidate_findings(target, contract, relative, document_class, text)
+                        spec: Mapping[str, Any], text: str,
+                        effective: Mapping[str, Any]) -> None:
+    findings = _candidate_findings(target, contract, relative, spec, text, effective)
     if findings:
         first = findings[0]
         raise DocumentKitError(first["code"], first["detail"], findings)
@@ -1138,46 +1065,57 @@ def _commit_contract(profile_root: str | Path | None, first: Mapping[str, Any],
 def create_document(target_root: str | Path, document_class: str, name: str,
                     metadata: Mapping[str, Any], sections: Mapping[str, Any],
                     profile_root: str | Path | None = None,
-                    expected_contract_sha256: str | None = None) -> dict[str, Any]:
+                    expected_contract_sha256: str | None = None,
+                    template_id: str | None = None) -> dict[str, Any]:
     """Create one complete page and register the pinned contract without overwriting."""
-    contract, target, _, relative = _class_plan(target_root, document_class, name, profile_root)
+    _validate_expected_contract_request(expected_contract_sha256)
+    contract, target, spec, relative, effective = _class_plan(
+        target_root, document_class, name, profile_root, template_id)
     _expected_contract(contract, expected_contract_sha256)
     known = _model_files(target, contract["profile"])
-    rendered, anchors = _document_parts(contract, target, document_class, metadata, sections, known)
+    rendered, anchors = _document_parts(contract, target, document_class, metadata, sections, known,
+                                        spec, effective)
     with _writer_lock(target):
         if (target / relative).exists():
             raise _error("document-exists", f"Document already exists: {relative}", "DOC-001", relative)
         registry = _load_registry(target, contract)
         if any(entry["path"] == relative for entry in registry["entries"]):
             raise _error("registry-mismatch", f"Registry already owns {relative}", "DOC-002", relative)
-        _validate_candidate(target, contract, relative, document_class, rendered)
+        _validate_candidate(target, contract, relative, spec, rendered, effective)
         _commit_contract(profile_root, contract, expected_contract_sha256)
         data = rendered.encode("utf-8")
         _replace(target, relative, data, create=True)
-        registry["entries"].append(_registry_entry(contract, relative, document_class))
-        _replace(target, _registry_path(contract), _registry_bytes(registry))
+        registry["entries"].append(_registry_entry(contract, relative, document_class, effective))
+        try:
+            _replace(target, _registry_path(contract), _registry_bytes(registry))
+        except Exception:
+            try:
+                (target / relative).unlink()
+            except FileNotFoundError:
+                pass
+            raise
     return {"ok": True, **_identity(contract), "path": relative, "sha256": _sha(data),
-            "anchors": anchors, "semantic_review_required": True}
+            "anchors": anchors, "template_id": effective["template_id"],
+            "effective_identity": effective, "semantic_review_required": True}
 
 
 def _managed_current(target: Path, contract: Mapping[str, Any], relative: str,
-                     document_class: str, expected_sha256: str) -> tuple[str, dict[str, Any]]:
+                     document_class: str, expected_sha256: str) -> tuple[str, dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     if not isinstance(expected_sha256, str) or re.fullmatch(r"[0-9a-f]{64}", expected_sha256) is None:
         raise _error("invalid-request", "expected_sha256 must be a lowercase SHA-256 hex digest")
     registry = _load_registry(target, contract)
-    if not _registry_matches(registry, relative, contract, document_class):
+    entry = next((item for item in registry["entries"] if item["path"] == relative and item["class"] == document_class), None)
+    if entry is None:
         raise _error("registry-mismatch", f"Selected contract does not own {relative}", "DOC-002", relative)
     data = _read_project_file(target, relative)
-    if _sha(data) != expected_sha256:
-        raise _error("stale-document", f"Document changed since expected_sha256: {relative}", "DOC-001", relative)
     try:
         text = data.decode("utf-8")
     except UnicodeError as error:
         raise _error("unreadable-input", f"Document is not UTF-8: {relative}", "DOC-002", relative) from error
-    marker = contract["profile"]["validation"]["managed_marker"].replace("{document_class}", document_class)
-    if not text.startswith(marker + "\n"):
-        raise _error("registry-mismatch", f"Managed marker is absent: {relative}", "DOC-002", relative)
-    return text, registry
+    if _sha(data) != expected_sha256:
+        raise _error("stale-document", f"Document changed since expected_sha256: {relative}", "DOC-001", relative)
+    spec, effective_contract, effective = resolve_document(contract, entry, text, relative)
+    return text, registry, effective_contract, spec, effective
 
 
 def _section_bounds(text: str, key: str) -> tuple[int, int]:
@@ -1211,14 +1149,16 @@ def update_section(target_root: str | Path, document_class: str, name: str,
                    profile_root: str | Path | None = None,
                    expected_contract_sha256: str | None = None) -> dict[str, Any]:
     """Replace one section's prose and optionally its required labeled fields."""
-    contract, target, spec, relative = _class_plan(target_root, document_class, name, profile_root)
+    _validate_expected_contract_request(expected_contract_sha256)
+    contract, target, _, relative, selected_effective = _class_plan(target_root, document_class, name, profile_root)
     _expected_contract(contract, expected_contract_sha256)
-    _model_files(target, contract["profile"])
-    if not any(item["key"] == section_key for item in spec["required_sections"]):
-        raise _error("invalid-request", f"Unknown section key: {section_key}")
-    replacement = _text(content, "Section content", "empty-content")
     with _writer_lock(target):
-        source, _ = _managed_current(target, contract, relative, document_class, expected_sha256)
+        source, _, effective_contract, spec, effective = _managed_current(
+            target, contract, relative, document_class, expected_sha256)
+        _model_files(target, effective_contract["profile"])
+        if not any(item["key"] == section_key for item in spec["required_sections"]):
+            raise _error("invalid-request", f"Unknown section key: {section_key}")
+        replacement = _text(content, "Section content", "empty-content")
         begin, finish = _section_bounds(source, section_key)
         changed = source[:begin] + "\n" + replacement + "\n" + source[finish:]
         if fields is not None:
@@ -1239,43 +1179,52 @@ def update_section(target_root: str | Path, document_class: str, name: str,
                 field_area = pattern.sub(lambda match: match.group(1) + " " + _text(value, field, "missing-field"),
                                          field_area)
             changed = changed[:start] + field_area + block[field_end:] + changed[end:]
-        _validate_candidate(target, contract, relative, document_class, changed)
+        _validate_candidate(target, effective_contract, relative, spec, changed, effective)
         _commit_contract(profile_root, contract, expected_contract_sha256)
         if _sha(_read_project_file(target, relative)) != expected_sha256:
             raise _error("stale-document", f"Document changed before commit: {relative}", "DOC-001", relative)
         data = changed.encode("utf-8")
         _replace(target, relative, data)
     return {"ok": True, **_identity(contract), "path": relative, "sha256": _sha(data),
-            "semantic_review_required": True}
+            "effective_identity": effective, "semantic_review_required": True}
 
 
 def attach_figure(target_root: str | Path, document_class: str, name: str,
                   section_key: str, figure: Mapping[str, Any], expected_sha256: str,
                   profile_root: str | Path | None = None,
-                  expected_contract_sha256: str | None = None) -> dict[str, Any]:
+                  expected_contract_sha256: str | None = None,
+                  concern: str | None = None) -> dict[str, Any]:
     """Add one supplied figure answer beside an existing canonical SVG."""
-    contract, target, spec, relative = _class_plan(target_root, document_class, name, profile_root)
+    _validate_expected_contract_request(expected_contract_sha256)
+    contract, target, _, relative, selected_effective = _class_plan(target_root, document_class, name, profile_root)
     _expected_contract(contract, expected_contract_sha256)
-    _model_files(target, contract["profile"])
-    if not any(item["key"] == section_key for item in spec["required_sections"]):
-        raise _error("invalid-request", f"Unknown section key: {section_key}")
     required = {"asset", "title", *contract["profile"]["figure_block"]["ordered_fields"]}
     if not isinstance(figure, dict) or set(figure) != required:
         raise _error("invalid-request", "Figure needs asset, title, and all six fields")
     asset = figure["asset"]
     if (not isinstance(asset, str) or re.fullmatch(r"assets/[a-z0-9]+(?:-[a-z0-9]+)*\.svg", asset) is None):
         raise _error("unsafe-path", "Figure asset must be semantic assets/<name>.svg", "DOC-005", relative)
-    asset_relative = PurePosixPath(relative).parent / asset
-    _reject_symlinks(target, asset_relative)
-    if not (target / asset_relative).is_file():
-        raise _error("missing-figure", f"Canonical SVG does not exist: {asset_relative}", "DOC-005", relative)
-    for field in required - {"asset"}:
-        _text(figure[field], field, "figure-block")
-    primary = figure["Status"].split(";", 1)[0].strip()
-    if primary not in contract["profile"]["figure_block"]["statuses"]:
-        raise _error("figure-status", f"Unknown primary figure status: {primary}", "DOC-005", relative)
     with _writer_lock(target):
-        source, _ = _managed_current(target, contract, relative, document_class, expected_sha256)
+        source, _, effective_contract, spec, effective = _managed_current(
+            target, contract, relative, document_class, expected_sha256)
+        _model_files(target, effective_contract["profile"])
+        asset_relative = PurePosixPath(relative).parent / asset
+        _reject_symlinks(target, asset_relative)
+        if not (target / asset_relative).is_file():
+            raise _error("missing-figure", f"Canonical SVG does not exist: {asset_relative}", "DOC-005", relative)
+        for field in required - {"asset"}:
+            _text(figure[field], field, "figure-block")
+        primary = figure["Status"].split(";", 1)[0].strip()
+        if primary not in effective_contract["profile"]["figure_block"]["statuses"]:
+            raise _error("figure-status", f"Unknown primary figure status: {primary}", "DOC-005", relative)
+        if not any(item["key"] == section_key for item in spec["required_sections"]):
+            raise _error("invalid-request", f"Unknown section key: {section_key}")
+        decision = attachment_decision(source, spec, section_key, concern)
+        if decision is not None:
+            if asset != decision["asset"]:
+                raise _error("invalid-diagram-decision", f"Figure asset differs from decision for {concern}", "DOC-005", relative)
+            if figure["Model view"] != decision["model_view"]:
+                raise _error("invalid-diagram-decision", f"Figure model view differs from decision for {concern}", "DOC-005", relative)
         if f"]({asset})" in source:
             raise _error("duplicate-figure", f"Asset is already embedded: {asset}", "DOC-005", relative)
         start, end = _section_span(source, spec, section_key)
@@ -1292,19 +1241,20 @@ def attach_figure(target_root: str | Path, document_class: str, name: str,
         values = {"asset": asset, "title": _text(figure["title"], "Figure title", "figure-block"),
                   "section_id": anchor, "ordinal": str(ordinal)}
         values.update({token: _text(figure[label], label, "figure-block")
-                       for label, token in contract["profile"]["figure_block"]["field_tokens"].items()})
-        template = contract["templates"]["figure-block"]
+                       for label, token in effective_contract["profile"]["figure_block"]["field_tokens"].items()})
+        template = effective_contract["templates"]["figure-block"]
         rendered = TOKEN.sub(lambda found: values[found.group(1)], template)
         _, finish = _section_bounds(source, section_key)
         insertion = finish + len(CONTENT_END.format(key=section_key))
         changed = source[:insertion] + "\n\n" + rendered.rstrip() + "\n" + source[insertion:]
-        _validate_candidate(target, contract, relative, document_class, changed)
+        _validate_candidate(target, effective_contract, relative, spec, changed, effective)
         _commit_contract(profile_root, contract, expected_contract_sha256)
         if _sha(_read_project_file(target, relative)) != expected_sha256:
             raise _error("stale-document", f"Document changed before commit: {relative}", "DOC-001", relative)
         data = changed.encode("utf-8")
         _replace(target, relative, data)
     return {"ok": True, **_identity(contract), "path": relative, "sha256": _sha(data),
-            "figure_number": f"{anchor}-{ordinal}", "provenance_review_notes": [
+            "figure_number": f"{anchor}-{ordinal}", "effective_identity": effective,
+            "provenance_review_notes": [
                 "Review that the SVG faithfully renders the cited SysML view"],
             "semantic_review_required": True}

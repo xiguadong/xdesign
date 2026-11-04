@@ -84,5 +84,11 @@ package XDesignTraceability {
     satisfy documentAuthoringFollowsContract by DocumentContractEngine;
     satisfy documentChecksReportContractGaps by DocumentContractEngine;
     satisfy documentToolsShareOneContract by DocumentContractEngine;
+    /* documentTemplatesCoverScenarios, documentTemplateSourcesAreInspectable,
+       documentTemplateSelectionIsExplicit, documentTemplateChecksUseSelectedContract,
+       documentTemplateCatalogPreservesCompatibility, documentTemplateEvidenceIsBound,
+       and documentTemplateCatalogSurfaceIsShared are proposed requirements without
+       design satisfiers. Existing source and engine elements are candidates for later
+       design allocation, not established satisfaction. */
 
 }

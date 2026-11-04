@@ -50,14 +50,18 @@ package XDesignDetailedDesign {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute profileRoot : String;
         out attribute contractDigest : String;
+        out attribute contractDigestVersion : String;
+        out attribute catalogProjection : String;
     }
 
     action def PlanContractDocument {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute documentClass : String;
         in attribute name : String;
+        in attribute templateId : String [0..1];
         out attribute documentPath : String;
-        out attribute requiredSections : String;
+        out attribute requiredSections : String [1..*];
+        out attribute effectiveIdentity : String;
     }
 
     action def CreateContractDocument {
@@ -65,7 +69,9 @@ package XDesignDetailedDesign {
         in attribute documentClass : String;
         in attribute name : String;
         in attribute callerContent : String;
+        in attribute templateId : String [0..1];
         out attribute documentSha256 : String;
+        out attribute effectiveIdentity : String;
     }
 
     action def UpdateContractSection {
@@ -75,36 +81,59 @@ package XDesignDetailedDesign {
         in attribute callerContent : String;
         in attribute expectedSha256 : String;
         out attribute documentSha256 : String;
+        out attribute effectiveIdentity : String;
     }
 
     action def AttachContractFigure {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* Optional concern is allowed only with no view concerns. Otherwise
+           exactly one declared concern selects exactly one figure decision;
+           table/prose/not-applicable decisions always reject before writing. */
         in attribute documentPath : String;
         in attribute sectionKey : String;
         in attribute canonicalSvg : String;
         in attribute expectedSha256 : String;
+        in attribute concern : String [0..1];
         out attribute documentSha256 : String;
+        out attribute effectiveIdentity : String;
     }
 
     action def CheckContractDocuments {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute projectRoot : String;
         out attribute diagnosticReport : String;
+        out attribute effectiveIdentityByPath : String;
+    }
+
+    action def ReadDocumentCatalogResource {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        out attribute catalogProjection : String;
+    }
+
+    action def ReadDocumentTemplateResource {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        in attribute documentClass : String;
+        in attribute templateId : String [0..1];
+        out attribute templateMarkdown : String;
     }
 
     part def DocumentContractEngine :> DocumentAuthoringBoundary {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
-        doc /* Resolve a document class and slug through a selected profile,
-           render its versioned template from caller-supplied section content,
-           update anchored sections and attach a model figure, then validate
-           the authored document set. The CLI and MCP adapter invoke the same
-           operations. Structural diagnostics do not assert design truth or
-           visual readability. */
+        doc /* Resolve a document class, slug and optional template through a
+           selected profile, render its effective entry from caller content,
+           update anchored sections and figures, then validate each document
+           under its resolved contract. Structural diagnostics do not assert
+           design truth or visual readability. */
         attribute profileVersion : String;
         attribute projectRoot : String;
         attribute contractDigest : String;
+        attribute contractDigestVersion : String;
         attribute supportedDocumentClasses : String [1..*];
+        attribute selectedTemplateId : String [0..1];
         ref part contract : DocumentContractSource;
+        ref part catalogValidator : DocumentTemplateLibraryDesign::DocumentCatalogValidator;
+        ref part templateRouter : DocumentTemplateLibraryDesign::DocumentTemplateRouter;
+        ref part compatibilityResolver : DocumentTemplateLibraryDesign::DocumentCompatibilityResolver;
         perform action readContract : ReadDocumentContract;
         perform action planDocument : PlanContractDocument;
         perform action createDocument : CreateContractDocument;
@@ -123,6 +152,254 @@ package XDesignDetailedDesign {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         doc /* Stdio MCP tool/resource adapter over DocumentContractEngine. */
         ref part engine : DocumentContractEngine;
+    }
+
+    package DocumentTemplateLibraryDesign {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* Scenario catalog data and validation, template selection, effective
+           identity, versioned digests and compatibility for the portable kit.
+           These declarations add no satisfaction relationship to frozen requirements. */
+
+        item def DocumentTemplateEntry {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute templateId : String;
+            attribute documentClass : String;
+            attribute scenario : String;
+            attribute requiredSections : String [1..*];
+            attribute templateUri : String;
+            attribute guideUri : String;
+            attribute exampleUri : String;
+            attribute fixtureUri : String;
+            attribute checkIds : String [1..*];
+            ref item viewConcerns : DocumentViewConcern [0..*];
+            ref item sources : DocumentSourceUsage [1..*];
+        }
+
+        item def DocumentExampleFixture {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Digest-covered canonical acceptance input: complete plan/create
+               caller content, model and conditional figure inputs, expected stored-
+               example reference, and selected profile/version/digest-version identity.
+               It contains neither actual nor sentinel contract digest values. The
+               mixed form reuses the same stored examples and has no second example
+               byte convention. */
+            attribute profileId : String;
+            attribute version : String;
+            attribute contractDigestVersion : String;
+            attribute planCreateInputs : String [1..*];
+            attribute modelInputs : String [0..*];
+            attribute figureInputs : String [0..*];
+            attribute expectedDocumentUri : String [1..*];
+        }
+
+        item def DocumentAcceptanceManifest {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Acceptance-only external manifest with exactly these three fields,
+               outside the selected pack and digest closure. No caller-input copy,
+               sentinel, manifest/self/own hash, or other key is permitted. Separate
+               evidence computes the manifest SHA-256 instead of reading it here. */
+            attribute expectedContractSha256 : String;
+            attribute fixturePath : String;
+            attribute fixtureSha256 : String;
+        }
+
+        item def DocumentExampleComparison {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Acceptance-only evidence for substituting just the parsed first-
+               line stored-example contract field in memory, independently asserting
+               actual created marker/registry identity, comparing all resulting bytes,
+               and preserving stored/created/registry hashes. No product operation
+               normalizes or substitutes example bytes. */
+            attribute storedExampleSha256 : String;
+            attribute createdDocumentSha256 : String;
+            attribute registrySha256 : String;
+            attribute fixtureSha256 : String;
+            attribute actualContractSha256 : String;
+            attribute externalManifestSha256 : String;
+            attribute substitutedField : String;
+        }
+
+        part def DocumentExampleAcceptanceHarness {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Test-side owner of external manifests, exact comparison and stale-
+               fixture evidence. It is not an engine operation, adapter resource,
+               selected contract, or product digest-normalization path. */
+            ref item fixture : DocumentExampleFixture;
+            ref item externalManifest : DocumentAcceptanceManifest;
+            ref item comparison : DocumentExampleComparison [1..*];
+        }
+
+        item def DocumentSourceRecord {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Data projection only; optional multiplicities do not enforce the
+               invariants. DocumentCatalogValidator enforces exactly one primary url
+               or localPath with the other null and licenseUrl as a required-but-
+               nullable field whose value is null only for unresolved license identity. */
+            attribute sourceId : String;
+            attribute title : String;
+            attribute publisher : String;
+            attribute url : String [0..1];
+            attribute localPath : String [0..1];
+            attribute additionalUrls : String [0..*];
+            attribute retrievedAt : String;
+            attribute ideasUsed : String [1..*];
+            attribute limitations : String [1..*];
+            attribute licenseName : String;
+            attribute licenseVersion : String;
+            attribute licenseUrl : String [0..1];
+        }
+
+        item def DocumentSourceUsage {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Data projection only; DocumentCatalogValidator enforces
+               copyingReview null for not-copied and an object containing reviewer,
+               reviewedAt, permission and evidence for copied. */
+            attribute sourceId : String;
+            attribute copyingDecision : String;
+            attribute copyingReview : String [0..1];
+        }
+
+        item def DocumentViewConcern {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute concern : String;
+            attribute sectionKey : String;
+            attribute applicability : String;
+            attribute trigger : String;
+            attribute alternatives : String [1..*];
+        }
+
+        item def DocumentDiagramDecision {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute concern : String;
+            attribute applies : Boolean;
+            attribute choice : String;
+            attribute rationale : String;
+            attribute asset : String [0..1];
+            attribute modelView : String [0..1];
+        }
+
+        item def DocumentEffectiveIdentity {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Actual selected or resolved contract identity. A schema 1.1
+               contractSha256 is recomputed and nonzero; the stored-example sentinel
+               is never an actual marker, registry, selected, or pinned identity. */
+            attribute profileId : String;
+            attribute version : String;
+            attribute documentClass : String;
+            attribute templateId : String [0..1];
+            attribute contractSha256 : String;
+            attribute contractDigestVersion : String;
+        }
+
+        item def DocumentCompatibilityBinding {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute selectedContract : String;
+            attribute effectiveContract : String;
+            attribute route : String;
+            attribute markerEvidence : String;
+            attribute registryEvidence : String;
+            ref item effectiveIdentity : DocumentEffectiveIdentity;
+        }
+
+        item def DocumentContractDigestStrategy {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Hash exact stored example, fixture and compatibility bytes with
+               no sentinel or line-ending normalization. Recomputed zero is always
+               invalid-catalog before descriptor comparison, even when a descriptor
+               also claims zero. Contract-drift requires actual recomputation that
+               is nonzero and not the sentinel, including a zero descriptor. */
+            attribute digestVersion : String;
+            attribute framing : String;
+            attribute resourcePaths : String [1..*];
+        }
+
+        item def DocumentClassDefault {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute documentClass : String;
+            attribute templateId : String;
+        }
+
+        item def DocumentPathDigest {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute path : String;
+            attribute sha256 : String;
+        }
+
+        item def DocumentPathEffectiveIdentity {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute path : String;
+            ref item effectiveIdentity : DocumentEffectiveIdentity;
+        }
+
+        item def DocumentValidationReport {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Per-path collections may be empty when no managed document is
+               selected for a check. */
+            attribute selectedContract : String;
+            ref item pathDigests : DocumentPathDigest [0..*];
+            ref item effectiveIdentities : DocumentPathEffectiveIdentity [0..*];
+            attribute diagnostics : String [0..*];
+            attribute unevaluatedChecks : String [1..*];
+        }
+
+        item def DocumentTemplateCatalog {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            attribute schemaVersion : String;
+            attribute profileId : String;
+            attribute version : String;
+            ref item defaults : DocumentClassDefault [1..*];
+            attribute resourceClosure : String [1..*];
+            attribute contractDigest : String;
+            ref item entries : DocumentTemplateEntry [1..*];
+            ref item sources : DocumentSourceRecord [1..*];
+            ref item digestStrategy : DocumentContractDigestStrategy;
+        }
+
+        part def DocumentCatalogValidator {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Sole enforcement owner for the source-record invariants. The item
+               types are data projections, not constraint declarations: exactly one
+               primary locator, required-but-nullable licenseUrl, and copyingReview
+               null only for not-copied or an object only for copied. Missing license
+               fields are invalid-source; a complete record's invalid identity/
+               nullability combination is invalid-license; a present unsafe URL is
+               unsafe-url. Evaluate source field-set/identity and primary-locator
+               shape before primary/additional URL or local-path safety, then license
+               nullability and license URL safety. Profile schema errors are
+               invalid-profile; catalog manifest schema errors are invalid-catalog.
+               Also validate safe resources, diagram decisions and full-input fixtures.
+               Validate exact first-line example identity, one whole-file sentinel,
+               whole-pack sentinel exclusivity, no actual digest in stored examples,
+               raw-byte digest closure, and recomputed nonzero digest before writes.
+               A test-only zero provider is isolated at the loader/digest-strategy
+               seam and is unreachable from production SHA-256 or CLI/MCP inputs. */
+            attribute validationReport : String;
+        }
+
+        part def DocumentTemplateRouter {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Select an explicit entry or one generic default, resolve the
+               existing class/slug route and return its actual nonzero effective
+               identity. Unknown schema 1.1 IDs and every supplied schema 1.0
+               template ID are unknown-template because schema 1.0 has no selectable
+               IDs. Reject a zero expected digest as invalid-request before catalog
+               or target writes; examples are never template resources. */
+            attribute selectedTemplateId : String [0..1];
+        }
+
+        part def DocumentCompatibilityResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+            doc /* Resolve original packs or exact bundled-v1 compatibility before
+               judging marker, registry and effective-contract agreement. Unknown or
+               custom v1 identity under a 1.1 catalog is unsupported-legacy-identity;
+               a document from another 1.1 release is registry-mismatch. Reject
+               target sentinel marker/registry identities, copied examples and forged
+               registries as registry-mismatch without adoption, registration or
+               writes; only later acceptance-fixture differences are fixture-mismatch. */
+            attribute selectedContractDigest : String;
+            attribute effectiveContractDigest : String;
+            attribute route : String;
+        }
     }
 
     package ProposedProjectChecks {

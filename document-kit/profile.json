@@ -1,79 +1,279 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "rules_file": "RULES.md",
+  "skill_file": "SKILL.md",
   "rule_ids": [
-    "DOC-001", "DOC-002", "DOC-003", "DOC-004", "DOC-005",
-    "DOC-006", "DOC-007", "DOC-008", "DOC-009", "DOC-010"
+    "DOC-001",
+    "DOC-002",
+    "DOC-003",
+    "DOC-004",
+    "DOC-005",
+    "DOC-006",
+    "DOC-007",
+    "DOC-008",
+    "DOC-009",
+    "DOC-010"
   ],
   "project": {
     "docs_root": "docs",
-    "model_roots": ["mbse/model"],
-    "optional_model_roots": ["mbse/wishes"],
+    "model_roots": [
+      "mbse/model"
+    ],
+    "optional_model_roots": [
+      "mbse/wishes"
+    ],
     "paths_are_project_relative": true
   },
   "document_classes": {
     "requirements": {
       "path_template": "docs/requirements/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "templates/requirements.md",
+      "template": "catalog/templates/generic-requirements.md",
       "required_sections": [
-        {"key": "purpose", "heading": "1. Purpose and scope", "required_fields": ["system_boundary"]},
-        {"key": "requirements", "heading": "2. Requirements", "required_fields": ["normative_statements", "rationale"]},
-        {"key": "acceptance", "heading": "3. Acceptance conditions", "required_fields": ["measurable_conditions", "verification_method"]},
-        {"key": "trace", "heading": "4. Model and design trace", "required_fields": ["model_elements", "design_links"]},
-        {"key": "limits", "heading": "5. Status and limits", "required_fields": ["unresolved_items"]}
-      ]
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and scope",
+          "required_fields": [
+            "system_boundary"
+          ]
+        },
+        {
+          "key": "requirements",
+          "heading": "2. Requirements",
+          "required_fields": [
+            "normative_statements",
+            "rationale"
+          ]
+        },
+        {
+          "key": "acceptance",
+          "heading": "3. Acceptance conditions",
+          "required_fields": [
+            "measurable_conditions",
+            "verification_method"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "4. Model and design trace",
+          "required_fields": [
+            "model_elements",
+            "design_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-requirements"
     },
     "architecture": {
       "path_template": "docs/architecture/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "templates/architecture.md",
+      "template": "catalog/templates/generic-architecture.md",
       "required_sections": [
-        {"key": "context", "heading": "1. Context and boundary", "required_fields": ["system_boundary", "external_actors"]},
-        {"key": "composition", "heading": "2. Composition and responsibilities", "required_fields": ["parts", "relationships"]},
-        {"key": "behavior", "heading": "3. Behavior and lifecycle", "required_fields": ["interactions", "states"]},
-        {"key": "constraints", "heading": "4. Constraints and decisions", "required_fields": ["constraints", "design_rationale"]},
-        {"key": "trace", "heading": "5. Trace and verification", "required_fields": ["model_elements", "requirements_links", "verification_links"]}
-      ]
+        {
+          "key": "context",
+          "heading": "1. Context and boundary",
+          "required_fields": [
+            "system_boundary",
+            "external_actors"
+          ]
+        },
+        {
+          "key": "composition",
+          "heading": "2. Composition and responsibilities",
+          "required_fields": [
+            "parts",
+            "relationships"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "3. Behavior and lifecycle",
+          "required_fields": [
+            "interactions",
+            "states"
+          ]
+        },
+        {
+          "key": "constraints",
+          "heading": "4. Constraints and decisions",
+          "required_fields": [
+            "constraints",
+            "design_rationale"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links"
+          ]
+        }
+      ],
+      "default_template_id": "generic-architecture"
     },
     "design": {
       "path_template": "docs/design/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "templates/design.md",
+      "template": "catalog/templates/generic-design.md",
       "required_sections": [
-        {"key": "purpose", "heading": "1. Purpose and allocation", "required_fields": ["design_subject", "requirements_links"]},
-        {"key": "structure", "heading": "2. Structure and interfaces", "required_fields": ["components", "interfaces"]},
-        {"key": "behavior", "heading": "3. Behavior and constraints", "required_fields": ["behavior", "constraints"]},
-        {"key": "rationale", "heading": "4. Decisions and rationale", "required_fields": ["chosen_design", "tradeoffs"]},
-        {"key": "projection", "heading": "5. Implementation projection and verification", "required_fields": ["source_projection", "verification_links", "model_elements"]},
-        {"key": "limits", "heading": "6. Status and limits", "required_fields": ["unresolved_items"]}
-      ]
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and allocation",
+          "required_fields": [
+            "design_subject",
+            "requirements_links"
+          ]
+        },
+        {
+          "key": "structure",
+          "heading": "2. Structure and interfaces",
+          "required_fields": [
+            "components",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "3. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "constraints"
+          ]
+        },
+        {
+          "key": "rationale",
+          "heading": "4. Decisions and rationale",
+          "required_fields": [
+            "chosen_design",
+            "tradeoffs"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "5. Implementation projection and verification",
+          "required_fields": [
+            "source_projection",
+            "verification_links",
+            "model_elements"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "6. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-design"
     },
     "interface": {
       "path_template": "docs/interfaces/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "templates/interface.md",
+      "template": "catalog/templates/generic-interface.md",
       "required_sections": [
-        {"key": "purpose", "heading": "1. Purpose and participants", "required_fields": ["boundary", "participants"]},
-        {"key": "contract", "heading": "2. Interface contract", "required_fields": ["operations", "data_shapes"]},
-        {"key": "errors", "heading": "3. Errors and invariants", "required_fields": ["error_behavior", "invariants"]},
-        {"key": "compatibility", "heading": "4. Versioning and compatibility", "required_fields": ["version_policy", "compatibility_policy"]},
-        {"key": "trace", "heading": "5. Model and verification trace", "required_fields": ["model_elements", "verification_links"]}
-      ]
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and participants",
+          "required_fields": [
+            "boundary",
+            "participants"
+          ]
+        },
+        {
+          "key": "contract",
+          "heading": "2. Interface contract",
+          "required_fields": [
+            "operations",
+            "data_shapes"
+          ]
+        },
+        {
+          "key": "errors",
+          "heading": "3. Errors and invariants",
+          "required_fields": [
+            "error_behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "compatibility",
+          "heading": "4. Versioning and compatibility",
+          "required_fields": [
+            "version_policy",
+            "compatibility_policy"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Model and verification trace",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "default_template_id": "generic-interface"
     },
     "verification": {
       "path_template": "docs/verification/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "templates/verification.md",
+      "template": "catalog/templates/generic-verification.md",
       "required_sections": [
-        {"key": "scope", "heading": "1. Scope and basis", "required_fields": ["requirements_links", "design_links"]},
-        {"key": "methods", "heading": "2. Methods and environment", "required_fields": ["methods", "environment"]},
-        {"key": "cases", "heading": "3. Verification cases", "required_fields": ["inputs", "procedure", "expected_results"]},
-        {"key": "criteria", "heading": "4. Acceptance criteria and trace", "required_fields": ["pass_criteria", "trace_matrix"]},
-        {"key": "limits", "heading": "5. Status and limits", "required_fields": ["unexecuted_cases", "residual_risks"]}
-      ]
+        {
+          "key": "scope",
+          "heading": "1. Scope and basis",
+          "required_fields": [
+            "requirements_links",
+            "design_links"
+          ]
+        },
+        {
+          "key": "methods",
+          "heading": "2. Methods and environment",
+          "required_fields": [
+            "methods",
+            "environment"
+          ]
+        },
+        {
+          "key": "cases",
+          "heading": "3. Verification cases",
+          "required_fields": [
+            "inputs",
+            "procedure",
+            "expected_results"
+          ]
+        },
+        {
+          "key": "criteria",
+          "heading": "4. Acceptance criteria and trace",
+          "required_fields": [
+            "pass_criteria",
+            "trace_matrix"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unexecuted_cases",
+            "residual_risks"
+          ]
+        }
+      ],
+      "default_template_id": "generic-verification"
     }
   },
   "anchor_policy": {
@@ -81,19 +281,47 @@
     "globally_unique": true,
     "preserve_existing": true,
     "explicit_ids_required": true,
-    "id_prefixes": ["A", "B", "D", "R", "F", "E", "I", "V", "U"],
+    "id_prefixes": [
+      "A",
+      "B",
+      "D",
+      "R",
+      "F",
+      "E",
+      "I",
+      "V",
+      "U"
+    ],
     "preferred_prefixes": {
-      "requirements": ["R"],
-      "architecture": ["A", "B"],
-      "design": ["D"],
-      "interface": ["I"],
-      "verification": ["V"]
+      "requirements": [
+        "R"
+      ],
+      "architecture": [
+        "A",
+        "B"
+      ],
+      "design": [
+        "D"
+      ],
+      "interface": [
+        "I"
+      ],
+      "verification": [
+        "V"
+      ]
     }
   },
   "figure_block": {
     "required": "when_model_figure_embedded",
     "template": "templates/figure-block.md",
-    "ordered_fields": ["Question", "Model view", "Companions", "Status", "Reading", "Limits"],
+    "ordered_fields": [
+      "Question",
+      "Model view",
+      "Companions",
+      "Status",
+      "Reading",
+      "Limits"
+    ],
     "field_tokens": {
       "Question": "question",
       "Model view": "model_view",
@@ -102,19 +330,47 @@
       "Reading": "reading",
       "Limits": "limits"
     },
-    "statuses": ["renderable-now", "planned", "table-substitute", "external-tool"],
-    "software_claim_qualifiers": ["designed-only", "implemented"],
+    "statuses": [
+      "renderable-now",
+      "planned",
+      "table-substitute",
+      "external-tool"
+    ],
+    "software_claim_qualifiers": [
+      "designed-only",
+      "implemented"
+    ],
     "label_format": "Figure <section-id>-<ordinal>",
     "asset_directory": "assets",
     "asset_extension": ".svg"
   },
   "validation": {
     "template_scope": "managed_documents_only",
-    "managed_marker": "<!-- document-kit: profile=xdesign-sysml-docs@1.0.0 class={document_class} -->",
+    "managed_marker": "<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} contract={contract_sha256} digest-version={contract_digest_version} -->",
     "no_placeholder_acceptance": true,
-    "placeholder_patterns": ["\\{\\{[^}]+\\}\\}", "\\bTODO\\b", "\\bTBD\\b", "\\bFIXME\\b"],
+    "placeholder_patterns": [
+      "\\{\\{[^}]+\\}\\}",
+      "\\bTODO\\b",
+      "\\bTBD\\b",
+      "\\bFIXME\\b"
+    ],
     "semantic_review_required": true,
     "model_compiler_required_for_model_changes": true,
     "strict_docs_build_required": true
-  }
+  },
+  "catalog": {
+    "manifest": "catalog/manifest.json",
+    "sources": "catalog/sources.json",
+    "routing_guide": "catalog/routing.md",
+    "mixed_fixture": "catalog/mixed/fixture.json"
+  },
+  "compatibility_packs": [
+    {
+      "profile_id": "xdesign-sysml-docs",
+      "version": "1.0.0",
+      "root": "compatibility/v1.0.0",
+      "contract_sha256": "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6",
+      "contract_digest_version": "1"
+    }
+  ]
 }

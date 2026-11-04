@@ -3,16 +3,20 @@
 This directory is a versioned authoring contract for SysML-backed engineering
 documents. Copy or pin the complete directory in a consumer project. Its
 `profile.json` supplies the allowed document paths, exact ordered chapters,
-required fields, anchor policy, and figure block. `RULES.md` explains the
-rules, `templates/` supplies the Markdown, and `SKILL.md` gives an agent the
-design-before-implementation sequence. The Python package uses one core for
-the JSON CLI and stdio MCP server; it does not generate engineering claims.
+required fields, anchor policy, and figure block. Schema 1.1 adds a catalog of
+five generic defaults and eleven scenario entries; each entry has selection
+metadata, a template, guide, complete fictional example, and canonical fixture.
+`RULES.md` explains the rules and `SKILL.md` gives the design-before-implementation
+sequence. The Python package uses one core for the JSON CLI and stdio MCP server;
+it does not generate engineering claims.
 
 | Path | Purpose |
 | --- | --- |
 | `profile.json` | Versioned, machine-readable document contract |
 | `RULES.md` | Normative DOC-001..010 explanations and evidence limits |
-| `templates/*.md` | Five class templates and the exact figure block |
+| `catalog/` | Sixteen entry packages, routing, sources, and mixed fixture |
+| `templates/figure-block.md` | Exact figure block shared by the current pack |
+| `compatibility/v1.0.0/` | Byte-exact schema 1.0 compatibility pack |
 | `SKILL.md` | Provider-neutral authoring and check sequence |
 | `xdesign_doc_kit/` | Shared authoring/checking core, CLI, and MCP adapter |
 | `tests/` | Cross-project acceptance and transport checks |
@@ -65,23 +69,27 @@ configuration can use this command and arguments:
 ```
 
 The server exposes `get_contract`, `plan_document`, `create_document`,
-`update_section`, `attach_figure`, and `check_documents` as tools. It also
-exposes the contract and rules as resources and one resource template for each
-class's Markdown template. An agent using GPT, Claude, Kimi, DeepSeek, GLM, or
-another MCP-capable host can follow `SKILL.md` and call the same operations.
-The host must support local stdio MCP servers; copy the skill text into the
-host's skill or instruction mechanism when needed.
+`update_section`, `attach_figure`, and `check_documents` as tools. Plan and
+create accept an optional `template_id`; attach accepts an optional `concern`
+with the same meaning as CLI `--template-id` and `--concern`. Resources expose
+the contract, rules, catalog, each class's generic template, and each selected
+entry's exact template. Stored examples are never template resources. An agent
+using GPT, Claude, Kimi, DeepSeek, GLM, or another MCP-capable host can follow
+`SKILL.md` and call the same operations. The host must support local stdio MCP
+servers; copy the skill text into the host's skill or instruction mechanism
+when needed.
 
-Read `profile.json`, `RULES.md`, and `SKILL.md` before issuing writes.
-`plan_document` gives the only allowed destination and lists every required
-section and field. `create_document` takes a JSON input file with `metadata`
-(`title`, `status`, `revision`, and a nonempty `model_sources` path list) and a
-`sections` object keyed by every required section. Each section supplies an
-explicit `anchor`, nonempty `content`, and its required `fields`. The CLI's
+Read `profile.json`, `RULES.md`, `SKILL.md`, and the routing and entry guides
+before issuing writes. `plan_document` gives the only allowed destination and
+lists every required section and field for the selected entry. `create_document`
+takes a JSON input file with `metadata` (`title`, `status`, `revision`, and a
+nonempty `model_sources` path list) and a `sections` object keyed by every
+required section. Each section supplies an explicit `anchor`, nonempty `content`,
+and its required `fields`, including diagram decisions where declared. The CLI's
 `--input` file for `update_section` supplies `content`, `expected_sha256`, and
 optional `fields`; the file for `attach_figure` supplies `figure` and
 `expected_sha256`. MCP tools take the equivalent structured arguments.
-The xdesign repository maintains the [exact request and result design contract](../docs/interfaces/document-kit-api.md#i20).
+The xdesign repository maintains the exact request and result design contract in `docs/interfaces/document-kit-api.md#i20`.
 `update_section` and `attach_figure` require the current document SHA-256.
 `check_documents` reports structural findings and leaves semantic review
 explicit. Run the consumer project's SysML compiler and strict documentation
