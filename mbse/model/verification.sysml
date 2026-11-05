@@ -79,6 +79,34 @@ package XDesignVerification {
         }
     }
 
+    verification def StructuredDocumentKitVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "V19"; }
+        doc /* Planned acceptance in isolated consumer projects: exercise named
+           API and all four flow roles through plan, create, check and hash-guarded
+           update; inspect caller-supplied content and the exact placed outputs.
+           Compare Python, CLI and MCP surfaces; reject unsafe names, traversal,
+           symlinks, collisions, stale updates and incompatible identity. Exercise
+           normal unmanaged-page planning and checking, refused writes, each role's
+           metadata and source failures, denied access and incomplete publication,
+           and permitted and prohibited figure decisions. Check exact original
+           bundled-v1 and 1.1.0 pages together with new pages using the structured
+           release, including whole-project and selected-document scopes; retain the
+           original packs and their independent behavior. Rerun their regression
+           cases, inspect consumer documentation and conduct a separate permitted
+           semantic review. These cases and verify links are planned, not results. */
+        subject kit : XDesignArchitecture::PortableDocumentKit;
+        objective structuredContract {
+            verify requirement routes :> XDesignRequirements::structuredDocumentationHasNamedRoutes;
+            verify requirement api :> XDesignRequirements::apiDesignDocumentsCoverContract;
+            verify requirement flows :> XDesignRequirements::flowDesignDocumentsCoverLayers;
+            verify requirement safety :> XDesignRequirements::structuredDocumentationUsesSafeOperations;
+            verify requirement compatibility :> XDesignRequirements::structuredDocumentationKeepsVersionIdentity;
+            verify requirement surfaces :> XDesignRequirements::structuredDocumentationHasSharedSurfaces;
+            verify requirement consumerDocs :> XDesignRequirements::documentKitPublicApiIsDocumented;
+            verify requirement evidence :> XDesignRequirements::structuredDocumentationEvidenceIsReviewable;
+        }
+    }
+
     verification def StageCliInteractionVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned verification of the two-command stage interaction, not

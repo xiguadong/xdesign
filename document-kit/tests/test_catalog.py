@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import copy
 import json
 import tempfile
@@ -13,6 +15,7 @@ from xdesign_doc_kit.compatibility import DocumentKitError, digest_v2
 from xdesign_doc_kit.core import check_documents, create_document, get_contract, plan_document
 
 CACHE = REPO / "cache/document-kit-catalog-tests"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 ZERO = "0" * 64
 
 

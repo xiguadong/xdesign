@@ -11,7 +11,8 @@ and tool arguments cannot redirect it. Every path is local, POSIX, and relative
 to the selected project or pack. Absolute paths, `.` or `..` components,
 unexpected separators, and symlink escapes are errors.
 
-The engine accepts schema `1.0` and `1.1` and dispatches behavior by schema, not
+This section specifies the original schema `1.0` and `1.1` behavior. The separate
+[structured contract](#i21) designs schema `1.2`; dispatch remains by schema, not
 by a caller's preferred interpretation. Unknown schemas fail `invalid-profile`.
 The root 1.1 pack is `xdesign-sysml-docs` version `1.1.0` with digest algorithm
 version `"2"`. A byte-exact v1 compatibility pack lives at
@@ -451,3 +452,364 @@ allowlist. Exact bundled-v1 routing under 1.1 precedes own-identity mismatch
 checks, and original 1.1 packs remain explicitly selectable after a later release.
 A different 1.1 release, unknown identity, unmanaged-page update, stale fixture,
 or unapproved comparison fails closed without migration or silent refresh.
+
+<a id="i21"></a>
+
+## 10. Structured document-kit public API (designed release)
+
+This section is the consumer-facing design for the proposed 1.2.0 kit. It is not
+an assertion that these additions execute today. The original [1.0/1.1 contract](#i20)
+continues unchanged when either original pack is selected; the [design allocation](../design/document-kit.md#d115)
+and [planned tests](../verification/design.md#d116) explain how the new release
+preserves those contracts. The distributed 1.2 kit will include a self-contained
+`API.md` with these operation signatures, route and template-field tables, original
+pack selection rules, error/outcome vocabulary and examples. It includes the
+necessary 1.0/1.1 behavior instead of linking to an unpublished repository path;
+the pack's README, rules and skill link to it locally. A consumer need not have
+this repository to understand or use the kit.
+
+### 10.1 Selection and profile representation
+
+The new `document_class` values are `api-design`, `flow-index`, `flow-definition`,
+`flow-implementation`, and `flow-views`. The existing five class names are retained.
+A selection is exactly `{ "document_class": string, "name": string, "layer": string|null }`.
+`name` is the API basename for `api-design`, the flow basename for flow classes,
+and the existing filename slug for a flat class. `layer` is required only for
+`api-design` and must be null/omitted for all other classes. Omission is normalized
+to null in returned `route_selection`. Components are lowercase semantic kebab-case;
+the bundled API layers are `core`, `simple-flow`, `wish-verify`, `storage`, and
+`index` is a reserved API name. The flow class `flow-index` creates a genuine
+`index.md` page and accepts an ordinary flow name.
+
+The exact bundled `path_template` values and generic IDs are in
+[the route table](../design/document-kit.md#d115). For example, selections
+`api-design`/`create-run`/`core` and `flow-definition`/`simple-flow`/null produce
+`docs/design/api/core/create-run.md` and
+`docs/design/flows/simple-flow/definition.md`. The other flow classes produce
+`index.md`, `implementation.md`, and `views.md` in that same flow directory.
+A reviewed derived schema 1.2 pack can configure its allowed layers and safe route
+prefixes within the documented selector grammar. Pack validation rejects ambiguous
+or overlapping routes, path traversal, absolute paths, unexpected separators and
+symlink components. A target path is never a caller-supplied create/update/attach
+argument.
+
+### 10.2 Python operations
+
+The `xdesign_doc_kit` public exports remain the six functions and `DocumentKitError`.
+Existing positional parameters and defaults are retained; additions are keyword-only:
+
+```python
+get_contract(profile_root=None)
+plan_document(target_root, document_class, name, profile_root=None,
+              template_id=None, *, layer=None)
+create_document(target_root, document_class, name, metadata, sections,
+                profile_root=None, expected_contract_sha256=None,
+                template_id=None, *, layer=None)
+update_section(target_root, document_class, name, section_key, content,
+               expected_sha256, fields=None, profile_root=None,
+               expected_contract_sha256=None, *, layer=None)
+attach_figure(target_root, document_class, name, section_key, figure,
+              expected_sha256, profile_root=None, expected_contract_sha256=None,
+              concern=None, *, layer=None, decision=None)
+check_documents(target_root, document_class=None, profile_root=None, *, selection=None)
+```
+
+`profile_root` is a selected pack directory; `target_root` is an existing selected
+project directory. `template_id` is optional for 1.1/1.2 plan/create and defaults
+to the class's generic entry; it is never used to retarget an existing document.
+`expected_contract_sha256`, when supplied, is a nonzero lowercase 64-hex digest
+of the selected pack and is rechecked before publication. `expected_sha256` on
+update/attach is the current document byte hash. `fields`, if supplied, maps only
+required field keys for that section to nonempty strings. `figure` has exactly
+`asset`, `title`, `Question`, `Model view`, `Companions`, `Status`, `Reading`,
+and `Limits`; `asset` names an existing `assets/<semantic-name>.svg` relative to
+the page. `concern` is null for the five bundled 1.2 entries and selects an exact
+declared concern in a derived entry. `decision` is null except for an as-yet
+unselected schema 1.2 `optional` concern that permits a figure; it is the exact
+six-field object described below, supplied by the caller.
+
+`selection` is null for whole-project/class-filter checking; otherwise it is the
+three-key selection object above, with explicit null `layer` when inapplicable.
+If both `document_class` and `selection` are supplied, they must agree. The class
+filter without `selection` retains project-global checks; under 1.2 its document
+set uses recorded classes and complete matching from the
+[route and scope contract](../design/document-kit.md#d115).
+A selected check accepts only a registered managed target and reports its
+scope; it is not a whole-project acceptance. Schema 1.0/1.1 selections reject
+non-null `layer` or `selection` as `invalid-request`, leaving their old whole/
+class-filter operations and original result fields unchanged.
+
+| Operation | Success result and effects |
+| --- | --- |
+| `get_contract` | Existing selected `profile_id`, `version`, `contract_sha256`, `contract_digest_version`, `profile`, `rules`, `templates`, `catalog`, and `semantic_review_required`; 1.2 `profile` includes the new route declarations and `templates` includes the exact five new generic and existing catalog template bytes. No project is written. |
+| `plan_document` | Existing `document_class`, `name`, `path`, `exists`, `sha256` (null if absent), `template_id`, `effective_identity`, `required_metadata`, `required_sections`, `anchor_policy`, `figure_block`, and `semantic_review_required`; 1.2 adds normalized `route_selection`. No model source need exist and no file is written. A readable unmanaged existing page is reported, not adopted. |
+| `create_document` | Existing `path`, new document `sha256`, `anchors`, `template_id`, `effective_identity`, and `semantic_review_required`; 1.2 adds `route_selection`. The selected pack identity is also returned at top level. Create requires complete caller metadata and sections, validates the candidate and refuses an existing destination or registry collision. |
+| `update_section` | Existing changed `path`, `sha256`, `effective_identity`, and `semantic_review_required`; 1.2 adds `route_selection`. The effective recorded template, not today's default, defines section keys and fields. Only the chosen section changes; marker, other sections and registry remain byte-identical. |
+| `attach_figure` | Existing changed `path`, `sha256`, `figure_number`, `effective_identity`, `provenance_review_notes`, and `semantic_review_required`; 1.2 adds `route_selection`. The supplied existing asset and six fields form the figure block in the selected section. Stale hashes and prohibited choices refuse before publication. |
+| `check_documents` | Existing `checked_paths`, `scanned_paths`, hashes, `effective_identity_by_path`, `scope`, `global_findings`, `diagnostics`, `unevaluated_checks` and `semantic_review_required`. Under 1.2, `scope.selection` is the normalized object or null; selected mode lists only the selected path in `checked_paths`, while `scanned_paths` discloses context scanning. All reports retain the selected pack identity at top level. |
+
+All successful result objects include `ok=true` and selected `profile_id`,
+`version`, `contract_sha256` and `contract_digest_version`. Each effective identity
+contains exactly `profile_id`, `version`, `document_class`, `template_id`,
+`contract_sha256`, `contract_digest_version`. A successful check means deterministic
+predicates passed, not engineering or figure acceptance. A check with findings
+returns a report with `ok=false` and diagnostics, rather than an exception.
+For rejected operations Python raises `DocumentKitError`; `as_dict()` yields the
+error envelope below.
+
+A check report is returned only after its required inputs and scan scope can be
+read. An invalid request, invalid pack, unreadable required input, malformed
+shared registry or unregistered selection instead raises `DocumentKitError` with
+the same error envelope used by other operations. Findings in readable pages (including identity, route,
+anchor and locator defects) return `ok=false` with the advertised checked/scanned
+scope. Neither a partial scan nor an exception is a completed check report.
+
+### 10.3 Metadata, sections and diagrams
+
+Each `metadata` object has exactly `title`, `status`, `revision`, and `model_sources`.
+The first three are nonempty strings; `model_sources` is a nonempty list of distinct,
+readable project-relative `.sysml` regular files under configured model roots.
+At least one readable `.sysml` must be present in a required root. Each page,
+including a flow index, supplies its own list. Language-side API rationale does not
+replace the context model input or claim that the API is realized by that model.
+
+`sections` is an object keyed by every section in the selected template and no
+others. Each value has exactly `anchor`, `content`, and `fields`: a globally unique
+profile-valid anchor, nonempty caller prose, and the exact required field map from
+plan. Field values are nonempty strings; `not applicable` is accompanied by the
+author's reason. The five new bundled templates and required fields are enumerated
+in [the design table](../design/document-kit.md#d115). The API layer field equals
+the selection's layer; a mismatch is `invalid-request` on create/update and the
+same diagnostic on check. Other engineering-field meaning remains for review.
+A derived template may use `diagram_decisions` as a string containing the JSON
+array specified by the original
+contract. An applicable `figure` decision requires the supplied SVG and complete
+block in the document; a `table`, `prose`, or `not-applicable` decision has a reason
+and cannot be attached as a figure. Schema 1.2 adds the concern applicability value
+`optional` with a nonempty trigger: its section's decision array may initially be
+empty. To attach its first figure, pass `concern` and a `decision` object with
+exactly `concern`, `applies`, `choice`, `rationale`, `asset`, `model_view`: the same
+concern, `true`, `figure`, a nonempty caller rationale, and the same asset and model
+view as the `figure` input. The operation inserts that decision and the figure block
+in the same atomic document replacement. A present non-figure decision is refused
+even if a replacement `decision` is submitted. The five bundled structured templates
+declare no required concern, so a free optional figure uses `concern=null` and
+`decision=null`; unknown concerns are rejected. Supplying `decision` under an
+original 1.0/1.1 pack, or for a target whose effective pack is 1.0/1.1, is
+`invalid-request`. Clearing/changing an attached optional figure decision through
+update so its retained block no longer matches is `invalid-diagram-decision`;
+update is not a figure removal operation. All figure fidelity and model meaning
+are separately reviewed.
+
+### 10.4 CLI, MCP tools and resources
+
+The CLI retains `get-contract`, `plan-document`, `create-document`, `update-section`,
+`attach-figure`, `check-documents`, `--target-root`, `--profile-root`, `--class`,
+`--name`, `--template-id`, `--section`, `--concern` and `--input`. It adds `--layer`
+to plan/create/update/attach and to selected check; it adds
+`--expected-contract-sha256` to create/update/attach. An attach `--input` JSON object
+may add the optional `decision` object alongside `figure` and `expected_sha256`.
+For `check-documents`, no
+`--name` means the existing whole-project or `--class` filter; `--name` requires
+`--class` and selects one registered document, with `--layer` required for
+`api-design`. `--layer` without `--name`, or a layer for another class, is
+`invalid-request`. The CLI maps these flags into the exact Python selection object;
+its existing JSON input file or JSON-string handling remains unchanged. It emits
+one JSON result and exits 0 for success, 1 for rejected operations or failing checks,
+and 2 for invalid invocation.
+
+For 1.2 calls, the create JSON object has exactly `metadata` and `sections`;
+update has required `content`, `expected_sha256` and optional `fields`; attach
+has required `figure`, `expected_sha256` and optional `decision`. Reject extra
+payload keys as `invalid-request`, including an `output_path` or alternate root.
+Selectors and the expected contract digest come from the documented flags, never
+silently ignored JSON keys. Original selected packs keep their old payload behavior.
+
+The MCP tools retain their existing names and bound project/profile selectors.
+Plan/create/update/attach add optional `layer`; create/update/attach add optional
+`expected_contract_sha256`; attach adds optional `decision`; `check_documents` adds
+optional `selection`. If an
+expected digest is absent the launch-pinned digest is used; if supplied it must
+match that pin. A well-formed nonmatching digest is `contract-drift`; a zero or
+malformed digest is `invalid-request`. Tool arguments cannot redirect the
+launch-selected root or pack.
+The same core decisions and fields are returned. A rejected operation is an MCP
+tool error with the core error envelope as JSON; a completed check with findings
+returns a normal structured report with `ok=false`, not an error transport flag.
+
+For 1.2 operations, adapters perform the shared request-shape preflight before
+live pack validation; MCP first rejects attempted binding redirection. They do not call the existing
+live-contract guard before that preflight and thereby change core error priority.
+The launch pin is checked at the selected-pack phase, and on writes before
+publication. Error transport serializes `DocumentKitError.as_dict()` in full,
+including `outcome`, rather than rebuilding only code/message/diagnostics.
+
+Existing resources remain `xdesign-doc-kit://contract`, `xdesign-doc-kit://rules`,
+`xdesign-doc-kit://catalog`, `xdesign-doc-kit://template/{document_class}`, and
+`xdesign-doc-kit://template/{document_class}/{template_id}`. In 1.2 the first three use the
+selected 1.2 identity, the class template resource returns that class's generic
+exact template bytes, and the selected template resource returns the exact named
+entry bytes. `get_contract.templates` exposes the same bytes to CLI and Python.
+Unknown/class-mismatched template IDs fail; examples are never resources or
+selected templates. MCP revalidates the selected closure and retained child
+bindings against its launch pin on every tool/resource request; drift requires a
+restart with a reviewed pack.
+
+### 10.5 Consumer example
+
+The following is an illustrative future invocation in a consumer project; it is
+not an executed result. The caller must first provide `mbse/model/context.sysml`,
+allocate unused anchors, and place the complete JSON payload shown below at
+`cache/api-create.json`.
+
+```sh
+xdesign-doc-kit plan-document --target-root . --profile-root /path/to/kit \
+  --class api-design --name create-run --layer core
+xdesign-doc-kit create-document --target-root . --profile-root /path/to/kit \
+  --class api-design --name create-run --layer core --input cache/api-create.json
+xdesign-doc-kit check-documents --target-root . --profile-root /path/to/kit \
+  --class api-design --name create-run --layer core
+```
+
+```json
+{
+  "metadata": {"title": "Create run", "status": "draft", "revision": "1", "model_sources": ["mbse/model/context.sysml"]},
+  "sections": {
+    "purpose": {"anchor": "U201", "content": "This fictional operation creates a run.", "fields": {"api_identity": "Example::create_run", "api_kind": "function", "layer": "core", "purpose": "Create a run for one plan."}},
+    "contract": {"anchor": "U202", "content": "The caller supplies a plan and receives a run or an error.", "fields": {"declaration": "`create_run(plan) -> Result<Run, Error>`", "inputs": "One plan.", "outputs": "One run.", "errors": "Invalid plans are refused.", "side_effects": "No persistence in this fictional example."}},
+    "behavior": {"anchor": "U203", "content": "The plan is validated before construction.", "fields": {"behavior": "Validate, then construct.", "invariants": "No run exists for an invalid plan.", "constraints": "No persistence is performed."}},
+    "trace": {"anchor": "U204", "content": "The source projection and review are planned.", "fields": {"model_realization_or_reason": "Language-side helper; the context model identifies its boundary.", "source_projection": "src/core/factory.rs is the proposed location.", "requirements_links": "Plan validation requirement, pending link allocation.", "design_links": "Run design, pending link allocation.", "verification_links": "Invalid-plan case, pending link allocation."}},
+    "limits": {"anchor": "U205", "content": "No implementation or result is claimed.", "fields": {"unresolved_items": "The example does not specify concurrency."}}
+  }
+}
+```
+
+The create result's `sha256` is the hash supplied by the caller to an update
+payload such as `{"content":"Revised boundary.","expected_sha256":"<current-hash>"}`;
+save that payload as `cache/api-update.json` and invoke:
+
+```sh
+xdesign-doc-kit update-section --target-root . --profile-root /path/to/kit \
+  --class api-design --name create-run --layer core --section purpose \
+  --input cache/api-update.json
+```
+
+`<current-hash>` denotes the actual nonzero SHA-256 returned by the prior operation,
+not a placeholder accepted by the tool. The equivalent Python sequence, using the
+same JSON input and an isolated project, is:
+
+```python
+import json
+from pathlib import Path
+from xdesign_doc_kit import plan_document, create_document, check_documents, update_section
+
+payload = json.loads(Path("cache/api-create.json").read_text())
+pack = "/path/to/kit"
+plan = plan_document(".", "api-design", "create-run", pack, layer="core")
+created = create_document(".", "api-design", "create-run", payload["metadata"],
+                          payload["sections"], pack, layer="core")
+selection = {"document_class": "api-design", "name": "create-run", "layer": "core"}
+report = check_documents(".", profile_root=pack, selection=selection)
+assert report["ok"] and report["checked_paths"] == [created["path"]]
+updated = update_section(".", "api-design", "create-run", "purpose",
+                         "Revised boundary.", created["sha256"], profile_root=pack,
+                         layer="core")
+```
+
+For an MCP process already bound to the same project and pack, the `tools/call`
+parameters for selected checking are the following; plan/create/update use the
+same class/name/layer and caller data shown above, without root arguments:
+
+```json
+{"name":"check_documents","arguments":{"selection":{"document_class":"api-design","name":"create-run","layer":"core"}}}
+```
+
+### 10.6 Failure order, access and publication
+
+Request shape, slug/layer syntax and supplied expected-digest shape are checked
+first; load and validate the selected pack and all declared child bindings next;
+then resolve the target route and reject symlink components. Create checks model
+inputs, refuses an existing target (`document-exists`) before an occupied registry
+path (`registry-mismatch`), validates content and anchor/link context, rechecks
+the selected pin, and publishes. Update/attach check registry ownership, target
+readability, current hash (`stale-document`), effective identity, section and
+figure/decision validity, candidate content, then recheck both pin and hash before
+replacement. An unmanaged update/attach is `registry-mismatch`; check applies its
+ordinary project checks without adoption. A selected check of an unmanaged target
+is `registry-mismatch`. Independent findings are sorted by file, line, code and
+detail; reporting order does not imply semantic priority.
+
+Request shape means argument types, allowed object keys, required members and
+hash/slug syntax; required content semantics, allowed layers/reserved names and
+concern membership need the loaded contract. On update/attach, an unknown concern,
+disallowed decision or empty figure caption follows ownership and current-hash
+checks, while a non-object `figure` or malformed expected hash precedes pack
+loading. Test simultaneous faults to establish this order. For original selected
+packs, existing operation precedence is preserved; this ordered extension applies
+when 1.2 is selected, including its operations on retained pages.
+
+A malformed `name` or reserved xdesign API `index` is `invalid-document-name`.
+Missing, malformed, disallowed or unexpected `layer`, an unknown class, and a
+class/selection disagreement are `invalid-request`; a symlink in a resolved target
+or source is `unsafe-path`. A nonzero expected digest differing from the selected
+pack is `contract-drift`. An unknown concern or mismatch between caller `decision`
+and `figure` is `invalid-diagram-decision`; a missing decision for an unselected
+optional concern is `missing-diagram-decision`. These checks precede writes, with
+ownership and stale-hash precedence as stated above.
+
+Whole-project check under 1.2 validates exact bundled v1, 1.1.0 and 1.2.0 pages
+against their respective retained/effective contracts, plus unmanaged project
+checks. Selected check verifies the selected registered page and its global anchor,
+link and model-locator context as described in the design; it reports its scope,
+including scans. The original pack roots remain selectable at
+`compatibility/v1.0.0/` and `compatibility/v1.1.0/` beneath the 1.2 distribution.
+Original packs retain their old behavior and their whole-project
+checks may refuse foreign 1.2 identities. Unknown or forged selected identities
+are `registry-mismatch` (unknown custom v1 remains `unsupported-legacy-identity`)
+and never migrate. A known retained pack's descriptor mismatch is `contract-drift`;
+a copied stored example with sentinel identity is `registry-mismatch`.
+
+Compatibility bindings share one documentation root/registry and coherent class
+routes as specified in the [compatibility design](../design/document-kit.md#d115).
+A derived pack with conflicting roots, routes or
+digests for the same release fails `invalid-profile`; it cannot silently retarget
+old pages. This namespace validation follows child-byte validation and descriptor
+comparison, so a wrong declared child digest remains `contract-drift`.
+
+The error envelope is `{"ok":false,"error":{"code":...,"message":...},
+"diagnostics":[{"rule":...,"code":...,"file":...,"line":...,"detail":...}]}`.
+Existing codes keep their I20 meanings. New stable 1.2 codes are `access-denied`
+(for denied route/lock/staging access before atomic replacement),
+`publication-incomplete` (a newly created page is known to remain without its
+registry entry), and `publication-unknown` (post-publication outcome cannot be
+established). Denied readable project inputs use `unreadable-input`; denied atomic
+page/registry replacement uses `atomic-replace-failed`; pack readers retain their
+specific `invalid-profile`/`invalid-catalog` classifications. For these publication
+or access errors the envelope additionally has `outcome` with exactly `operation`,
+`phase`, `publication_state` (`none`, `page-only`, or `unknown`) and
+`path` (safe project-relative path or null). Python exposes the same fields on the
+exception and through `as_dict()`. For errors in a retained 1.0/1.1 operation,
+existing codes and envelope remain unchanged except that a previously uncaught OS
+exception is converted to the appropriate documented access error.
+
+`operation` is one of the six Python operation names; `phase` is `pack-read`,
+`model-read`, `document-read`, `registry-read`, `route`, `lock`, `staging`,
+`page-publish`, `registry-publish`, `cleanup`, or `response`. `none` means this
+invocation published no page or registry change (cache files and newly created
+empty directories are not publication), `page-only` means only its new page is
+known to remain, and `unknown` requires inspection after an error following
+publication or an unconfirmed effect. A denied pack resource may put a normalized
+pack-relative locator in diagnostic detail while `outcome.path` is null; it must
+not expose an unsafe path as a project-relative target.
+
+A failed atomic replacement never falls back to partial copying. If registry
+publication after a new page fails, cleanup removes only the created page after
+verifying it is still that creation; successful cleanup returns the underlying
+failure with `publication_state=none`. If cleanup is denied and the orphan can be
+confirmed, return `publication-incomplete` and `page-only`; if its state cannot be
+confirmed, return `publication-unknown` and `unknown`. A later project check
+reports a marker without registry as mismatch and does not adopt it. An error after
+publication whose effect cannot be established is `publication-unknown`; inspect
+the page and registry before retrying. These outcomes do not promise a two-file
+transaction or deletion of a pre-existing file. Before publication, rejected and
+denied requests leave existing page/registry and outside-target bytes unchanged.

@@ -58,6 +58,7 @@ package XDesignDetailedDesign {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute documentClass : String;
         in attribute name : String;
+        in attribute layer : String [0..1];
         in attribute templateId : String [0..1];
         out attribute documentPath : String;
         out attribute requiredSections : String [1..*];
@@ -68,6 +69,7 @@ package XDesignDetailedDesign {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute documentClass : String;
         in attribute name : String;
+        in attribute layer : String [0..1];
         in attribute callerContent : String;
         in attribute templateId : String [0..1];
         out attribute documentSha256 : String;
@@ -76,7 +78,9 @@ package XDesignDetailedDesign {
 
     action def UpdateContractSection {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
+        doc /* documentPath is resolved internally from the public selector. */
         in attribute documentPath : String;
+        in attribute layer : String [0..1];
         in attribute sectionKey : String;
         in attribute callerContent : String;
         in attribute expectedSha256 : String;
@@ -88,12 +92,16 @@ package XDesignDetailedDesign {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         doc /* Optional concern is allowed only with no view concerns. Otherwise
            exactly one declared concern selects exactly one figure decision;
-           table/prose/not-applicable decisions always reject before writing. */
+           table/prose/not-applicable decisions always reject before writing.
+           Schema 1.2 can atomically add a supplied decision for an unselected
+           optional concern together with its figure block. */
         in attribute documentPath : String;
+        in attribute layer : String [0..1];
         in attribute sectionKey : String;
         in attribute canonicalSvg : String;
         in attribute expectedSha256 : String;
         in attribute concern : String [0..1];
+        in attribute decision : String [0..1];
         out attribute documentSha256 : String;
         out attribute effectiveIdentity : String;
     }
@@ -101,6 +109,7 @@ package XDesignDetailedDesign {
     action def CheckContractDocuments {
         @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D113"; }
         in attribute projectRoot : String;
+        in attribute selection : String [0..1];
         out attribute diagnosticReport : String;
         out attribute effectiveIdentityByPath : String;
     }
@@ -399,6 +408,84 @@ package XDesignDetailedDesign {
             attribute selectedContractDigest : String;
             attribute effectiveContractDigest : String;
             attribute route : String;
+        }
+    }
+
+    package StructuredDocumentKitDesign {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+        doc /* Proposed schema 1.2 route and authoring design. Its original
+           1.0 and 1.1 contracts are retained and separately resolved; this
+           allocation is not evidence of implementation or acceptance. The R20
+           requirements retain their proposed status and have no formal satisfy
+           links in traceability.sysml. D115 owns the proposed requirement-to-design
+           mapping; formal satisfaction and requirement-status changes remain pending. */
+
+        item def StructuredDocumentSelection {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            attribute documentClass : String;
+            attribute name : String;
+            attribute layer : String [0..1];
+        }
+
+        item def StructuredCheckScope {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            doc /* A selected result names its checked document and context scans;
+               it does not assert a whole-project pass. */
+            ref item selection : StructuredDocumentSelection [0..1];
+            attribute checkedPaths : String [0..*];
+            attribute scannedPaths : String [0..*];
+            attribute contextFindings : String [0..*];
+        }
+
+        part def StructuredRouteResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            doc /* Validate class, semantic name and optional allowed layer;
+               resolve one nonoverlapping project-relative route without following
+               symlinks. API index is reserved in the bundled profile. */
+            ref item selection : StructuredDocumentSelection;
+            attribute resolvedPath : String;
+        }
+
+        part def StructuredTemplateLibrary {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            doc /* Five structured entry contracts and their templates, guides,
+               examples and fixtures supplement the unchanged 16 flat selections;
+               caller content supplies all engineering claims. */
+            attribute templateIds : String [5..*];
+        }
+
+        part def StructuredCompatibilityResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            doc /* Keep registry schema 1 and digest version 2 readable by old
+               loaders. Verify exact retained 1.1, root-level and nested v1 identities,
+               hash raw nested closures, and validate example sentinels by owning
+               pack. Resolve each page without migration or identity rewriting. */
+            attribute selectedDigest : String;
+            attribute effectiveDigest : String;
+        }
+
+        part def StructuredDocumentOperations :> DocumentContractEngine {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D115"; }
+            doc /* Plan/create/check/update/attach through one selector and
+               effective contract. Expose actionable denied-access and incomplete
+               publication outcomes without claiming page/registry atomicity. */
+            ref part routes : StructuredRouteResolver;
+            ref part templates : StructuredTemplateLibrary;
+            ref part releases : StructuredCompatibilityResolver;
+        }
+
+        part def StructuredConsumerContract {
+            @XDesignCommon::DocSection { document = "docs/interfaces/document-kit-api.md"; section = "I21"; }
+            doc /* The same public Python, CLI and bound MCP operations, templates,
+               selection, diagnostics and consumer documentation; designed only. */
+        }
+
+        part def StructuredValidationBoundary {
+            @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D116"; }
+            doc /* SDK-01 through SDK-13 retain exact identities, caller inputs,
+               observations, hashes and limitations. Scoped structural findings
+               remain separate from permitted semantic judgment. */
+            ref item scope : StructuredCheckScope;
         }
     }
 

@@ -1,4 +1,4 @@
-<!-- document-kit: profile=xdesign-sysml-docs@1.1.0 class=design template=interaction-flow contract=0000000000000000000000000000000000000000000000000000000000000000 digest-version=2 -->
+<!-- document-kit: profile=xdesign-sysml-docs@1.2.0 class=design template=interaction-flow contract=0000000000000000000000000000000000000000000000000000000000000000 digest-version=2 -->
 # Aster current-reading interaction flow
 
 > Status: fictional-example | Revision: 1 | Model sources: `mbse/model/example.sysml`

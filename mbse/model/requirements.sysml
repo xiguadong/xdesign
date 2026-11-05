@@ -548,4 +548,119 @@ package XDesignRequirements {
         attribute redefines rationale = "The additive catalog surface needs its own design answer rather than expanding an already satisfied adapter requirement and claiming that the current engine implements behavior it does not contain.";
     }
 
+    requirement structuredDocumentationHasNamedRoutes : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. A selected versioned contract
+           provides a per-API design route under docs/design/api/<layer>/<api>.md
+           and the index, definition, implementation and views document roles under
+           docs/design/flows/<flow>/. The caller selects a permitted role and semantic
+           name components, not an arbitrary output path. The xdesign API route
+           reserves index for a layer landing page, not an API basename. Planning
+           returns the unique destination, selected identity, inputs and existence
+           state without writing.
+           The structured contract also retains the existing flat class routes and
+           their authoring behavior; original contracts remain independently usable. */
+        attribute redefines rationale = "A reusable author needs predictable destinations that reflect the ownership of an individual API or flow document, rather than putting every design page at a flat path.";
+    }
+
+    requirement apiDesignDocumentsCoverContract : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. A reusable per-API template and
+           authoring guidance require caller-supplied identity, layer and kind,
+           purpose, status and revision; a model realization or language-side reason;
+           implementation projection; contract, behavior and constraints; and links
+           to related design, requirements and planned verification as applicable.
+           The contract covers signatures or type definitions, inputs, outputs,
+           errors, effects and relevant invariants or a reasoned not-applicable
+           decision. Project anchor policy and the xdesign unique U anchor rule apply.
+           No template fabricates engineering facts or executed results. */
+        attribute redefines rationale = "A dedicated API page must convey the design and its trace, not merely put a generic document at an API-shaped path.";
+    }
+
+    requirement flowDesignDocumentsCoverLayers : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. The four flow document roles have
+           selectable contracts for a landing page, definition, implementation and
+           views. Their required author inputs address navigation and scope; stages,
+           gates and behavior; implementation allocation and source projection; and
+           model views, applicability and figure references, respectively. Authored
+           links and figures remain subject to the selected project rules. The kit
+           does not invent a flow design, model, diagram or execution result. */
+        attribute redefines rationale = "The flow directory is meaningful only when each page guides the distinct design question it owns and stays connected to the other pages.";
+    }
+
+    requirement structuredDocumentationUsesSafeOperations : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. Plan, create, check, update and
+           figure attachment operate on structured destinations and their effective
+           contract. Every API and flow page requires caller-supplied nonempty title,
+           status, revision and a nonempty, unique list of readable project-relative
+           SysML sources within configured roots. Planning may precede those sources.
+           Plan reports a readable unmanaged target without adoption; creation refuses
+           its collision; ordinary checking applies project checks without adoption;
+           update and attachment refuse unmanaged targets. Updates and attachments
+           require the current hash. Permitted figure decisions are attachable and
+           prohibited decisions fail without changing the document or registry.
+           Reject unsafe paths, invalid names and mismatched identities. Denied reads
+           or writes produce structured diagnostics. Preserve pre-existing bytes on
+           prepublication failures and report uncertain or incomplete publication:
+           create's page and registry are not an atomic pair. Never modify files
+           outside the selected project. */
+        attribute redefines rationale = "Nested route selection must remain as safe and repeatable as the existing flat authoring operations and must not silently change an unrelated document.";
+    }
+
+    requirement structuredDocumentationKeepsVersionIdentity : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. A changed contract has a new
+           version and digest. The structured contract preserves the five flat
+           class routes, generic defaults and original catalog selections, including
+           their required sections, fields and view decisions. The original schema
+           1.0 and 1.1.0 packs remain selectable with their original bytes, digests,
+           routes, markers, registry interpretations and behavior. The structured
+           release resolves exact bundled-v1, bundled-1.1.0 and new identities in
+           one project and supports whole-project and selected-document checks under
+           each page's original effective contract. Selecting an original pack keeps
+           its existing treatment of foreign identities, including a possible
+           whole-project mismatch. Unrecognized or mismatched identities fail closed
+           without migration, rewriting, registration or adoption. Prior wish and
+           evidence records are immutable. */
+        attribute redefines rationale = "A new route contract cannot silently redefine a prior release or invalidate the identity and history of a document already authored under it.";
+    }
+
+    requirement structuredDocumentationHasSharedSurfaces : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. The Python public API, JSON CLI
+           and bound stdio MCP adapter expose the same structured route selections,
+           template and contract information, creation and update decisions,
+           validation results and effective identities. Equivalent requests have
+           equivalent paths, output and diagnostics within each transport's envelope;
+           MCP cannot redirect its bound project or contract. Existing supported
+           calls and resources continue to work under their selected contracts. */
+        attribute redefines rationale = "Authors and automation must be able to use the same structured contract independently of their chosen interface without losing existing callers.";
+    }
+
+    requirement documentKitPublicApiIsDocumented : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. Distributable kit documentation
+           describes the public Python API, CLI and MCP tools and resources, including
+           inputs and outputs, route selection and examples, model-source prerequisites,
+           error and overwrite behavior, version and digest identity, check scope,
+           incomplete or unknown publication outcomes and semantic review limits.
+           It gives consumers a usable plan, create, check and update sequence and
+           identifies the authoritative detailed interface contract. */
+        attribute redefines rationale = "A reusable authoring facility is not usable across projects when consumers cannot discover its supported operations and their constraints from the distributed kit.";
+    }
+
+    requirement structuredDocumentationEvidenceIsReviewable : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Proposed; no design satisfier yet. Verification retains assessed
+           source revision, selected and effective contract versions and digests,
+           caller inputs, generated paths and hashes, commands, outcomes, diagnostics,
+           unchanged-byte evidence for failures, compiler limitations and permitted
+           reviewer judgment. Deterministic structural findings are reported separately
+           from semantic assessment of API and flow content, model alignment and
+           visual fidelity; a structural pass is not engineering acceptance. */
+        attribute redefines rationale = "A reviewer needs to reproduce the exact authoring and compatibility evidence and distinguish mechanical conformance from the truth and usefulness of the engineering design.";
+    }
+
 }

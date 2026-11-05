@@ -1,0 +1,395 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "documents": [
+    {
+      "document_class": "requirements",
+      "name": "mixed-system-requirements",
+      "template_id": "system-requirements",
+      "metadata": {
+        "title": "Aster remote monitoring capability requirements",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "R100",
+          "content": "Aster introduces a new remote monitoring capability for a greenhouse that previously used manual readings. The goal is continuous visibility, not a narrow change to an existing interface.",
+          "fields": {
+            "system_boundary": "The capability includes local sensing, buffering, and remote reading; irrigation control and long-term analytics are separate systems."
+          }
+        },
+        "requirements": {
+          "anchor": "R101",
+          "content": "The capability shall sample once per minute, retain the latest ten valid readings during connectivity loss, and expose current and recent values to an authorized controller.",
+          "fields": {
+            "normative_statements": "Provide 60-second sampling, UTC timestamps, ten-reading outage history, latest-reading queries, and explicit invalid-data rejection.",
+            "rationale": "Operators need trustworthy current conditions and a small outage history without turning the hub into a control or analytics platform."
+          }
+        },
+        "acceptance": {
+          "anchor": "R102",
+          "content": "Capability acceptance combines a scheduled sampling demonstration, an outage demonstration, and an authorized-query demonstration with measurable outputs.",
+          "fields": {
+            "measurable_conditions": "Sixty valid readings arrive in one hour, the newest ten survive a 20-minute outage, and an authorized controller retrieves the expected latest value.",
+            "verification_method": "Demonstrate with fake time, a scripted probe, an outage switch, and an authorized test controller; this example does not execute the demonstrations."
+          }
+        },
+        "trace": {
+          "anchor": "R103",
+          "content": "The new capability decomposes into context, composition, interaction, data, operation, and verification artifacts rather than duplicating those details here.",
+          "fields": {
+            "model_elements": "Example::Sensor, Example::Controller, and Example::WeatherService identify the new capability's participants.",
+            "design_links": "Aster system-context and reading-pipeline designs own realization; the requirements retain only their observable goals and constraints."
+          }
+        },
+        "limits": {
+          "anchor": "R104",
+          "content": "Enrollment, authorization mechanics, multi-year retention, and actuator safety requirements need separate analysis before a real capability is approved.",
+          "fields": {
+            "unresolved_items": "Controller enrollment, credential management, long-term storage, and actuator safety are outside this worked capability example."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/system-requirements.md"
+    },
+    {
+      "document_class": "architecture",
+      "name": "mixed-system-context",
+      "template_id": "system-context",
+      "metadata": {
+        "title": "Aster system context and boundary",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "boundary": {
+          "anchor": "B100",
+          "content": "AsterHub is the only element inside the product boundary. Operator and WeatherService are external actors; the figure shows exchange direction without implying internal decomposition.\n\n![Aster boundary and exchanges](assets/system-context.svg)\n\n> **Figure B100-1 — Aster boundary and exchanges.**  \n> **Question:** Which parts are inside Aster and what crosses its boundary?  \n> **Model view:** Example::SystemContext  \n> **Companions:** The external interface table and component-composition example.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.  \n> **Limits:** The view shows context and exchange direction, not internal components, protocols, or deployment nodes.\n",
+          "fields": {
+            "system_boundary": "AsterHub owns sampling and buffering; Operator and WeatherService, probe power supply, and irrigation decisions are outside.",
+            "external_actors": "Operator requests current readings and sends calibration commands; WeatherService supplies forecast data used only for display context.",
+            "diagram_decisions": "[{\"concern\":\"system-boundary\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"A boundary view makes inside/outside ownership and exchange direction unambiguous.\",\"asset\":\"assets/system-context.svg\",\"model_view\":\"Example::SystemContext\"}]"
+          }
+        },
+        "interfaces": {
+          "anchor": "B101",
+          "content": "Validated readings leave AsterHub for Operator, calibration commands enter from Operator, and forecast records arrive from WeatherService without being stored as sensor measurements.",
+          "fields": {
+            "information_flows": "Outgoing Reading and HistoryResponse, incoming CalibrationCommand, and incoming ForecastRecord have distinct meanings and owners.",
+            "interface_participants": "AsterHub is provider for readings and receiver for calibration; Operator consumes readings; WeatherService is a read-only forecast source."
+          }
+        },
+        "behavior": {
+          "anchor": "B102",
+          "content": "AsterHub continues sampling when Operator disconnects and labels forecast data as external context rather than using it to alter readings.",
+          "fields": {
+            "interactions": "Operator queries and calibrates, WeatherService publishes forecasts, and AsterHub samples and responds independently of forecast availability.",
+            "states": "Online, operator-disconnected, and forecast-unavailable states clarify which external losses do and do not affect collection."
+          }
+        },
+        "constraints": {
+          "anchor": "B103",
+          "content": "No external actor may rewrite buffered history, and calibration commands never change the meaning of the Reading timestamp or measured value.",
+          "fields": {
+            "constraints": "History is read-only externally, forecast data is informational, and calibration applies only to subsequent samples.",
+            "design_rationale": "These boundaries prevent external systems from silently corrupting measurement provenance or becoming hidden sampling dependencies."
+          }
+        },
+        "trace": {
+          "anchor": "B104",
+          "content": "Example::SystemContext names the fictional view behind the figure; the component-composition and operation-contract examples own internal and protocol details.",
+          "fields": {
+            "model_elements": "Example::SystemContext, Example::Sensor, Example::Controller, and Example::WeatherService define the context participants and view.",
+            "verification_links": "A planned context review checks boundary placement, actor coverage, exchange direction, and the absence of internal-only details."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/system-context.md"
+    },
+    {
+      "document_class": "architecture",
+      "name": "mixed-component-composition",
+      "template_id": "component-composition",
+      "metadata": {
+        "title": "Aster collector buffer and exporter composition",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "context": {
+          "anchor": "B110",
+          "content": "Within the AsterHub boundary, three components divide acquisition, retention, and query work; external actors are intentionally omitted from this composition view.",
+          "fields": {
+            "system_boundary": "Only Collector, RingBuffer, and Exporter are internal components in this example.",
+            "external_actors": "Probe and Operator appear only as interface endpoints so component responsibilities remain clear."
+          }
+        },
+        "parts": {
+          "anchor": "B111",
+          "content": "Collector validates and timestamps, RingBuffer keeps ten valid readings, and Exporter answers queries without mutation. A table is sufficient for these three responsibilities.",
+          "fields": {
+            "parts": "Collector, UtcClock, RingBuffer, and Exporter are the purposeful parts; no further decomposition is needed.",
+            "responsibilities": "Collector rejects invalid values, clock supplies UTC, buffer evicts oldest-first, and exporter returns newest or NOT_READY.",
+            "diagram_decisions": "[{\"concern\":\"component-structure\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"Three responsibilities and two relationships are clearer in a table than another diagram.\",\"asset\":null,\"model_view\":null}]"
+          }
+        },
+        "relationships": {
+          "anchor": "B112",
+          "content": "Collector depends on UtcClock and writes RingBuffer; Exporter depends only on RingBuffer's read interface and cannot call append or evict.",
+          "fields": {
+            "relationships": "Collector→UtcClock for time, Collector→RingBuffer for append, and Exporter→RingBuffer for readLatest are the only internal dependencies.",
+            "interfaces": "RingBuffer exposes append(Reading) to Collector and readLatest() to Exporter; mutation is unavailable to Exporter."
+          }
+        },
+        "behavior": {
+          "anchor": "B113",
+          "content": "The collector continues appending while the exporter is unavailable, and the eleventh valid sample evicts only the oldest retained sample.",
+          "fields": {
+            "interactions": "Validation precedes append, readLatest returns a copy, and export failure never propagates back into collection.",
+            "states": "Empty, partially full, and full buffer states distinguish NOT_READY, append, and FIFO eviction behavior."
+          }
+        },
+        "constraints": {
+          "anchor": "B114",
+          "content": "The composition intentionally avoids a shared database or bidirectional controller dependency so each internal responsibility remains independently testable.",
+          "fields": {
+            "constraints": "One writer per buffer, read-only export, ten-entry capacity, and no controller callback into collection.",
+            "design_rationale": "Single-writer FIFO and narrow interfaces make ordering, ownership, and failure isolation easy to inspect."
+          }
+        },
+        "trace": {
+          "anchor": "B115",
+          "content": "The composition traces to Example::Sensor and the interaction design; buffer eviction and exporter-isolation checks cover the important relationships.",
+          "fields": {
+            "model_elements": "Example::Sensor provides the owning part; Collector, RingBuffer, and Exporter are language-side design responsibilities.",
+            "verification_links": "Planned capacity, read-only export, FIFO eviction, and controller-outage cases verify composition behavior."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/component-composition.md"
+    },
+    {
+      "document_class": "design",
+      "name": "mixed-interaction-flow",
+      "template_id": "interaction-flow",
+      "metadata": {
+        "title": "Aster current-reading interaction flow",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "D100",
+          "content": "The design explains the ordering for one current-reading request, including validation and timeout behavior rather than static schema details.",
+          "fields": {
+            "design_subject": "Synchronous request/validation/response flow between Controller and Sensor with one timeout alternate.",
+            "requirements_links": "Latest-reading query, explicit invalid-input rejection, and no-fabricated-value requirements drive the flow."
+          }
+        },
+        "participants": {
+          "anchor": "D101",
+          "content": "Controller originates ReadRequest, Sensor checks sensorId and buffer state, and the operation boundary returns ReadingResponse or an explicit outcome.",
+          "fields": {
+            "participants": "Controller is the requester; Sensor is the provider; RingBuffer is an internal read-only participant, not an external actor.",
+            "interfaces": "ReadRequest carries sensorId; ReadingResponse carries Reading, NOT_READY, UNKNOWN_SENSOR, or TIMEOUT."
+          }
+        },
+        "flow": {
+          "anchor": "D102",
+          "content": "The numbered flow is request, validation, buffer read, then response; timeout cannot produce a ReadingResponse after the deadline.\n\n![Aster request and response ordering](assets/interaction-flow.svg)\n\n> **Figure D102-1 — Aster request and response ordering.**  \n> **Question:** In what order do request, validation, response, and timeout occur?  \n> **Model view:** Example::InteractionFlow  \n> **Companions:** The operation-contract and alternate-flow tables.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.  \n> **Limits:** The view is fictional and omits transport encoding, authentication, and precise timeout duration.\n",
+          "fields": {
+            "interactions": "Controller sends ReadRequest, Sensor validates sensorId, reads newest valid Reading, and sends ReadingResponse.",
+            "ordering": "Validation precedes buffer access, buffer access precedes response, and timeout terminates the attempt without a value response.",
+            "diagram_decisions": "[{\"concern\":\"interaction-ordering\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"Numbered arrows and lifelines make request, validation, response, and timeout order explicit.\",\"asset\":\"assets/interaction-flow.svg\",\"model_view\":\"Example::InteractionFlow\"}]"
+          }
+        },
+        "alternates": {
+          "anchor": "D103",
+          "content": "Unknown sensorId returns UNKNOWN_SENSOR before buffer access, empty history returns NOT_READY, and timeout produces no reading rather than a stale fabricated response.",
+          "fields": {
+            "alternate_flows": "UNKNOWN_SENSOR skips reading, NOT_READY follows an empty read, and TIMEOUT ends the operation without ReadingResponse.",
+            "error_behavior": "Errors are explicit outcomes and never mutate history or turn an old value into a newly timestamped reading."
+          }
+        },
+        "constraints": {
+          "anchor": "D104",
+          "content": "The flow is read-only and single-request; concurrent retries, authentication, and transport retransmission are deliberately outside this example.",
+          "fields": {
+            "behavior": "One request produces at most one terminal outcome and never changes buffer contents or reading timestamps.",
+            "constraints": "No response after timeout, no buffer mutation, and no implicit retry or fallback value."
+          }
+        },
+        "projection": {
+          "anchor": "D105",
+          "content": "Tests record event order for success, unknown sensor, empty history, and timeout paths and inspect the corresponding Example::InteractionFlow view.",
+          "fields": {
+            "source_projection": "RequestHandler, RequestValidator, ReadLatestExporter, and a controllable timeout are intended design units.",
+            "verification_links": "Ordered success, unknown-sensor, empty-history, and timeout event-sequence cases are planned checks."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/interaction-flow.md"
+    },
+    {
+      "document_class": "interface",
+      "name": "mixed-operation-contract",
+      "template_id": "operation-contract",
+      "metadata": {
+        "title": "Aster getCurrentReading operation contract",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "I100",
+          "content": "getCurrentReading returns the newest valid value for one known sensor without exposing history mutation or acting as a generic data schema.",
+          "fields": {
+            "boundary": "The operation is the public query boundary; validation, buffering, and controller orchestration remain internal or external respectively.",
+            "participants": "Controller invokes the operation and Aster export adapter executes it read-only."
+          }
+        },
+        "operation": {
+          "anchor": "I101",
+          "content": "The request contains only sensorId; success returns the current Reading and does not accept time ranges, writes, or arbitrary buffer indices.",
+          "fields": {
+            "operations": "getCurrentReading(sensorId) returns Reading, NOT_READY, UNKNOWN_SENSOR, or TIMEOUT and has no retry or mutation side effect.",
+            "data_shapes": "Request is {sensorId: string}; Reading is {sensorId, utcTimestamp, celsius, quality?} with finite numeric celsius."
+          }
+        },
+        "errors": {
+          "anchor": "I102",
+          "content": "Unknown identifiers return UNKNOWN_SENSOR before buffer access, empty history returns NOT_READY, and timeout returns no value or fallback timestamp.",
+          "fields": {
+            "error_behavior": "UNKNOWN_SENSOR, NOT_READY, and TIMEOUT are terminal outcomes; none creates, updates, or backdates a Reading.",
+            "invariants": "At most one terminal outcome per request, no history mutation, and success always returns the newest valid value at read time."
+          }
+        },
+        "compatibility": {
+          "anchor": "I103",
+          "content": "Version 1 returns three required fields; version 2 may add optional quality while preserving request shape, operation name, and all error meanings.",
+          "fields": {
+            "version_policy": "Major changes alter required fields or outcomes; optional response fields and additive documentation are minor compatible changes.",
+            "compatibility_policy": "Old callers may ignore quality and new callers must accept its absence; UNKNOWN_SENSOR and NOT_READY never change meaning."
+          }
+        },
+        "trace": {
+          "anchor": "I104",
+          "content": "The operation traces to Example::InteractionFlow and planned success, unknown, empty, timeout, and compatibility checks.",
+          "fields": {
+            "model_elements": "Example::InteractionFlow defines the fictional request/validation/response order exercised by the operation.",
+            "verification_links": "Success, unknown, empty, timeout, no-mutation, and version 1/2 response checks are planned verification cases."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/operation-contract.md"
+    },
+    {
+      "document_class": "verification",
+      "name": "mixed-verification-test-plan",
+      "template_id": "verification-test-plan",
+      "metadata": {
+        "title": "Aster outage and cadence test plan",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "V100",
+          "content": "The plan tests 60-second cadence and latest-valid behavior during a controller outage; it does not record an executed result or substitute review for execution.",
+          "fields": {
+            "requirements_links": "The cadence and latest-valid requirements define observable acceptance for these planned cases.",
+            "design_links": "Collector, RingBuffer, Exporter, and fake-clock interfaces identify the units under test."
+          }
+        },
+        "methods": {
+          "anchor": "V101",
+          "content": "Deterministic demonstration drives twelve samples and a two-minute outage while recording every accepted value and exported response.",
+          "fields": {
+            "methods": "Use a scheduled demonstration, FIFO boundary analysis, and exact output comparison rather than inspection alone.",
+            "environment": "Use fake UTC time, an in-memory buffer, a scripted valid probe, and a controllable controller-connection flag."
+          }
+        },
+        "cases": {
+          "anchor": "V102",
+          "content": "The main case collects twelve valid values, drops the controller after the tenth, and checks collection and export before, during, and after the outage.",
+          "fields": {
+            "inputs": "Twelve values 20.0–21.1 Celsius at 60-second ticks, outage after value 20.9, and a final query after value 21.1.",
+            "procedure": "Record cadence and buffer after each tick, verify controller failure does not stop collection, then query after the twelfth sample.",
+            "expected_results": "Twelve timestamps are 60 seconds apart, the buffer holds 20.2–21.1, and final export returns 21.1 with its exact UTC timestamp."
+          }
+        },
+        "criteria": {
+          "anchor": "V103",
+          "content": "Pass requires exact cadence, exact retained values and order, no export during outage, and exact latest-valid response after recovery; all remain planned expectations.",
+          "fields": {
+            "pass_criteria": "No missed tick, ten retained values are exactly 20.2–21.1, outage exports are suppressed, and recovery returns only 21.1.",
+            "trace_matrix": "Cadence maps to tick records, FIFO to retained history, latest-valid to recovery response, and read-only export to unchanged timestamps."
+          }
+        },
+        "limits": {
+          "anchor": "V104",
+          "content": "The plan does not measure real scheduler jitter, physical sensor accuracy, network behavior, or multi-controller concurrency.",
+          "fields": {
+            "unexecuted_cases": "Every case is unexecuted in this fictional document; no transcript or observed outcome is asserted.",
+            "residual_risks": "Deterministic simulation cannot demonstrate embedded timing, hardware faults, transport security, or production load behavior."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/verification-test-plan.md"
+    }
+  ],
+  "coverage": {
+    "pack": "catalog/mixed/coverage.md",
+    "target": "docs/design/coverage.md"
+  },
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [
+    {
+      "pack": "catalog/mixed/assets/system-context.svg",
+      "target": "docs/architecture/assets/system-context.svg",
+      "title": "Aster boundary and external exchanges",
+      "Question": "Which parts are inside Aster and what crosses its boundary?",
+      "Model view": "Example::SystemContext",
+      "Companions": "The external interface table and component-composition example.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.",
+      "Limits": "The view shows context and exchange direction, not internal components, protocols, or deployment nodes."
+    },
+    {
+      "pack": "catalog/mixed/assets/interaction-flow.svg",
+      "target": "docs/design/assets/interaction-flow.svg",
+      "title": "Aster current-reading request and response",
+      "Question": "In what order do request, validation, response, and timeout occur?",
+      "Model view": "Example::InteractionFlow",
+      "Companions": "The operation-contract and alternate-flow tables.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.",
+      "Limits": "The view is fictional and omits transport encoding, authentication, and precise timeout duration."
+    }
+  ]
+}

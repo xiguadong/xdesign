@@ -1,0 +1,59 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "interface",
+  "name": "sensor-data-contract",
+  "template_id": "data-contract",
+  "metadata": {
+    "title": "Aster Reading data contract",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "I100",
+      "content": "The data contract defines exchanged Reading values and their validation and version rules without specifying how a controller orchestrates requests.",
+      "fields": {
+        "boundary": "The contract covers serialized Reading values at the Aster export boundary, not operation sequencing or storage technology.",
+        "participants": "Aster export adapter serializes values and external controllers validate and consume them."
+      }
+    },
+    "schema": {
+      "anchor": "I101",
+      "content": "A Reading object requires sensorId, utcTimestamp, and celsius; quality is optional and never changes the meaning of celsius or timestamp.",
+      "fields": {
+        "data_shapes": "Object fields are sensorId:string, utcTimestamp:UTC ISO8601 string, celsius:number, and optional quality:valid|suspect.",
+        "required_fields": "sensorId, utcTimestamp, and celsius are required; quality may be absent and null is not a substitute for any required field."
+      }
+    },
+    "validation": {
+      "anchor": "I102",
+      "content": "Consumers reject unknown sensorId types, non-UTC or missing timestamps, non-finite numbers, unexpected quality values, and mutable shared references.",
+      "fields": {
+        "validation_rules": "Require nonempty sensorId, UTC timestamp, finite celsius, valid optional quality, and rejection of non-finite numeric encodings.",
+        "invariants": "Required fields retain their meanings, timestamps are never synthesized, and schema version does not alter measurement provenance."
+      }
+    },
+    "compatibility": {
+      "anchor": "I103",
+      "content": "Version 1 requires the three core fields; version 2 adds optional quality. Producers must not require new consumers to understand older version 1 values.",
+      "fields": {
+        "version_policy": "Removing or retyping a required field is major; adding optional quality is minor; unknown optional fields may be ignored by consumers.",
+        "compatibility_policy": "Version 1 consumers accept version 2 objects by ignoring quality, and version 2 consumers accept version 1 objects without quality."
+      }
+    },
+    "trace": {
+      "anchor": "I104",
+      "content": "The contract traces to the data-model Reading and planned valid, missing-field, non-finite, unknown-quality, and version compatibility cases.",
+      "fields": {
+        "model_elements": "The data-model Reading is the fictional semantic source for this serialized contract.",
+        "verification_links": "Schema validation, required-field, finite-number, optional-quality, and version 1/2 interoperability cases are planned checks."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/data-contract.md"
+}

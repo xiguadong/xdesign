@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import copy
 import errno
 import inspect
@@ -16,6 +18,7 @@ from xdesign_doc_kit.compatibility import DocumentKitError
 from xdesign_doc_kit.core import check_documents, create_document, get_contract, plan_document, update_section
 
 CACHE = REPO / "cache/document-kit-security-tests"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 ZERO = "0" * 64
 
 
@@ -236,7 +239,7 @@ class SecurityTests(unittest.TestCase):
         from xdesign_doc_kit import core
         self.assertNotIn("digest_provider", inspect.signature(core._contract).parameters)
         self.assertNotIn("digest_provider", inspect.signature(cli.main).parameters)
-        environment = {"PYTHONPATH": str(KIT), "PYTHONDONTWRITEBYTECODE": "1"}
+        environment = {"PYTHONPATH": str(REPO / "document-kit"), "PYTHONDONTWRITEBYTECODE": "1"}
         process = subprocess.run([sys.executable, "-B", "-m", "xdesign_doc_kit", "get-contract",
                                   "--profile-root", str(KIT)], cwd=REPO, env=environment,
                                  text=True, capture_output=True, check=False)
@@ -245,7 +248,7 @@ class SecurityTests(unittest.TestCase):
         self.assertEqual(result["contract_sha256"], get_contract(KIT)["contract_sha256"])
         self.assertNotEqual(result["contract_sha256"], ZERO)
         self.assertNotIn("digest_provider", process.stdout)
-        self.assertNotIn("digest_provider", (KIT / "xdesign_doc_kit/mcp_server.py").read_text())
+        self.assertNotIn("digest_provider", (REPO / "document-kit/xdesign_doc_kit/mcp_server.py").read_text())
 
     def test_doc14_reviewed_pack_markdown_attack_matrix(self) -> None:
         cases = [

@@ -16,6 +16,7 @@ import unittest
 KIT_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = KIT_ROOT.parent
 CACHE = REPO_ROOT / "cache" / "document-kit-mcp-tests"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 
 
 def _project(path: Path) -> None:

@@ -1,8 +1,13 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
-  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
   "figures": [],
   "document_class": "design",
   "name": "sensor-generic-design",
@@ -11,7 +16,9 @@
     "title": "Aster reading pipeline design",
     "status": "fictional-example",
     "revision": "1",
-    "model_sources": ["mbse/model/example.sysml"]
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
   },
   "sections": {
     "purpose": {
@@ -58,8 +65,11 @@
     "limits": {
       "anchor": "D105",
       "content": "Concurrency, persistence after restart, and production API transport are deliberately excluded from this focused design example.",
-      "fields": {"unresolved_items": "Thread safety, durable storage, transport security, and deployment configuration need separate design decisions."}
+      "fields": {
+        "unresolved_items": "Thread safety, durable storage, transport security, and deployment configuration need separate design decisions."
+      }
     }
   },
-  "expected_document": "catalog/examples/generic-design.md"
+  "expected_document": "catalog/examples/generic-design.md",
+  "layer": null
 }

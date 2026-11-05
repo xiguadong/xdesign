@@ -1,19 +1,26 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
-  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
-  "figures": [{
-    "pack": "catalog/mixed/assets/system-context.svg",
-    "target": "docs/architecture/assets/system-context.svg",
-    "title": "Aster boundary and external exchanges",
-    "Question": "Which parts are inside Aster and what crosses its boundary?",
-    "Model view": "Example::SystemContext",
-    "Companions": "The external interface table and component-composition example.",
-    "Status": "renderable-now; designed-only",
-    "Reading": "AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.",
-    "Limits": "The view shows context and exchange direction, not internal components, protocols, or deployment nodes."
-  }],
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [
+    {
+      "pack": "catalog/mixed/assets/system-context.svg",
+      "target": "docs/architecture/assets/system-context.svg",
+      "title": "Aster boundary and external exchanges",
+      "Question": "Which parts are inside Aster and what crosses its boundary?",
+      "Model view": "Example::SystemContext",
+      "Companions": "The external interface table and component-composition example.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.",
+      "Limits": "The view shows context and exchange direction, not internal components, protocols, or deployment nodes."
+    }
+  ],
   "document_class": "architecture",
   "name": "sensor-system-context",
   "template_id": "system-context",
@@ -21,7 +28,9 @@
     "title": "Aster system context and boundary",
     "status": "fictional-example",
     "revision": "1",
-    "model_sources": ["mbse/model/example.sysml"]
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
   },
   "sections": {
     "boundary": {
@@ -66,5 +75,6 @@
       }
     }
   },
-  "expected_document": "catalog/examples/system-context.md"
+  "expected_document": "catalog/examples/system-context.md",
+  "layer": null
 }

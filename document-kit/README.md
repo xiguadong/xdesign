@@ -3,8 +3,7 @@
 This directory is a versioned authoring contract for SysML-backed engineering
 documents. Copy or pin the complete directory in a consumer project. Its
 `profile.json` supplies the allowed document paths, exact ordered chapters,
-required fields, anchor policy, and figure block. Schema 1.1 adds a catalog of
-five generic defaults and eleven scenario entries; each entry has selection
+required fields, anchor policy, and figure block. Schema 1.2 includes 21 entries across ten classes; each entry has selection
 metadata, a template, guide, complete fictional example, and canonical fixture.
 `RULES.md` explains the rules and `SKILL.md` gives the design-before-implementation
 sequence. The Python package uses one core for the JSON CLI and stdio MCP server;
@@ -14,9 +13,10 @@ it does not generate engineering claims.
 | --- | --- |
 | `profile.json` | Versioned, machine-readable document contract |
 | `RULES.md` | Normative DOC-001..010 explanations and evidence limits |
-| `catalog/` | Sixteen entry packages, routing, sources, and mixed fixture |
+| `catalog/` | Twenty-one entry packages, routing, sources, and mixed fixture |
 | `templates/figure-block.md` | Exact figure block shared by the current pack |
-| `compatibility/v1.0.0/` | Byte-exact schema 1.0 compatibility pack |
+| `compatibility/` | Byte-exact selectable 1.0 and 1.1.0 closures |
+| `API.md` | Standalone Python, JSON CLI and MCP consumer contract |
 | `SKILL.md` | Provider-neutral authoring and check sequence |
 | `xdesign_doc_kit/` | Shared authoring/checking core, CLI, and MCP adapter |
 | `tests/` | Cross-project acceptance and transport checks |
@@ -25,10 +25,12 @@ it does not generate engineering claims.
 
 Keep this pack at a stable version and select a project root containing its own
 `mbse/model/` and `docs/`. Adapt the profile in a reviewed derived pack if its
-routes or model roots differ. This starter profile covers five flat classes:
-requirements, architecture, design, interface, and verification. It does not
-generate xdesign's flow-specific or per-API page layouts without a derived
-profile. The selected pack's content digest should be retained with the wish
+routes or model roots differ. The profile retains the five flat class routes and sixteen earlier template
+selections, and adds API pages at `docs/design/api/<layer>/<name>.md` and four
+flow roles at `docs/design/flows/<name>/{index,definition,implementation,views}.md`.
+Use `api-design` with `layer`; use `flow-index`, `flow-definition`,
+`flow-implementation`, or `flow-views` with a flow name.
+The selected pack's content digest should be retained with the wish
 whose design it governs.
 
 Install the package with Python 3.11 or newer. Keep the environment and pip
@@ -89,7 +91,7 @@ and its required `fields`, including diagram decisions where declared. The CLI's
 `--input` file for `update_section` supplies `content`, `expected_sha256`, and
 optional `fields`; the file for `attach_figure` supplies `figure` and
 `expected_sha256`. MCP tools take the equivalent structured arguments.
-The xdesign repository maintains the exact request and result design contract in `docs/interfaces/document-kit-api.md#i20`.
+Read [API.md](API.md) for exact signatures, payloads, errors, publication outcomes, selected-check scope and complete working examples.
 `update_section` and `attach_figure` require the current document SHA-256.
 `check_documents` reports structural findings and leaves semantic review
 explicit. Run the consumer project's SysML compiler and strict documentation
@@ -101,3 +103,5 @@ In xdesign, the existing documentation audit and strict build remain separate:
 `python3 -B tools/docs.py build`. The profile does not rewrite existing pages
 to fit a new template; registered managed pages receive its exact chapter and
 field checks, while existing pages retain project-level checks.
+
+Selected checks accept a class/name/layer selection and report context scans separately. All writes can pin `expected_contract_sha256`; update/attach also require the current page hash. MCP pins the selected closure at launch and refuses drift or redirection.

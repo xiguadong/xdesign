@@ -1,0 +1,51 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.2.0",
+  "contract_digest_version": "2",
+  "document_class": "flow-views",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-views",
+  "metadata": {
+    "title": "Fictional flow views example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "coverage": {
+      "anchor": "D2040",
+      "content": "View applicability is decided by the author and remains subject to review.",
+      "fields": {
+        "view_coverage": "A stage table explains sequencing; prose identifies controller and reviewer responsibilities.",
+        "applicability_reasons": "A sequence figure is optional when interaction timing needs discussion; this example has no timing claim."
+      }
+    },
+    "views": {
+      "anchor": "D2041",
+      "content": "There is no figure to validate in this fictional input.",
+      "fields": {
+        "model_views": "Not applicable: the supplied context model declares no rendered flow view.",
+        "figure_references": "Not applicable: this example uses prose and a stage table, without an SVG.",
+        "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+      }
+    },
+    "limits": {
+      "anchor": "D2042",
+      "content": "The status is designed-only; no acceptance result is supplied.",
+      "fields": {
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/examples/generic-flow-views.md"
+}

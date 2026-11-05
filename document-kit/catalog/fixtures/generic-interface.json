@@ -1,8 +1,13 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
-  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
   "figures": [],
   "document_class": "interface",
   "name": "sensor-generic-interface",
@@ -11,7 +16,9 @@
     "title": "Aster latest-reading interface",
     "status": "fictional-example",
     "revision": "1",
-    "model_sources": ["mbse/model/example.sysml"]
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
   },
   "sections": {
     "purpose": {
@@ -55,5 +62,6 @@
       }
     }
   },
-  "expected_document": "catalog/examples/generic-interface.md"
+  "expected_document": "catalog/examples/generic-interface.md",
+  "layer": null
 }

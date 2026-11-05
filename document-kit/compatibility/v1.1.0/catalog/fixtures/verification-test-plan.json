@@ -1,0 +1,60 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-verification-test-plan",
+  "template_id": "verification-test-plan",
+  "metadata": {
+    "title": "Aster outage and cadence test plan",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V100",
+      "content": "The plan tests 60-second cadence and latest-valid behavior during a controller outage; it does not record an executed result or substitute review for execution.",
+      "fields": {
+        "requirements_links": "The cadence and latest-valid requirements define observable acceptance for these planned cases.",
+        "design_links": "Collector, RingBuffer, Exporter, and fake-clock interfaces identify the units under test."
+      }
+    },
+    "methods": {
+      "anchor": "V101",
+      "content": "Deterministic demonstration drives twelve samples and a two-minute outage while recording every accepted value and exported response.",
+      "fields": {
+        "methods": "Use a scheduled demonstration, FIFO boundary analysis, and exact output comparison rather than inspection alone.",
+        "environment": "Use fake UTC time, an in-memory buffer, a scripted valid probe, and a controllable controller-connection flag."
+      }
+    },
+    "cases": {
+      "anchor": "V102",
+      "content": "The main case collects twelve valid values, drops the controller after the tenth, and checks collection and export before, during, and after the outage.",
+      "fields": {
+        "inputs": "Twelve values 20.0–21.1 Celsius at 60-second ticks, outage after value 20.9, and a final query after value 21.1.",
+        "procedure": "Record cadence and buffer after each tick, verify controller failure does not stop collection, then query after the twelfth sample.",
+        "expected_results": "Twelve timestamps are 60 seconds apart, the buffer holds 20.2–21.1, and final export returns 21.1 with its exact UTC timestamp."
+      }
+    },
+    "criteria": {
+      "anchor": "V103",
+      "content": "Pass requires exact cadence, exact retained values and order, no export during outage, and exact latest-valid response after recovery; all remain planned expectations.",
+      "fields": {
+        "pass_criteria": "No missed tick, ten retained values are exactly 20.2–21.1, outage exports are suppressed, and recovery returns only 21.1.",
+        "trace_matrix": "Cadence maps to tick records, FIFO to retained history, latest-valid to recovery response, and read-only export to unchanged timestamps."
+      }
+    },
+    "limits": {
+      "anchor": "V104",
+      "content": "The plan does not measure real scheduler jitter, physical sensor accuracy, network behavior, or multi-controller concurrency.",
+      "fields": {
+        "unexecuted_cases": "Every case is unexecuted in this fictional document; no transcript or observed outcome is asserted.",
+        "residual_risks": "Deterministic simulation cannot demonstrate embedded timing, hardware faults, transport security, or production load behavior."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/verification-test-plan.md"
+}

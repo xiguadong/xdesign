@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 import json
+import inspect
 from pathlib import Path
 from typing import Any, Callable
 
@@ -23,11 +24,34 @@ class _Binding:
     project_root: Path
     profile_root: Path
     contract_sha256: str
+    schema_version: str
 
 
 _binding: _Binding | None = None
 
-mcp = MCPServer(
+class BoundMCPServer(MCPServer):
+    async def call_tool(self, name, arguments, context=None):
+        # Preflight raw JSON before SDK coercion or live pack reads. This keeps
+        # all request-shape errors in the same public envelope as Python/CLI.
+        if _binding is not None and _binding.schema_version == "1.2" and name in (
+            "get_contract", "plan_document", "create_document", "update_section",
+            "attach_figure", "check_documents",
+        ):
+            selectors = ("target_root", "project_root", "profile_root", "profile")
+            _reject_selectors(*(arguments.get(key) for key in selectors))
+            try:
+                inspect.signature(globals()[name]).bind(**arguments)
+            except TypeError as error:
+                raise _tool_error(core.DocumentKitError("invalid-request", str(error))) from error
+            from .structured import preflight
+            try:
+                preflight(name, **{key:value for key,value in arguments.items() if key not in selectors})
+            except core.DocumentKitError as error:
+                raise _tool_error(error) from error
+        return await super().call_tool(name, arguments, context)
+
+
+mcp = BoundMCPServer(
     "xdesign-doc-kit",
     version="0.1.0",
     instructions=(
@@ -54,7 +78,7 @@ def _error_envelope(code: str, message: str, diagnostics: list[dict[str, Any]] |
 
 
 def _tool_error(error: core.DocumentKitError) -> ToolError:
-    return ToolError(_error_envelope(error.code, error.message, error.diagnostics))
+    return ToolError(json.dumps(error.as_dict(), ensure_ascii=False, sort_keys=True))
 
 
 def _selected() -> _Binding:
@@ -90,18 +114,18 @@ def _live_contract() -> dict[str, Any]:
 
 
 def _tool_call(operation: Callable[..., dict[str, Any]], *args: Any, **kwargs: Any) -> dict[str, Any]:
+    from .io_boundary import LAUNCH_PIN, LAUNCH_SCHEMA
+    selected = _selected()
+    token = LAUNCH_PIN.set(selected.contract_sha256)
+    schema_token = LAUNCH_SCHEMA.set(selected.schema_version)
     try:
-        selected = _selected()
-        _live_contract()
-        result = operation(*args, profile_root=selected.profile_root, **kwargs)
-        if result["contract_sha256"] != selected.contract_sha256:
-            raise core.DocumentKitError(
-                "contract-drift",
-                "The selected contract changed during this operation; inspect the project before retrying",
-            )
-        return result
+        return operation(*args, profile_root=selected.profile_root, **kwargs)
     except core.DocumentKitError as error:
         raise _tool_error(error) from error
+    finally:
+        LAUNCH_PIN.reset(token)
+        LAUNCH_SCHEMA.reset(schema_token)
+
 
 
 @mcp.tool()
@@ -128,11 +152,12 @@ def plan_document(
     profile_root: str | None = None,
     profile: str | None = None,
     template_id: str | None = None,
+    layer: str | None = None,
 ) -> dict[str, Any]:
     """Resolve a class route, required metadata, and ordered sections without writing."""
     _reject_selectors(target_root, project_root, profile_root, profile)
     return _tool_call(core.plan_document, _selected().project_root, document_class, name,
-                      template_id=template_id)
+                      template_id=template_id, layer=layer)
 
 
 @mcp.tool()
@@ -146,6 +171,8 @@ def create_document(
     profile_root: str | None = None,
     profile: str | None = None,
     template_id: str | None = None,
+    layer: str | None = None,
+    expected_contract_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Write a complete new document from caller-supplied engineering content."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -157,7 +184,8 @@ def create_document(
         name,
         metadata,
         sections,
-        expected_contract_sha256=selected.contract_sha256,
+        expected_contract_sha256=expected_contract_sha256 if expected_contract_sha256 is not None else selected.contract_sha256,
+        layer=layer,
         template_id=template_id,
     )
 
@@ -174,6 +202,8 @@ def update_section(
     project_root: str | None = None,
     profile_root: str | None = None,
     profile: str | None = None,
+    layer: str | None = None,
+    expected_contract_sha256: str | None = None,
 ) -> dict[str, Any]:
     """Update one anchored section only when its document hash is current."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -187,7 +217,8 @@ def update_section(
         content,
         expected_sha256,
         fields=fields,
-        expected_contract_sha256=selected.contract_sha256,
+        expected_contract_sha256=expected_contract_sha256 if expected_contract_sha256 is not None else selected.contract_sha256,
+        layer=layer,
     )
 
 
@@ -203,6 +234,9 @@ def attach_figure(
     profile_root: str | None = None,
     profile: str | None = None,
     concern: str | None = None,
+    layer: str | None = None,
+    expected_contract_sha256: str | None = None,
+    decision: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Embed an existing canonical SVG with the six required figure fields."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -215,8 +249,10 @@ def attach_figure(
         section_key,
         figure,
         expected_sha256,
-        expected_contract_sha256=selected.contract_sha256,
+        expected_contract_sha256=expected_contract_sha256 if expected_contract_sha256 is not None else selected.contract_sha256,
+        layer=layer,
         concern=concern,
+        decision=decision,
     )
 
 
@@ -227,17 +263,18 @@ def check_documents(
     project_root: str | None = None,
     profile_root: str | None = None,
     profile: str | None = None,
+    selection: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Return deterministic findings for the bound project's document set."""
     _reject_selectors(target_root, project_root, profile_root, profile)
-    return _tool_call(core.check_documents, _selected().project_root, document_class=document_class)
+    return _tool_call(core.check_documents, _selected().project_root, document_class=document_class, selection=selection)
 
 
 def _resource_contract() -> dict[str, Any]:
     try:
         return _live_contract()
     except core.DocumentKitError as error:
-        raise ResourceError(_error_envelope(error.code, error.message, error.diagnostics)) from error
+        raise ResourceError(json.dumps(error.as_dict(), ensure_ascii=False, sort_keys=True)) from error
 
 
 @mcp.resource("xdesign-doc-kit://contract", mime_type="application/json")
@@ -285,9 +322,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--profile", required=True, help="Pinned profile directory or profile.json")
     arguments = parser.parse_args(argv)
     try:
-        project_root = Path(arguments.project_root).expanduser().resolve(strict=True)
-        profile_path = Path(arguments.profile).expanduser().resolve(strict=True)
-    except OSError as error:
+        project_root = core._root(arguments.project_root, "Project root")
+        profile_path = Path(arguments.profile).expanduser().absolute()
+    except (OSError, core.DocumentKitError) as error:
         parser.error(f"selected project or profile is unavailable: {error}")
     if profile_path.is_file() and profile_path.name != "profile.json":
         parser.error("--profile must name a profile directory or profile.json")
@@ -299,7 +336,7 @@ def main(argv: list[str] | None = None) -> int:
     except core.DocumentKitError as error:
         parser.error(f"{error.code}: {error.message}")
     global _binding
-    _binding = _Binding(project_root, profile_root, contract["contract_sha256"])
+    _binding = _Binding(project_root, profile_root, contract["contract_sha256"], contract["profile"]["schema_version"])
     mcp.run(transport="stdio")
     return 0
 

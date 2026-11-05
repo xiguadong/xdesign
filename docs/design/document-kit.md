@@ -12,7 +12,7 @@ view concerns, template, guide, example, fixture, and source usage. The same
 selected entry drives planning, rendering, updating, and checking. Caller content
 supplies all engineering claims; templates never invent them.
 
-The root pack is immutable 1.1.0 with five generic defaults and eleven scenarios.
+The current root pack is immutable 1.1.0 with five generic defaults and eleven scenarios.
 A derived 1.1 profile may change inventory under its own identity and digest.
 The exact bundled inventory does not constrain derived profiles. A byte-exact
 v1 pack under `compatibility/v1.0.0/` preserves original class behavior and the
@@ -280,9 +280,338 @@ isolated digest-provider seam. CLI and MCP adapters add optional selection and
 figure concern, the catalog, and second-template resources without a zero-provider
 or example-comparison path.
 
-The bundled profile keeps five flat classes. Flow-specific and per-API routes
-need a reviewed derived profile. No new SysML template catalog, migration tool,
+The 1.1.0 bundled profile keeps five flat classes. Its flow-specific and per-API
+routes need a reviewed derived profile; the later [structured release](#d115) is
+a separate designed contract. No new SysML template catalog, migration tool,
 remote retrieval, code evaluation, main Rust stage CLI, or store feature is
 introduced. [DocumentKitVerification](../verification/design.md#d114) defines
 acceptance. Current implementation status and executed results belong to wish and
 review records; this design does not establish implementation or engineering acceptance.
+
+<a id="d115"></a>
+
+## 9. Structured document release design
+
+This section proposes a design for the [structured requirements](../requirements/requirements.md#r20)
+in `XDesignDetailedDesign::StructuredDocumentKitDesign`. The requirements retain
+their proposed status in the accepted requirements-stage artifacts;
+`mbse/model/traceability.sysml` asserts no `satisfy` links for these eight requirements.
+Formal satisfaction links and requirement-status changes remain pending. The
+design-owned mapping below identifies the intended implementation responsibilities
+without changing that requirement baseline or claiming implementation or acceptance.
+The exact public shapes,
+errors and examples are in the [structured interaction contract](../interfaces/document-kit-api.md#i21);
+[SDK-01 through SDK-13](../verification/requirements.md#v19) and the
+[implementation verification plan](../verification/design.md#d116) define the
+future evidence. No existing figure selection changes.
+
+| Requirement | Proposed design owner in `StructuredDocumentKitDesign` |
+| --- | --- |
+| `structuredDocumentationHasNamedRoutes` | `StructuredRouteResolver` |
+| `apiDesignDocumentsCoverContract` | `StructuredTemplateLibrary` |
+| `flowDesignDocumentsCoverLayers` | `StructuredTemplateLibrary` |
+| `structuredDocumentationUsesSafeOperations` | `StructuredDocumentOperations` |
+| `structuredDocumentationKeepsVersionIdentity` | `StructuredCompatibilityResolver` |
+| `structuredDocumentationHasSharedSurfaces` | `StructuredDocumentOperations` |
+| `documentKitPublicApiIsDocumented` | `StructuredConsumerContract` |
+| `structuredDocumentationEvidenceIsReviewable` | `StructuredValidationBoundary` |
+
+These are proposed allocations for the source projections in section 9.4.
+`XDesignVerification::StructuredDocumentKitVerification` retains the separate
+planned `verify` relationships; they establish neither satisfaction nor execution.
+Completed-stage artifacts and passed assessments retain their accepted bytes under
+the [revision contract](evidence-and-revisions.md#e03). Any later formal traceability
+change needs a supported lifecycle path that preserves those completed-stage
+obligations; this design does not assume that an earlier stage can be reopened.
+
+### 9.1 Release, routes and template ownership
+
+The next bundled contract is `xdesign-sysml-docs@1.2.0`, schema `1.2`, with digest
+version `"2"`. It retains the five schema 1.1 classes, paths, generic defaults,
+16 template IDs, section/field/view contracts and old positional calls. It adds
+five classes, each with exactly one generic default. A class and its validated
+components select the route; callers never supply an output pathname. The bundled
+xdesign layer set is `core`, `simple-flow`, `wish-verify`, `storage`.
+
+| Class | Generic template ID | Route | `name` means | `layer` |
+| --- | --- | --- | --- | --- |
+| `api-design` | `generic-api-design` | `docs/design/api/{layer}/{name}.md` | API basename; `index` reserved | required, selected from the layer set |
+| `flow-index` | `generic-flow-index` | `docs/design/flows/{name}/index.md` | flow basename | absent |
+| `flow-definition` | `generic-flow-definition` | `docs/design/flows/{name}/definition.md` | flow basename | absent |
+| `flow-implementation` | `generic-flow-implementation` | `docs/design/flows/{name}/implementation.md` | flow basename | absent |
+| `flow-views` | `generic-flow-views` | `docs/design/flows/{name}/views.md` | flow basename | absent |
+
+The schema 1.2 profile retains 1.1 fields. Each new `document_classes` entry adds
+`selector_kind` (`api` or `flow`); `api-design` also has `allowed_layers` and
+`reserved_names`. Its existing `path_template`, `filename_pattern`, `template`,
+`required_sections`, and `default_template_id` fields have their usual meanings,
+except that the pattern constrains the supplied `name`, not a fixed `index.md`
+stem. A missing `selector_kind` means `flat` for the retained classes; schema 1.2
+uses the same `^[a-z0-9]+(?:-[a-z0-9]+)*$` `filename_pattern` for every class.
+Any class may declare a unique `reserved_names` list of valid slugs; the bundled
+API list contains `index`. A derived 1.2 profile narrows names by that list rather
+than by an arbitrary regular expression, so route overlap remains decidable. This
+restriction does not change original 1.0/1.1 profile parsing. The five flow/API templates, guides, fictional complete examples and fixtures
+join the 16 existing entry packages; the bundled inventory is 21 entries and ten
+classes. Entries retain the 1.1 manifest shape and source/decision requirements.
+A 1.2 fixture has the 1.1 full-input fields plus `layer` (string for API, null for
+all other classes); the mixed fixture's document records have the same additive
+field. A derived 1.2 profile has its own identity, reviewed catalog and layer set;
+it is not forced to include this bundled inventory.
+
+The 1.2 profile, manifest and returned catalog each carry `schema_version="1.2"`;
+their identity fields agree, and the source register keeps the 1.1 shape and eight
+existing research IDs. New entries cite known sources with explicit copying
+decisions, subject to source/license review. The bundled 1.2 inventory is the exact
+16 old IDs plus the five listed IDs: the old five classes retain their two-or-more
+scenario entries, while the new classes need only their generic default. The mixed
+fixture has 11 distinct documents: one per ten classes plus a second template in
+one original class, with a concern-to-template/omission coverage list. It reuses
+the 21 stored examples rather than creating a second example-byte convention.
+Its API `layer` and each name must resolve to the fixture's declared target; the
+other classes use null `layer`. The old 1.1 loader and its exactly-16/six-document
+inventory remain unchanged.
+
+Route templates are parsed as POSIX components: a static lowercase kebab-case
+component, a whole-component `{layer}` or `{name}`, or a filename `{name}.md`;
+fixed flow filenames are `index.md`, `definition.md`, `implementation.md`, or
+`views.md`. Each route is beneath the configured `docs_root`; placeholders appear
+exactly once as the selector kind requires. Names and layers match
+`^[a-z0-9]+(?:-[a-z0-9]+)*$`; layer values must occur exactly once in the profile's
+nonempty unique allowlist, and reserved names are excluded. A derived profile may
+choose different safe static prefixes, roots and layer vocabulary while retaining
+these selector shapes. The loader rejects malformed, ambiguous or overlapping
+routes: compare component counts and, at each position, intersect static literals,
+the slug language minus that route's finite reserved names, and the finite layer
+set; `{name}.md` has the literal `.md` suffix. Slug/slug intersections are
+nonempty; a layer/slug intersection is tested against each allowed layer after
+reserved-name exclusion; layer/layer uses set intersection; static components are
+checked against the other component's accepted values. If every component can
+match the same path, reject the pair as `invalid-profile`. Each variable occurs
+once, so component intersections are independent. This prevents route ownership
+from depending on iteration order. No supplied name may add path separators.
+The resolver matches the full path, not a string prefix, and reverses a registered
+path to one unique class/name/layer before applying that effective contract.
+
+`StructuredTemplateLibrary` owns the five new Markdown templates. Each has one
+H1, caller metadata and ordered H2 sections; every section has an explicit unique
+anchor, caller `content`, and exactly the fields below. The xdesign API primary
+and section anchors use explicitly allocated `U` IDs, enforced in schema 1.2;
+flow anchors prefer `D`, while the existing cross-cutting prefixes remain valid.
+Anchor uniqueness is checked case-insensitively across the project. Values are nonempty strings; a reasoned
+`not applicable` is caller content, not an automatic engineering claim.
+
+| Class | Section key → heading: required fields |
+| --- | --- |
+| `api-design` | `purpose` → `Purpose and boundary`: `api_identity`, `api_kind`, `layer`, `purpose`; `contract` → `Declaration and contract`: `declaration`, `inputs`, `outputs`, `errors`, `side_effects`; `behavior` → `Behavior and constraints`: `behavior`, `invariants`, `constraints`; `trace` → `Trace and verification`: `model_realization_or_reason`, `source_projection`, `requirements_links`, `design_links`, `verification_links`; `limits` → `Status and limits`: `unresolved_items`. |
+| `flow-index` | `scope` → `Scope and navigation`: `flow_scope`, `navigation_links`; `trace` → `Status and trace`: `model_elements`, `requirements_links`, `verification_links`, `unresolved_items`. |
+| `flow-definition` | `stages` → `1. Stages and gates`: `stages`, `transitions`, `exit_gates`; `behavior` → `2. Behavior and constraints`: `behavior`, `invariants`; `trace` → `3. Trace and verification`: `model_elements`, `requirements_links`, `verification_links`. |
+| `flow-implementation` | `allocation` → `1. Allocation`: `components`, `interfaces`; `projection` → `2. Behavior and source projection`: `behavior`, `source_projection`, `constraints`; `trace` → `3. Verification and limits`: `model_elements`, `verification_links`, `unresolved_items`. |
+| `flow-views` | `coverage` → `1. Coverage and applicability`: `view_coverage`, `applicability_reasons`; `views` → `2. Views and references`: `model_views`, `figure_references`, `verification_links`; `limits` → `3. Status and limits`: `unresolved_items`. |
+
+Each entry's `required_sections` is the ordered 1.1 array of objects with exactly
+`key`, `heading`, and `required_fields`. The template bytes use the 1.1 marker
+line, `# {{title}}`, a blank line, then
+`> Status: {{status}} | Revision: {{revision}} | Model sources: {{model_sources}}`.
+For each table row's section in order, emit a blank line, standalone
+`<a id="{{section_id:<key>}}"></a>`, blank line, `## <heading>`, and a blank
+line. Each field is a separate `**<label>:** {{field:<key>}}` line followed by a
+blank line; `<label>` replaces underscores with spaces and capitalizes only the
+first character. Finally emit `{{content:<key>}}`, with one blank line between
+sections and a final LF. Rendering substitutes caller content inside the existing
+`<!-- document-kit:content:<key>:start -->` and matching `:end -->` markers;
+attachment inserts its figure block after the end marker in that same section.
+The entry's template tokens and section/field keys are validated one-to-one.
+The flow landing page uses natural headings, like the API pages; the other three
+flow roles use local decimal headings. The API `purpose.fields.layer` must equal
+the resolved layer on create, check and update. This is a routing consistency
+predicate, not a judgment about the caller's API identity or engineering prose.
+
+The five new bundled entries declare no mandatory `view_concerns`: an author can
+attach an independently supplied figure to any of their sections with `concern=null`.
+The views fields still require caller-authored applicability and references. Unknown
+concerns are rejected. A derived entry may declare the existing 1.1 concern/decision
+schema; table/prose/not-applicable decisions reject figure attachment and retain a
+reason. Schema 1.2 additionally permits `applicability="optional"`, with a nonempty
+trigger and an allowed alternatives list, for a concern that need not be selected.
+Its section still has a `diagram_decisions` field, a string containing a JSON array;
+an empty array is structurally valid for that optional concern and leaves its
+applicability for semantic review. Existing expected/conditional/not-applicable
+concerns keep their 1.1 requirements unchanged.
+
+For an unselected optional concern that permits `figure`, 1.2 `attach_figure` may
+receive an explicit caller `decision` with the six I20 decision fields. It atomically
+adds the figure decision and its matching supplied block to that section; a complete
+page can therefore be created and checked before attachment. A stored non-figure
+decision cannot be overridden by attachment, and a duplicated embedded asset remains
+an error. A caller may explicitly clear an optional non-figure decision before
+making a separate figure decision. An update cannot clear or change a stored
+figure decision so that its retained block no longer matches; removing or replacing
+an attached figure is outside these operations. No rationale is synthesized from a figure
+caption. Legacy selected 1.0/1.1 packs retain their original concern and attachment
+behavior, and no output supplies facts, model realization, images, code or execution
+evidence.
+
+### 9.2 Identity and compatibility allocation
+
+`StructuredCompatibilityResolver` keeps registry schema 1 and the exact existing
+entry keys: `path`, `class`, `profile_id`, `version`, `contract_sha256`, and,
+for catalog documents, `template_id` and `contract_digest_version`. New entries
+use digest version `"2"` and the existing first-line marker, with version `1.2.0`
+and one of the new class/template IDs; layer and flow components are recovered
+from the validated path, not stored as new keys. This keeps the original registry
+reader able to load the whole registry when an original pack updates its own page.
+It does not make that reader understand a new class: its unchanged whole-project
+check may report an identity/class mismatch. Updates and attachments under any
+recognized effective pack do not rewrite the registry or marker.
+
+Before replacing the root pack, implementation copies the complete original
+1.1.0 resource closure byte-for-byte to `compatibility/v1.1.0/`; that copy retains
+its own `compatibility/v1.0.0/` child. The existing root-level
+`compatibility/v1.0.0/` is also retained byte-for-byte at its original selectable
+path. The bundled 1.2 profile's `compatibility_packs` has exactly the two 1.1-shaped
+descriptors for `compatibility/v1.0.0/` and `compatibility/v1.1.0/`, with their
+original profile IDs, versions, digests and digest-version strings; the 1.1 child
+retains its original v1 descriptor. The resolver validates the full descriptor
+graph and indexes the two original identities plus the selected 1.2.0 identity.
+The only permitted duplicate identity in the bundled graph is these two v1 copies:
+their profile-relative closure paths and bytes must match exactly, and the root-level
+copy is the canonical v1 binding. Other duplicate identities, cycles, overlapping
+non-nested roots and symlink components fail. The 1.1 child must recompute
+`e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef` with digest
+version `"2"`; its nested v1 must recompute
+`1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6` with version
+`"1"`; the root-level v1 copy must have that same digest and closure. Descriptor
+profile, version, digest and digest-version must all agree with each validated
+child. Custom packs or other releases are not inferred; a separately
+reviewed derived 1.2 pack may add an exact validated binding, otherwise affected
+checks/writes fail. The selected digest and a page's effective digest are distinct.
+
+The resolver also validates a single project namespace for a selected 1.2 family.
+Every bound pack has the same `project.docs_root`, so all releases use the same
+registry. A class present in multiple packs has the same path template and
+selector kind (missing means `flat`); different classes' routes must not overlap
+across packs. Each `(profile_id, version)` maps to one digest and digest version,
+even when two byte-identical v1 roots carry that release. Conflicting releases or
+incompatible namespace bindings fail `invalid-profile` before project access.
+A derived profile may change roots and prefixes only with compatible bindings
+or without those bindings; copying a descriptor does not relocate an old page.
+Automatically bound routes must satisfy the 1.2 selector grammar and slug
+pattern, making cross-pack overlap checks decidable; incompatible custom legacy
+routes remain usable by explicit selection of their original pack.
+Each page's model-source policy remains its effective pack's policy. Context
+scans use the union of selected and actually checked effective model roots, with
+each checked page independently satisfying its own required-root/source rules.
+
+The new pack's version-2 digest is SHA-256 over the prefix
+`xdesign-doc-kit-contract\0` followed by ASCII `2\0`, then every distinct
+pack-relative resource path sorted by UTF-8 bytes, NUL, ASCII decimal byte length,
+NUL and exact file bytes. Its closure contains its profile, rules, README, SKILL,
+consumer `API.md`, manifest, sources, routing guide, all templates/guides/examples/
+fixtures, mixed resources and figure block, plus each declared child closure
+recursively at its prefixed path. Shared paths are hashed once; conflicting roles
+or bytes fail. Paths are explicit, not globs, and no digest bytes are normalized.
+The 1.1 and v1 loaders recompute their own digests from paths relative to their own
+roots before the enclosing descriptor is trusted. The selected 1.2 digest is not
+specified until the future exact bytes exist.
+
+Stored-example sentinel validation is **per owning pack**, not a scan that treats
+retained child examples as parent resources. The 1.2 owner's 21 declared examples
+have exactly one 64-zero sentinel in their exact first-line marker contract field;
+its other owned files have none. The 1.1 child independently enforces its original
+16-example sentinel rules and its v1 child independently has no examples/sentinel.
+The parent still hashes every retained byte as stored. Every example's non-contract
+marker fields match its owning profile/version/class/template/digest version; no
+example contains the owner's actual digest. A sentinel elsewhere, duplicate or
+malformed marker, or zero recomputed digest fails `invalid-catalog`. A zero
+compatibility descriptor with a nonzero actual child digest is `contract-drift`;
+it is classified by parsing that descriptor value, never by modifying bytes used
+for hashing. A zero caller expected digest is `invalid-request`; a zero or forged
+target marker/registry is `registry-mismatch`. Child sentinel locations are
+accepted only after that child's own complete validation and exact descriptor
+binding, not by globally ignoring nested zeros.
+
+Canonical digest-covered fixtures contain full caller inputs, selected non-digest
+identity, model/conditional figure inputs and an example reference, but neither
+the actual selected digest nor the zero sentinel. Acceptance manifests live in
+`cache/` outside every pack closure and contain exactly the actual digest, fixture
+path and fixture SHA-256; their own SHA-256 is separate evidence, not a field in
+the manifest. The existing one-field in-memory sentinel-to-actual comparison,
+independent marker/registry assertions and full-byte equality apply to all 21
+selected 1.2 examples and separately to unchanged child examples. No example is
+returned as a template or adopted as a document.
+
+### 9.3 Operation, validation and publication allocation
+
+`StructuredRouteResolver` validates the request, class/name/layer and selected
+contract, then resolves a safe project-relative path with no symlink components.
+Planning is read-only and may precede model creation. Creation requires each
+page's caller metadata and sections, checks configured model roots, and uses an
+exclusive no-replace publication. An existing unmanaged page is observable by
+plan and ordinary project checks but cannot be overwritten, registered, updated
+or attached to by the kit. A forged marker without its registry entry is an error.
+
+`StructuredDocumentOperations` resolves the effective contract from a registered
+entry before enforcing its sections and route. Update and attachment first check
+request shape, registry ownership, document readability and expected SHA-256,
+then effective identity, section/concern and candidate validation; recheck the
+hash and selected pack immediately before atomic replacement. A successful update
+or attachment preserves the registry and every other section. All supported packs
+use the same root-bound writer, no-follow component access and lock. Missing,
+malformed, duplicate, unsafe or unreadable metadata/model sources fail before
+publication. Detailed failure codes and the non-atomic create/page/registry
+boundary are defined in I21, not inferred from a generic exception.
+
+`StructuredValidationBoundary` has whole-project and selected-document scopes.
+Whole-project mode resolves every registered identity, validates managed pages
+under their effective contracts and applies the ordinary project checks to
+unmanaged pages. Selected mode requires a registered target selected by the same
+class/name/layer tuple; it validates that page under its effective contract and
+reports its own checked path, identity and context scope. It scans readable project
+documents for explicit anchors and reports collisions involving the selected page,
+checks that page's local links and model annotations targeting it, and validates the
+shared registry's shape and unique paths. Unrelated pages' template/identity
+findings are not claimed as checked. An unreadable document needed for the global
+anchor scan fails `unreadable-input`; the result never asserts whole-project success.
+Whole-project and selected checks are read-only and list checked and scanned paths,
+global/context findings and `semantic_review_required=true`.
+
+In schema 1.2, a class filter selects registered pages by their recorded class
+and unmanaged pages by a complete route match, including fixed flow filenames
+and allowed layers. It never uses the text before `{name}` as a prefix: that
+would select all four flow roles together and miss an unexpanded API layer.
+Registry shape/path integrity, project anchor uniqueness and model locators
+remain global in class-filter mode. Unrelated managed-page template and identity
+checks remain outside that mode; an unknown identity in a selected class fails
+its effective resolution. Original selected packs keep their old filtering.
+
+Anchor context is an occurrence index of every unfenced explicit ID, not just
+the first path for an ID. Selected checks report every collision involving the
+selected page regardless of scan order, including duplicates within that page;
+local fragment links are resolved in their named target file. Selected mode
+validates model annotations targeting that page; malformed annotations whose
+target cannot be determined are reported as context findings, since their
+irrelevance cannot be established. It does not validate unrelated page templates
+or report unrelated anchor collisions as selected failures. Create/update/attach
+validate the candidate's same links and relevant model locators using a virtual
+candidate at its resolved path, while retaining the existing project-wide anchor
+uniqueness prerequisite. A model annotation can therefore refer to the page being
+created without requiring premature publication. Required model reads and context
+scans must succeed before a passing result or publication.
+
+### 9.4 Source and test projection
+
+| Design element | Intended source or verification projection |
+| --- | --- |
+| `StructuredRouteResolver` | schema/route validation in `document-kit/xdesign_doc_kit/catalog.py`; route matching and selection in `core.py` |
+| `StructuredTemplateLibrary` | `document-kit/profile.json`, `catalog/manifest.json`, five new templates/guides/examples/fixtures, refreshed 1.2 copies of the original 16 entries, sources and routing/mixed fixtures |
+| `StructuredCompatibilityResolver` | `compatibility.py` and schema-dispatched pack loading in `catalog.py`; exact retained `compatibility/v1.0.0/` and `compatibility/v1.1.0/` closures |
+| `StructuredDocumentOperations` | `core.py` read/write/check, safe publication and typed I/O failure boundary |
+| `StructuredConsumerContract` | `__init__.py`, `__main__.py`, `mcp_server.py`, distributed `API.md`, README/RULES/SKILL and [I21](../interfaces/document-kit-api.md#i21) |
+| `StructuredValidationBoundary` | `document-kit/tests/test_structured.py`, existing catalog/compatibility/security/example/MCP suites, and [SDK-01–13](../verification/requirements.md#v19) |
+
+These paths are planned source allocations. The implementation must include real
+stdio MCP tests rather than treating a skipped optional adapter test as parity.
+The independent semantic review covers engineering content, links, model meaning,
+figure fidelity and applicability, as well as source/license adequacy; mechanical
+checks and compiler reports do not establish these judgments.

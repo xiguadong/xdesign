@@ -91,3 +91,24 @@ registry, or selected digest. Pack sentinel defects, target identity defects, an
 fixture comparison failures therefore remain distinct at the existing authoring
 boundary. Original v1 packs retain no-example/no-sentinel behavior; original 1.1
 packs remain explicitly selectable after later releases.
+
+<a id="b34"></a>
+
+## 4. Structured release boundary
+
+The proposed schema 1.2 release preserves the four existing component boundaries.
+The contract source owns a new route/template catalog, the retained root-level
+v1 pack and the exact retained 1.1.0 closure including its original v1 child. The authoring boundary resolves a
+class/name/layer selection, validates each page against its recorded effective
+contract, and reports whole-project or selected-document scope. CLI and MCP remain
+adapters over the same engine; neither is an additional documentation authority.
+The retained compatibility closures are immutable inputs, not new operational
+stores or migration targets.
+
+`XDesignDetailedDesign::StructuredDocumentKitDesign` allocates the new route,
+template, compatibility, operation, consumer and verification responsibilities.
+The [detailed design](../design/document-kit.md#d115) and
+[public interaction contract](../interfaces/document-kit-api.md#i21) define their
+observable behavior and [planned verification](../verification/design.md#d116).
+This is a design-stage allocation: it does not claim the existing product has
+implemented schema 1.2 or that its output is semantically accepted.

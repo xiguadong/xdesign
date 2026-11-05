@@ -6,9 +6,10 @@ import shutil
 import sys
 from pathlib import Path
 
-KIT = Path(__file__).resolve().parents[1]
-REPO = KIT.parent
-sys.path.insert(0, str(KIT))
+DISTRIBUTION = Path(__file__).resolve().parents[1]
+KIT = DISTRIBUTION / "compatibility/v1.1.0"
+REPO = DISTRIBUTION.parent
+sys.path.insert(0, str(DISTRIBUTION))
 
 from xdesign_doc_kit.core import create_document, get_contract
 
