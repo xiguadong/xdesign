@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path, PurePosixPath
+
 from common import (CheckInputError, Context, execute, read_bytes,
                     repository_path, require_hex, required_string, result, sha256,
                     snapshot_digest)
@@ -137,6 +139,14 @@ def _completed_snapshot_failures(context: Context, visit: dict) -> list[str]:
     failures = []
     canonical = []
     seen: set[str] = set()
+    snapshots = visit.get("artifact_snapshots", {})
+    directory = context.record.get("artifact_snapshot_directory")
+    if directory is not None:
+        expected_directory = str(Path(context.record["plan_uri"]).parent / "artifact-snapshots")
+        if directory != expected_directory or not isinstance(snapshots, dict) or set(snapshots) != {a.get("uri") for a in artifacts}:
+            return [f"Completed visit {visit_id} has an invalid artifact retention map."]
+    elif snapshots:
+        return [f"Completed visit {visit_id} has snapshots without a retention policy."]
     for item in artifacts:
         uri = item.get("uri")
         digest = item.get("sha256")
@@ -149,8 +159,13 @@ def _completed_snapshot_failures(context: Context, visit: dict) -> list[str]:
         seen.add(uri)
         canonical.append({"uri": uri, "sha256": digest})
         try:
+            if Path(uri).is_absolute() or ".." in PurePosixPath(uri).parts or PurePosixPath(uri).as_posix() != uri:
+                raise CheckInputError("completed artifact URI is not normalized and relative")
             require_hex(digest, f"completed artifact {uri} digest")
-            actual = sha256(read_bytes(context.root, uri))
+            retained = snapshots.get(uri, uri)
+            if directory is not None and retained != f"{directory}/{digest}":
+                raise CheckInputError("retained artifact path differs from its digest")
+            actual = sha256(read_bytes(context.root, retained))
             if actual != digest:
                 failures.append(f"Completed visit {visit_id} artifact {uri} changed after assessment.")
         except CheckInputError:
@@ -219,7 +234,7 @@ def evaluate(context: Context) -> list[dict]:
         completed.append({"visit_id": visit_id, "revision": visit.get("artifact_revision"),
                           "required_gates": required, "latest_assessments": facts,
                           "artifact_snapshot_digest": visit.get("artifact_snapshot_digest")})
-    results.append(result(RULES[2], [context.args.record] + [item["uri"] for visit in visits if visit.get("status") == "completed"
+    results.append(result(RULES[2], [context.args.record] + [visit.get("artifact_snapshots", {}).get(item["uri"], item["uri"]) for visit in visits if visit.get("status") == "completed"
                                                      for item in visit.get("artifact_digests", []) if isinstance(item, dict) and "uri" in item],
                           {"completed_visits": completed}, completion_failures))
 
@@ -251,11 +266,12 @@ def evaluate(context: Context) -> list[dict]:
                 continue
             if visit.get("status") == "completed" or visit is visits[current_index]:
                 for uri in evidence:
+                    retained = visit.get("artifact_snapshots", {}).get(uri, uri) if visit.get("status") == "completed" else uri
                     try:
-                        exists = repository_path(context.root, uri).is_file()
+                        exists = repository_path(context.root, retained).is_file()
                     except CheckInputError:
                         exists = False
-                    evidence_inspected.append({"assessment_id": assessment_id, "uri": uri, "exists": exists})
+                    evidence_inspected.append({"assessment_id": assessment_id, "uri": retained, "source_uri": uri, "exists": exists})
                     if not exists:
                         evidence_existence_failures.append(f"Passed assessment {assessment_id} on visit {visit_id} cites missing evidence {uri}.")
     results.append(result(RULES[3], [context.args.record], {"passed_assessments": passed}, gate_failures))

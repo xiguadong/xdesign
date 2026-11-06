@@ -300,10 +300,16 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
                 | "checker-stdout"
                 | "checker-stderr"
                 | "checker-input"
+                | "artifact-snapshot"
         );
         if entry.role == "checker-executor" && !entry.uri.starts_with(&format!("{dir}/executors/"))
         {
             return Err(format!("executor material escapes its run: {}", entry.uri));
+        }
+        if entry.role == "artifact-snapshot"
+            && !entry.uri.starts_with(&format!("{dir}/artifact-snapshots/"))
+        {
+            return Err(format!("artifact snapshot escapes its run: {}", entry.uri));
         }
         if operational {
             let report_confined = matches!(
@@ -445,12 +451,13 @@ impl Manifest {
     }
 
     fn role_for(&self, uri: &str, proposed: &str) -> String {
-        if self
-            .entries
-            .get(uri)
-            .is_some_and(|entry| entry.role == "checker-executor")
-        {
-            return "checker-executor".into();
+        if self.entries.get(uri).is_some_and(|entry| {
+            matches!(
+                entry.role.as_str(),
+                "checker-executor" | "artifact-snapshot"
+            )
+        }) {
+            return self.entries[uri].role.clone();
         }
         self.entries
             .get(uri)
@@ -558,6 +565,48 @@ impl Manifest {
             }
             _ => Err(format!("immutable checker input drifted: {uri}")),
         }
+    }
+
+    fn retain_report_input(
+        &mut self,
+        uri: &str,
+        digest: &str,
+        source_uri: &str,
+    ) -> Result<(), String> {
+        if self.entries.get(uri).is_some_and(|m| m.sha256 == digest) {
+            return Ok(());
+        }
+        // Earlier attempts can have assessed a different version of the same
+        // source. Reuse that verified committed blob under its digest address,
+        // rather than aliasing it to the visit's latest source version.
+        if self.previous.values().any(|m| m.sha256 == digest) {
+            self.entries.insert(
+                uri.to_owned(),
+                RsSaveMaterial {
+                    uri: uri.to_owned(),
+                    role: "artifact-snapshot".into(),
+                    sha256: digest.to_owned(),
+                    source: None,
+                },
+            );
+            return Ok(());
+        }
+        let bytes = read_source(source_uri)?;
+        if sha256_bytes(&bytes) != digest {
+            return Err(format!(
+                "checker input drifted before retention: {source_uri}"
+            ));
+        }
+        self.entries.insert(
+            uri.to_owned(),
+            RsSaveMaterial {
+                uri: uri.to_owned(),
+                role: "artifact-snapshot".into(),
+                sha256: digest.to_owned(),
+                source: Some(PathBuf::from(source_uri)),
+            },
+        );
+        Ok(())
     }
 
     fn put_current(&mut self, uri: &str, role: &str) -> Result<(), String> {
@@ -855,7 +904,7 @@ pub fn init(
         let work = WorkDefinition::freeze_with_inputs(flow, &plan, &working, &library_inputs)?;
         let work_bytes = serde_json::to_vec_pretty(&work).map_err(|error| error.to_string())?;
         store::write_new(&work_uri, &work_bytes)?;
-        let run = create_run(
+        let mut run = create_run(
             plan.clone(),
             working.clone(),
             run_record_uri.clone(),
@@ -866,6 +915,7 @@ pub fn init(
             Box::new(unjudged()),
         )
         .map_err(|error| format!("cannot initialize run: {error:?}"))?;
+        run.retain_completed_artifacts(format!("{dir}/artifact-snapshots"))?;
         run.write_record()?;
         let registry = Registry {
             schema_version: 1,
@@ -1046,14 +1096,14 @@ fn add_run_materials(
 
     let mut artifacts = BTreeSet::new();
     let mut evidence = BTreeSet::new();
-    let mut reports = BTreeSet::new();
+    let mut reports = BTreeMap::new();
     let report_prefix = format!("{}/reports/", store::directory(&stored.registry.wish_id));
     for visit in run.visits() {
         artifacts.extend(
             visit
                 .artifact_digests()
                 .iter()
-                .map(|artifact| artifact.uri.clone()),
+                .map(|artifact| visit.retained_artifact_uri(&artifact.uri).to_owned()),
         );
         for assessment in visit.assessments() {
             for uri in &assessment.evidence_uris {
@@ -1062,7 +1112,7 @@ fn add_run_materials(
                     && uri.ends_with(".json")
                     && !uri.ends_with(".record.json")
                 {
-                    reports.insert(uri.clone());
+                    reports.insert(uri.clone(), visit);
                 }
             }
         }
@@ -1071,9 +1121,17 @@ fn add_run_materials(
         if uri == &stored.registry.wish_model_uri || uri == &stored.registry.run_record_uri {
             continue;
         }
-        manifest.put_current(uri, "artifact")?;
+        let role = if uri.starts_with(&format!(
+            "{}/artifact-snapshots/",
+            store::directory(&stored.registry.wish_id)
+        )) {
+            "artifact-snapshot"
+        } else {
+            "artifact"
+        };
+        manifest.put_current(uri, role)?;
     }
-    for report in reports {
+    for (report, visit) in reports {
         let bytes = read_source(&report)?;
         let value: Value = serde_json::from_slice(&bytes)
             .map_err(|error| format!("invalid retained checker report {report}: {error}"))?;
@@ -1086,7 +1144,15 @@ fn add_run_materials(
                 .as_str()
                 .filter(|digest| valid_digest(digest))
                 .ok_or_else(|| format!("invalid checker input digest in {report}"))?;
-            if uri.starts_with(&report_prefix) && uri.ends_with(".record.json") {
+            let was_artifact = visit.activities().iter().any(|activity| {
+                activity
+                    .artifact_digests
+                    .iter()
+                    .any(|a| a.uri == *uri && a.sha256 == digest)
+            });
+            if let Some(directory) = run.artifact_snapshot_directory().filter(|_| was_artifact) {
+                manifest.retain_report_input(&format!("{directory}/{digest}"), digest, uri)?;
+            } else if uri.starts_with(&report_prefix) && uri.ends_with(".record.json") {
                 manifest.put_expected(uri, "checker-record", digest)?;
             } else {
                 manifest.put_expected(uri, "checker-input", digest)?;
@@ -1243,6 +1309,18 @@ fn run_check(
     result_bytes: &[u8],
     operation_id: &str,
 ) -> Result<(Value, i32), String> {
+    let integrity: Vec<_> = loaded
+        .visits()
+        .iter()
+        .filter(|visit| visit.status() == xdesign::core::RsStageStatus::Completed)
+        .flat_map(|visit| visit.artifact_diagnostics())
+        .collect();
+    if !integrity.is_empty() {
+        return Err(format!(
+            "completed-stage integrity preflight failed before running checkers: {}",
+            integrity.join("; ")
+        ));
+    }
     let supplied = validate_result(result.as_ref(), &stored, &loaded)?;
     let collection = work::collect(
         stored.work.stage(loaded.current().stage_id())?,
@@ -1251,6 +1329,24 @@ fn run_check(
     )?;
     for artifact in &collection.artifacts {
         validate_source(&artifact.uri)?;
+    }
+    if loaded.artifact_snapshot_directory().is_some()
+        && result
+            .as_ref()
+            .and_then(|r| r.judgment.as_ref())
+            .is_some_and(|j| j.outcome == xdesign::core::RsCheckpointOutcome::Passed)
+    {
+        for change in super::workspace_changes(&loaded) {
+            let uri = change["uri"].as_str().ok_or("invalid workspace change")?;
+            let current = change["workspace_sha256"].as_str();
+            if !collection
+                .artifacts
+                .iter()
+                .any(|a| a.uri == uri && Some(a.sha256.as_str()) == current)
+            {
+                return Err(format!("unreviewed workspace change after completed stage: {uri}; include the current bytes in result.artifacts and bind the semantic judgment to the resulting snapshot"));
+            }
+        }
     }
     validate_source(&stored.registry.wish_model_uri)?;
     let judgment = judge(result.as_ref(), &collection)?;
@@ -1321,11 +1417,16 @@ fn run_check(
     let assessed = json!({ "stage_id": run.current().stage_id(), "visit_index": run.current().visit_index(),
         "artifact_revision": run.current().artifact_revision(), "artifact_snapshot_digest": run.current().artifact_snapshot_digest(),
         "assessments": assessments });
+    let assessed_index = run.current_visit_index();
     let advance = run.advance();
     if let Some(error) = run.last_error() {
         return Err(format!("cannot retain advancement: {error}"));
     }
-    if !run.current().verify_artifacts() {
+    if !run.visits()[assessed_index]
+        .artifact_digests()
+        .iter()
+        .all(|a| xdesign::core::hash_artifact(&a.uri).is_ok_and(|actual| actual.sha256 == a.sha256))
+    {
         return Err("current artifacts drifted during check; stored head was not advanced".into());
     }
     let final_state = after_engine(&stored, &attempt_run_uri)?;

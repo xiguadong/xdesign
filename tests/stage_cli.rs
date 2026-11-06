@@ -151,6 +151,9 @@ impl Project {
         let mut run: Value =
             serde_json::from_slice(&fs::read(self.root.join(run_uri)).unwrap()).unwrap();
         run["wish_model_uri"] = json!(legacy_wish);
+        run.as_object_mut()
+            .unwrap()
+            .remove("artifact_snapshot_directory");
         run["plan_sha256"] = json!(plan_sha256);
         self.write(run_uri, &serde_json::to_vec_pretty(&run).unwrap());
         let registry_uri = "cache/xdesign/wish-test/registry.json";
@@ -241,6 +244,142 @@ impl Project {
         visit(&self.root, &self.root.join("cache/xdesign"), &mut output);
         output
     }
+}
+
+#[test]
+fn persistent_stage_snapshots_allow_source_evolution_without_rewriting_prior_approval() {
+    let project = Project::new();
+    let initial = project.json(&["init", "wish-test", "--flow", "wish-verify"], 0);
+    assert_eq!(initial["artifact_retention"], "completed-stage-snapshots");
+    project.write("context.py", b"version = 1\n");
+    let next = project.submit(&initial, &["context.py"], Some("passed"), 0);
+    let record_uri = "cache/xdesign/wish-test/run.json";
+    let accepted: Value =
+        serde_json::from_slice(&fs::read(project.root.join(record_uri)).unwrap()).unwrap();
+    let snapshot = accepted["visits"][0]["artifact_snapshots"]["context.py"]
+        .as_str()
+        .unwrap();
+    assert_eq!(
+        fs::read(project.root.join(snapshot)).unwrap(),
+        b"version = 1\n"
+    );
+    project.write("context.py", b"version = 2\n");
+    fs::remove_file(project.root.join(snapshot)).unwrap();
+    let resumed = project.next();
+    assert_eq!(resumed["work"]["workspace_changes"][0]["uri"], "context.py");
+    assert_eq!(
+        fs::read(project.root.join(snapshot)).unwrap(),
+        b"version = 1\n"
+    );
+    assert_eq!(
+        fs::read(project.root.join("context.py")).unwrap(),
+        b"version = 2\n"
+    );
+    project.write("verification.txt", b"reviewed the new context version\n");
+    project.save_result(&project.result(&resumed, &["verification.txt"], Some("passed")));
+    assert!(project
+        .error(&["check", "wish-test", "--result", "result.json"])
+        .contains("unreviewed workspace change"));
+    let completed = project.submit(
+        &resumed,
+        &["context.py", "verification.txt"],
+        Some("passed"),
+        0,
+    );
+    assert_eq!(completed["completed"], true);
+    let final_record: Value =
+        serde_json::from_slice(&fs::read(project.root.join(record_uri)).unwrap()).unwrap();
+    assert_eq!(accepted["visits"][0], final_record["visits"][0]);
+    assert_ne!(
+        final_record["visits"][0]["artifact_snapshots"]["context.py"],
+        final_record["visits"][1]["artifact_snapshots"]["context.py"]
+    );
+    assert_eq!(next["run_id"], completed["run_id"]);
+}
+
+#[test]
+fn persistent_checker_correction_retains_each_attempts_input_version() {
+    let project = Project::simple(false);
+    project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    let uri = "mbse/model/requirements.sysml";
+    let original = fs::read_to_string(project.root.join(uri)).unwrap();
+    let marker = "attribute redefines rationale = \"";
+    let start = original.find(marker).unwrap() + marker.len();
+    let end = start + original[start..].find('"').unwrap();
+    let mut broken = original.clone();
+    broken.replace_range(start..end, "");
+    project.write(uri, broken.as_bytes());
+    let failed = project.json(&["check", "wish-test"], 1);
+    assert_eq!(failed["assessed"]["assessments"][0]["outcome"], "failed");
+    project.write(uri, original.as_bytes());
+    let passed = project.json(&["check", "wish-test"], 0);
+    assert_eq!(passed["work"]["stage_id"], "design");
+    let record: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/run.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(
+        record["visits"][0]["assessments"].as_array().unwrap().len(),
+        2
+    );
+    for contents in [broken.as_bytes(), original.as_bytes()] {
+        let retained = project.root.join(format!(
+            "cache/xdesign/wish-test/artifact-snapshots/{}",
+            sha256_bytes(contents)
+        ));
+        // `next` reconstructs any report-input aliases that only existed in the store.
+        project.next();
+        assert_eq!(fs::read(retained).unwrap(), contents);
+    }
+}
+
+#[test]
+fn corrupt_retained_stage_snapshot_is_refused_before_another_gate_runs() {
+    let project = Project::new();
+    let initial = project.json(&["init", "wish-test", "--flow", "wish-verify"], 0);
+    project.write("input.txt", b"assessed bytes\n");
+    project.submit(&initial, &["input.txt"], Some("passed"), 0);
+    let record: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/run.json")).unwrap(),
+    )
+    .unwrap();
+    let uri = record["visits"][0]["artifact_snapshots"]["input.txt"]
+        .as_str()
+        .unwrap();
+    project.write(uri, b"corrupt archived evidence\n");
+    let error = project.error(&["check", "wish-test"]);
+    assert!(error.contains(uri), "{error}");
+    assert_eq!(
+        fs::read(project.root.join("input.txt")).unwrap(),
+        b"assessed bytes\n"
+    );
+}
+
+#[test]
+fn persistent_simple_flow_record_checker_uses_each_completed_stage_snapshot() {
+    let project = Project::simple(true);
+    let initial = project.json(&["init", "wish-test", "--flow", "simple-flow"], 0);
+    let design = project.json(&["check", "wish-test"], 0);
+    assert!(initial["work"]["review_contract"]["semantic"]
+        .as_array()
+        .unwrap()
+        .is_empty());
+    project.write("context.py", b"old implementation input\n");
+    let implement = project.submit(&design, &["context.py"], None, 0);
+    project.write("context.py", b"new implementation output\n");
+    let verify = project.submit(&implement, &["context.py"], None, 0);
+    project.write(
+        "verification.txt",
+        b"test evidence for the implemented change\n",
+    );
+    let completed = project.submit(&verify, &["verification.txt"], Some("passed"), 0);
+    assert_eq!(completed["completed"], true);
+    assert_eq!(completed["assessed"]["assessments"][0]["outcome"], "passed");
+    assert_eq!(completed["assessed"]["assessments"][1]["outcome"], "passed");
+    assert!(completed["workspace_changes"]
+        .as_array()
+        .unwrap()
+        .is_empty());
 }
 
 #[test]

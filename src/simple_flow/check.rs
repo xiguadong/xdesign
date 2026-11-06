@@ -684,9 +684,19 @@ impl RsProcessCheck {
                                     .as_array()
                                     .is_some_and(|artifacts| {
                                         artifacts.iter().all(|item| {
-                                            item["uri"]
-                                                .as_str()
-                                                .is_some_and(|uri| inputs.contains(uri))
+                                            item["uri"].as_str().is_some_and(|uri| {
+                                                let retained = if source["status"] == "completed"
+                                                    && record["artifact_snapshot_directory"]
+                                                        .is_string()
+                                                {
+                                                    source["artifact_snapshots"][uri]
+                                                        .as_str()
+                                                        .unwrap_or(uri)
+                                                } else {
+                                                    uri
+                                                };
+                                                inputs.contains(retained)
+                                            })
                                         })
                                     })
                             })
@@ -703,8 +713,19 @@ impl RsProcessCheck {
                                         |a| {
                                             a["evidence_uris"].as_array().is_some_and(|uris| {
                                                 uris.iter().all(|uri| {
-                                                    uri.as_str()
-                                                        .is_some_and(|uri| inputs.contains(uri))
+                                                    uri.as_str().is_some_and(|uri| {
+                                                        let retained = if v["status"] == "completed"
+                                                            && record["artifact_snapshot_directory"]
+                                                                .is_string()
+                                                        {
+                                                            v["artifact_snapshots"][uri]
+                                                                .as_str()
+                                                                .unwrap_or(uri)
+                                                        } else {
+                                                            uri
+                                                        };
+                                                        inputs.contains(retained)
+                                                    })
                                                 })
                                             })
                                         },

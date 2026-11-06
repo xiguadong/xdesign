@@ -1417,6 +1417,8 @@ struct RunDocument {
     status: RsFlowStatus,
     current_visit: usize,
     visits: Vec<RsStageVisit>,
+    #[serde(default)]
+    artifact_snapshot_directory: Option<String>,
 }
 
 fn protocol_material<'a>(
@@ -1555,6 +1557,49 @@ fn wish_projection(
         return Err(RsStoreError::Integrity(
             "run does not match registry, retained plan, or current visit".into(),
         ));
+    }
+    if let Some(directory) = &run.artifact_snapshot_directory {
+        let expected = Path::new(&registry.plan_uri)
+            .parent()
+            .ok_or_else(|| RsStoreError::Integrity("plan has no retention namespace".into()))?
+            .join("artifact-snapshots");
+        if !valid_uri(directory) || Path::new(directory) != expected {
+            return Err(RsStoreError::Integrity(
+                "artifact snapshot directory differs from its run namespace".into(),
+            ));
+        }
+    }
+    for visit in &run.visits {
+        if let Some(directory) = &run.artifact_snapshot_directory {
+            if visit.status() == crate::core::RsStageStatus::Completed {
+                if visit.artifact_snapshots().len() != visit.artifact_digests().len() {
+                    return Err(RsStoreError::Integrity(
+                        "completed stage has an incomplete artifact snapshot map".into(),
+                    ));
+                }
+                for artifact in visit.artifact_digests() {
+                    let retained = format!("{directory}/{}", artifact.sha256);
+                    if visit.artifact_snapshots().get(&artifact.uri) != Some(&retained)
+                        || !materials.iter().any(|m| {
+                            m.uri == retained
+                                && m.sha256 == artifact.sha256
+                                && m.role == "artifact-snapshot"
+                        })
+                    {
+                        return Err(RsStoreError::Integrity(format!(
+                            "completed artifact snapshot is not retained: {}",
+                            artifact.uri
+                        )));
+                    }
+                }
+                continue;
+            }
+        }
+        if !visit.artifact_snapshots().is_empty() {
+            return Err(RsStoreError::Integrity(
+                "unexpected artifact snapshots on a legacy or uncompleted visit".into(),
+            ));
+        }
     }
     let (status, current_stage) = match run.status {
         RsFlowStatus::Pending => (

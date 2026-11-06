@@ -164,6 +164,8 @@ path.
 | `RsAssessmentEntry` | struct | One recorded gate verdict with evidence | [core/22](core/rs-assessment-entry.md#u32) |
 | `RsArtifactDigest` | struct | URI and SHA-256 of exact artifact bytes | [core/23](core/rs-artifact-digest.md#u51) |
 | `RsStageVisit::verify_artifacts` | `fn verify_artifacts(&self) -> bool` | Rehash each current artifact and its canonical set | [core/24](core/rs-stage-visit-verify-artifacts.md#u55) |
+| `RsStageVisit::artifact_diagnostics` | `fn artifact_diagnostics(&self) -> Vec<String>` | Identify exact live or retained artifact integrity failures | [core diagnostics](core/rs-stage-visit-artifact-diagnostics.md#u115) |
+| `RsFlowRun::retain_completed_artifacts` | `fn retain_completed_artifacts(&mut self, directory: String) -> Result<(), String>` | Configure immutable completed-stage retention before work | [core retention](core/rs-flow-run-retain-completed-artifacts.md#u114) |
 | `hash_artifact` | `fn hash_artifact(uri: &str) -> Result<RsArtifactDigest, String>` | Read a file and obtain its exact byte digest | [core/25](core/hash-artifact.md#u56) |
 | `snapshot_digest` | `fn snapshot_digest(artifacts: &[RsArtifactDigest]) -> String` | Hash the canonical artifact digest list | [core/26](core/snapshot-digest.md#u57) |
 | `RsStageVisit::evidence_uris` | `fn evidence_uris(&self) -> Vec<String>` | Collect current artifacts and same-revision assessment evidence | [core/27](core/rs-stage-visit-evidence-uris.md#u63) |

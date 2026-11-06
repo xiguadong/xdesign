@@ -76,6 +76,8 @@ nav:
         - "RsAssessmentEntry": design/api/core/rs-assessment-entry.md
         - "RsArtifactDigest": design/api/core/rs-artifact-digest.md
         - "RsStageVisit::verify_artifacts": design/api/core/rs-stage-visit-verify-artifacts.md
+        - "RsStageVisit::artifact_diagnostics": design/api/core/rs-stage-visit-artifact-diagnostics.md
+        - "RsFlowRun::retain_completed_artifacts": design/api/core/rs-flow-run-retain-completed-artifacts.md
         - "hash_artifact": design/api/core/hash-artifact.md
         - "snapshot_digest": design/api/core/snapshot-digest.md
         - "RsStageVisit::evidence_uris": design/api/core/rs-stage-visit-evidence-uris.md

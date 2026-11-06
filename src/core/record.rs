@@ -71,6 +71,8 @@ pub struct RsStageVisit {
     pub(crate) artifact_revision: u32,
     pub(crate) artifact_snapshot_digest: String,
     pub(crate) artifact_digests: Vec<RsArtifactDigest>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub(crate) artifact_snapshots: BTreeMap<String, String>,
     activities: Vec<RsActivityEntry>,
     assessments: Vec<RsAssessmentEntry>,
 }
@@ -109,6 +111,7 @@ impl RsStageVisit {
             artifact_revision: 0,
             artifact_snapshot_digest: sha256_bytes(&[]),
             artifact_digests: vec![],
+            artifact_snapshots: BTreeMap::new(),
             activities: vec![],
             assessments: vec![],
         }
@@ -130,6 +133,20 @@ impl RsStageVisit {
     }
     pub fn artifact_digests(&self) -> &[RsArtifactDigest] {
         &self.artifact_digests
+    }
+    /// Completed visits retain their assessed bytes independently of live sources.
+    pub fn retained_artifact_uri<'a>(&'a self, uri: &'a str) -> &'a str {
+        if self.status == RsStageStatus::Completed {
+            self.artifact_snapshots
+                .get(uri)
+                .map(String::as_str)
+                .unwrap_or(uri)
+        } else {
+            uri
+        }
+    }
+    pub fn artifact_snapshots(&self) -> &BTreeMap<String, String> {
+        &self.artifact_snapshots
     }
     pub fn activities(&self) -> &[RsActivityEntry] {
         &self.activities
@@ -154,18 +171,41 @@ impl RsStageVisit {
         uris.dedup();
         uris
     }
-    pub fn verify_artifacts(&self) -> bool {
+    pub fn artifact_diagnostics(&self) -> Vec<String> {
+        let mut failures = vec![];
         if snapshot_digest(&self.artifact_digests) != self.artifact_snapshot_digest {
-            return false;
+            failures.push(format!(
+                "{}[{}]: artifact snapshot digest is inconsistent",
+                self.stage_id, self.visit_index
+            ));
         }
         let mut uris = HashSet::new();
-        self.artifact_digests.iter().all(|a| {
-            uris.insert(&a.uri)
-                && valid_digest(&a.sha256)
-                && hash_artifact(&a.uri)
-                    .map(|actual| actual.sha256 == a.sha256)
-                    .unwrap_or(false)
-        })
+        for artifact in &self.artifact_digests {
+            let retained = self.retained_artifact_uri(&artifact.uri);
+            let prefix = format!(
+                "{}[{}] artifact {} (retained at {})",
+                self.stage_id, self.visit_index, artifact.uri, retained
+            );
+            if !uris.insert(&artifact.uri)
+                || !valid_relative_path(&artifact.uri)
+                || !valid_digest(&artifact.sha256)
+            {
+                failures.push(format!("{prefix}: invalid or duplicate digest"));
+            } else {
+                match hash_artifact(retained) {
+                    Ok(actual) if actual.sha256 == artifact.sha256 => (),
+                    Ok(actual) => failures.push(format!(
+                        "{prefix}: expected {}, found {}",
+                        artifact.sha256, actual.sha256
+                    )),
+                    Err(error) => failures.push(format!("{prefix}: {error}")),
+                }
+            }
+        }
+        failures
+    }
+    pub fn verify_artifacts(&self) -> bool {
+        self.artifact_diagnostics().is_empty()
     }
     pub(crate) fn verify_passed_evidence(&self) -> bool {
         self.assessments
@@ -173,10 +213,10 @@ impl RsStageVisit {
             .filter(|assessment| assessment.outcome == RsCheckpointOutcome::Passed)
             .all(|assessment| {
                 !assessment.evidence_uris.is_empty()
-                    && assessment
-                        .evidence_uris
-                        .iter()
-                        .all(|uri| valid_relative_path(uri) && Path::new(uri).is_file())
+                    && assessment.evidence_uris.iter().all(|uri| {
+                        valid_relative_path(uri)
+                            && Path::new(self.retained_artifact_uri(uri)).is_file()
+                    })
             })
     }
     pub(crate) fn record_activity(&mut self, activity: RsActivityEntry) -> bool {

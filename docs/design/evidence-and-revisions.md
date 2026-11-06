@@ -41,6 +41,25 @@ The revision is what keeps evidence honest:
   their evidence stay. The generic model does not yet define downstream
   invalidation for reopening an earlier completed stage.
 
+New store-backed runs retain completed artifact bytes in content-addressed stage
+snapshots. Their run record names `artifact_snapshot_directory`; each completed
+visit maps its original artifact URIs through `artifact_snapshots`. Advancement
+checks those retained bytes, while current work remains bound to live files.
+Later stages may therefore evolve a source file without rewriting an earlier
+approval or restoring obsolete workspace bytes. Records without this opt-in field
+keep their historical workspace-bound behavior; they are not migrated.
+
+An earlier approval establishes only its retained revision. `next` discloses
+`workspace_changes` against the latest completed version of each product URI.
+A later passing semantic judgment must include current bytes for those changes in
+its collected artifacts. Missing or altered retained snapshots fail integrity
+preflight before further checker execution. Earlier-stage reopening and automatic
+semantic downstream invalidation remain separate capabilities.
+
+Maintenance verification for this adapter behavior is retained in the store record
+`record-execution-stage-artifact-retention-repair`; read its current revision with
+`python3 tools/records.py show record-execution-stage-artifact-retention-repair`.
+
 Worked example, wish-0002: verification was assessed three times — revision 1 failed (the
 export showed only one of two permitted judges), revision 2 passed after one flag per
 authority replaced the list, revision 3 passed again after another wish moved that wish's

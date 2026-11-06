@@ -36,6 +36,11 @@ evidence on a current or completed visit, unresolved record-write failure, or
 missing latest pass returns `RemainBlocked` and marks the run and current visit
 `Blocked`.
 
+Snapshot-enabled runs retain the current assessed artifacts before completing a
+visit. Later checks resolve completed artifacts through those immutable copies;
+legacy runs continue to resolve live paths. A retention failure prevents completion.
+This preserves historical approval without making it approval of later source edits.
+
 **Logic**
 
 ```

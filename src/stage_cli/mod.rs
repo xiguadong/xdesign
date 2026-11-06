@@ -151,11 +151,27 @@ fn restore(
     if run.run_id() != stored.registry.run_id {
         return Err("run identity differs from registration".into());
     }
+    if let Some(directory) = run.artifact_snapshot_directory() {
+        if stored.backend != Backend::Persistent
+            || directory
+                != format!(
+                    "{}/artifact-snapshots",
+                    store::directory(&stored.registry.wish_id)
+                )
+        {
+            return Err("artifact retention directory does not match its persistent run".into());
+        }
+    }
     // The generic restore validates shape/history; this boundary also constrains
     // every stored artifact and evidence path to the local project.
     for visit in run.visits() {
         for artifact in visit.artifact_digests() {
-            store::artifact_path(&artifact.uri)?;
+            let retained = visit.retained_artifact_uri(&artifact.uri);
+            if retained == artifact.uri {
+                store::artifact_path(&artifact.uri)?;
+            } else {
+                store::contained_path(retained)?;
+            }
         }
         for assessment in visit.assessments() {
             for uri in &assessment.evidence_uris {
@@ -184,6 +200,12 @@ fn response(stored: &Stored, run: &RsFlowRun) -> Result<Value, String> {
         let collection = work::collect(work, visit, &[])?;
         let assessments = current_assessments(run);
         let mut corrections = collection.diagnostics.clone();
+        corrections.extend(
+            run.visits()
+                .iter()
+                .filter(|v| v.status() == xdesign::core::RsStageStatus::Completed)
+                .flat_map(|v| v.artifact_diagnostics()),
+        );
         for gate in run.plan().checkpoints_of(visit.stage_id()) {
             match assessments
                 .iter()
@@ -215,17 +237,60 @@ fn response(stored: &Stored, run: &RsFlowRun) -> Result<Value, String> {
             "expected_outputs": work.expected_outputs, "frozen_output_paths": work.frozen_paths,
             "exit_checkpoints": run.plan().checkpoints_of(visit.stage_id()), "current_assessments": assessments,
             "correction_reasons": corrections, "collection_diagnostics": collection.diagnostics,
-            "candidate_artifacts": collection.artifacts, "candidate_snapshot_digest": collection.snapshot })
+            "candidate_artifacts": collection.artifacts, "candidate_snapshot_digest": collection.snapshot,
+            "review_contract": {
+                "syntactic": run.plan().checkpoints_of(visit.stage_id()).into_iter().filter(|g| g.kind == xdesign::core::RsCheckKind::Syntactic).map(compact_gate).collect::<Vec<_>>(),
+                "semantic": run.plan().checkpoints_of(visit.stage_id()).into_iter().filter(|g| g.kind == xdesign::core::RsCheckKind::Semantic).map(compact_gate).collect::<Vec<_>>(),
+                "independent_review_is_exit_gate": false,
+                "scope": "Apply exactly these frozen checkpoint criteria; independent review does not replace script checks or advancement integrity."
+            },
+            "workspace_changes": workspace_changes(run) })
     };
     let mut reply = json!({ "schema_version": 1, "wish_id": stored.registry.wish_id, "run_id": run.run_id(),
         "flow_id": stored.registry.flow_id, "status": run.status(), "completed": completed,
         "state_token": stored.token, "work": projected });
+    reply["artifact_retention"] = json!(if run.artifact_snapshot_directory().is_some() {
+        "completed-stage-snapshots"
+    } else {
+        "legacy-workspace"
+    });
+    reply["workspace_changes"] = json!(workspace_changes(run));
     if stored.backend == Backend::Persistent {
         reply["store_revision"] = json!(stored
             .store_revision
             .ok_or("persistent head has no revision")?);
     }
     Ok(reply)
+}
+
+fn compact_gate(gate: &xdesign::core::RsCheckpointSpec) -> Value {
+    json!({"checkpoint_id": gate.checkpoint_id, "kind": gate.kind,
+        "criteria": gate.criteria, "agent_may_judge": gate.agent_may_judge,
+        "human_may_judge": gate.human_may_judge,
+        "checker": gate.checker.as_ref().map(|c| json!({"checker_id": c.checker_id,
+            "command_uri": c.command_uri, "rules": c.rules}))})
+}
+
+/// Latest completed evidence per source URI, without conflating earlier versions.
+fn workspace_changes(run: &RsFlowRun) -> Vec<Value> {
+    let mut latest = BTreeMap::new();
+    for visit in run
+        .visits()
+        .iter()
+        .filter(|v| v.status() == xdesign::core::RsStageStatus::Completed)
+    {
+        for artifact in visit.artifact_digests() {
+            if !artifact.uri.starts_with("cache/") || artifact.uri.starts_with("cache/wishes/") {
+                latest.insert(&artifact.uri, (visit.stage_id(), &artifact.sha256));
+            }
+        }
+    }
+    latest.into_iter().filter_map(|(uri, (stage, expected))| {
+        let actual = store::artifact_path(uri).ok().and_then(|_| xdesign::core::hash_artifact(uri).ok()).map(|a| a.sha256);
+        (actual.as_ref() != Some(expected)).then(|| json!({"uri": uri, "stage_id": stage,
+            "assessed_sha256": expected, "workspace_sha256": actual,
+            "action": "Bind and review the current bytes in a later stage; earlier approval remains attached to its retained snapshot."}))
+    }).collect()
 }
 
 fn observe(id: &str) -> Result<(Stored, RsFlowRun, Value), String> {

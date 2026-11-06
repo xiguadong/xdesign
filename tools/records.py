@@ -25,7 +25,8 @@ import subprocess
 import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-BINARY = REPO / "target/debug/xdesign"
+# Match the documented local CLI build; environments and build output live in cache/.
+BINARY = REPO / "cache/target/debug/xdesign"
 DEFAULT_STORE = pathlib.Path(".xdesign")
 
 

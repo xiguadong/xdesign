@@ -25,6 +25,22 @@ executable; actual case results are recorded in
 | SF-10 Command conformance | Run the four fixed gate commands on passing and targeted failing fixtures. | Their reports contain exactly the 18 declared rule IDs across the four rule sets, one result per rule, with a diagnostic for each failure and an aggregate verdict equal to the conjunction. |
 | SF-11 File and model integration | Compare the file-plan paths in both directions against the source/test inventory, crate exports, command URIs, declared rule IDs, model links, and generated figures; run the compiler and documentation checks. | Every declared source path exists and every in-scope source/test file is declared; mappings resolve; model `parse`/`check`, documentation audit, figure render, and strict site build pass at the same source revision. |
 
+The persistent adapter additionally exercises these retention oracles in isolated
+fixtures, without requiring an operational wish for maintenance work:
+
+| Condition | Required oracle |
+| --- | --- |
+| A later stage edits a previously assessed source URI | Same run progresses using the earlier retained bytes; original activities, assessments and canonical artifact snapshot remain unchanged. |
+| Several attempts assess different bytes at one URI | Each checker input version remains retained by its own digest, including failed attempts. |
+| Retained cache copy is missing or corrupted | Missing bytes reconstruct from the committed store without overwriting live edits; corruption refuses the next check with the offending path. |
+| A semantic PASS omits changed upstream product bytes | Reject before checker execution; a current, fully bound result can be assessed. |
+| A legacy record omits retention metadata | Keep live-file integrity checks and prior compatibility behavior. |
+
+The Rust cases are in `tests/stage_cli.rs`; direct retained-versus-live checker
+counterexamples are in `tests/test_simple_flow_checkers.py`. These oracles exercise
+[E03](../design/evidence-and-revisions.md#e03); they do not add new semantic gates or
+claim automatic upstream rework.
+
 The authorization oracle for SF-06 and SF-08 is the generic
 `StageRecord.currentAssessments` latest-per-checkpoint selection and
 `completionAuthorized` predicate ([E03](../design/evidence-and-revisions.md#e03),

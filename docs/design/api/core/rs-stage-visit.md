@@ -15,6 +15,7 @@ pub struct RsStageVisit {
     pub(crate) artifact_revision: u32,
     pub(crate) artifact_snapshot_digest: String,
     pub(crate) artifact_digests: Vec<RsArtifactDigest>,
+    pub(crate) artifact_snapshots: BTreeMap<String, String>,
     activities: Vec<RsActivityEntry>,
     assessments: Vec<RsAssessmentEntry>,
 }
@@ -34,6 +35,7 @@ RsStageVisit is one visit of one stage, owning its activities and assessments. U
 | 6 | `artifact_digests` | `Vec<RsArtifactDigest>` | `pub(crate)` | unique URI entries, sorted when hashed | Current artifact bytes |
 | 7 | `activities` | `Vec<RsActivityEntry>` | private; read via `activities()` | append-only | Work done in this visit |
 | 8 | `assessments` | `Vec<RsAssessmentEntry>` | private; read via `assessments()` | append-only | Gate verdicts on this visit |
+| 9 | `artifact_snapshots` | `BTreeMap<String, String>` | `pub(crate)` | complete original-URI to digest-addressed retained URI map only on snapshot-enabled completed visits | Retained bytes for historical approvals; omitted on legacy visits |
 
 **Methods**
 
@@ -43,9 +45,14 @@ RsStageVisit is one visit of one stage, owning its activities and assessments. U
 | [`append_assessment`](rs-stage-visit-append-assessment.md#u29) | crate-visible, mutating | full entry |
 | [`completion_authorized`](rs-stage-visit-completion-authorized.md#u30) | public query | full entry |
 | [`verify_artifacts`](rs-stage-visit-verify-artifacts.md#u55) | public query and file read | full entry |
+| [`artifact_diagnostics`](rs-stage-visit-artifact-diagnostics.md#u115) | public query and file read | full entry |
 | [`evidence_uris`](rs-stage-visit-evidence-uris.md#u63) | public query | full entry |
 | [`verify_passed_evidence`](rs-stage-visit-verify-passed-evidence.md#u64) | crate-visible query and file read | full entry |
 | `pending(stage_id: String, visit_index: u32) -> Self` | crate-visible constructor | trivial: starts at revision 0 with empty artifact set; used by `create_run` and terminal reopen |
 | `stage_id()`, `visit_index()`, `status()`, `artifact_revision()`, `artifact_snapshot_digest()`, `artifact_digests()`, `activities()`, `assessments()` | getters | trivial |
+
+`artifact_snapshots()` returns the retention map; `retained_artifact_uri(uri)`
+selects its entry for a completed visit and otherwise returns the original URI.
+These are trivial Rust-side adapter getters, not additional model operations.
 
 **See also:** [`RsFlowRun`](rs-flow-run.md#u17), [`RsActivityEntry`](rs-activity-entry.md#u31), [`RsAssessmentEntry`](rs-assessment-entry.md#u32), [records E03](../../evidence-and-revisions.md#e03).
