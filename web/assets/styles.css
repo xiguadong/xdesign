@@ -5985,3 +5985,6 @@ h1.h1 {
     padding-top: 0;
   }
 }
+
+.backend-conflict { padding: 12px; border: 1px solid #b97722; border-radius: 8px; background: #b9772212; }
+.backend-conflict p { margin: 8px 0 0; font-size: 12px; }

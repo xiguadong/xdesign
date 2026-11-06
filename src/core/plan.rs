@@ -201,7 +201,12 @@ impl RsFlowPlan {
             return Err(RsPlanError::InvalidPlanFile);
         }
         let bytes = fs::read(plan_uri).map_err(|_| RsPlanError::InvalidPlanFile)?;
-        if sha256_bytes(&bytes) != plan_sha256 {
+        Self::load_retained(plan_uri, plan_sha256, &bytes)
+    }
+
+    /// Validate immutable retained bytes without touching the working tree.
+    pub(crate) fn load_retained(plan_uri:&str, plan_sha256:&str, bytes:&[u8])->Result<RsFlowPlan,RsPlanError>{
+        if !valid_relative_path(plan_uri) || !valid_digest(plan_sha256) || sha256_bytes(bytes) != plan_sha256 {
             return Err(RsPlanError::InvalidPlanFile);
         }
         let decoded: FrozenPlan =
@@ -214,12 +219,14 @@ impl RsFlowPlan {
             stages: decoded.stages,
             checkpoints: decoded.checkpoints,
         };
-        plan.validate()?;
+        plan.validate_bytes(Some(bytes))?;
         Ok(plan)
     }
 
     /// Structural validation only: a flow layer adds its own conformance rules.
-    pub fn validate(&self) -> Result<(), RsPlanError> {
+    pub fn validate(&self) -> Result<(), RsPlanError> { self.validate_bytes(None) }
+
+    fn validate_bytes(&self, retained:Option<&[u8]>) -> Result<(), RsPlanError> {
         let mut stage_ids = HashSet::new();
         for stage in &self.stages {
             if !stage_ids.insert(stage.stage_id.as_str()) || stage.stage_id.is_empty() {
@@ -326,7 +333,8 @@ impl RsFlowPlan {
         {
             return Err(RsPlanError::InvalidPlanFile);
         }
-        let bytes = fs::read(&self.plan_uri).map_err(|_| RsPlanError::InvalidPlanFile)?;
+        let owned;
+        let bytes=match retained {Some(bytes)=>bytes,None=>{owned=fs::read(&self.plan_uri).map_err(|_| RsPlanError::InvalidPlanFile)?;&owned}};
         if sha256_bytes(&bytes) != self.plan_sha256 {
             return Err(RsPlanError::InvalidPlanFile);
         }

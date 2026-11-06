@@ -262,7 +262,11 @@ function renderList(app, wishes, filters) {
     <div class="wish-grid__head">
       <span></span><span>Wish</span><span>Flow</span><span>Status</span><span style="text-align:right">Revision · age</span>
     </div>
-    ${shown.map((wish) => wishCard(wish, app)).join("")}
+    ${shown.map((wish) => {
+      const card = wishCard(wish, app);
+      if (!wish.conflict) return card;
+      return `<div class="backend-conflict">${card.replace(`#/wishes/${encodeURIComponent(wish.wish_id)}`, `#/wishes/${encodeURIComponent(wish.wish_id)}?backend=${wish.source}`)}<p>Conflicting histories · ${esc(wish.source)} · read-only inspection</p></div>`;
+    }).join("")}
   </div>`;
 }
 

@@ -139,7 +139,7 @@ export const wishDetailView = {
     const detail = data.detail;
     if (!detail) return renderNotFound(param);
     const flows = app.state.flows;
-    return `${renderSampleNote(app)}
+    return `${detail.inspection_backend ? `<div class="backend-conflict">Inspecting ${esc(detail.inspection_backend)} history. Lifecycle actions are disabled.</div>` : ""}${renderSampleNote(app)}
       <div class="animate-rise" data-detail-head>${renderHead(app, detail, flows)}</div>
       <div class="detail-layout animate-rise is-delay-1">
         <div class="detail-main" data-detail-main>${renderMain(app, detail, flows)}</div>
@@ -151,6 +151,9 @@ export const wishDetailView = {
     if (data.notFound) return null;
     const wishId = data.wishId;
     viewDetail = data.detail;
+    if (viewDetail.inspection_backend) {
+      for (const button of root.querySelectorAll("[data-get-work], [data-scroll-work], [data-scroll-check], [data-check-submit]")) button.disabled = true;
+    }
     const state = (detailState = detailState || { work: null, workError: null, checkResult: null, checkError: null });
 
     // ---- delegated read-only actions (survive surgical polling) ----
@@ -837,6 +840,7 @@ function renderSide(app, detail, flows) {
 }
 
 function renderWorkPanel(app, detail) {
+  if (detail.inspection_backend) return "";
   const state = detailState || { work: null, workError: null };
   return `<section class="side-panel">
     <div class="side-panel__head">
@@ -928,6 +932,7 @@ function hasSemanticGate(detail) {
 }
 
 function renderCheckPanel(app, detail) {
+  if (detail.inspection_backend) return "";
   const sample = app.state.sampleMode;
   const semantic = hasSemanticGate(detail);
   if (detail.status === "delivered") {
@@ -1040,6 +1045,7 @@ function bindCheckForm(app, root, form, wishId) {
       submitButton.disabled = true;
     }
     try {
+      if (viewDetail?.inspection_backend) return;
       const result = app.state.sampleMode ? getSampleCheckResponse(wishId, body) : await api.check(wishId, body);
       renderCheckResponse(root, result);
       const exitCode = result.exit_code ?? 0;
@@ -1122,6 +1128,7 @@ function bindWorkButton(app, root, button, wishId) {
     if (body) body.innerHTML = loadingBlock("Running xdesign next…");
     target.disabled = true;
     try {
+      if (viewDetail?.inspection_backend) return;
       const result = await api.work(wishId);
       detailState = { ...(detailState || {}), work: result, workError: null };
       if (body) body.innerHTML = renderWorkResult({ status: "active" }, result);

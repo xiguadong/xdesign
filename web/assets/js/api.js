@@ -80,11 +80,17 @@ async function request(path, { method = "GET", body = null, timeout = DEFAULT_TI
   return payload.data;
 }
 
+function inspectionBackend() {
+  const query = new URLSearchParams((globalThis.location?.hash || "").split("?")[1] || "");
+  const backend = query.get("backend");
+  return ["legacy", "store"].includes(backend) ? backend : null;
+}
+
 export const api = {
   health: () => request("/api/health"),
   flows: () => request("/api/flows"),
   wishes: () => request("/api/wishes"),
-  wish: (wishId) => request(`/api/wishes/${encodeURIComponent(wishId)}`),
+  wish: (wishId, backend = inspectionBackend()) => request(`/api/wishes/${encodeURIComponent(wishId)}${backend ? `?backend=${backend}` : ""}`),
   work: (wishId) => request(`/api/wishes/${encodeURIComponent(wishId)}/work`),
   check: (wishId, body) =>
     request(`/api/wishes/${encodeURIComponent(wishId)}/check`, { method: "POST", body, timeout: 620_000 }),
@@ -94,7 +100,7 @@ export const api = {
   createCheckpoint: (body) =>
     request("/api/checkpoints", { method: "POST", body, timeout: 120_000 }),
   material: (wishId, uri) =>
-    request(`/api/wishes/${encodeURIComponent(wishId)}/material?uri=${encodeURIComponent(uri)}`, {
+    request(`/api/wishes/${encodeURIComponent(wishId)}/material?uri=${encodeURIComponent(uri)}${inspectionBackend() ? `&backend=${inspectionBackend()}` : ""}`, {
       raw: true,
     }),
 };

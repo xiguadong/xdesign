@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="596pt" height="403pt" viewBox="0.00 0.00 596.00 403.00" role="img" aria-labelledby="diagram-title diagram-desc" data-layout-engine="graphviz-dot">
+<title id="diagram-title">Worktree store boundaries</title><desc id="diagram-desc">Which planned boundaries isolate and migrate history?. Model-derived projection. Native element IDs and resolved relationship endpoints are retained; Graphviz measures labels and routes edges.</desc><g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(18 384.5)">
+<title>Model</title>
+<polygon fill="white" stroke="none" points="-18,18 -18,-384.5 578.38,-384.5 578.38,18 -18,18" />
+<text xml:space="preserve" text-anchor="start" x="141.81" y="-336.6" font-family="Arial" font-weight="bold" font-size="22.00">Worktree store boundaries</text>
+<text xml:space="preserve" text-anchor="start" x="115.19" y="-308.25" font-family="Arial" font-size="14.00" fill="#52657a">Which planned boundaries isolate and migrate history?</text>
+
+<g class="edge" data-native-id="91385d9c-13ce-5b18-b58b-a9688c31376c" data-source-id="4b3909b2-fdda-506f-b39f-be24fdfee648" data-target-id="3ce71b8a-e0d6-508f-8d40-673c25128b6d" data-edge-kind="composition">
+<title>owns access
+FeatureTyping of native feature b9b5bdaa-3407-562f-bf78-713b9516eabc
+91385d9c-13ce-5b18-b58b-a9688c31376c</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M230.04,-188.41C218.33,-178.36 209.75,-171 209.75,-171 209.75,-171 177.43,-142.93 146.37,-115.95" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="229.96,-188.34 235.69,-189.03 237.25,-194.59 231.52,-193.89 229.96,-188.34" />
+<text xml:space="preserve" text-anchor="middle" x="248.38" y="-158.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns access</text>
+</g>
+
+<g class="edge" data-native-id="9373de17-5205-5ab1-97df-891b447fc2bf" data-source-id="4b3909b2-fdda-506f-b39f-be24fdfee648" data-target-id="711648a7-5b5b-59ff-be4a-c91e5fcb0062" data-edge-kind="composition">
+<title>owns migration
+FeatureTyping of native feature 55fc06a0-51c3-5cde-aeb0-ccf337b225d8
+9373de17-5205-5ab1-97df-891b447fc2bf</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M295,-184.43C295,-167.56 295,-149.12 295,-131.96" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="295,-184.48 298.2,-189.28 295,-194.08 291.8,-189.28 295,-184.48" />
+<text xml:space="preserve" text-anchor="middle" x="340" y="-158.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns migration</text>
+</g>
+
+<g class="edge" data-native-id="567fc18e-5058-5448-b3b5-003137c2510e" data-source-id="4b3909b2-fdda-506f-b39f-be24fdfee648" data-target-id="095bb4d3-1f41-5117-86f1-8b26f3195b1e" data-edge-kind="composition">
+<title>owns selection
+FeatureTyping of native feature 3a6af245-0985-5c82-9440-2cab8d3a59b0
+567fc18e-5058-5448-b3b5-003137c2510e</title>
+<path fill="none" stroke="#647a91" stroke-width="1.3" d="M369.11,-188.83C382.86,-178.56 393,-171 393,-171 393,-171 417.83,-142.93 441.69,-115.95" />
+<polygon fill="#647a91" stroke="#647a91" stroke-width="1.3" points="369.27,-188.7 367.34,-194.14 361.58,-194.45 363.51,-189.01 369.27,-188.7" />
+<text xml:space="preserve" text-anchor="middle" x="448.65" y="-158.65" font-family="Arial" font-size="13.00" fill="#334b64" class="edge-label">owns selection</text>
+</g>
+
+<g id="nf23ce3a6322c066f7ef7" class="node diagram-node shape-box" data-native-id="3ce71b8a-e0d6-508f-8d40-673c25128b6d" data-shape="box">
+<title>XDesignStorage::PlannedWorktreeStoreAccess
+3ce71b8a-e0d6-508f-8d40-673c25128b6d
+3ce71b8a-e0d6-508f-8d40-673c25128b6d</title>
+<rect fill="white" stroke="none" x="0.0" y="-116.12" width="180.0" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="0,-48.62 0,-48.62 180,-48.62 180,-48.62 0,-48.62" />
+<rect fill="none" stroke="#647a91" x="0.0" y="-116.12" width="180.0" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="9" y="-94.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-61.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Access</text>
+<text xml:space="preserve" text-anchor="start" x="9" y="-27.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Guard all supported callers</text>
+</g>
+
+<g id="n6c5aec7e0fa1f47b6c4e" class="node diagram-node shape-box" data-native-id="4b3909b2-fdda-506f-b39f-be24fdfee648" data-shape="box">
+<title>XDesignStorage::PlannedWorktreeStoreIntegration
+4b3909b2-fdda-506f-b39f-be24fdfee648
+part selection : PlannedWorktreeStoreSelection
+part migration : PlannedWorktreeStoreMigration
+part access : PlannedWorktreeStoreAccess
+4b3909b2-fdda-506f-b39f-be24fdfee648</title>
+<rect fill="white" stroke="none" x="203.12" y="-295.25" width="183.76" height="100.25" class="node" /><polygon fill="#647a91" stroke="#647a91" points="203.12,-227.75 203.12,-227.75 386.88,-227.75 386.88,-227.75 203.12,-227.75" />
+<rect fill="none" stroke="#647a91" x="203.12" y="-295.25" width="183.76" height="100.25" /><text xml:space="preserve" text-anchor="start" x="212.12" y="-273.5" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="212.12" y="-240.3" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Integration</text>
+<text xml:space="preserve" text-anchor="start" x="212.12" y="-207" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Preserve both flow histories</text>
+</g>
+
+<g id="nb0952d599fbf2a667101" class="node diagram-node shape-box" data-native-id="711648a7-5b5b-59ff-be4a-c91e5fcb0062" data-shape="box">
+<title>XDesignStorage::PlannedWorktreeStoreMigration
+711648a7-5b5b-59ff-be4a-c91e5fcb0062
+711648a7-5b5b-59ff-be4a-c91e5fcb0062</title>
+<rect fill="white" stroke="none" x="212.5" y="-132.0" width="165.0" height="132.0" class="node" /><polygon fill="#647a91" stroke="#647a91" points="212.5,-64.5 212.5,-64.5 377.5,-64.5 377.5,-64.5 212.5,-64.5" />
+<rect fill="none" stroke="#647a91" x="212.5" y="-132.0" width="165.0" height="132.0" /><text xml:space="preserve" text-anchor="start" x="221.5" y="-110.25" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="221.5" y="-77.05" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Migration</text>
+<text xml:space="preserve" text-anchor="start" x="221.5" y="-43.75" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Verify history and decide</text>
+<text xml:space="preserve" text-anchor="start" x="221.5" y="-12" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">cutover</text>
+</g>
+
+<g id="n0e55b3aa893ceed8ca4e" class="node diagram-node shape-box" data-native-id="095bb4d3-1f41-5117-86f1-8b26f3195b1e" data-shape="box">
+<title>XDesignStorage::PlannedWorktreeStoreSelection
+095bb4d3-1f41-5117-86f1-8b26f3195b1e
+095bb4d3-1f41-5117-86f1-8b26f3195b1e</title>
+<rect fill="white" stroke="none" x="409.62" y="-116.12" width="150.76" height="100.24000000000001" class="node" /><polygon fill="#647a91" stroke="#647a91" points="409.62,-48.62 409.62,-48.62 560.38,-48.62 560.38,-48.62 409.62,-48.62" />
+<rect fill="none" stroke="#647a91" x="409.62" y="-116.12" width="150.76" height="100.24000000000001" /><text xml:space="preserve" text-anchor="start" x="418.62" y="-94.38" font-family="Arial" font-size="14.00" fill="#52657a" class="feature">part def</text>
+<text xml:space="preserve" text-anchor="start" x="418.62" y="-61.17" font-family="Arial" font-weight="bold" font-size="16.00" fill="#172b43" class="name">Selection</text>
+<text xml:space="preserve" text-anchor="start" x="418.62" y="-27.88" font-family="Arial" font-size="14.00" fill="#172b43" class="feature">Bind the linked project</text>
+</g>
+</g>
+</svg>

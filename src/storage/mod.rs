@@ -1,6 +1,9 @@
+mod access;
 mod blobs;
 pub mod cli;
 mod db;
+mod location;
+mod migration;
 mod ops;
 mod unicode;
 
@@ -231,6 +234,7 @@ pub struct RsStore {
     pub(crate) conn: Connection,
     pub(crate) identity: RsIdentity,
     pub(crate) store_id: String,
+    pub(crate) lease: Option<std::sync::Arc<access::AccessLease>>,
 }
 
 #[derive(Serialize)]
@@ -245,15 +249,41 @@ pub(crate) struct RsStoreInfo {
 
 impl RsStore {
     pub fn init(root: &Path) -> Result<Self, RsStoreError> {
-        db::init(root)
+        if !root.exists() {
+            blobs::canonical_for_creation(root)?;
+        }
+        let root = access::absolute_root(root)?;
+        let lease = access::acquire(&root, None)?;
+        let result = migration::initialize(&root);
+        lease.verify()?;
+        result
     }
 
     pub fn open(root: &Path) -> Result<Self, RsStoreError> {
-        db::open(root)
+        let lease = access::acquire(root, None)?;
+        access::validate(&access::absolute_root(root)?, false)?;
+        let result = db::open(root);
+        lease.verify()?;
+        result
     }
 
     pub(crate) fn info(&self) -> Result<RsStoreInfo, RsStoreError> {
+        let _lease = self.access(false)?;
         db::info(self)
+    }
+
+    pub(crate) fn access(
+        &self,
+        mutation: bool,
+    ) -> Result<std::sync::Arc<access::AccessLease>, RsStoreError> {
+        let lease = match &self.lease {
+            Some(lease) => lease.clone(),
+            None => access::acquire(&self.root, None)?,
+        };
+        lease.verify()?;
+        access::validate(&self.root, mutation)?;
+        db::verify_live(self)?;
+        Ok(lease)
     }
 
     pub(crate) fn verify_live(&self) -> Result<(), RsStoreError> {

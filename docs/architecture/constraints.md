@@ -200,3 +200,8 @@ establish only their stated results; they do not replace visual review.
 - **The workbench caps a run's output.** A workbench run refuses output past 64 MiB, and
   this model's export is larger, so `render_docs.py` runs `export` directly and projects
   the declared views itself. The workbench is for submitted sources, not for this model.
+
+The focused [worktree store view](../design/storage.md#d116) maps
+`XDesignStorage::worktreeStoreBoundaries` to `design/assets/worktree-store-boundaries.svg`
+through the existing block-definition projection in `tools/render_docs.py`. Native node and
+ownership relationship IDs remain in the SVG; its four exposed definitions are designed-only.

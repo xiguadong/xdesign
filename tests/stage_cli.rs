@@ -9,6 +9,41 @@ use std::{
 use xdesign::core::{sha256_bytes, snapshot_digest, RsArtifactDigest};
 use xdesign::simple_flow::designed_simple_flow_plan;
 
+#[test]
+fn same_id_legacy_and_store_histories_require_read_only_selector() {
+    let project = Project::new();
+    let legacy = project.legacy_init("wish-verify");
+    let cache = project.root.join("cache/xdesign/wish-test");
+    let retained = project.root.join("legacy-cache");
+    fs::rename(&cache, &retained).unwrap();
+    let persistent = project.json(&["init", "wish-test", "--flow", "wish-verify"], 0);
+    assert_ne!(legacy["run_id"], persistent["run_id"]);
+    fs::remove_dir_all(&cache).unwrap();
+    fs::rename(&retained, &cache).unwrap();
+    let original = fs::read(cache.join("run.json")).unwrap();
+    for command in ["next", "check"] {
+        assert!(project
+            .error(&[command, "wish-test"])
+            .contains("location_reason=backend_conflict;"));
+    }
+    let l = project.json(&["inspect", "wish-test", "--backend", "legacy"], 0);
+    let p = project.json(&["inspect", "wish-test", "--backend", "store"], 0);
+    assert_eq!(l["run"]["run_id"], legacy["run_id"]);
+    assert_eq!(p["run"]["run_id"], persistent["run_id"]);
+    assert_eq!(fs::read(cache.join("run.json")).unwrap(), original);
+    assert_eq!(
+        xdesign::storage::RsStore::open(&project.root.join(".xdesign"))
+            .unwrap()
+            .get("wish-test", None)
+            .unwrap()
+            .revision,
+        1
+    );
+    assert!(project
+        .error(&["check", "wish-test", "--backend", "legacy"])
+        .contains("backend_conflict"));
+}
+
 struct Project {
     root: PathBuf,
 }
@@ -576,7 +611,10 @@ fn simultaneous_check_processes_cannot_overwrite_each_other() {
         panic!("first process never reached the controlled checker barrier");
     }
     let state = project.state();
-    project.next();
+    // The complete checker command owns the project/backend lease.
+    assert!(project
+        .error(&["next", "wish-test"])
+        .contains("migration_busy"));
     assert!(project.error(&["check", "wish-test"]).contains("busy"));
     assert_eq!(state, project.state());
     project.write("cache/checker-release", b"release");

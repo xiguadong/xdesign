@@ -68,3 +68,9 @@ local item/revision store, verified queries, material reads, checkout and doctor
 recovery, and two store-backed flow demonstrations within disclosed limits. Two unrelated
 pre-existing renderer failures remain. This evidence does not establish physical power-loss
 certification, a frozen compatibility baseline, a complete V-model, or final human acceptance.
+
+The planned common guard and held-handle extension is specified on [RsStore](rs-store.md#u81), with the private module/source plan in [D117](../../worktree-store-migration.md#d117). No migration API is currently exported.
+
+The planned additive adapter bridges have individual contracts: [resolve_store_root](resolve-store-root.md#u114)
+and [with_project_store](with-project-store.md#u115). They connect the stage binary to library
+selection and command-long access without exposing a physical rebind primitive.

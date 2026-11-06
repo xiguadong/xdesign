@@ -13,6 +13,7 @@ source.
 | --- | --- | --- | --- |
 | Working update | 2026-10-19 | Organized the requirements-stage topics around the existing model inventory and trace | Not an SRR or frozen functional baseline |
 | Working update | 2026-11-03 | Added scenario-based document template catalog requirements and acceptance allocation | Proposed; independent wish requirements review pending |
+| Working update | 2026-11-05 | Added linked-worktree store requirements and preliminary planned design allocations | Proposed; review of the revised allocation pending |
 
 <a id="r04"></a>
 
@@ -176,6 +177,14 @@ each already has full per-requirement acceptance and verification fields. [R11](
 | `workingCacheIsRecoverable` | Regenerate runtime cache and checkout every manifest byte; replay the SimpleFlow record checker on restored evidence | Cache is disposable only if durable copies reconstruct a usable record | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `wishStatusProjectsFlowExecution` | Derive wish status/current stage from the selected flow's run record and support kind/status queries | An independent status flag could contradict the flow's actual position | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `storageInputAndIntegrityAreChecked` | Refuse incompatible, malformed, excessive, unsafe or replaced state; verify digests and report missing/altered/orphan/pending data | Durable but corrupt or unsafe bytes must not enter engineering decisions | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
+| `linkedWorktreeStoreIsIsolated` | Use an identity-bound home-directory store for each linked worktree project, retaining the ordinary project default | Independent workspaces need separate durable histories without project-local worktree stores | `PlannedWorktreeStoreSelection` | Planned; [R20](#r20) |
+| `storeRootSelectionIsConsistent` | Preserve root override precedence and make Web and delegated lifecycle operations use the same selection | Explicit locations and operator actions must refer to the same authority | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
+| `globalStoreNamespaceProtectsOtherContent` | Use a private bounded namespace and refuse occupied, unsafe or mismatched roots | Existing home-directory content and other stores must not be adopted or altered | `PlannedWorktreeStoreSelection` | Planned; [R20](#r20) |
+| `worktreeStoreMigrationPreservesHistory` | Verify and migrate the complete logical local-store history and map physical identity safely | A raw copy is not a valid location migration | `PlannedWorktreeStoreMigration` | Planned; [R20](#r20) |
+| `migratedRunsKeepTheirLifecycle` | Preserve active, blocked and completed run behavior, evidence and exact retries | Historical identity and safe continuation must survive cutover | `PlannedWorktreeStoreIntegration` | Planned; [R20](#r20) |
+| `worktreeStoreConflictsFailClosed` | Detect ambiguous local/global stores and prevent automatic merge or silent history loss | Similar IDs and paths cannot prove histories are the same | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
+| `worktreeMigrationHasRecoverableCutover` | Require quiescence, coordinate supported clients and recover interrupted cutovers | Concurrent writers and process crashes can otherwise create divergent authorities | `PlannedWorktreeStoreMigration` | Planned; [R20](#r20) |
+| `legacyCacheRegistrationsStayLegacy` | Preserve genuine legacy cache registrations and refuse ID ambiguity with stored wishes | Legacy authority differs from a disposable store-backed cache | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
 | `checkpointSourceIsProjectOwned` | Keep reusable source in the selected project and resolved run fields in its store | Tool installation and source edits must not redefine a registered run | `CheckpointLibrarySource` | As-built allocation; executor bytes are not pinned at init; [R16](#r16) |
 | `configuredChecksRetainAuthority` | Retain actual executor authority, identity, revision and evidence | An agent answer cannot be represented as deterministic script evidence | `RsCustomChecker` | As-built allocation; generic scripted-only policy conflict remains; [R16](#r16) |
 | `operatorDelegatesRunState` | Project stored facts and delegate lifecycle to the stage runtime | UI state must not become a second run authority | `OperatorWebProgram` | As-built allocation; [R16](#r16) |
@@ -325,6 +334,14 @@ model features allocated to answer them:
 | `workingCacheIsRecoverable` | `CheckoutOperation` |
 | `wishStatusProjectsFlowExecution` | `WishProjection` |
 | `storageInputAndIntegrityAreChecked` | `DoctorOperation` |
+| `linkedWorktreeStoreIsIsolated` | `PlannedWorktreeStoreSelection` (planned) |
+| `storeRootSelectionIsConsistent` | `PlannedWorktreeStoreAccess` (planned) |
+| `globalStoreNamespaceProtectsOtherContent` | `PlannedWorktreeStoreSelection` (planned) |
+| `worktreeStoreMigrationPreservesHistory` | `PlannedWorktreeStoreMigration` (planned) |
+| `migratedRunsKeepTheirLifecycle` | `PlannedWorktreeStoreIntegration` (planned) |
+| `worktreeStoreConflictsFailClosed` | `PlannedWorktreeStoreAccess` (planned) |
+| `worktreeMigrationHasRecoverableCutover` | `PlannedWorktreeStoreMigration` (planned) |
+| `legacyCacheRegistrationsStayLegacy` | `PlannedWorktreeStoreAccess` (planned) |
 | `checkpointSourceIsProjectOwned` | `CheckpointLibrarySource` |
 | `configuredChecksRetainAuthority` | `RsCustomChecker` |
 | `operatorDelegatesRunState` | `OperatorWebProgram` |
@@ -361,6 +378,13 @@ and an honest software design status. Their absence from the `satisfy` table is 
 rather than an omitted obligation. The proposed `sharedChecksHavePinnedOrigins` and
 `crossProjectHistoryKeepsItsOwner` also have no implemented satisfier; their proposed
 design and planned verification are in [R16](#r16).
+The eight proposed worktree-location requirements in [R20](#r20) have planned design
+allocations in [D116](../design/storage.md#d116) and verification links in
+`WorktreeStoreMigrationVerification`. The `satisfy` usages express planned design
+responsibilities, not proof of implementation, verification or acceptance. The existing
+`ProjectStore`, `LocalStageCliRuntime`, and `OperatorWebProgram` are integration points
+and do not yet implement the proposed behavior.
+
 `XDesignVerification::DocumentationContractReview` declares
 planned coverage for all six wish-0008 requirements; its declaration records no pass.
 The revision-1, corrective revision-2, directory-layout revision-3, and asset-layout
@@ -538,3 +562,44 @@ links but no `satisfy` links until design establishes an answer; the existing
 source and engine elements are allocation candidates only. Implementation status
 and executed results are tracked in wish and review records, not inferred from
 these requirement statements.
+
+
+<a id="r20"></a>
+
+## 16. Linked-worktree operational store location and migration
+
+The eight model requirements below are proposed behavior. The currently implemented
+[storage design](../design/storage.md#d86) and [format contract](../interfaces/store-format.md#i11)
+select a project-local store by default and bind a store to its root and database's
+filesystem identities; they provide no supported store migration. This requirement adds a
+specific verified local-to-home migration, not a general backup, restore, schema migration,
+history federation, or assumption that Git worktrees have a shared project identity.
+The [planned cases](../verification/design.md#d115) are not executed results.
+
+| Requirement | Normative behavior and rationale |
+| --- | --- |
+| `linkedWorktreeStoreIsIsolated` | When the selected project is in a valid linked Git worktree and no root override is given, the effective store is a dedicated directory under the effective user's `~/.xdesign`; the ordinary primary checkout and non-Git project retain `<project>/.xdesign`. The canonical selected project root, validated repository identity and worktree identity bind one deterministic location across invocations. Path aliases of the same project agree; distinct selected project roots, linked worktrees and repositories remain isolated even if basenames, branches or wish IDs match. If identity or home resolution is ambiguous or fails, report it and refuse instead of falling back to a local or another project's store. This prevents both worktree-local collisions and global history mixing. |
+| `storeRootSelectionIsConsistent` | `xdesign store ... --root` overrides `XDESIGN_STORE_ROOT`, which overrides the context default; `xdesign web --store-root` has the same precedence over environment and default. `init`, `next`, and `check` use the environment before the default; direct store API calls retain their explicit-root behavior. Relative store CLI and lifecycle roots resolve against the invocation directory, while relative Web roots resolve against `--project-root` (or the default project directory). An empty explicit root is refused. A supplied root selects that exact root subject to integrity and migration fences, with no automatic migration, import or fallback from another root. Web status/health, reads and delegated lifecycle writes use the same effective root, including when its explicit option differs from the process environment. This preserves caller control and prevents split read/write authority. |
+| `globalStoreNamespaceProtectsOtherContent` | Treat `~/.xdesign` as a container, never as the worktree store itself. Create or open only a dedicated, binding-checked child location; leave existing unrelated files and permissions untouched. If the container is itself an existing store root, refuse this default with an actionable diagnostic instead of adding a foreign child to that store. A foreign, unsafe, incompatible, inaccessible or mismatched destination or detected binding collision is refused without adoption, overwrite or damage. Report the selected root. This protects other uses of the home directory. |
+| `worktreeStoreMigrationPreservesHistory` | Offer an explicit, supported migration for a valid quiescent old `<project>/.xdesign` in a linked worktree into its global default. Before cutover compare all generic item IDs/kinds and heads, every immutable revision's metadata and complete URI/role/digest/length manifest, every referenced byte and its digest, and exact operation request bytes, terminal outcomes and results. Keep all of them, including earlier revisions, non-wish records and evidence; invent no revision, judgment or receipt. Preserve the store identity or retain an inspectable source-to-destination identity mapping. Destination filesystem identity must be established under a verified migration, not by treating a raw copy or move as a valid store. Refuse unsupported or corrupt sources and unresolved pending operations. This preserves logical authority across an identity-bound physical relocation. |
+| `migratedRunsKeepTheirLifecycle` | For both supported flat flows, preserve wish/run identity, frozen plan/work, visited stages, artifact revisions, assessments, evidence, derived status and unchanged-head state tokens. After cutover an active or blocked run can continue under existing stale-result, artifact-drift and expected-head rules; an already completed run returns completion without reopening or adding a revision. Exact terminal operation retry returns the original outcome without another effect. Removing only regenerable store-backed cache still permits reconstruction without overwriting changed working artifacts. This keeps old runs usable and auditable. |
+| `worktreeStoreConflictsFailClosed` | If an old local store or an unclassifiable local `.xdesign` candidate exists, a default operation must diagnose it rather than silently initialize or use an unrelated empty global store: require the explicit migration or explicit root selection. If both local and global roots exist, the global default is permitted only when durable migration provenance proves the relationship and the retained local source still matches the recorded cutover state. A source absent after verified cutover need not remain present; a newly appearing or changed source without that proof makes the default ambiguous. Diagnose the roots and refuse mutation; do not deduplicate, merge, overwrite or choose by name, store ID, matching head, timestamp or presumed shared Git identity. Explicit root selection permits safe inspection subject to normal integrity and migration fencing. This prevents hidden or diverging histories. |
+| `worktreeMigrationHasRecoverableCutover` | Migration requires operator-confirmed quiescence of pre-upgrade/non-cooperating clients, and no unresolved pending operations or writer locks. All supported upgraded readers and writers coordinate with migration at both source and destination so no writes race verification or cutover. Migration preserves the source and never deletes or overwrites it; supported clients refuse writes to that retained source while cutover stands. Durable state distinguishes incomplete preparation from verified cutover: before the decision the destination is non-authoritative, after it the verified destination is authoritative. Interrupted or response-uncertain operations expose status and allow exact retry to a single outcome; before the decision a safe rollback may instead retain source authority. Recovery never uses a partial target or silently creates a fresh store. Diagnostics give source, target, decision status and actionable recovery. Older processes cannot be fenced by the new binary; the operator must keep them stopped through cutover and avoid writing the retained source afterward. Later source changes must be detected before default mutation. This boundary avoids pretending that locks unknown to old clients are sufficient. |
+| `legacyCacheRegistrationsStayLegacy` | Genuine legacy registrations under `cache/xdesign` and their Git wish traces remain on their legacy backend, preserving active/completed behavior and history; neither migration nor cache cleanup treats them as disposable store-backed copies. Distinguish them from regenerated persistent-run cache. If a genuine legacy registration and selected store item share a wish ID, surface the conflict, provide read-only inspection of both, and refuse mutation of either until resolved; do not silently mask, overwrite or merge them. This protects the authoritative older record. |
+
+A new worktree with no local store can initialize the isolated global default on demand.
+A retained local source after successful migration is a recovery copy, not a second
+write authority. Explicit inspection can still select it; a subsequent write by an
+older client is outside the coordinated-client guarantee and must be diagnosed when
+observed. Renaming, copying or moving a project/worktree or a home directory is not itself
+proof of identity or a supported whole-store restore: the design must document the identity
+stability boundary and an explicit selection/recovery route, and must refuse ambiguous
+adoption. User-managed backups, physical power-loss certification and synchronization
+with unsupported or hostile writers are outside this requirement's acceptance claim.
+
+The model allocates these requirements to the explicitly planned selection, migration,
+access and integration boundaries in [D116](../design/storage.md#d116), and
+`WorktreeStoreMigrationVerification` supplies planned verification links. These links do
+not establish a current implementation or an executed case. Later design must reconcile the
+existing storage, API, Web, lifecycle and operator contracts with these requirements,
+including the current default of a project-local `.xdesign`.

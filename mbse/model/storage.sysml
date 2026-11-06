@@ -6,7 +6,8 @@ package XDesignStorage {
     private import StandardViewDefinitions::*;
     private import Views::*;
 
-    doc /* Logical model of the implemented local operational store. Git owns
+    doc /* Logical model of the implemented local operational store, plus the
+       explicitly planned worktree-location allocation below. Git owns
        engineering definitions and products. The store owns new wish and run facts,
        immutable revision manifests, material and evidence bytes, and operation
        receipts. Legacy Git wish traces remain authoritative for their existing runs;
@@ -14,6 +15,87 @@ package XDesignStorage {
        are regenerable. Store-backed runs and recovery evidence exist within the
        acceptance boundary recorded for wish-0011; excluded capabilities and final
        human acceptance remain separate. */
+
+    part def PlannedWorktreeStoreSelection {
+        @XDesignCommon::DiagramPresentation { label = "Selection"; summary = "Bind the linked project"; }
+        @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D116"; }
+        doc /* Planned selection and identity-binding boundary, not an implemented
+           store or an implementation claim. For an unoverridden linked worktree it
+           validates the effective user's home, Git common directory, registered
+           worktree administrative identity, worktree root and canonical selected
+           project, including evidence of the live worktree incarnation. It selects
+           a dedicated, inspectably bound child store under a private home namespace;
+           aliases agree, distinct bindings do not, and collisions, reused or
+           unverifiable identities, unsafe destinations and a container that is itself
+           a store are refused without adopting foreign content. Primary and non-Git
+           defaults stay project-local. See D116 for the stability boundary and the
+           nonce, creation-evidence, cooperative-owner and diagnostic contracts. I21 fixes
+           canonical tagged bytes, distinct path keys and platform observations. */
+    }
+
+    part def PlannedWorktreeStoreMigration {
+        @XDesignCommon::DiagramPresentation { label = "Migration"; summary = "Verify history and decide cutover"; }
+        @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D116"; }
+        doc /* Planned explicit migration and cutover boundary. With older clients
+           stopped and pending operations and writer locks resolved, it coordinates
+           every supported source and destination access, verifies the complete logical
+           histories, material bytes and terminal request/receipt records, and preserves
+           or maps store identity before a durable cutover decision. It retains the
+           source, fences supported writes to it after cutover, and exposes status and
+           exact retry or safe pre-decision rollback. Partial or unverified destinations
+           are never authoritative. Durable authenticated parent routes precede reservation
+           publication and permit exact-ID recovery before any root pointer. Only the
+           validated durable decision cuts over; D117 specifies all interruption states.
+           It has no current implementation or test result. */
+    }
+
+    part def PlannedWorktreeStoreAccess {
+        @XDesignCommon::DiagramPresentation { label = "Access"; summary = "Guard all supported callers"; }
+        @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D116"; }
+        doc /* Planned common access and routing boundary for storage, lifecycle and
+           Web. It preserves explicit-root and environment precedence, passes Web's
+           effective root to delegated lifecycle processes, and keeps direct API roots
+           explicit. All upgraded access, including a retained API handle or a path
+           alias, participates in migration coordination for the entire operation.
+           Default selection diagnoses unproven local/global histories and changed
+           retained sources; explicit inspection remains possible under the fence.
+           Genuine legacy registrations keep their backend, with same-ID collisions
+           visible and mutations refused. This is a design allocation, not current
+           implementation. D117 fixes unlocked discovery followed by one deduplicated lock
+           order and revalidation. U115 uses a generic action-error wrapper and private
+           shared-owned lease; legacy classification precedes unrelated enrollment. */
+    }
+
+    part def PlannedWorktreeStoreIntegration {
+        @XDesignCommon::DiagramPresentation { label = "Integration"; summary = "Preserve both flow histories"; }
+        @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D116"; }
+        doc /* Planned system boundary combining selection, verified migration and
+           routed access. Together they preserve both supported flows' identities,
+           plans, work, assessments, evidence, state tokens and exact retry outcomes;
+           active and blocked runs continue under existing guards, completed runs stay
+           completed, and lost regenerable cache is recovered without overwriting
+           workspace edits. A planned allocation is not evidence of implementation,
+           an executed verification case or acceptance. */
+        part selection : PlannedWorktreeStoreSelection;
+        part migration : PlannedWorktreeStoreMigration;
+        part access : PlannedWorktreeStoreAccess;
+    }
+
+    view worktreeStoreBoundaries : StandardViewDefinitions::GeneralView {
+        @XDesignCommon::DiagramPresentation {
+            label = "Worktree store boundaries";
+            question = "Which planned boundaries isolate and migrate history?";
+        }
+        @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D116"; }
+        @XDesignCommon::DocFigure {
+            document = "docs/design/storage.md";
+            figure = "docs/design/assets/worktree-store-boundaries.svg";
+        }
+        expose PlannedWorktreeStoreIntegration;
+        expose PlannedWorktreeStoreSelection;
+        expose PlannedWorktreeStoreMigration;
+        expose PlannedWorktreeStoreAccess;
+    }
 
     enum def OperationOutcome {
         @XDesignCommon::DocSection { document = "docs/design/storage.md"; section = "D86"; }

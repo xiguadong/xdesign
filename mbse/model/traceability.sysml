@@ -76,6 +76,19 @@ package XDesignTraceability {
     satisfy wishStatusProjectsFlowExecution by XDesignStorage::WishProjection;
     satisfy storageInputAndIntegrityAreChecked by XDesignStorage::DoctorOperation;
 
+    /* R20 is allocated to the explicitly planned worktree selection, migration,
+       access and integration definitions. These links declare design responsibility;
+       they do not claim that ProjectStore, the lifecycle CLI or Web currently
+       implements it, nor that any migration case or acceptance has passed. */
+    satisfy linkedWorktreeStoreIsIsolated by XDesignStorage::PlannedWorktreeStoreSelection;
+    satisfy storeRootSelectionIsConsistent by XDesignStorage::PlannedWorktreeStoreAccess;
+    satisfy globalStoreNamespaceProtectsOtherContent by XDesignStorage::PlannedWorktreeStoreSelection;
+    satisfy worktreeStoreMigrationPreservesHistory by XDesignStorage::PlannedWorktreeStoreMigration;
+    satisfy migratedRunsKeepTheirLifecycle by XDesignStorage::PlannedWorktreeStoreIntegration;
+    satisfy worktreeStoreConflictsFailClosed by XDesignStorage::PlannedWorktreeStoreAccess;
+    satisfy worktreeMigrationHasRecoverableCutover by XDesignStorage::PlannedWorktreeStoreMigration;
+    satisfy legacyCacheRegistrationsStayLegacy by XDesignStorage::PlannedWorktreeStoreAccess;
+
     satisfy releasedCheckersAreSelfContained by CheckerResourceDistribution;
     satisfy checkerExecutorsAreRetained by CheckerExecutorBundle;
     satisfy checkerExecutionUsesProjectContext by ProjectCheckerExecution;

@@ -14,7 +14,7 @@ use super::{
 use crate::core::{RsCheckKind, RsConformanceKind, RsCustomChecker, RsFlowStatus, RsStageVisit};
 use rusqlite::{Connection, OptionalExtension};
 use serde::Deserialize;
-use serde_json::{Map, Value};
+use serde_json::{json, Map, Value};
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
@@ -567,6 +567,7 @@ fn reserve(
     }
     drop(statement);
     store.verify_live()?;
+    super::access::validate(&store.root, true)?;
     transaction
         .commit()
         .map_err(|_| unknown(&request.operation_id))?;
@@ -820,7 +821,9 @@ fn finalize_operation(
     store
         .verify_live()
         .map_err(|_| unknown(&request.operation_id))?;
+    super::access::validate(&store.root, true)?;
     fault_before_commit(&request.operation_id)?;
+    super::access::validate(&store.root, true)?;
     transaction
         .commit()
         .map_err(|_| unknown(&request.operation_id))?;
@@ -858,6 +861,7 @@ impl RsStore {
         project_root: &Path,
         raw: &[u8],
     ) -> Result<RsOperationReceipt, RsStoreError> {
+        let _lease = self.access(true)?;
         let request = parse_request(raw)?;
         validate_request(&request)?;
         if sha256(raw).len() != 64 {
@@ -925,6 +929,7 @@ impl RsStore {
         let receipt =
             finalize_operation(self, &request, raw, &prepared).map_err(|error| match error {
                 RsStoreError::UnknownOutcome { .. } => error,
+                _ if super::access::reason(&error).is_some() => error,
                 _ => unknown(&request.operation_id),
             })?;
         // A committed or conflict receipt no longer needs recovery evidence.
@@ -936,6 +941,7 @@ impl RsStore {
     }
 
     pub fn outcome(&self, operation_id: &str) -> Result<RsOperationReceipt, RsStoreError> {
+        let _lease = self.access(false)?;
         if !valid_id(operation_id) {
             return Err(RsStoreError::InvalidInput("invalid operation_id".into()));
         }
@@ -952,6 +958,7 @@ impl RsStore {
     /// Pending operation IDs for an item, so callers can tell a leftover
     /// speculative attempt from work whose outcome still needs reconciling.
     pub fn pending_item_operations(&self, item_id: &str) -> Result<Vec<String>, RsStoreError> {
+        let _lease = self.access(false)?;
         if !valid_id(item_id) {
             return Err(RsStoreError::InvalidInput("invalid item_id".into()));
         }
@@ -975,6 +982,7 @@ impl RsStore {
         kind: Option<&str>,
         status: Option<&str>,
     ) -> Result<Vec<RsItemSummary>, RsStoreError> {
+        let _lease = self.access(false)?;
         if kind.is_some_and(|kind| !valid_token(kind)) {
             return Err(RsStoreError::InvalidInput("invalid kind filter".into()));
         }
@@ -1037,6 +1045,7 @@ impl RsStore {
         item_id: &str,
         revision: Option<u64>,
     ) -> Result<RsItemRevision, RsStoreError> {
+        let _lease = self.access(false)?;
         validate_item_revision(item_id, revision)?;
         self.verify_live()?;
         let transaction = Transaction::begin(&self.conn, false)?;
@@ -1046,6 +1055,7 @@ impl RsStore {
     }
 
     pub fn history(&self, item_id: &str) -> Result<Vec<RsItemRevision>, RsStoreError> {
+        let _lease = self.access(false)?;
         validate_item_revision(item_id, None)?;
         self.verify_live()?;
         let transaction = Transaction::begin(&self.conn, false)?;
@@ -1091,6 +1101,7 @@ impl RsStore {
         revision: Option<u64>,
         uri: &str,
     ) -> Result<Vec<u8>, RsStoreError> {
+        let _lease = self.access(false)?;
         validate_item_revision(item_id, revision)?;
         if !valid_uri(uri) {
             return Err(RsStoreError::InvalidInput("invalid material URI".into()));
@@ -1114,7 +1125,11 @@ impl RsStore {
         revision: Option<u64>,
         destination: &Path,
     ) -> Result<RsCheckoutReport, RsStoreError> {
-        let selected = self.get(item_id, revision)?;
+        let _lease = self.access(false)?;
+        validate_item_revision(item_id, revision)?;
+        let transaction = Transaction::begin(&self.conn, false)?;
+        let selected = read_revision_tx(&self.conn, &self.root, item_id, revision)?;
+        transaction.commit()?;
         let canonical_destination = canonical_for_creation(destination)?;
         if canonical_destination.starts_with(&self.root) {
             return Err(RsStoreError::UnsafePath(
@@ -1590,6 +1605,7 @@ pub(crate) fn request_bytes(
     store: &RsStore,
     operation_id: &str,
 ) -> Result<Option<Vec<u8>>, RsStoreError> {
+    let _lease = store.access(false)?;
     if !valid_id(operation_id) {
         return Err(RsStoreError::InvalidInput("invalid operation_id".into()));
     }
@@ -1601,6 +1617,91 @@ pub(crate) fn request_bytes(
     }
     transaction.commit()?;
     Ok(row.map(|row| row.request_bytes))
+}
+
+/// Migration must validate every historical flow revision without restoring
+/// cache files. Ordinary projections remain compatible with their older API.
+pub(crate) fn validate_migration_flows(store: &RsStore) -> Result<(), RsStoreError> {
+    let mut stmt=store.conn.prepare("SELECT r.item_id,r.revision FROM revisions r JOIN items i ON i.item_id=r.item_id WHERE i.kind='wish' ORDER BY r.item_id,r.revision")?;
+    let ids = stmt
+        .query_map([], |row| {
+            Ok((row.get::<_, String>(0)?, row.get::<_, u64>(1)?))
+        })?
+        .collect::<Result<Vec<_>, _>>()?;
+    for (id, revision) in ids {
+        let head = read_revision_tx(&store.conn, &store.root, &id, Some(revision))?;
+        validate_retained_revision(store, &head)?;
+    }
+    Ok(())
+}
+fn validate_retained_revision(
+    store: &RsStore,
+    head: &RsItemRevision,
+) -> Result<RegistryDocument, RsStoreError> {
+    let registry_uri = head.metadata["registry_uri"]
+        .as_str()
+        .ok_or_else(|| RsStoreError::Integrity("missing registry URI".into()))?;
+    let registry: RegistryDocument = strict_protocol(
+        &protocol_material(&store.root, &head.materials, registry_uri)?,
+        "registry",
+    )?;
+    let plan_bytes = protocol_material(&store.root, &head.materials, &registry.plan_uri)?;
+    let plan = crate::core::RsFlowPlan::load_retained(
+        &registry.plan_uri,
+        &registry.plan_sha256,
+        &plan_bytes,
+    )
+    .map_err(|e| RsStoreError::Integrity(format!("retained plan: {e:?}")))?;
+    let validated = match registry.flow_id.as_str() {
+        "simple-flow" => crate::simple_flow::validate_designed_plan(&plan),
+        "wish-verify" => crate::wish_verify::validate_wish_verify_plan(&plan),
+        _ => return Err(RsStoreError::Integrity("unsupported retained flow".into())),
+    };
+    validated.map_err(|e| RsStoreError::Integrity(format!("retained flow: {e:?}")))?;
+    let run = protocol_material(&store.root, &head.materials, &registry.run_record_uri)?;
+    crate::core::validate_retained_run(&plan, &registry.wish_model_uri, &run)
+        .map_err(RsStoreError::Integrity)?;
+    Ok(registry)
+}
+
+pub(crate) fn completed_project(store: &RsStore, id: &str) -> Result<Option<Value>, RsStoreError> {
+    let _lease = store.access(false)?;
+    match super::access::validate(&store.root, true) {
+        Ok(()) => return Ok(None),
+        Err(error)
+            if matches!(
+                super::access::reason(&error),
+                Some("source_retired" | "source_changed")
+            ) => {}
+        Err(error) => return Err(error),
+    }
+    let tx = db::Transaction::begin(&store.conn, false)?;
+    let head = read_revision_tx(&store.conn, &store.root, id, None)?;
+    if !head
+        .projection
+        .as_ref()
+        .is_some_and(|p| p.status == RsWishStatus::Delivered)
+    {
+        return Ok(None);
+    }
+    let registry = validate_retained_revision(store, &head)?;
+    let registry_uri = head.metadata["registry_uri"]
+        .as_str()
+        .ok_or_else(|| RsStoreError::Integrity("missing registry URI".into()))?;
+    let mut token = Vec::new();
+    for uri in [
+        registry_uri,
+        registry.plan_uri.as_str(),
+        registry.work_uri.as_str(),
+        registry.run_record_uri.as_str(),
+    ] {
+        let bytes = protocol_material(&store.root, &head.materials, uri)?;
+        token.extend_from_slice(&(bytes.len() as u64).to_be_bytes());
+        token.extend_from_slice(&bytes);
+    }
+    let result = json!({"schema_version":1,"wish_id":registry.wish_id,"run_id":registry.run_id,"flow_id":registry.flow_id,"status":"completed","completed":true,"state_token":sha256(&token),"work":null,"store_revision":head.revision});
+    tx.commit()?;
+    Ok(Some(result))
 }
 
 fn absolute_path(path: &Path) -> Result<PathBuf, RsStoreError> {
@@ -2261,7 +2362,7 @@ fn inspect_locks(root: &Path, findings: &mut Vec<RsDoctorFinding>) -> Result<(),
     Ok(())
 }
 
-fn inspect_root(
+pub(crate) fn inspect_root(
     root: &Path,
     verify_bytes: bool,
     opened: Option<&RsStore>,
@@ -2564,11 +2665,29 @@ fn inspect_root(
 
 impl RsStore {
     pub fn doctor(&self, verify_bytes: bool) -> Result<RsDoctorReport, RsStoreError> {
+        let lease = match &self.lease {
+            Some(lease) => lease.clone(),
+            None => super::access::acquire(&self.root, None)?,
+        };
+        lease.verify()?;
+        if let Some(detail) = super::migration::preparation_diagnostic(&self.root)? {
+            return Ok(RsDoctorReport {
+                verify_bytes,
+                findings: vec![RsDoctorFinding {
+                    kind: RsDoctorFindingKind::FormatDefect,
+                    subject_uri: ".".into(),
+                    detail: format!("migration diagnostic only: {detail}"),
+                }],
+            });
+        }
+        super::access::validate(&self.root, false)?;
         inspect_root(&self.root, verify_bytes, Some(self))
     }
 }
 
 pub(crate) fn doctor_root(root: &Path, verify_bytes: bool) -> Result<RsDoctorReport, RsStoreError> {
+    let _lease = super::access::acquire(root, None)?;
+    super::access::validate(&super::access::absolute_root(root)?, false)?;
     let root = match canonical_existing(root) {
         Ok(root) => root,
         Err(RsStoreError::UnsafePath(_)) => absolute_path(root)?,

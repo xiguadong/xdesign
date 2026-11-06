@@ -130,6 +130,7 @@ class WishFlowApp {
       this.updateShell();
       return this.state.wishes;
     } catch (error) {
+      if (error.status) throw error;
       this.enterSampleMode("offline");
       return this.state.wishes;
     }
@@ -298,9 +299,10 @@ class WishFlowApp {
           : "Operational store reachable";
     }
     if (storePath) {
-      storePath.textContent = health?.store_root || (sampleMode ? ".xdesign (demo)" : ".xdesign");
+      storePath.textContent = health?.store_root || (sampleMode ? ".xdesign (demo)" : "Legacy history");
       storePath.title = health?.store_root || "";
     }
+    if (storeVersion && health?.location_diagnostic) storeVersion.title = health.location_diagnostic.message;
     if (storeVersion) storeVersion.textContent = `xdesign ${health?.version || APP_VERSION} · ${sampleMode ? "demo" : storeMissing ? "empty" : "live"}`;
 
     const footerBuild = document.getElementById("footer-build");

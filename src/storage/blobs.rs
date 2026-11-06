@@ -166,7 +166,7 @@ fn check_owner(metadata: &Metadata, path: &Path) -> Result<(), RsStoreError> {
             path_label(path)
         )));
     }
-    Ok(())
+    check_acl(path)
 }
 
 #[cfg(not(unix))]
@@ -1189,5 +1189,206 @@ mod tests {
         hasher.update(bytes);
         hasher.update(b"staging residue");
         format!("{:x}", hasher.finalize())
+    }
+}
+
+/// The POSIX mode bits do not describe macOS extended ACL grants. Controlled
+/// storage objects may retain deny entries but cannot grant another principal
+/// additional access. Use the no-follow native API, never shell-rendered ACLs.
+#[cfg(target_os = "macos")]
+pub(crate) fn check_acl(path: &Path) -> Result<(), RsStoreError> {
+    use std::os::unix::ffi::OsStrExt;
+    unsafe extern "C" {
+        fn acl_get_link_np(path: *const libc::c_char, kind: libc::c_int) -> *mut libc::c_void;
+        fn acl_valid(acl: *mut libc::c_void) -> libc::c_int;
+        fn acl_get_entry(
+            acl: *mut libc::c_void,
+            entry_id: libc::c_int,
+            entry: *mut *mut libc::c_void,
+        ) -> libc::c_int;
+        fn acl_get_tag_type(entry: *mut libc::c_void, tag: *mut libc::c_int) -> libc::c_int;
+        fn acl_free(acl: *mut libc::c_void) -> libc::c_int;
+    }
+    // Closing any second descriptor to a SQLite database can release all of
+    // this process's POSIX locks on it. Darwin's no-follow pathname ACL query
+    // uses getattrlist instead; verify the observed object on both sides.
+    let before = fs::symlink_metadata(path).map_err(io_error)?;
+    if before.file_type().is_symlink() {
+        return Err(super::access::diagnostic(
+            "unsafe_path",
+            "symbolic ACL object",
+        ));
+    }
+    let name = std::ffi::CString::new(path.as_os_str().as_bytes())
+        .map_err(|e| super::access::diagnostic("unsafe_path", e))?;
+    let acl = unsafe { acl_get_link_np(name.as_ptr(), 0x100) };
+    let acl_error = std::io::Error::last_os_error();
+    let after = fs::symlink_metadata(path).map_err(io_error)?;
+    if identity(&before) != identity(&after) || after.file_type().is_symlink() {
+        return Err(super::access::diagnostic(
+            "identity_unprovable",
+            "ACL object changed",
+        ));
+    }
+    if acl.is_null() {
+        let error = acl_error;
+        // Darwin reports ENOENT for an absent extended ACL. Both lstat calls
+        // above must have confirmed the same existing object first.
+        if error.raw_os_error() == Some(libc::ENOENT) {
+            return Ok(());
+        }
+        return Err(super::access::diagnostic(
+            "unsafe_path",
+            format!("ACL cannot be verified: {}: {error}", path.display()),
+        ));
+    }
+    struct Acl(*mut libc::c_void);
+    impl Drop for Acl {
+        fn drop(&mut self) {
+            unsafe {
+                acl_free(self.0);
+            }
+        }
+    }
+    let _owned = Acl(acl);
+    if unsafe { acl_valid(acl) } != 0 {
+        return Err(super::access::diagnostic(
+            "unsafe_path",
+            "invalid extended ACL",
+        ));
+    }
+    let mut entry = std::ptr::null_mut();
+    let mut index = 0;
+    while unsafe { acl_get_entry(acl, index, &mut entry) } == 0 {
+        let mut tag = 0;
+        if unsafe { acl_get_tag_type(entry, &mut tag) } != 0 || tag != 2 {
+            return Err(super::access::diagnostic(
+                "unsafe_path",
+                format!("extended ACL grant is unsupported: {}", path.display()),
+            ));
+        }
+        index = -1;
+    }
+    if std::io::Error::last_os_error().raw_os_error() != Some(libc::EINVAL) {
+        return Err(super::access::diagnostic(
+            "unsafe_path",
+            "ACL enumeration failed",
+        ));
+    }
+    Ok(())
+}
+#[cfg(target_os = "linux")]
+pub(crate) fn check_acl(path: &Path) -> Result<(), RsStoreError> {
+    use std::os::unix::ffi::OsStrExt;
+    let before = fs::symlink_metadata(path).map_err(io_error)?;
+    if before.file_type().is_symlink() {
+        return Err(super::access::diagnostic(
+            "unsafe_path",
+            "symbolic ACL object",
+        ));
+    }
+    let name = std::ffi::CString::new(path.as_os_str().as_bytes())
+        .map_err(|e| super::access::diagnostic("unsafe_path", e))?;
+    // A default directory ACL can grant access to newly created children even
+    // when this directory's mode/access ACL is safe. Refuse both extended forms.
+    for attribute in [c"system.posix_acl_access", c"system.posix_acl_default"] {
+        let length =
+            unsafe { libc::lgetxattr(name.as_ptr(), attribute.as_ptr(), std::ptr::null_mut(), 0) };
+        if length < 0 {
+            let error = std::io::Error::last_os_error();
+            if error.raw_os_error() == Some(libc::ENODATA) {
+                continue;
+            }
+            return Err(super::access::diagnostic("coordination_unavailable", error));
+        }
+        if length != 0 {
+            return Err(super::access::diagnostic(
+                "unsafe_path",
+                "extended or default POSIX ACL is outside the admitted profile",
+            ));
+        }
+    }
+    let after = fs::symlink_metadata(path).map_err(io_error)?;
+    if after.file_type().is_symlink() || identity(&before) != identity(&after) {
+        return Err(super::access::diagnostic(
+            "identity_unprovable",
+            "ACL object changed",
+        ));
+    }
+    Ok(())
+}
+#[cfg(not(any(target_os = "linux", target_os = "macos")))]
+pub(crate) fn check_acl(_path: &Path) -> Result<(), RsStoreError> {
+    Err(super::access::diagnostic(
+        "coordination_unavailable",
+        "ACL verification is unsupported on this platform",
+    ))
+}
+
+#[cfg(all(test, target_os = "macos"))]
+mod acl_tests {
+    use super::*;
+    #[test]
+    fn absent_and_deny_acl_are_safe_but_grants_refuse() {
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("cache/implementation/acl")
+            .join(uuid::Uuid::new_v4().to_string());
+        fs::create_dir_all(&path).unwrap();
+        check_acl(&path).unwrap();
+        let change = |entry: &str| {
+            assert!(std::process::Command::new("/bin/chmod")
+                .args(["+a", entry])
+                .arg(&path)
+                .status()
+                .unwrap()
+                .success())
+        };
+        change("everyone deny delete");
+        check_acl(&path).unwrap();
+        change("everyone allow write");
+        assert!(check_acl(&path)
+            .unwrap_err()
+            .to_string()
+            .contains("extended ACL grant"));
+        assert!(std::process::Command::new("/bin/chmod")
+            .arg("-N")
+            .arg(&path)
+            .status()
+            .unwrap()
+            .success());
+        check_acl(&path).unwrap();
+    }
+
+    #[test]
+    fn metadata_inspection_preserves_sqlite_style_process_locks() {
+        use std::os::unix::io::AsRawFd;
+        let dir = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("cache/implementation/acl")
+            .join(uuid::Uuid::new_v4().to_string());
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("locked-file");
+        let file = OpenOptions::new()
+            .read(true)
+            .write(true)
+            .create_new(true)
+            .mode(0o600)
+            .open(&path)
+            .unwrap();
+        let mut lock: libc::flock = unsafe { std::mem::zeroed() };
+        lock.l_type = libc::F_WRLCK as _;
+        lock.l_whence = libc::SEEK_SET as _;
+        lock.l_len = 1;
+        assert_eq!(
+            unsafe { libc::fcntl(file.as_raw_fd(), libc::F_SETLK, &lock) },
+            0
+        );
+        check_acl(&path).unwrap();
+        super::super::location::observe(&path, None).unwrap();
+        let output=std::process::Command::new("python3").args(["-B","-c","import fcntl,sys,errno\nf=open(sys.argv[1],'r+b')\ntry: fcntl.lockf(f,fcntl.LOCK_EX|fcntl.LOCK_NB,1)\nexcept OSError as e: sys.exit(0 if e.errno in (errno.EAGAIN,errno.EACCES) else 2)\nsys.exit(1)"]).arg(&path).output().unwrap();
+        assert!(
+            output.status.success(),
+            "metadata inspection released the database lock: {}",
+            String::from_utf8_lossy(&output.stderr)
+        );
     }
 }

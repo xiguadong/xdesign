@@ -1,7 +1,7 @@
 # Operational storage design
 
-> Project: xdesign | Status: implemented; storage acceptance evidence executed within
-> disclosed limits | Model: `XDesignStorage` in `mbse/model/storage.sysml`.
+> Project: xdesign | Status: existing store implemented within disclosed limits;
+> worktree-location allocation planned | Model: `XDesignStorage` in `mbse/model/storage.sysml`.
 
 This page allocates the selected local item/revision store, its save and recovery
 protocol, and its SimpleFlow/WishVerifyFlow adapter. The normative storage
@@ -58,7 +58,7 @@ nested or arbitrary user-defined flows; and Windows-specific filesystem guarante
 
 ### 1.2 Physical representation and local trust boundary
 
-The default root is `<project>/.xdesign/`; `XDESIGN_STORE_ROOT` and the explicit CLI root
+The currently implemented default root is `<project>/.xdesign/`; `XDESIGN_STORE_ROOT` and the explicit CLI root
 option select another local root. This selects a location, not a project namespace;
 sharing one root among unrelated projects is not a supported history federation.
 The [project checkpoint design](checkpoint-library.md#d107) separates definition,
@@ -85,11 +85,13 @@ exactly `.DS_Store` — is tolerated because such entries are inert to every sto
 the store never reads or writes them, and they are not doctor findings. Any other foreign
 root entry still refuses `open`.
 
-**Recovery boundary (operational disclosure).** The recorded identity makes a store
-permanently bound to one directory on one filesystem: a moved or restored-from-copy root,
-a replaced disk, or a copied `store.db` is refused at open, and no rebinding, backup,
-restore, or migration operation exists in this slice. A copied or moved store is therefore
-still refused at open; it is not adopted as a restored authority. This slice **does not**
+**Recovery boundary (operational disclosure).** The recorded identity binds a store
+to its root and database physical objects: a copied root/database or replaced disk is
+refused when those identities change. A same-filesystem rename that preserves both recorded
+device/inode pairs is not detectable as a move by those fields alone. No supported rebinding,
+backup, restore or migration operation exists in this slice, and open success is not proof
+of an authorized restoration. The planned extension adds path/binding and access witnesses
+for enrolled or migration-bound roots; an old never-bound root has no historic path witness. This slice **does not**
 treat the store as the sole authority for irreplaceable operational history: the
 technical-acceptance evidence and the review facts that support acceptance remain retained
 in Git-tracked records, independent of any single store directory. If the store is lost or
@@ -100,6 +102,10 @@ would make the store a returnable authority is recorded open work and must exist
 sole-authority claim. The identity and ownership trust boundary above is unchanged. The
 SQLite busy timeout is 5 s per connection and may be overridden with
 `XDESIGN_STORE_BUSY_TIMEOUT_MS` (1–600000) for tests and slow local volumes.
+
+The separate [planned worktree allocation](#d116) proposes an explicit verified local
+migration and a different default for linked worktrees. Neither changes the behavior or
+the recovery boundary implemented by this existing storage slice today.
 
 Source and destination paths use the normalized project-relative URI rules in
 [I13](../interfaces/store-format.md#i13). Sources are opened as regular files beneath the
@@ -451,3 +457,197 @@ retained acceptance evidence for the delivered slices
 [P44](../records/plans/storage.md#p44)). A later decision that accepts a new baseline
 retains a Git-tracked evidence summary before the store record is cited as current
 ([D30](../interfaces/documentation-contract.md#d30)).
+
+<a id="d116"></a>
+
+## 2. Linked-worktree location design
+
+This is the planned refinement of [R20](../requirements/requirements.md#r20), allocated to
+`XDesignStorage::PlannedWorktreeStoreSelection`, `PlannedWorktreeStoreMigration`,
+`PlannedWorktreeStoreAccess` and their `PlannedWorktreeStoreIntegration`. These definitions
+retain the frozen requirements allocation. They are design responsibilities, not an
+implementation or acceptance claim. D86 describes the earlier implemented slice; the
+following sections and [migration protocol](worktree-store-migration.md#d117) specify its
+planned extension. [WTSTORE-01–13](../verification/design.md#d115) remain required.
+
+![Planned selection, migration and access responsibilities](assets/worktree-store-boundaries.svg)
+
+> **Figure D116-1 — Worktree store responsibilities.**
+> **Question:** Which planned boundaries provide isolated selection, verified migration and coordinated access?
+> **Model view:** `XDesignStorage::worktreeStoreBoundaries`, block-definition projection through `tools/render_docs.py`.
+> **Companions:** The resolution table below, [cutover protocol](worktree-store-migration.md#d117), [location interface](../interfaces/worktree-store.md#i21), and [verification procedures](../verification/worktree-store.md#d118).
+> **Status:** renderable-now; designed-only.
+> **Reading:** Integration owns selection, migration and access. The three owned boundaries respectively bind a project, transfer verified history, and guard every supported caller. The composition edges identify ownership rather than a runtime call sequence.
+> **Limits:** This focused view omits the binding fields, cutover states and lock ordering; their tables are normative design detail. It does not demonstrate an executed migration.
+
+The selection/migration/access separation prevents a path resolver from becoming a history
+importer. The figure selects only the four already allocated definitions; it neither adds a
+second model nor expands the broad architecture figure's visual acceptance. For this slice,
+the block-definition view is required; the recovery state table and protocol steps answer
+the state-machine/activity/sequence questions. A second graphical projection of those tables
+is not required. Use-case and requirements views remain the R20/WTSTORE tables; package and
+internal-block questions use the source plan and this composition; parametric analysis is
+not applicable because no performance bound or numerical trade study is claimed.
+
+### 2.1 Exact resolution and precedence
+
+All paths are native filesystem paths, not shell expressions: no tilde or variable
+expansion inside a supplied argument. An empty present option/environment value is invalid,
+not absence. Non-UTF-8 project/Git identity paths fail `identity_unprovable` in this first
+version rather than being lossily hashed. An explicit root still accepts the existing
+native `Path` API. Resolution returns a structured selection or a diagnostic, never an
+unvalidated `PathBuf` fallback. The [wire contract](../interfaces/worktree-store.md#i21)
+defines commands and errors.
+
+| Surface | First choice | Second choice | Contextual default and base |
+| --- | --- | --- | --- |
+| `xdesign store` | `--root` | `XDESIGN_STORE_ROOT` | Canonical invocation cwd is the selected project; relative roots use that cwd. `save --project-root` continues to select material sources only. |
+| Lifecycle `init/next/check` | `XDESIGN_STORE_ROOT` | None | Canonical invocation cwd; no new lifecycle root flag. |
+| Web | `--store-root` | `XDESIGN_STORE_ROOT` | Canonical `--project-root`, or startup cwd; relative roots use that selected project. |
+| Direct `RsStore` API | Supplied `root` only | None | A relative API root uses call-time cwd at open/init, then the handle pins its absolute root. No environment or Git default selection. |
+
+For defaults, canonicalize the selected directory without changing it to the Git toplevel.
+An existing directory is required. Resolve parent symlinks and filesystem case aliases to
+one actual directory, check it before and after probing, and reject a changing probe.
+Nested projects in one worktree are separate selections. A submodule's own primary checkout
+is primary, even when its parent is linked. A bare repository, orphan `.git` marker,
+unreadable or inconsistent Git metadata is an error, never a non-Git fallback.
+
+Use a sanitized Git subprocess (`GIT_DIR`, `GIT_WORK_TREE`, `GIT_COMMON_DIR`,
+`GIT_INDEX_FILE`, discovery/ceiling overrides removed; no hooks or shell), with explicit
+`-C <selected>`, to obtain absolute toplevel, git-dir and common-dir. Verify the actual
+`.git` file/directory and walk the metadata links independently. A linked checkout requires
+all of: git-dir differs from common-dir; git-dir is the canonical registered
+`<common>/worktrees/<entry>` directory; its `commondir` resolves to common; its `gitdir`
+backlink names the toplevel `.git`; that file names this git-dir; and
+`git worktree list --porcelain -z` contains exactly this non-bare registration. Reject
+prunable, missing, inconsistent, duplicate or externally redirected registration. Do not
+use a branch, HEAD, remote URL or basename as identity. Separate-git-dir primary checkouts
+remain primary when common-dir equals git-dir and their linkage is valid. With no Git
+ancestor/marker and a genuine not-a-repository result use `<selected>/.xdesign`; Git errors
+other than that result refuse. Primary checkouts also use `<selected>/.xdesign`.
+
+A linked default obtains home through effective-UID account lookup (`getpwuid_r` on the
+supported Unix hosts), not `HOME`. Require one absolute, existing, canonical account home,
+effective ownership, no group/other write access, safe ancestry, and a local filesystem.
+`HOME` overrides are ignored here. Account failure is `home_unavailable`; no local fallback.
+Before namespace creation, pin each component of the canonical absolute home ancestry
+using no-follow directory descriptors opened relative to the pinned parent. Every component
+must remain the same directory, owned by the effective UID or (for ancestors only) root,
+without group/other write or unsupported ACL grants, on a validated local mount. Revalidate
+these retained descriptors and pathname identities under the namespace leases before
+publication. This preserves ordinary root-owned `/` and `/Users` or `/home` ancestors while
+refusing a private home below a replaceable directory before writing its first child.
+Explicit root selection bypasses this lookup and Git probing, but still obeys the
+root-based access guard, which does not depend on account home.
+
+### 2.2 Namespace, binding and incarnation
+
+The reserved namespace is `<account-home>/.xdesign/worktree-stores/v1/`. `.xdesign` is only
+a container: do not initialize it as a store, chmod it, or move its existing content.
+Before creating children reject a root marker, SQLite store header, or partial recognizable
+store at the container or `worktree-stores` level. Any other foreign content at the reserved
+`worktree-stores` path is a collision; leave it intact. Unrelated siblings, including older
+namespace versions and separately initialized stores, are untouched. Existing container
+ancestors must be owned by the effective UID and not writable by other users; the new
+namespace and every controlled directory are `0700`, files `0600`. No controlled symlinks,
+hard-linked files, special files, unsupported ACL grants, or mount aliases are accepted.
+
+Namespace layout and versioned schemas are in [I21](../interfaces/worktree-store.md#i21).
+The first creation is exclusive and durable, with a random 256-bit namespace epoch and
+key. A namespace containing unknown/partial bytes is inspected, never silently completed
+by normal access. `location enroll` can finish only the exact journaled enrollment.
+A single namespace directory lock serializes enrollment; existing published bindings are
+immutable, while status generations and indexes are atomically replaced and flushed.
+Publication compares complete binding bytes on a key hit. An injected SHA/key collision
+or UUID reuse therefore fails rather than sharing the store.
+
+A binding includes canonical home, common-dir, git-dir, toplevel and selected-project paths,
+selected-project path relative to toplevel, effective UID, namespace epoch, and for each
+object its filesystem identity, creation-time evidence and random 256-bit incarnation nonce.
+The home uses the namespace epoch as its nonce; no attribute is written to the account
+home. For common/admin/worktree/project objects, nonce attributes are named `user.xdesign.incarnation.v1` on Linux and
+`org.xdesign.incarnation.v1` on macOS. They live on those directories, not in Git-tracked
+files, and are create-only; never reset an existing nonce. Repeated objects share one nonce.
+An atomic, namespace-authenticated registry record binds each nonce to its full tuple and
+role; an HMAC-SHA256 over canonical length-prefixed fields detects edited/foreign records,
+not attacks by the key's owner. Directory creation evidence is birth time with nanoseconds
+plus volume/device identity and file ID; inode/path equality alone never passes.
+
+Enrollment uses D117’s complete discovery and physical-identity lock order (including the
+namespace, backend, parents and nonce objects), pins descriptors, validates Git registration,
+checks the registry's path and nonce indexes, journals the candidate, installs only missing
+nonce attributes, flushes directories, revalidates the complete tuple and Git chain, then
+publishes the immutable binding and its indexes. Publication is recoverable via that exact
+journal. An existing nonce without its matching authenticated record, or a prior binding
+for the path with changed incarnation, is `identity_unprovable`; normal commands cannot
+re-enroll it. A wholly new linked project with no local candidate can enroll during explicit
+`store init`/lifecycle initialization. Read-only location inspection does not enroll or create
+anything. A local candidate, even an empty or unreadable `.xdesign`, requires inspection
+before enrollment/migration rather than automatic new authority.
+
+Normal initialization records the newly created root/database/store identity in an external
+initialization journal beside the binding, using the same guarded creation/recovery discipline
+as D117. An existing global store without either that verified initialization provenance or
+a migration decision is unproven and refused; a raw rename into the binding does not establish
+a default authority. The immutable binding itself is never amended with a store ID. Before any global history
+is created, enrollment publishes D117's authenticated permanent routes at both the local
+candidate parent and destination parent; all are flushed before initialization is eligible.
+Partial routing publication is recoverable from the exact enrollment journal and never
+permits store creation. This also lets legacy classification discover an existing selected
+global candidate without requiring unrelated home lookup or enrollment.
+
+The store key uses the domain-separated SHA-256 encoding in I21 §2.2 of the identity tuple
+`schema_version, namespace_epoch, owner_uid, home, common, admin, worktree, project,
+project_relative` in that order; `key`, derived `store_root`, store identity and status are
+excluded to avoid circular derivation. Store placement is
+`v1/projects/<key>/store`; `binding.json` sits beside it. Key equality is only indexing.
+The registry preserves path tombstones and nonce records across worktree deletion; no GC
+is in scope. Restart and canonical project aliases keep the same binding while these
+objects and registration remain unchanged. A metadata copy has new filesystem/creation
+identity; edited nonce/MAC/role/path fields fail comparison. A recreated repository or
+worktree normally loses its nonce and always requires a fresh incarnation, even if names
+and device/inode are reused. Moves change canonical paths and require operator inspection.
+
+This is a cooperative local-owner protocol. The exact I21 byte grammar and platform observation profile define these values.
+Birth-time support, durable extended attributes,
+ordinary local directory locking, and trustworthy filesystem identities are capability
+preconditions, verified before enrollment. If a host cannot provide them, linked default
+selection refuses `identity_unprovable`; explicit store roots remain available. The tuple
+plus nonce proves continuity only within this boundary: a privileged or same-owner attacker
+who restores every nonce, key and filesystem observation can produce indistinguishable
+state. Neither this design nor Git proves cryptographic identity against that attack.
+Do not claim arbitrary forgery detection or power-loss certification. Deliberate complete
+metadata replay, removal of all independent coordination witnesses, network filesystems,
+bind/overlay mounts and Windows are outside the admitted protocol; fail when detected.
+
+### 2.3 Inspection and recovery without adoption
+
+| Condition | Required diagnosis and supported next action |
+| --- | --- |
+| Missing/unsafe account home | `home_unavailable` or `unsafe_path`; repair account configuration outside xdesign, or explicitly inspect/use a known eligible root. |
+| Invalid Git chain or unprovable creation evidence | `identity_unprovable` with failed predicate; inspect paths/registration. No fallback, nonce reset, or history repair. |
+| New/recreated worktree at a previously bound path; copied/forged metadata | Show previous binding and candidate roots; old global history is inspectable by explicit root. `location enroll --new-incarnation --previous-binding KEY` creates a distinct empty binding only after explicit acknowledgement, never adopts old history. It requires a valid fresh Git chain and removes no old record or user bytes; an unexpected existing nonce cannot be overwritten by this command. |
+| Valid `git worktree move` or moved selected project | Default refuses path mismatch. Explicitly select the unchanged global store for read-only inspection. Automatic rebinding/continuation is excluded; a fresh project enrollment is allowed only with provable fresh incarnation, otherwise use a separate explicit root for new work. |
+| Physically moved/copied store or replaced database | Run `store doctor --root PATH --verify-bytes`; the current identity checks may reject it. There is no general repair/rebind command. The migration capability applies only to a still-valid source at its verified identity. |
+| Lost namespace/key or half-written enrollment | Inspection reports missing/unsafe metadata. Resume only the retained enrollment journal; no reconstruction from matching names/IDs or blind init. If the journal cannot prove identity, recovery is unavailable in this slice. Preserve bytes for operator-led investigation. |
+| Local/global ambiguity | `migration_required` or `history_conflict` names both candidates and inspection commands. No default init, write, or implicit preference. Explicit roots permit eligible inspection; only a verified cutover establishes a default authority. |
+
+After a proven cutover the destination can progress independently. Before work and again immediately before the destination SQLite commit on each default
+or explicitly selected destination mutation (and every resumed mutation), compare a still-present source against its cutover identity and complete logical
+baseline; absence is allowed but is checked anew. D117 §3.3 states the detection point and
+the unavoidable prohibited-old-writer race after that observation; this is not old-client fencing. A recreated or altered source blocks default mutation, including
+when the destination has advanced. A missing source that reappears is checked again, never
+cached as absent. Read-only default inspection reports the conflict and authority, while
+explicit inspection can view each valid history. The [protocol](worktree-store-migration.md#d117)
+defines access to retained sources and partial targets, crash retry and old-client limits.
+
+### 2.4 Integration and design boundary
+
+[Interface I21](../interfaces/worktree-store.md#i21) specifies exact CLI, Web, environment,
+error and inspection behavior. [API U81](api/storage/rs-store.md#u81) owns the common guard
+on direct calls. [D117](worktree-store-migration.md#d117) owns the implementation file plan,
+physical rebind, lifecycle classification and cutover protocol. The existing
+`ProjectStore`, `LocalStageCliRuntime` and `OperatorWebProgram` are integration points;
+no flow engine, run record, plan, checker schema or gate authority changes in this design.
+A requirements allocation or compiler pass cannot establish these future behaviors.

@@ -548,4 +548,120 @@ package XDesignRequirements {
         attribute redefines rationale = "The additive catalog surface needs its own design answer rather than expanding an already satisfied adapter requirement and claiming that the current engine implements behavior it does not contain.";
     }
 
+
+    requirement linkedWorktreeStoreIsIsolated : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* With no explicit root, a project in a valid linked Git worktree uses a
+           dedicated operational store beneath the effective user's ~/.xdesign, not the
+           worktree's .xdesign. Primary checkouts and non-Git projects retain the
+           project-local default. A canonical project root and validated repository and
+           worktree identity determine a stable binding: aliases of one project agree,
+           while distinct projects, repositories and linked worktrees do not share a
+           default store, even with equal names or wish IDs. An unresolvable home,
+           ambiguous worktree identity or unverified binding fails explicitly without
+           falling back to a local or another project's store. */
+        attribute redefines rationale = "Worktree-local operational directories are easy to confuse or conflict with project content, while an unscoped global store would mix independent histories.";
+    }
+
+    requirement storeRootSelectionIsConsistent : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* For storage CLI commands, an explicit --root takes precedence over
+           XDESIGN_STORE_ROOT and the default; for Web, --store-root takes precedence
+           over that environment variable and the default. The lifecycle CLI uses the
+           environment variable before the default; the storage API continues to use
+           its supplied root. Relative CLI roots resolve against the invocation's project
+           directory and Web roots against its selected project root. An empty explicit
+           root is refused. Explicit selection does not trigger migration or adoption of
+           another root and remains subject
+           to integrity and migration fences. Web reads, health and delegated lifecycle
+           operations use the same effective root, including an explicit Web override. */
+        attribute redefines rationale = "A caller's explicit location must keep its established meaning, and readers and writers for one operator session must never act on different stores.";
+    }
+
+    requirement globalStoreNamespaceProtectsOtherContent : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* The global ~/.xdesign directory is a container, not itself a store root.
+           A worktree uses its own dedicated child location, with an inspectable binding
+           to its project and worktree identity. Existing unrelated content in the home
+           directory remains untouched. If ~/.xdesign is itself an existing store root,
+           refuse to place a child there and diagnose the conflict. A foreign, unsafe,
+           incompatible, unreadable or mismatched destination and any detected binding
+           collision refuse adoption and creation without changing that content. The
+           selected location is reported. */
+        attribute redefines rationale = "Existing tools or projects may already own content under the home directory, and equal names or a hash collision must not turn foreign data into this project's authority.";
+    }
+
+    requirement worktreeStoreMigrationPreservesHistory : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Provide an explicit supported migration from a valid, quiescent linked
+           worktree's old project-local store to its isolated global default. Before
+           cutover, verify the complete logical source and destination: all generic items,
+           kinds, heads, immutable revisions, metadata and complete URI/role/digest/length
+           manifests; all referenced exact material bytes; and exact operation requests,
+           terminal outcomes and results. Preserve those facts without inventing revisions,
+           assessments or receipts. Preserve the store identity or retain an inspectable
+           source-to-destination identity mapping. Rebind destination filesystem identity
+           only through the verified migration; never treat a raw copy or move as a valid
+           restored store. Unsupported, corrupt or unresolved pending state is refused. */
+        attribute redefines rationale = "Location compatibility requires the old history and its evidence to remain examinable, while the existing store's recorded filesystem identity makes a raw copy unsafe.";
+    }
+
+    requirement migratedRunsKeepTheirLifecycle : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* After verified migration, store-backed SimpleFlow and WishVerifyFlow runs
+           retain wish and run identity, frozen plan and work, visits, revisions, gate
+           assessments, evidence, derived status, operation receipts and state tokens for
+           unchanged heads. An active or blocked run can continue under the existing stale
+           result and expected-head guards; a completed run stays completed and next/check
+           do not add a revision or reopen it. Exact terminal operation retries return the
+           retained outcome without a duplicate effect. Cache loss remains recoverable from
+           migrated material, while changed workspace artifacts are not overwritten. */
+        attribute redefines rationale = "A migration that merely finds the latest wish name but breaks continuation, completed history, or exact retries is not compatible with an existing run.";
+    }
+
+    requirement worktreeStoreConflictsFailClosed : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* When an old local store or an unclassifiable local candidate exists,
+           default operations must not silently create or use an unrelated empty global
+           store; diagnose it and require explicit migration or selection.
+           If local and global stores both exist, use the global store by default only
+           when durable migration provenance verifies their relationship and the retained
+           source has not changed since cutover. Otherwise diagnose the ambiguity before
+           mutation. A source absent after verified cutover need not remain present.
+           Never infer equivalence from
+           names, paths, IDs, or matching heads alone; never merge or overwrite divergent
+           histories automatically. Provide a safe way to inspect each selected root. */
+        attribute redefines rationale = "A location switch, apparent duplicate, or later write to an old store can hide or fork operational history unless ambiguity is visible and writes stop.";
+    }
+
+    requirement worktreeMigrationHasRecoverableCutover : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Migration requires the operator to stop non-cooperating older clients and
+           reconcile pending operations and writer locks before it begins. Supported new
+           readers and writers coordinate with migration so no source or destination write
+           races verification or cutover. The source remains recoverable and is not deleted
+           or overwritten by migration. A durable decision distinguishes incomplete work
+           from verified cutover; before that decision the destination is not authoritative,
+           and afterward the verified destination is authoritative. Supported clients
+           refuse writes to the retained source while that cutover stands. On interruption
+           or an uncertain response, inspection and exact retry recover one outcome; before
+           the decision a safe rollback may instead leave the source authoritative. Default
+           operations do not create a fresh store or use unverified partial state.
+           Diagnostics identify roots, status and safe next action. */
+        attribute redefines rationale = "Copying while another process writes or losing a process at cutover can otherwise produce two divergent authorities or destroy the only usable history.";
+    }
+
+    requirement legacyCacheRegistrationsStayLegacy : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        doc /* Existing legacy cache-backed registrations and Git wish traces keep their
+           existing backend and history; location migration neither imports, discards nor
+           treats their cache as disposable store-backed material. Legacy active and
+           completed runs remain readable and retain their existing lifecycle behavior.
+           Classify a genuine legacy registry separately from a regenerable store-backed
+           cache. If a genuine legacy registration and a selected persistent item have
+           the same wish ID, diagnose the ambiguity, permit read-only inspection of
+           both and refuse mutation rather than silently selecting, overwriting or
+           merging either history. */
+        attribute redefines rationale = "Legacy cache registrations are authoritative for their own runs, unlike a store-backed working cache, and a matching local wish ID is not proof of one history.";
+    }
 }

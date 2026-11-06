@@ -337,6 +337,34 @@ package XDesignVerification {
         }
     }
 
+    verification def WorktreeStoreMigrationVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D115"; }
+        doc /* Planned process, fault, concurrency and integrity cases WTSTORE-01
+           through WTSTORE-13: compare default and explicit selection in primary,
+           non-Git and linked worktrees; distinguish aliases, collisions, copied or
+           forged bindings and recreation; preserve
+           other home content; migrate complete generic history and active/completed
+           runs; preserve receipts and legacy cache authority; refuse ambiguous,
+           corrupt or pending sources; and recover injected interruptions under the
+           stated old-client quiescence boundary. Concurrency includes API handles held
+           across cutover and source and destination path aliases. D118 includes first-
+           reservation discovery boundaries, two-process lock-order barriers, adapter
+           compile contracts, canonical known-answer bytes and explicit state/operation
+           oracles; source validation includes the final destination commit boundary.
+           A declaration is not a result. */
+        subject store : XDesignStorage::ProjectStore;
+        objective locationAndMigration {
+            verify requirement isolation :> XDesignRequirements::linkedWorktreeStoreIsIsolated;
+            verify requirement selection :> XDesignRequirements::storeRootSelectionIsConsistent;
+            verify requirement namespace :> XDesignRequirements::globalStoreNamespaceProtectsOtherContent;
+            verify requirement history :> XDesignRequirements::worktreeStoreMigrationPreservesHistory;
+            verify requirement lifecycle :> XDesignRequirements::migratedRunsKeepTheirLifecycle;
+            verify requirement conflicts :> XDesignRequirements::worktreeStoreConflictsFailClosed;
+            verify requirement recovery :> XDesignRequirements::worktreeMigrationHasRecoverableCutover;
+            verify requirement legacy :> XDesignRequirements::legacyCacheRegistrationsStayLegacy;
+        }
+    }
+
     verification def CheckerIsolationVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D112"; }
         doc /* ISO-01 through ISO-09 require copied-release execution without tools,

@@ -65,3 +65,25 @@ fn read_heads(store: &RsStore) -> Result<Vec<RsItemSummary>, RsStoreError> {
 **See also:** [storage overview](index.md#u79),
 [physical format I11–I12](../../../interfaces/store-format.md#i11), and
 [store plan](../../../records/plans/storage.md#p35).
+
+### Planned location-coordination extension
+
+The [D117 protocol](../../worktree-store-migration.md#d117) adds a common lease to **every**
+public operation, including `init/open`, `save/save_bytes`, `outcome`,
+`pending_item_operations`, `list/get/history`, `read_material`, `checkout` and `doctor`,
+and to CLI `info/request` and root-doctor helpers. This is designed-only. The lease starts
+before lookup/SQLite access and lasts through final commit or external output publication;
+private guarded helpers prevent recursive locking. An opened handle never owns permission
+to bypass a later cutover: each call reacquires, checks the durable fence and compares its
+pinned root/database/parent evidence. Prepared destinations refuse normal access; retired
+sources permit verified inspection and refuse all saves/init. A moved/recreated source
+cannot be adopted through an old connection or fresh alias.
+
+Arguments and successful return types remain unchanged. The existing `RsStoreError` variant
+set is preserved; [I21](../../../interfaces/worktree-store.md#i21) defines the stable
+`location_reason=<code>;` prefix and adapter mappings for busy, retired, corrupt or
+unprovable coordination. Direct APIs use only their supplied root and do not run default
+Git/home selection; external root coordination still applies. Open/read create no namespace
+or lock files, although they acquire a process-releasing lock on the existing canonical
+parent. Full peer/witness loss cannot be authenticated by a fresh root-only call; the
+cooperative local-owner limitation in D117 remains part of this contract.

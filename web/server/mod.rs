@@ -133,17 +133,41 @@ pub fn serve(args: &[String]) -> Result<(), String> {
             project_root.display()
         )
     })?;
-    let store_root = resolve_store_root(&project_root, options.store_root.as_deref());
+    let legacy_only = options.store_root.is_none()
+        && env::var_os("XDESIGN_STORE_ROOT").is_none()
+        && api::legacy_only_project(&project_root)?;
+    let selection = if legacy_only {
+        Ok(None)
+    } else {
+        (crate::storage::cli::resolve_store_root(
+            &project_root,
+            options.store_root.as_deref().map(Path::new),
+            true,
+        )
+        .map(Some)
+        .map_err(|e| e.to_string()))
+    };
+    let store_root = selection.as_ref().ok().cloned().flatten();
     let listener = TcpListener::bind((options.host.as_str(), options.port))
         .map_err(|error| format!("cannot bind {}:{}: {error}", options.host, options.port))?;
     let address = listener
         .local_addr()
         .map_err(|error| format!("cannot read the bound address: {error}"))?;
-    let state = Arc::new(AppState::new(project_root.clone(), store_root.clone()));
+    let state = Arc::new(match selection {
+        Ok(Some(root)) => AppState::new(project_root.clone(), root),
+        Ok(None) => AppState::legacy_only(project_root.clone()),
+        Err(error) => AppState::diagnostic(project_root.clone(), error),
+    });
     let url = http_url(address);
     println!("{}", listening_line(address));
     println!("  project root: {}", project_root.display());
-    println!("  store root:   {}", store_root.display());
+    println!(
+        "  store root:   {}",
+        store_root
+            .as_ref()
+            .map(|p| p.display().to_string())
+            .unwrap_or_else(|| "legacy only".into())
+    );
     println!("  open {url} in a browser; press Ctrl-C to stop");
     if options.open {
         open_browser(&url);

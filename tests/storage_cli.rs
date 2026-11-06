@@ -912,7 +912,8 @@ fn init_retries_after_abandoned_files_and_blocks_on_pending_operations() {
     let project = Project::new();
     project.store(&["store", "init"], 0);
 
-    // Leftovers of an init that never reserved anything are reclaimed.
+    // Unproven cache is ambiguous and preserved; only an operator can quarantine
+    // it before initializing a fresh persistent item.
     let dir = project.root.join("cache/xdesign/wish-retry");
     fs::create_dir_all(dir.join("responses")).unwrap();
     fs::write(dir.join("registry.json"), b"{}").unwrap();
@@ -922,6 +923,17 @@ fn init_retries_after_abandoned_files_and_blocks_on_pending_operations() {
         project.root.join("cache/wishes/wish-retry.sysml"),
     )
     .unwrap();
+    let refused = project.stage_error(&[
+        "init",
+        "wish-retry",
+        "--flow",
+        "wish-verify",
+        "--wish",
+        "incoming/wish.sysml",
+    ]);
+    assert!(refused.contains("backend_ambiguous"), "{refused}");
+    assert_eq!(fs::read(dir.join("registry.json")).unwrap(), b"{}");
+    fs::rename(&dir, project.root.join("quarantined-retry-cache")).unwrap();
     let initialized = project.init("wish-retry", "wish-verify");
     assert_eq!(initialized["store_revision"], 1);
 
@@ -972,6 +984,20 @@ fn init_retries_after_abandoned_files_and_blocks_on_pending_operations() {
     let stuck_dir = project.root.join("cache/xdesign/wish-stuck");
     fs::create_dir_all(&stuck_dir).unwrap();
     fs::write(stuck_dir.join("registry.json"), b"registry").unwrap();
+    let blocked = project.stage_error(&[
+        "init",
+        "wish-stuck",
+        "--flow",
+        "wish-verify",
+        "--wish",
+        "incoming/wish.sysml",
+    ]);
+    assert!(blocked.contains("backend_ambiguous"), "{blocked}");
+    assert_eq!(
+        fs::read(stuck_dir.join("registry.json")).unwrap(),
+        b"registry"
+    );
+    fs::rename(&stuck_dir, project.root.join("quarantined-pending-cache")).unwrap();
     let blocked = project.stage_error(&[
         "init",
         "wish-stuck",

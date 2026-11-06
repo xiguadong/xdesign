@@ -110,10 +110,16 @@ the design page they explain. Class ownership and the one-home rule are defined 
 > **Companions:** [B01](system-composition.md#b01) for owned parts and [F01](../design/flow.md#f01) for flow vocabulary.  
 > **Status:** renderable-now.  
 > **Reading:** The graph connects the main flow, record, controller, and system definitions. Specialization edges show where a specific flow or record refines a common type.  
-> **Limits:** This broad inventory omits the detailed behavior and interface contracts of each definition.
+> **Limits:** This is an enlargement-only reference, unreadable at normal article width. The native renderer elides labels and does not retain source-ID metadata; it is not a substitute for a focused source-traceable view. It omits detailed behavior and interface contracts, and no whole-figure routing/layout visual acceptance is claimed.
 
 Rendered from `mbse/model` as a definitions-and-specializations diagram: `Flow` and its
-specializations, the record definitions, `Controller`, and `XDesign`.
+specializations, the record definitions, `Controller`, and `XDesign`. The requirements-stage
+refresh included 23 definitions already present before the worktree-location change as well
+as its four planned definitions; those 23 are not new work from this change. The retained
+requirements-stage comparison remains historical evidence. Its native SVG had 91 elisions
+and approximately 0.1235 px minimum text at 900 px article width; three inspected crops did
+not establish whole-figure visual acceptance. Use the focused
+[worktree store boundary view](../design/storage.md#d116) for the migration design.
 
 <a id="a06"></a>
 

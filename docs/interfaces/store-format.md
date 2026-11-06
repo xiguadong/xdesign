@@ -445,3 +445,5 @@ and two-flow behavior with their limits; it does not freeze compatibility or rep
 human acceptance.
 
 New store-backed script registrations add the optional strict `checker.bundle` member to frozen plans, with executor materials retained from revision 1. The stage adapter checks run confinement and file identities; failed checker output is retained as unvalidated attempt materials. See [checker execution](../design/checker-execution.md#d111). New executables accept earlier plans without the member; older executables may refuse plans carrying it. This adds no store migration or restore operation.
+
+The linked-worktree location extension is [I21](worktree-store.md#i21). Its public inspection, enrollment, request preparation and migration commands retain this schema-1 root/table/request format, add coordination outside the closed store root, and use a privileged verified construction path; ordinary open never adopts copied bytes. See its operator example and exact recovery procedure before migration.

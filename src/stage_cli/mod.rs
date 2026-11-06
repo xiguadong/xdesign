@@ -17,6 +17,57 @@ use xdesign::core::{
 };
 use xdesign::simple_flow::RsProcessCheck;
 
+#[derive(Debug)]
+enum StageError {
+    Store(xdesign::storage::RsStoreError),
+    Message(String),
+}
+impl From<String> for StageError {
+    fn from(value: String) -> Self {
+        Self::Message(value)
+    }
+}
+impl From<&str> for StageError {
+    fn from(value: &str) -> Self {
+        Self::Message(value.into())
+    }
+}
+impl From<xdesign::storage::RsStoreError> for StageError {
+    fn from(value: xdesign::storage::RsStoreError) -> Self {
+        Self::Store(value)
+    }
+}
+impl From<xdesign::storage::cli::WithProjectStoreError<StageError>> for StageError {
+    fn from(value: xdesign::storage::cli::WithProjectStoreError<StageError>) -> Self {
+        match value {
+            xdesign::storage::cli::WithProjectStoreError::Store(e) => Self::Store(e),
+            xdesign::storage::cli::WithProjectStoreError::Action(e) => e,
+        }
+    }
+}
+impl std::fmt::Display for StageError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Store(e) => {
+                write!(f, "{e}")?;
+                use xdesign::storage::RsStoreError;
+                let id = match e {
+                    RsStoreError::Io { operation_id, .. }
+                    | RsStoreError::Database { operation_id, .. } => operation_id.as_deref(),
+                    RsStoreError::OperationMismatch { operation_id }
+                    | RsStoreError::UnknownOutcome { operation_id } => Some(operation_id.as_str()),
+                    _ => None,
+                };
+                if let Some(id) = id {
+                    write!(f, " (operation_id={id})")?;
+                }
+                Ok(())
+            }
+            Self::Message(s) => write!(f, "stage_error; {s}"),
+        }
+    }
+}
+
 pub const HELP: &str =
     "Usage: xdesign init WISH_ID --flow simple-flow|wish-verify [--wish FILE] [--checks FILE]
        xdesign next WISH_ID
@@ -228,14 +279,17 @@ fn response(stored: &Stored, run: &RsFlowRun) -> Result<Value, String> {
     Ok(reply)
 }
 
-fn observe(id: &str) -> Result<(Stored, RsFlowRun, Value), String> {
+fn observe(
+    id: &str,
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<(Stored, RsFlowRun, Value), StageError> {
     // A reader never takes a writer lock. The final comparison rejects a mixed
     // view if restoration or collection overlapped another process's commit.
     for _ in 0..3 {
-        let stored = store::load(id)?;
+        let stored = store::load(id, handle)?;
         let run = restore(&stored, unjudged(), false)?;
         let reply = response(&stored, &run)?;
-        let current = store::load(id)?;
+        let current = store::load(id, handle)?;
         if current.token == stored.token && current.store_revision == stored.store_revision {
             return Ok((stored, run, reply));
         }
@@ -243,8 +297,14 @@ fn observe(id: &str) -> Result<(Stored, RsFlowRun, Value), String> {
     Err("run changed during inspection; retry next".into())
 }
 
-fn init(id: &str, flow: &str, wish: Option<&str>, checks: Option<&str>) -> Result<Value, String> {
-    persistent::init(id, flow, wish, checks)
+fn init(
+    id: &str,
+    flow: &str,
+    wish: Option<&str>,
+    checks: Option<&str>,
+    handle: &xdesign::storage::RsStore,
+) -> Result<Value, StageError> {
+    persistent::init(id, flow, wish, checks, handle)
 }
 
 fn read_result_bytes(uri: Option<&str>) -> Result<Vec<u8>, String> {
@@ -346,8 +406,9 @@ fn judge(result: Option<&StageResult>, collection: &Collection) -> Result<RsSupp
     })
 }
 
-fn check_legacy(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), String> {
-    let (initial, initial_run, mut initial_reply) = observe(id)?;
+fn check_legacy(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), StageError> {
+    let handle = None;
+    let (initial, initial_run, mut initial_reply) = observe(id, handle)?;
     if initial_run.status() == RsFlowStatus::Completed {
         initial_reply["assessed"] = Value::Null;
         initial_reply["advance"] = json!(RsAdvanceOutcome::CompleteRun);
@@ -362,7 +423,7 @@ fn check_legacy(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), Stri
     )?;
     judge(result.as_ref(), &observed)?;
     let _lock = store::Lock::acquire(id)?;
-    let stored = store::load(id)?;
+    let stored = store::load(id, handle)?;
     let loaded = restore(&stored, unjudged(), false)?;
     if loaded.status() == RsFlowStatus::Completed {
         let mut reply = response(&stored, &loaded)?;
@@ -426,16 +487,16 @@ fn check_legacy(id: &str, result_uri: Option<&str>) -> Result<(Value, i32), Stri
     })?;
     let assessments = run.evaluate_gates();
     if let Some(error) = run.last_error() {
-        return Err(format!("cannot retain assessment: {error}"));
+        return Err(format!("cannot retain assessment: {error}").into());
     }
     let assessed = json!({ "stage_id": run.current().stage_id(), "visit_index": run.current().visit_index(),
         "artifact_revision": run.current().artifact_revision(), "artifact_snapshot_digest": run.current().artifact_snapshot_digest(),
         "assessments": assessments });
     let advance = run.advance();
     if let Some(error) = run.last_error() {
-        return Err(format!("cannot retain advancement: {error}"));
+        return Err(format!("cannot retain advancement: {error}").into());
     }
-    let final_state = store::load(id)?;
+    let final_state = store::load(id, handle)?;
     let mut reply = response(&final_state, &run)?;
     reply["assessed"] = assessed;
     reply["advance"] = json!(advance);
@@ -453,43 +514,295 @@ fn check(
     id: &str,
     result_uri: Option<&str>,
     operation_id: Option<&str>,
-) -> Result<(Value, i32), String> {
-    if store::is_persistent(id)? {
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<(Value, i32), StageError> {
+    if store::is_persistent(id, handle)? {
         let operation_id = operation_id
             .map(str::to_owned)
             .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
-        persistent::check(id, result_uri, &operation_id)
+        persistent::check(
+            id,
+            result_uri,
+            &operation_id,
+            handle.ok_or("missing persistent handle")?,
+        )
     } else {
         check_legacy(id, result_uri)
     }
 }
 
-pub fn dispatch(args: &[String]) -> Result<(Value, i32), String> {
+fn dispatch_guarded(
+    args: &[String],
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<(Value, i32), StageError> {
     match args
         .iter()
         .map(String::as_str)
         .collect::<Vec<_>>()
         .as_slice()
     {
-        ["init", id, "--flow", flow] => Ok((init(id, flow, None, None)?, 0)),
-        ["init", id, "--flow", flow, "--wish", uri] => Ok((init(id, flow, Some(uri), None)?, 0)),
-        ["init", id, "--flow", flow, "--checks", uri] => Ok((init(id, flow, None, Some(uri))?, 0)),
-        ["init", id, "--flow", flow, "--wish", wish, "--checks", checks] => {
-            Ok((init(id, flow, Some(wish), Some(checks))?, 0))
+        ["init", id, "--flow", flow] => Ok((
+            init(
+                id,
+                flow,
+                None,
+                None,
+                handle.ok_or("missing persistent handle")?,
+            )?,
+            0,
+        )),
+        ["init", id, "--flow", flow, "--wish", uri] => Ok((
+            init(
+                id,
+                flow,
+                Some(uri),
+                None,
+                handle.ok_or("missing persistent handle")?,
+            )?,
+            0,
+        )),
+        ["init", id, "--flow", flow, "--checks", uri] => Ok((
+            init(
+                id,
+                flow,
+                None,
+                Some(uri),
+                handle.ok_or("missing persistent handle")?,
+            )?,
+            0,
+        )),
+        ["init", id, "--flow", flow, "--wish", wish, "--checks", checks] => Ok((
+            init(
+                id,
+                flow,
+                Some(wish),
+                Some(checks),
+                handle.ok_or("missing persistent handle")?,
+            )?,
+            0,
+        )),
+        ["init", id, "--flow", flow, "--checks", checks, "--wish", wish] => Ok((
+            init(
+                id,
+                flow,
+                Some(wish),
+                Some(checks),
+                handle.ok_or("missing persistent handle")?,
+            )?,
+            0,
+        )),
+        ["next", id] => {
+            if let Some(store) = handle {
+                if let Some(response) = xdesign::storage::cli::read_completed_project(store, id)? {
+                    return Ok((response, 0));
+                }
+            }
+            Ok((observe(id, handle)?.2, 0))
         }
-        ["init", id, "--flow", flow, "--checks", checks, "--wish", wish] => {
-            Ok((init(id, flow, Some(wish), Some(checks))?, 0))
-        }
-        ["next", id] => Ok((observe(id)?.2, 0)),
-        ["check", id] => check(id, None, None),
-        ["check", id, "--result", uri] => check(id, Some(uri), None),
-        ["check", id, "--operation-id", operation] => check(id, None, Some(operation)),
+        ["check", id] => check(id, None, None, handle),
+        ["check", id, "--result", uri] => check(id, Some(uri), None, handle),
+        ["check", id, "--operation-id", operation] => check(id, None, Some(operation), handle),
         ["check", id, "--result", uri, "--operation-id", operation] => {
-            check(id, Some(uri), Some(operation))
+            check(id, Some(uri), Some(operation), handle)
         }
         ["check", id, "--operation-id", operation, "--result", uri] => {
-            check(id, Some(uri), Some(operation))
+            check(id, Some(uri), Some(operation), handle)
         }
-        _ => Err(format!("invalid arguments\n{HELP}")),
+        _ => Err(format!("invalid arguments\n{HELP}").into()),
     }
+}
+
+fn backend_error(message: String) -> StageError {
+    StageError::Store(xdesign::storage::RsStoreError::Integrity(message))
+}
+fn conflict() -> StageError {
+    backend_error("location_reason=backend_conflict; legacy and persistent histories share this wish ID; use read-only inspect --backend legacy|store".into())
+}
+fn validate_cache(
+    id: &str,
+    cache: &crate::project_backend::Cache,
+    handle: &xdesign::storage::RsStore,
+) -> Result<(), StageError> {
+    use crate::project_backend::Cache;
+    let exists = persistent::item_exists(id, handle)?;
+    match cache {
+        Cache::Legacy(_) => {
+            let project = std::env::current_dir().map_err(|e| e.to_string())?;
+            if exists || xdesign::storage::cli::project_candidate_contains(handle, &project, id)? {
+                return Err(conflict());
+            }
+        }
+        Cache::Persistent(registry) => {
+            if !exists {
+                return Err(backend_error("location_reason=backend_ambiguous; cached persistent registration has no selected item".into()));
+            }
+            let raw =
+                fs::read(format!("cache/xdesign/{id}/registry.json")).map_err(|e| e.to_string())?;
+            let mut proven = false;
+            for revision in handle.history(id)? {
+                let uri = format!("cache/xdesign/{id}/registry.json");
+                if handle.read_material(id, Some(revision.revision), &uri)? == raw
+                    && revision.metadata.get("flow_id").and_then(Value::as_str)
+                        == Some(&registry.flow_id)
+                {
+                    proven = true;
+                    break;
+                }
+            }
+            if !proven {
+                return Err(backend_error("location_reason=backend_ambiguous; cache registration has no exact store provenance".into()));
+            }
+        }
+        Cache::Absent => {}
+    }
+    Ok(())
+}
+fn inspect_backend(
+    id: &str,
+    backend: &str,
+    revision: Option<u64>,
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<(Value, i32), StageError> {
+    if backend == "legacy" {
+        if revision.is_some() {
+            return Err("legacy inspection has no revision selector".into());
+        }
+        let stored = store::load_legacy(id)?;
+        let run = restore(&stored, unjudged(), false)?;
+        return Ok((
+            json!({"backend":"legacy","registry":stored.registry,"plan":serde_json::from_slice::<Value>(&store::read_file(&stored.registry.plan_uri)?).map_err(|e|e.to_string())?,"work":serde_json::from_slice::<Value>(&store::read_file(&stored.registry.work_uri)?).map_err(|e|e.to_string())?,"run":serde_json::from_slice::<Value>(&store::read_file(&stored.registry.run_record_uri)?).map_err(|e|e.to_string())?,"completed":run.status()==RsFlowStatus::Completed}),
+            0,
+        ));
+    }
+    if backend != "store" {
+        return Err("inspection backend must be legacy or store".into());
+    }
+    let handle = handle.ok_or("no selected persistent store")?;
+    let head = handle.get(id, revision)?;
+    let mut result = json!({"backend":"store","revision":head,"history":handle.history(id)?});
+    for (field, uri) in [
+        ("registry", format!("cache/xdesign/{id}/registry.json")),
+        ("plan", format!("cache/xdesign/{id}/plan.json")),
+        ("work", format!("cache/xdesign/{id}/work.json")),
+        ("run", format!("cache/xdesign/{id}/run.json")),
+    ] {
+        result[field] =
+            serde_json::from_slice(&handle.read_material(id, Some(head.revision), &uri)?)
+                .map_err(|e| e.to_string())?;
+    }
+    Ok((result, 0))
+}
+pub fn dispatch(args: &[String]) -> Result<(Value, i32), String> {
+    dispatch_command(args).map_err(|e| e.to_string())
+}
+fn dispatch_command(args: &[String]) -> Result<(Value, i32), StageError> {
+    use crate::project_backend::{self, Cache};
+    use xdesign::storage::{cli, RsStore};
+    let id = args.get(1).ok_or("missing wish ID")?;
+    store::wish_id(id)?;
+    let project = std::env::current_dir()
+        .and_then(fs::canonicalize)
+        .map_err(|e| e.to_string())?;
+    let cache = project_backend::classify(&project, id).map_err(backend_error)?;
+    let inspection = if args.first().is_some_and(|a| a == "inspect") {
+        if args.get(2).map(String::as_str) != Some("--backend") || ![4, 6].contains(&args.len()) {
+            return Err("inspect requires --backend legacy|store and optional --revision N".into());
+        }
+        let revision = if args.len() == 6 {
+            if args[4] != "--revision" {
+                return Err("unknown inspect option".into());
+            }
+            Some(args[5].parse::<u64>().map_err(|e| e.to_string())?)
+        } else {
+            None
+        };
+        Some((args[3].as_str(), revision))
+    } else {
+        None
+    };
+    if inspection.is_some_and(|(b, _)| b == "legacy") {
+        let _lease = project_backend::LegacyLease::acquire(&project).map_err(backend_error)?;
+        return inspect_backend(id, "legacy", inspection.unwrap().1, None);
+    }
+    let explicit = std::env::var_os("XDESIGN_STORE_ROOT").map(std::path::PathBuf::from);
+    if explicit.as_ref().is_some_and(|p| p.as_os_str().is_empty()) {
+        return Err(StageError::Store(
+            xdesign::storage::RsStoreError::InvalidInput(
+                "location_reason=invalid_input; empty store root override".into(),
+            ),
+        ));
+    }
+    let candidates =
+        project_backend::candidates(&project, explicit.as_deref()).map_err(backend_error)?;
+    let mut existing = None;
+    for root in &candidates {
+        match fs::symlink_metadata(root) {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => continue,
+            Err(e) => {
+                return Err(backend_error(format!(
+                    "location_reason=backend_ambiguous; {e}"
+                )))
+            }
+            Ok(_) => {}
+        }
+        let h = RsStore::open(root).map_err(|e| {
+            backend_error(format!(
+                "location_reason=backend_ambiguous; cannot inspect known candidate {}: {e}",
+                root.display()
+            ))
+        })?;
+        if persistent::item_exists(id, &h)?
+            && matches!(cache, Cache::Legacy(_))
+            && inspection.is_none()
+        {
+            return Err(conflict());
+        }
+        existing = Some(root.clone());
+    }
+    if matches!(cache, Cache::Legacy(_)) && inspection.is_none() {
+        if args.first().is_some_and(|a| a == "init") {
+            return Err("wish already has a legacy registration".into());
+        }
+        if let Some(explicit) = explicit.as_ref() {
+            let selected = if explicit.is_absolute() {
+                explicit.clone()
+            } else {
+                project.join(explicit)
+            };
+            if selected.exists() {
+                existing = Some(selected);
+            }
+        }
+        if let Some(root) = existing {
+            let _root_context = persistent::RootContext::enter(root.clone());
+            return cli::with_project_store(&project, &root, false, |h| {
+                let now = project_backend::classify(&project, id).map_err(backend_error)?;
+                validate_cache(id, &now, h)?;
+                dispatch_guarded(args, None)
+            })
+            .map_err(StageError::from);
+        }
+        let _lease = project_backend::LegacyLease::acquire(&project).map_err(backend_error)?;
+        if project_backend::candidates(&project, explicit.as_deref())
+            .map_err(backend_error)?
+            .iter()
+            .any(|p| p.exists())
+        {
+            return Err(backend_error("location_reason=backend_ambiguous; persistent candidate appeared during classification".into()));
+        }
+        project_backend::classify(&project, id).map_err(backend_error)?;
+        return dispatch_guarded(args, None);
+    }
+    let initialize = args.first().is_some_and(|a| a == "init");
+    let root = cli::resolve_store_root(&project, None, initialize)?;
+    let _root_context = persistent::RootContext::enter(root.clone());
+    cli::with_project_store(&project, &root, initialize, |h| {
+        let cache = project_backend::classify(&project, id).map_err(backend_error)?;
+        if let Some((backend, revision)) = inspection {
+            return inspect_backend(id, backend, revision, Some(h));
+        }
+        validate_cache(id, &cache, h)?;
+        dispatch_guarded(args, Some(h))
+    })
+    .map_err(StageError::from)
 }

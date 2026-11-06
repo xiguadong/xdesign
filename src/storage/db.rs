@@ -101,7 +101,7 @@ impl Drop for Transaction<'_> {
     }
 }
 
-const SCHEMA: &str = r#"
+pub(crate) const SCHEMA: &str = r#"
 CREATE TABLE store_identity (
     singleton INTEGER PRIMARY KEY CHECK (singleton = 1),
     store_id TEXT NOT NULL,
@@ -216,6 +216,17 @@ BEGIN SELECT RAISE(ABORT, 'pending blob reservations are immutable'); END;
 "#;
 
 pub(crate) fn init(root: &Path) -> Result<RsStore, RsStoreError> {
+    init_format(root, None)
+}
+pub(crate) fn migration_construct(
+    root: &Path,
+    format: &[u8],
+    id: &str,
+    _lease: &super::migration::MigrationLease,
+) -> Result<RsStore, RsStoreError> {
+    init_format(root, Some((format, id)))
+}
+fn init_format(root: &Path, original: Option<(&[u8], &str)>) -> Result<RsStore, RsStoreError> {
     match fs::symlink_metadata(root) {
         Ok(metadata) => {
             if metadata.file_type().is_symlink() {
@@ -261,12 +272,15 @@ pub(crate) fn init(root: &Path) -> Result<RsStore, RsStoreError> {
     create_store_dir(&root.join("locks"))?;
     create_store_dir(&root.join("locks/items"))?;
 
-    let store_id = uuid::Uuid::new_v4().to_string();
+    let store_id = original
+        .map(|(_, id)| id.to_owned())
+        .unwrap_or_else(|| uuid::Uuid::new_v4().to_string());
     let marker = compact_json(&json!({
         "format": FORMAT,
         "schema_version": SCHEMA_VERSION,
         "store_id": store_id,
     }))?;
+    let marker = original.map(|(bytes, _)| bytes.to_vec()).unwrap_or(marker);
     let marker_path = root.join("format.json");
     let mut options = OpenOptions::new();
     options.write(true).create_new(true);
@@ -413,6 +427,7 @@ pub(crate) fn open(root: &Path) -> Result<RsStore, RsStoreError> {
         conn,
         identity: live,
         store_id: recorded_id,
+        lease: None,
     };
     store.verify_live()?;
     Ok(store)

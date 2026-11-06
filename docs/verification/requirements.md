@@ -24,6 +24,7 @@ declared case or a clean compiler result as an executed acceptance test.
 | Runtime gate and record conformance | Scripted test and inspection of local SimpleFlow run | four checks in [D06–D07](../design/flows/simple-flow/definition.md#d06) | Commands, Rust adapter tests, and a four-stage demo executed for this slice ([P08](../records/executions/simple-flow.md#p08), [P12](../records/reviews/simple-flow-fixes.md#p12)); VModel integration and project acceptance remain open |
 | Uniform stage CLI and restart integrity | Process-level tests and corruption/recovery tests | `LocalStageCliRuntimeVerification`; [CLI contract](../design/stage-cli.md#d85) | Planned cases and executed results are distinguished in the [stage CLI plan](../records/plans/stage-cli.md) |
 | Durable operational storage | Automated test, fault injection, process demonstration, and inspection at storage implementation verification | `StorageVerification`; STORE-01 through STORE-10 in the [storage plan](../records/plans/storage.md#p38) | Case and objective criteria defined; the storage plan records executed outcomes and their limits |
+| Linked-worktree location and verified local-store migration | Isolated process, integrity, concurrency and fault tests plus design and documentation review at implementation verification | `WorktreeStoreMigrationVerification`; WTSTORE-01 through WTSTORE-13 in [D115](design.md#d115) | Planned design allocation and criteria; no migration case is executed by this declaration |
 
 The scenario-template requirements have the following planned acceptance mapping at
 implementation verification. No case is executed by its declaration or by a requirements-stage
@@ -51,6 +52,26 @@ planned criteria, not results; the case identifiers refer to the storage plan.
 | `workingCacheIsRecoverable` | STORE-09 deletes generated runtime cache, restores the stored head, checks out all manifest bytes and passes the existing record checker against that materialization. |
 | `wishStatusProjectsFlowExecution` | STORE-08 obtains identical status/current-stage projections from the stored selected flow and run record across reopen, including a blocked and a completed run; no independent status edit exists. |
 | `storageInputAndIntegrityAreChecked` | STORE-01 refuses foreign formats; STORE-03 rejects malformed and unsafe input; STORE-07 reports missing, altered, orphan and pending state without returning trusted bytes. |
+
+The linked-worktree requirements in [R20](../requirements/requirements.md#r20) have
+the following planned acceptance allocation. The [planned design](../design/storage.md#d116)
+declares responsibility, not implementation. These cases require implementation and retained
+evidence; no requirement is established by a compiler or documentation audit.
+
+| Requirement | Planned cases and acceptance focus |
+| --- | --- |
+| `linkedWorktreeStoreIsIsolated` | WTSTORE-01 and WTSTORE-02: primary, non-Git and linked contexts, aliases, same-named projects, distinct worktrees, failure to resolve identity/home, and stable selected roots. |
+| `storeRootSelectionIsConsistent` | WTSTORE-04 and WTSTORE-07: exact root precedence, relative paths, direct API, explicit inspection and Web reads plus real delegated lifecycle operations against the same selected root. |
+| `globalStoreNamespaceProtectsOtherContent` | WTSTORE-02, WTSTORE-03 and WTSTORE-09: validated bindings, deliberate collision, unrelated home content, existing home-root store, unsafe or foreign destinations. |
+| `worktreeStoreMigrationPreservesHistory` | WTSTORE-05, WTSTORE-09, WTSTORE-11 and WTSTORE-12: verified full history, bytes, receipts and identity mapping, invalid/pending refusal, and the result at interrupted cutovers. |
+| `migratedRunsKeepTheirLifecycle` | WTSTORE-05 and WTSTORE-06: both flows, active/blocked/completed states, exact retries, state tokens, artifact drift, cache-loss recovery and unchanged completed heads. |
+| `worktreeStoreConflictsFailClosed` | WTSTORE-07, WTSTORE-09 and WTSTORE-12: local/global ambiguity, provenance, changed/reappearing sources, explicit inspection and no automatic merging. |
+| `worktreeMigrationHasRecoverableCutover` | WTSTORE-09 through WTSTORE-12: quiescence, contention, injected phase failures, durable decision, inspection, idempotent recovery and the non-cooperating-client boundary. |
+| `legacyCacheRegistrationsStayLegacy` | WTSTORE-08: real active/completed legacy registrations and traces, persistent cache classification, collision diagnostics and unchanged legacy bytes. |
+
+WTSTORE-13 applies the affected regression suites and retains their limits. Independent
+review must assess the requirements and evidence separately from the syntactic
+SimpleFlow gate.
 
 Acceptance of a wish is recorded by that wish's applicable stage assessment at a stated
 artifact revision. It does not freeze the project's entire requirements baseline.

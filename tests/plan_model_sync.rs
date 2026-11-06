@@ -75,6 +75,31 @@ fn simple_flow_file_plan_covers_the_source_and_test_inventory() {
                 .to_owned()
         })
         .collect();
+    // The accepted D117 extension adds files without rewriting the frozen
+    // SimpleFlow slice's historical model/file plan.
+    let extension = fs::read_to_string("docs/design/worktree-store-migration.md").unwrap();
+    let mut declared = declared;
+    for path in [
+        "src/storage/location.rs",
+        "src/storage/location/linux.rs",
+        "src/storage/access.rs",
+        "src/storage/migration.rs",
+        "src/project_backend.rs",
+        "tests/worktree_store.rs",
+        "tests/worktree_migration.rs",
+        "tests/worktree_access.rs",
+        "tests/worktree_web.rs",
+        "tests/test_worktree_store.py",
+        "tests/test_worktree_public_cli.py",
+    ] {
+        let leaf = Path::new(path).file_name().unwrap().to_str().unwrap();
+        let stem = Path::new(leaf).file_stem().unwrap().to_str().unwrap();
+        assert!(
+            extension.contains(leaf) || extension.contains(stem),
+            "extension file must be approved by D117: {path}"
+        );
+        declared.insert(path.to_owned());
+    }
     let mut actual = BTreeSet::from(["Cargo.toml".to_owned()]);
     for directory in ["src", "tests", "tools/checks"] {
         let mut directories = vec![Path::new(directory).to_path_buf()];

@@ -229,3 +229,5 @@ project's Git-owned source, while stage attempts and evidence belong to its stor
 history view is not a multi-project history service. The current ownership, portability
 limits and proposed shared-definition/history boundary are in the
 [checkpoint project design](checkpoint-library.md#d107).
+
+The planned [worktree integration](worktree-store-migration.md#d117) fixes persistent root propagation to every lifecycle child and retains legacy-only sessions without requiring unrelated global enrollment and makes genuine legacy/store same-ID conflicts inspectable. The exact future selection, health, backend selectors and HTTP errors are in [I21](../interfaces/worktree-store.md#i21); a design contract does not establish implemented support.

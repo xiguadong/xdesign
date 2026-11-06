@@ -892,3 +892,5 @@ xdesign check WISH_ID --result FILE  # submit stage outputs; evaluates gates and
   start-work handoff semantics, verification cases; docs audit and build clean.
 
 Script executor objects also accept optional `files` (additional normalized project-relative helper/data paths) and `python` (a project-relative environment executable under `cache/`). The script editor exposes and preserves both values. New runs freeze and retain executor bundles; see `docs/design/checker-execution.md#d111`. Built-in availability refers to embedded resources and does not require a project `tools/` file.
+
+The planned worktree-location extension is owned by [I21](../docs/interfaces/worktree-store.md#i21) and [D117](../docs/design/worktree-store-migration.md#d117). It requires explicit persistent root propagation to lifecycle children, legacy-only sessions that bypass unrelated enrollment, location diagnostics and read-only legacy/store collision inspection; these are designed-only additions to this implemented interface.

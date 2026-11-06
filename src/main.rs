@@ -11,6 +11,7 @@ use xdesign::core::{
 use xdesign::simple_flow::{create_designed_run, designed_simple_flow_plan, RsProcessCheck};
 use xdesign::wish_verify::{create_wish_verify_run, wish_verify_flow_plan};
 
+mod project_backend;
 mod stage_cli;
 
 fn option(args: &[String], name: &str) -> Result<String, String> {
@@ -303,7 +304,7 @@ fn main() {
     }
     if matches!(
         args.get(1).map(String::as_str),
-        Some("init" | "next" | "check")
+        Some("init" | "next" | "check" | "inspect")
     ) {
         match stage_cli::dispatch(&args[1..]) {
             Ok((reply, code)) => {

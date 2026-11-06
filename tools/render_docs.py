@@ -75,6 +75,7 @@ FIGURES = [
     ("design/assets/controller", "internal", "Controller"),
     ("design/assets/storage-structure", "block_definition", "XDesignStorage::storageStructure"),
     ("design/assets/storage-save", "activity", "XDesignStorage::storageSave"),
+    ("design/assets/worktree-store-boundaries", "block_definition", "XDesignStorage::worktreeStoreBoundaries"),
     ("interfaces/assets/records", "declared", "XDesignArchitecture::recordStructure"),
     ("records/executions/assets/journey-rework", "sequence", "Wish0002Journey"),
     ("records/wishes/assets/journey-wish0005", "sequence", "Wish0005Journey"),

@@ -1,5 +1,6 @@
 use super::store::{self, Backend, Registry, Stored, StoredMaterial};
 use super::work::{self, WorkDefinition};
+use super::StageError;
 use super::{judge, parse_result, read_result_bytes, response, restore, unjudged, validate_result};
 use super::{RetainedCheck, StageResult};
 use serde_json::{json, Map, Value};
@@ -25,56 +26,35 @@ use xdesign::storage::{
     RsSaveRequest, RsStore, RsStoreError,
 };
 
-pub fn store_root() -> PathBuf {
-    env::var_os("XDESIGN_STORE_ROOT")
-        .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(".xdesign"))
+thread_local! { static COMMAND_ROOT: std::cell::RefCell<Option<PathBuf>> = const { std::cell::RefCell::new(None) }; }
+pub(super) struct RootContext(Option<PathBuf>);
+impl RootContext {
+    pub(super) fn enter(root: PathBuf) -> Self {
+        Self(COMMAND_ROOT.with(|value| value.replace(Some(root))))
+    }
+}
+impl Drop for RootContext {
+    fn drop(&mut self) {
+        COMMAND_ROOT.with(|value| value.replace(self.0.take()));
+    }
+}
+pub fn store_root() -> Result<PathBuf, StageError> {
+    COMMAND_ROOT
+        .with(|value| value.borrow().clone())
+        .ok_or_else(|| StageError::from("persistent helper has no pinned command root"))
 }
 
-fn project_root() -> Result<PathBuf, String> {
+fn project_root() -> Result<PathBuf, StageError> {
     env::current_dir()
         .and_then(fs::canonicalize)
-        .map_err(|error| format!("cannot resolve project root: {error}"))
+        .map_err(|error| StageError::from(format!("cannot resolve project root: {error}")))
 }
 
-fn error(error: RsStoreError) -> String {
-    match error {
-        RsStoreError::InvalidInput(message)
-        | RsStoreError::UnsupportedFormat(message)
-        | RsStoreError::NotFound(message)
-        | RsStoreError::Integrity(message)
-        | RsStoreError::UnsafePath(message) => message,
-        RsStoreError::OperationMismatch { operation_id } => {
-            format!("operation_mismatch: operation {operation_id} has different request bytes")
-        }
-        RsStoreError::Io {
-            operation_id,
-            message,
-        }
-        | RsStoreError::Database {
-            operation_id,
-            message,
-        } => match operation_id {
-            Some(operation_id) => format!("{message} (operation_id={operation_id})"),
-            None => message,
-        },
-        RsStoreError::UnknownOutcome { operation_id } => {
-            format!("unknown_outcome: reconcile operation_id={operation_id} before new work")
-        }
-    }
+fn error(error: RsStoreError) -> StageError {
+    StageError::Store(error)
 }
 
-fn open() -> Result<RsStore, String> {
-    RsStore::open(&store_root()).map_err(error)
-}
-
-pub fn item_exists(id: &str) -> Result<bool, String> {
-    match fs::symlink_metadata(store_root()) {
-        Ok(_) => {}
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(false),
-        Err(error) => return Err(format!("cannot inspect store root: {error}")),
-    }
-    let store = open()?;
+pub fn item_exists(id: &str, store: &RsStore) -> Result<bool, StageError> {
     match store.get(id, None) {
         Ok(_) => Ok(true),
         Err(RsStoreError::NotFound(_)) => Ok(false),
@@ -88,9 +68,9 @@ pub struct Lock {
 }
 
 impl Lock {
-    pub fn acquire(id: &str) -> Result<Self, String> {
+    pub fn acquire(id: &str) -> Result<Self, StageError> {
         store::wish_id(id)?;
-        let path = store_root().join("locks/items").join(format!("{id}.lock"));
+        let path = store_root()?.join("locks/items").join(format!("{id}.lock"));
         let contents = format!(
             "pid={} token={}\n",
             std::process::id(),
@@ -136,7 +116,7 @@ enum Existing {
     Preserve,
 }
 
-fn publish_parent(uri: &str) -> Result<(), String> {
+fn publish_parent(uri: &str) -> Result<(), StageError> {
     store::state_path(uri)?;
     if let Some(parent) = Path::new(uri)
         .parent()
@@ -145,18 +125,19 @@ fn publish_parent(uri: &str) -> Result<(), String> {
         fs::create_dir_all(parent)
             .map_err(|error| format!("cannot create parent for {uri}: {error}"))?;
     }
-    store::state_path(uri)
+    Ok(store::state_path(uri)?)
 }
 
-fn existing(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), String> {
+fn existing(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), StageError> {
     store::state_path(uri)?;
     match behavior {
         Existing::Verify => {
-            let actual = fs::read(uri).map_err(|error| format!("cannot read {uri}: {error}"))?;
+            let actual = fs::read(uri)
+                .map_err(|error| StageError::from(format!("cannot read {uri}: {error}")))?;
             if actual != bytes {
-                return Err(format!(
-                    "frozen or immutable operational material drifted: {uri}"
-                ));
+                return Err(
+                    format!("frozen or immutable operational material drifted: {uri}").into(),
+                );
             }
         }
         Existing::Preserve => {}
@@ -164,12 +145,12 @@ fn existing(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), String> {
     Ok(())
 }
 
-fn materialize(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), String> {
+fn materialize(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), StageError> {
     for _ in 0..2 {
         match fs::symlink_metadata(uri) {
             Ok(_) => return existing(uri, bytes, behavior),
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-            Err(error) => return Err(format!("cannot inspect {uri}: {error}")),
+            Err(error) => return Err(format!("cannot inspect {uri}: {error}").into()),
         }
         publish_parent(uri)?;
         match store::write_new(uri, bytes) {
@@ -178,7 +159,7 @@ fn materialize(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), String
                 if fs::symlink_metadata(uri).is_ok() {
                     continue;
                 }
-                return Err(error);
+                return Err(error.into());
             }
         }
     }
@@ -190,33 +171,33 @@ fn materialize(uri: &str, bytes: &[u8], behavior: Existing) -> Result<(), String
 /// store commits, so drift here means an interrupted publication or an
 /// external change; the store is authoritative and the projection is repaired
 /// from its bytes instead of failing the read or write.
-fn materialize_run_record(uri: &str, bytes: &[u8]) -> Result<(), String> {
+fn materialize_run_record(uri: &str, bytes: &[u8]) -> Result<(), StageError> {
     match fs::read(uri) {
         Ok(actual) if actual == bytes => Ok(()),
         Ok(_) => {
             store::state_path(uri)?;
-            store::replace_state(uri, bytes)
+            Ok(store::replace_state(uri, bytes)?)
         }
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
             materialize(uri, bytes, Existing::Preserve)
         }
-        Err(error) => Err(format!("cannot read {uri}: {error}")),
+        Err(error) => Err(format!("cannot read {uri}: {error}").into()),
     }
 }
 
-fn metadata_text<'a>(head: &'a RsItemRevision, key: &str) -> Result<&'a str, String> {
+fn metadata_text<'a>(head: &'a RsItemRevision, key: &str) -> Result<&'a str, StageError> {
     head.metadata
         .get(key)
         .and_then(Value::as_str)
         .filter(|value| !value.is_empty())
-        .ok_or_else(|| format!("stored wish metadata is missing {key}"))
+        .ok_or_else(|| StageError::from(format!("stored wish metadata is missing {key}")))
 }
 
-fn material<'a>(head: &'a RsItemRevision, uri: &str) -> Result<&'a RsMaterial, String> {
+fn material<'a>(head: &'a RsItemRevision, uri: &str) -> Result<&'a RsMaterial, StageError> {
     head.materials
         .iter()
         .find(|material| material.uri == uri)
-        .ok_or_else(|| format!("stored head is missing material {uri}"))
+        .ok_or_else(|| StageError::from(format!("stored head is missing material {uri}")))
 }
 
 fn read_material(
@@ -224,7 +205,7 @@ fn read_material(
     id: &str,
     revision: u64,
     expected: &RsMaterial,
-) -> Result<Vec<u8>, String> {
+) -> Result<Vec<u8>, StageError> {
     let bytes = store
         .read_material(id, Some(revision), &expected.uri)
         .map_err(error)?;
@@ -232,17 +213,18 @@ fn read_material(
         return Err(format!(
             "stored material failed length or digest verification: {}",
             expected.uri
-        ));
+        )
+        .into());
     }
     Ok(bytes)
 }
 
-fn read_named(store: &RsStore, head: &RsItemRevision, uri: &str) -> Result<Vec<u8>, String> {
+fn read_named(store: &RsStore, head: &RsItemRevision, uri: &str) -> Result<Vec<u8>, StageError> {
     read_material(store, &head.item_id, head.revision, material(head, uri)?)
 }
 
-pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
-    let store = open()?;
+pub fn load(id: &str, mode: LoadMode, store: &RsStore) -> Result<Stored, StageError> {
+    cli::validate_project_write(store)?;
     let head = store.get(id, None).map_err(error)?;
     if head.item_id != id || head.kind != "wish" || head.revision == 0 {
         return Err("stored item identity is not a committed wish".into());
@@ -303,7 +285,7 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
         );
         if entry.role == "checker-executor" && !entry.uri.starts_with(&format!("{dir}/executors/"))
         {
-            return Err(format!("executor material escapes its run: {}", entry.uri));
+            return Err(format!("executor material escapes its run: {}", entry.uri).into());
         }
         if operational {
             let report_confined = matches!(
@@ -318,7 +300,8 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
                 return Err(format!(
                     "checker material escapes the report directory: {}",
                     entry.uri
-                ));
+                )
+                .into());
             }
             let bytes = read_material(&store, id, head.revision, entry)?;
             let behavior = if entry.role == "checker-input" {
@@ -381,7 +364,7 @@ pub fn load(id: &str, mode: LoadMode) -> Result<Stored, String> {
     })
 }
 
-fn absolute(path: &Path) -> Result<PathBuf, String> {
+fn absolute(path: &Path) -> Result<PathBuf, StageError> {
     if path.is_absolute() {
         Ok(path.to_owned())
     } else {
@@ -391,25 +374,23 @@ fn absolute(path: &Path) -> Result<PathBuf, String> {
     }
 }
 
-fn validate_source(uri: &str) -> Result<(), String> {
+fn validate_source(uri: &str) -> Result<(), StageError> {
     store::state_path(uri)?;
     let source = absolute(Path::new(uri))?;
-    let root = absolute(&store_root())?;
+    let root = absolute(&store_root()?)?;
     if source.starts_with(root) {
-        return Err(format!(
-            "store source cannot be inside the store root: {uri}"
-        ));
+        return Err(format!("store source cannot be inside the store root: {uri}").into());
     }
     Ok(())
 }
 
-fn read_source(uri: &str) -> Result<Vec<u8>, String> {
+fn read_source(uri: &str) -> Result<Vec<u8>, StageError> {
     validate_source(uri)?;
     let metadata = fs::metadata(uri).map_err(|error| format!("cannot read {uri}: {error}"))?;
     if !metadata.file_type().is_file() {
-        return Err(format!("store source is not a regular file: {uri}"));
+        return Err(format!("store source is not a regular file: {uri}").into());
     }
-    fs::read(uri).map_err(|error| format!("cannot read {uri}: {error}"))
+    fs::read(uri).map_err(|error| StageError::from(format!("cannot read {uri}: {error}")))
 }
 
 fn base_metadata(registry: &Registry) -> Map<String, Value> {
@@ -480,14 +461,14 @@ impl Manifest {
         self.entries.insert(uri.to_owned(), material);
     }
 
-    fn put_file(&mut self, uri: &str, role: &str) -> Result<(), String> {
+    fn put_file(&mut self, uri: &str, role: &str) -> Result<(), StageError> {
         self.put_file_from(uri, uri, role)
     }
 
     /// Register a material under its canonical URI while reading the bytes
     /// from an isolated attempt-area path, so speculative engine output never
     /// has to occupy its canonical location before the store commits.
-    fn put_file_from(&mut self, source_uri: &str, uri: &str, role: &str) -> Result<(), String> {
+    fn put_file_from(&mut self, source_uri: &str, uri: &str, role: &str) -> Result<(), StageError> {
         let bytes = read_source(source_uri)?;
         let sha256 = sha256_bytes(&bytes);
         let source = if self.previous.get(uri).map(|entry| &entry.sha256) == Some(&sha256) {
@@ -505,7 +486,7 @@ impl Manifest {
         Ok(())
     }
 
-    fn put_expected(&mut self, uri: &str, role: &str, digest: &str) -> Result<(), String> {
+    fn put_expected(&mut self, uri: &str, role: &str, digest: &str) -> Result<(), StageError> {
         if self
             .entries
             .get(uri)
@@ -520,7 +501,7 @@ impl Manifest {
         if self.entries.contains_key(uri) {
             return match self.previous.get(uri) {
                 Some(previous) if previous.sha256 == digest => Ok(()),
-                _ => Err(format!("immutable checker input drifted: {uri}")),
+                _ => Err(format!("immutable checker input drifted: {uri}").into()),
             };
         }
         match read_source(uri) {
@@ -541,7 +522,7 @@ impl Manifest {
         }
     }
 
-    fn carried_expected(&mut self, uri: &str, role: &str, digest: &str) -> Result<(), String> {
+    fn carried_expected(&mut self, uri: &str, role: &str, digest: &str) -> Result<(), StageError> {
         match self.previous.get(uri) {
             Some(previous) if previous.sha256 == digest => {
                 let role = self.role_for(uri, role);
@@ -556,11 +537,11 @@ impl Manifest {
                 );
                 Ok(())
             }
-            _ => Err(format!("immutable checker input drifted: {uri}")),
+            _ => Err(format!("immutable checker input drifted: {uri}").into()),
         }
     }
 
-    fn put_current(&mut self, uri: &str, role: &str) -> Result<(), String> {
+    fn put_current(&mut self, uri: &str, role: &str) -> Result<(), StageError> {
         match self.put_file(uri, role) {
             Ok(()) => Ok(()),
             Err(error)
@@ -589,9 +570,9 @@ impl Manifest {
         }
     }
 
-    fn response(uri: &str, bytes: &[u8]) -> Result<(), String> {
+    fn response(uri: &str, bytes: &[u8]) -> Result<(), StageError> {
         publish_parent(uri)?;
-        store::write_new(uri, bytes)
+        Ok(store::write_new(uri, bytes)?)
     }
 
     fn into_vec(self) -> Vec<RsSaveMaterial> {
@@ -607,7 +588,7 @@ fn attempt_directory(id: &str) -> String {
     format!("{}/attempts", store::directory(id))
 }
 
-fn stage_attempt_file(attempts: &str, name: &str, bytes: &[u8]) -> Result<String, String> {
+fn stage_attempt_file(attempts: &str, name: &str, bytes: &[u8]) -> Result<String, StageError> {
     let staged = format!("{attempts}/{name}");
     store::state_path(&staged)?;
     match fs::symlink_metadata(&staged) {
@@ -615,7 +596,7 @@ fn stage_attempt_file(attempts: &str, name: &str, bytes: &[u8]) -> Result<String
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
             store::write_new(&staged, bytes)
         }
-        Err(error) => return Err(format!("cannot inspect {staged}: {error}")),
+        Err(error) => return Err(format!("cannot inspect {staged}: {error}").into()),
     }
     .map_err(|error| format!("cannot stage {staged}: {error}"))?;
     Ok(staged)
@@ -628,7 +609,7 @@ fn stage_run_attempt(
     id: &str,
     operation_id: &str,
     canonical_run_uri: &str,
-) -> Result<String, String> {
+) -> Result<String, StageError> {
     let attempts = attempt_directory(id);
     store::state_path(&attempts)?;
     fs::create_dir_all(&attempts).map_err(|error| format!("cannot create {attempts}: {error}"))?;
@@ -648,26 +629,25 @@ fn discard_attempt(id: &str, operation_id: &str) {
 /// Publish one committed material to its canonical URI. The run record
 /// replaces the previous head's projection; a stage response is written new
 /// or verified against an already-published copy.
-fn publish_staged(uri: &str, bytes: &[u8], replace: bool) -> Result<(), String> {
+fn publish_staged(uri: &str, bytes: &[u8], replace: bool) -> Result<(), StageError> {
     if replace {
-        return store::replace_state(uri, bytes);
+        return Ok(store::replace_state(uri, bytes)?);
     }
     match fs::symlink_metadata(uri) {
         Ok(_) => {
-            let existing = fs::read(uri).map_err(|error| format!("cannot read {uri}: {error}"))?;
+            let existing = fs::read(uri)
+                .map_err(|error| StageError::from(format!("cannot read {uri}: {error}")))?;
             if existing == bytes {
                 Ok(())
             } else {
-                Err(format!(
-                    "operational file conflicts with committed content: {uri}"
-                ))
+                Err(format!("operational file conflicts with committed content: {uri}").into())
             }
         }
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
             publish_parent(uri)?;
-            store::write_new(uri, bytes)
+            Ok(store::write_new(uri, bytes)?)
         }
-        Err(error) => Err(format!("cannot inspect {uri}: {error}")),
+        Err(error) => Err(format!("cannot inspect {uri}: {error}").into()),
     }
 }
 
@@ -676,7 +656,11 @@ fn publish_staged(uri: &str, bytes: &[u8], replace: bool) -> Result<(), String> 
 /// canonical projections are disposable, so a committed replay never depends
 /// on either: the store's committed revision is the only source. Idempotent:
 /// a retry after a crash between commit and publication replays this safely.
-fn publish_attempt(store: &RsStore, revision: u64, request: &RsSaveRequest) -> Result<(), String> {
+fn publish_attempt(
+    store: &RsStore,
+    revision: u64,
+    request: &RsSaveRequest,
+) -> Result<(), StageError> {
     let run_uri = request
         .metadata
         .get("run_uri")
@@ -701,14 +685,14 @@ fn publish_attempt(store: &RsStore, revision: u64, request: &RsSaveRequest) -> R
             return Err(format!(
                 "committed revision {revision} material {} does not match the committed request digest",
                 material.uri
-            ));
+            ).into());
         }
         publish_staged(&material.uri, &bytes, material.uri == run_uri)?;
     }
     Ok(())
 }
 
-fn replay(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i32), String> {
+fn replay(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i32), StageError> {
     let result = receipt
         .result
         .as_object()
@@ -729,17 +713,19 @@ fn replay(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i32), S
     Ok((response, exit_code))
 }
 
-fn finish_save(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i32), String> {
+fn finish_save(receipt: &RsOperationReceipt, command: &str) -> Result<(Value, i32), StageError> {
     match &receipt.outcome {
         RsOperationOutcome::Committed => replay(receipt, command),
         RsOperationOutcome::Conflict => Err(format!(
             "revision_conflict: stored head was not advanced by operation {}",
             receipt.operation_id
-        )),
+        )
+        .into()),
         RsOperationOutcome::Pending => Err(format!(
             "operation {} unexpectedly remained pending",
             receipt.operation_id
-        )),
+        )
+        .into()),
     }
 }
 
@@ -748,11 +734,12 @@ pub fn init(
     flow: &str,
     wish: Option<&str>,
     checks: Option<&str>,
-) -> Result<Value, String> {
+    store: &RsStore,
+) -> Result<Value, StageError> {
     store::wish_id(id)?;
     let mut plan = store::blueprint(flow)?;
-    if item_exists(id)? {
-        return Err(format!("wish {id} is already initialized"));
+    if item_exists(id, store)? {
+        return Err(format!("wish {id} is already initialized").into());
     }
     let mut library_inputs = std::collections::BTreeMap::new();
     if let Some(checks_uri) = checks {
@@ -783,7 +770,7 @@ pub fn init(
     store::artifact_path(&working)?;
     if let Ok(existing) = fs::read(&working) {
         if existing != imported {
-            return Err(format!("working wish already exists: {working}"));
+            return Err(format!("working wish already exists: {working}").into());
         }
     }
     let dir = store::directory(id);
@@ -801,47 +788,46 @@ pub fn init(
         })
         .is_some_and(|uri| uri.starts_with("mbse/wishes/"));
     if fs::symlink_metadata(&dir).is_ok()
-        && (legacy_directory || !fs::symlink_metadata(store_root()).is_ok())
+        && (legacy_directory || !fs::symlink_metadata(store_root()?).is_ok())
     {
-        return Err(format!("wish {id} is already initialized"));
+        return Err(format!("wish {id} is already initialized").into());
     }
-    let store = RsStore::init(&store_root()).map_err(error)?;
-    let root = fs::canonicalize(store_root()).map_err(|error| error.to_string())?;
+
+    let root = fs::canonicalize(store_root()?).map_err(|error| error.to_string())?;
     let imported_path = fs::canonicalize(&source).map_err(|error| error.to_string())?;
     if imported_path.starts_with(root) {
         return Err("wish import source cannot be inside the store root".into());
     }
     match store.get(id, None) {
-        Ok(_) => return Err(format!("wish {id} is already initialized")),
+        Ok(_) => return Err(format!("wish {id} is already initialized").into()),
         Err(RsStoreError::NotFound(_)) => {}
         Err(store_error) => return Err(error(store_error)),
     }
     let _lock = Lock::acquire(id)?;
-    // A leftover operational directory of this store without a committed
-    // item belongs to an attempt that never committed. Only operations still
-    // pending in the store can claim its files; anything else is discarded so
-    // a transient failure before reservation never blocks a later
-    // initialization.
-    if fs::symlink_metadata(&dir).is_ok() {
-        let pending = store.pending_item_operations(id).map_err(error)?;
-        if !pending.is_empty() {
-            return Err(format!(
+    // Cache absence does not resolve a retained pending reservation. Reconcile
+    // it through its exact request before creating any new lifecycle history.
+    let pending = store.pending_item_operations(id).map_err(error)?;
+    if !pending.is_empty() {
+        return Err(format!(
                 "wish {id} has no committed item but pending operations {pending:?} still reference its files; reconcile them with `xdesign store outcome` before reinitializing"
-            ));
-        }
-        fs::remove_dir_all(&dir).map_err(|error| {
-            format!("cannot discard leftover operational directory {dir}: {error}")
-        })?;
+            ).into());
+    }
+    if fs::symlink_metadata(&dir).is_ok() {
+        return Err(error(RsStoreError::Integrity(
+            "location_reason=backend_ambiguous; unproven initialization cache is preserved".into(),
+        )));
     }
     let operation_id = uuid::Uuid::new_v4().to_string();
-    let initialized = (|| -> Result<RsSaveRequest, String> {
+    let initialized = (|| -> Result<RsSaveRequest, StageError> {
         match fs::symlink_metadata(&working) {
             Ok(_) => {}
             Err(store_error) if store_error.kind() == std::io::ErrorKind::NotFound => {
                 publish_parent(&working)?;
                 store::write_new(&working, &imported)?;
             }
-            Err(store_error) => return Err(format!("cannot inspect {working}: {store_error}")),
+            Err(store_error) => {
+                return Err(format!("cannot inspect {working}: {store_error}").into())
+            }
         }
         fs::create_dir_all("cache/xdesign").map_err(|error| error.to_string())?;
         fs::create_dir(&dir)
@@ -930,7 +916,7 @@ pub fn init(
             if fs::read(&working).ok().as_deref() == Some(imported.as_slice()) {
                 let _ = fs::remove_file(&working);
             }
-            return Err(error);
+            return Err(error.into());
         }
     };
     let receipt = match store.save(&project_root()?, &request) {
@@ -956,14 +942,14 @@ pub fn init(
         RsOperationOutcome::Committed => replay(&receipt, "init").map(|(response, _)| response),
         RsOperationOutcome::Conflict => Err(format!(
             "revision_conflict: wish {id} was initialized by another writer (operation_id={operation_id})"
-        )),
+        ).into()),
         RsOperationOutcome::Pending => Err(format!(
             "initialization unexpectedly remained pending (operation_id={operation_id})"
-        )),
+        ).into()),
     }
 }
 
-fn after_engine(stored: &Stored, run_record_uri: &str) -> Result<Stored, String> {
+fn after_engine(stored: &Stored, run_record_uri: &str) -> Result<Stored, StageError> {
     let registry_uri = format!(
         "{}/registry.json",
         store::directory(&stored.registry.wish_id)
@@ -983,9 +969,9 @@ fn after_engine(stored: &Stored, run_record_uri: &str) -> Result<Stored, String>
         (&stored.registry.work_uri, &work_bytes),
     ] {
         if previous.get(uri.as_str()).copied() != Some(sha256_bytes(bytes).as_str()) {
-            return Err(format!(
-                "frozen registry, plan or work drifted during check: {uri}"
-            ));
+            return Err(
+                format!("frozen registry, plan or work drifted during check: {uri}").into(),
+            );
         }
     }
     if sha256_bytes(&plan_bytes) != stored.registry.plan_sha256
@@ -1012,7 +998,7 @@ fn add_run_materials(
     stored: &Stored,
     run: &RsFlowRun,
     run_record_uri: &str,
-) -> Result<(), String> {
+) -> Result<(), StageError> {
     let registry_uri = format!(
         "{}/registry.json",
         store::directory(&stored.registry.wish_id)
@@ -1137,7 +1123,7 @@ fn recover(
     operation_id: &str,
     result_bytes: &[u8],
     receipt: RsOperationReceipt,
-) -> Result<(Value, i32), String> {
+) -> Result<(Value, i32), StageError> {
     let raw = cli::request_bytes(store, operation_id)
         .map_err(error)?
         .ok_or_else(|| format!("stored operation {operation_id} has no exact request bytes"))?;
@@ -1157,9 +1143,9 @@ fn recover(
         || attempt.get("result_sha256").and_then(Value::as_str)
             != Some(sha256_bytes(result_bytes).as_str())
     {
-        return Err(operation_mismatch(operation_id));
+        return Err(operation_mismatch(operation_id).into());
     }
-    let publish_committed = |receipt: &RsOperationReceipt| -> Result<(), String> {
+    let publish_committed = |receipt: &RsOperationReceipt| -> Result<(), StageError> {
         if receipt.outcome == RsOperationOutcome::Committed {
             let revision = receipt.revision.ok_or_else(|| {
                 format!(
@@ -1191,7 +1177,7 @@ fn recover(
 fn existing_outcome(
     store: &RsStore,
     operation_id: &str,
-) -> Result<Option<RsOperationReceipt>, String> {
+) -> Result<Option<RsOperationReceipt>, StageError> {
     match store.outcome(operation_id) {
         Ok(receipt) => Ok(Some(receipt)),
         Err(RsStoreError::NotFound(_)) => Ok(None),
@@ -1203,9 +1189,18 @@ pub fn check(
     id: &str,
     result_uri: Option<&str>,
     operation_id: &str,
-) -> Result<(Value, i32), String> {
-    let outcome = (|| -> Result<(Value, i32), String> {
-        let store = open()?;
+    store: &RsStore,
+) -> Result<(Value, i32), StageError> {
+    if existing_outcome(store, operation_id)?.is_none() {
+        if let Some(mut response) = cli::read_completed_project(store, id)? {
+            response["assessed"] = Value::Null;
+            response["advance"] = json!(RsAdvanceOutcome::CompleteRun);
+            response["operation_id"] = json!(operation_id);
+            return Ok((response, 0));
+        }
+    }
+    cli::validate_project_write(store)?;
+    let outcome = (|| -> Result<(Value, i32), StageError> {
         let _lock = Lock::acquire(id)?;
         if let Some(receipt) = existing_outcome(&store, operation_id)? {
             let result_bytes = read_result_bytes(result_uri)?;
@@ -1219,7 +1214,7 @@ pub fn check(
             "{}/responses/check-{operation_id}.json",
             store::directory(id)
         ))?;
-        let stored = store::load_for_writer(id)?;
+        let stored = store::load_for_writer(id, Some(store))?;
         let loaded = restore(&stored, unjudged(), false)?;
         if loaded.status() == RsFlowStatus::Completed {
             let mut reply = response(&stored, &loaded)?;
@@ -1232,7 +1227,12 @@ pub fn check(
         let result = parse_result(result_uri, &result_bytes)?;
         run_check(&store, stored, loaded, result, &result_bytes, operation_id)
     })();
-    outcome.map_err(|error| format!("{error} (operation_id={operation_id})"))
+    outcome.map_err(|error| match error {
+        StageError::Message(message) => {
+            StageError::Message(format!("{message} (operation_id={operation_id})"))
+        }
+        other => other,
+    })
 }
 
 fn run_check(
@@ -1242,7 +1242,7 @@ fn run_check(
     result: Option<StageResult>,
     result_bytes: &[u8],
     operation_id: &str,
-) -> Result<(Value, i32), String> {
+) -> Result<(Value, i32), StageError> {
     let supplied = validate_result(result.as_ref(), &stored, &loaded)?;
     let collection = work::collect(
         stored.work.stage(loaded.current().stage_id())?,
@@ -1316,14 +1316,14 @@ fn run_check(
     })?;
     let assessments = run.evaluate_gates();
     if let Some(error) = run.last_error() {
-        return Err(format!("cannot retain assessment: {error}"));
+        return Err(format!("cannot retain assessment: {error}").into());
     }
     let assessed = json!({ "stage_id": run.current().stage_id(), "visit_index": run.current().visit_index(),
         "artifact_revision": run.current().artifact_revision(), "artifact_snapshot_digest": run.current().artifact_snapshot_digest(),
         "assessments": assessments });
     let advance = run.advance();
     if let Some(error) = run.last_error() {
-        return Err(format!("cannot retain advancement: {error}"));
+        return Err(format!("cannot retain advancement: {error}").into());
     }
     if !run.current().verify_artifacts() {
         return Err("current artifacts drifted during check; stored head was not advanced".into());
@@ -1362,7 +1362,7 @@ fn commit(
     exit_code: i32,
     result_bytes: &[u8],
     operation_id: &str,
-) -> Result<(Value, i32), String> {
+) -> Result<(Value, i32), StageError> {
     if after_engine(stored, attempt_run_uri)?.token != final_state.token {
         return Err("run record changed while preparing the stage commit".into());
     }
@@ -1434,12 +1434,14 @@ fn commit(
             Err(format!(
                 "revision_conflict: stored head was not advanced by operation {}",
                 receipt.operation_id
-            ))
+            )
+            .into())
         }
         RsOperationOutcome::Pending => Err(format!(
             "operation {} unexpectedly remained pending",
             receipt.operation_id
-        )),
+        )
+        .into()),
     }
 }
 
@@ -1473,7 +1475,7 @@ mod tests {
         let receipt = store.save(&base, &request("conflict")).unwrap();
         assert_eq!(receipt.outcome, RsOperationOutcome::Conflict);
         let error = recover(&store, "item-1", "conflict", result_bytes, receipt).unwrap_err();
-        assert!(error.contains("revision_conflict"), "{error}");
+        assert!(error.to_string().contains("revision_conflict"), "{error}");
     }
 
     #[test]
@@ -1483,6 +1485,7 @@ mod tests {
         fs::create_dir_all(&directory).unwrap();
         let uri = directory.join("input.txt").to_string_lossy().into_owned();
         fs::write(&uri, b"actual").unwrap();
+        let _context = RootContext::enter(directory.join("store"));
         let mut manifest = Manifest {
             previous: BTreeMap::new(),
             entries: BTreeMap::new(),
@@ -1490,7 +1493,12 @@ mod tests {
         let error = manifest
             .put_expected(&uri, "checker-input", &sha256_bytes(b"expected"))
             .unwrap_err();
-        assert!(error.contains("immutable checker input drifted"), "{error}");
+        assert!(
+            error
+                .to_string()
+                .contains("immutable checker input drifted"),
+            "{error}"
+        );
         assert!(manifest.entries.is_empty());
     }
 

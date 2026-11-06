@@ -1,4 +1,5 @@
 use super::work::WorkDefinition;
+use super::StageError;
 use serde::{Deserialize, Serialize};
 use std::{
     fs::{self, OpenOptions},
@@ -240,29 +241,42 @@ pub fn parse_plan(registry: &Registry, plan_bytes: &[u8]) -> Result<RsFlowPlan, 
     Ok(plan)
 }
 
-pub fn is_persistent(id: &str) -> Result<bool, String> {
+pub fn is_persistent(
+    id: &str,
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<bool, StageError> {
     wish_id(id)?;
-    super::persistent::item_exists(id)
-}
-
-pub fn load(id: &str) -> Result<Stored, String> {
-    load_with_mode(id, super::persistent::LoadMode::Reader)
-}
-
-pub fn load_for_writer(id: &str) -> Result<Stored, String> {
-    load_with_mode(id, super::persistent::LoadMode::Writer)
-}
-
-fn load_with_mode(id: &str, mode: super::persistent::LoadMode) -> Result<Stored, String> {
-    wish_id(id)?;
-    if is_persistent(id)? {
-        super::persistent::load(id, mode)
-    } else {
-        load_legacy(id)
+    match handle {
+        Some(handle) => super::persistent::item_exists(id, handle),
+        None => Ok(false),
     }
 }
 
-fn load_legacy(id: &str) -> Result<Stored, String> {
+pub fn load(id: &str, handle: Option<&xdesign::storage::RsStore>) -> Result<Stored, StageError> {
+    load_with_mode(id, super::persistent::LoadMode::Reader, handle)
+}
+
+pub fn load_for_writer(
+    id: &str,
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<Stored, StageError> {
+    load_with_mode(id, super::persistent::LoadMode::Writer, handle)
+}
+
+fn load_with_mode(
+    id: &str,
+    mode: super::persistent::LoadMode,
+    handle: Option<&xdesign::storage::RsStore>,
+) -> Result<Stored, StageError> {
+    wish_id(id)?;
+    if is_persistent(id, handle)? {
+        super::persistent::load(id, mode, handle.unwrap())
+    } else {
+        Ok(load_legacy(id)?)
+    }
+}
+
+pub(super) fn load_legacy(id: &str) -> Result<Stored, String> {
     let dir = directory(id);
     let registry_uri = format!("{dir}/registry.json");
     state_path(&registry_uri)?;

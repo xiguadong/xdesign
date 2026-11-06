@@ -43,18 +43,36 @@ pub struct LifecycleOutput {
 /// Injecting this trait keeps API tests independent of the real stage CLI and
 /// of this repository's `.xdesign` store.
 pub trait Lifecycle: Send + Sync {
-    fn run(&self, args: &[String], cwd: &Path) -> Result<LifecycleOutput, String>;
+    fn run(
+        &self,
+        args: &[String],
+        cwd: &Path,
+        store_root: Option<&Path>,
+    ) -> Result<LifecycleOutput, String>;
 }
 
 /// Production runner: the same executable that is serving this page.
 pub struct ProcessLifecycle;
 
 impl Lifecycle for ProcessLifecycle {
-    fn run(&self, args: &[String], cwd: &Path) -> Result<LifecycleOutput, String> {
+    fn run(
+        &self,
+        args: &[String],
+        cwd: &Path,
+        store_root: Option<&Path>,
+    ) -> Result<LifecycleOutput, String> {
         let executable = std::env::current_exe()
             .map_err(|error| format!("cannot locate the xdesign executable: {error}"))?;
         let mut command = std::process::Command::new(executable);
         command.args(args).current_dir(cwd);
+        match store_root {
+            Some(root) => {
+                command.env("XDESIGN_STORE_ROOT", root);
+            }
+            None => {
+                command.env_remove("XDESIGN_STORE_ROOT");
+            }
+        }
         let outcome =
             crate::simple_flow::run_command_with_timeout(&mut command, lifecycle_timeout())
                 .map_err(|error| format!("cannot run xdesign {}: {error}", command_name(args)))?;
@@ -106,16 +124,59 @@ fn blocked_check_output(stdout: &[u8]) -> bool {
 
 pub struct AppState {
     pub project_root: PathBuf,
-    pub store_root: PathBuf,
+    pub store_root: Option<PathBuf>,
+    selected: std::sync::Mutex<Option<PathBuf>>,
+    selection_failure: Option<String>,
     pub lifecycle: Box<dyn Lifecycle>,
 }
 
 impl AppState {
+    pub fn diagnostic(project_root: PathBuf, message: String) -> Self {
+        Self {
+            project_root,
+            store_root: None,
+            selected: std::sync::Mutex::new(None),
+            selection_failure: Some(message),
+            lifecycle: Box::new(ProcessLifecycle),
+        }
+    }
+    pub fn legacy_only(project_root: PathBuf) -> Self {
+        Self {
+            project_root,
+            store_root: None,
+            selected: std::sync::Mutex::new(None),
+            selection_failure: None,
+            lifecycle: Box::new(ProcessLifecycle),
+        }
+    }
+    fn selected_root(&self) -> Option<PathBuf> {
+        self.selected
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone()
+    }
+    fn require_persistent_root(&self) -> Result<PathBuf, ApiError> {
+        if let Some(error) = &self.selection_failure {
+            return Err(location_error(error)
+                .unwrap_or_else(|| ApiError::new(503, "store_unavailable", error)));
+        }
+        let mut selected = self.selected.lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(root) = &*selected {
+            return Ok(root.clone());
+        }
+        let root = crate::storage::cli::resolve_store_root(&self.project_root, None, true)
+            .map_err(|e| store_error("cannot select persistent root", e))?;
+        *selected = Some(root.clone());
+        Ok(root)
+    }
+
     /// Production state: spawn the current binary for lifecycle actions.
     pub fn new(project_root: PathBuf, store_root: PathBuf) -> Self {
         Self {
             project_root,
-            store_root,
+            selected: std::sync::Mutex::new(Some(store_root.clone())),
+            selection_failure: None,
+            store_root: Some(store_root),
             lifecycle: Box::new(ProcessLifecycle),
         }
     }
@@ -128,7 +189,9 @@ impl AppState {
     ) -> Self {
         Self {
             project_root,
-            store_root,
+            selected: std::sync::Mutex::new(Some(store_root.clone())),
+            selection_failure: None,
+            store_root: Some(store_root),
             lifecycle,
         }
     }
@@ -213,6 +276,17 @@ fn route_api(state: &AppState, request: &Request) -> ApiResult {
         .split('/')
         .filter(|segment| !segment.is_empty())
         .collect();
+    if let Some(backend) = request.query_param("backend") {
+        if !["legacy", "store"].contains(&backend)
+            || request.method != Method::Get
+            || !(segments.len() == 3 || (segments.len() == 4 && segments[3] == "material"))
+        {
+            return Err(ApiError::bad_request(
+                "invalid_request",
+                "backend selectors are read-only detail/material options",
+            ));
+        }
+    }
     match segments.as_slice() {
         ["api", "health"] => {
             require_method(request, Method::Get)?;
@@ -230,7 +304,7 @@ fn route_api(state: &AppState, request: &Request) -> ApiResult {
             if request.method != Method::Get {
                 return Err(ApiError::method_not_allowed());
             }
-            wish_detail(state, wish_id)
+            wish_detail_selected(state, wish_id, request.query_param("backend"))
         }
         ["api", "wishes", wish_id, "work"] if valid_wish_id(wish_id) => {
             require_method(request, Method::Get)?;
@@ -297,7 +371,9 @@ fn health(state: &AppState) -> Response {
     http::json_ok(json!({
         "version": env!("CARGO_PKG_VERSION"),
         "project_root": state.project_root.to_string_lossy(),
-        "store_root": state.store_root.to_string_lossy(),
+        "store_root": state.selected_root(),
+        "selection_state": if state.selection_failure.is_some() {"diagnostic"} else if state.selected_root().is_none() {"legacy_only"} else {"selected"},
+        "location_diagnostic": open_store(state).err().map(|e|json!({"code":e.code,"message":e.message})),
         "store_present": store_present,
         "now": utc_now(),
     }))
@@ -503,92 +579,108 @@ impl WishListEntry {
 }
 
 fn wishes(state: &AppState) -> ApiResult {
-    let store = open_store(state)?;
-    let mut store_ids = BTreeSet::new();
-    let mut entries = Vec::new();
-    if let Some(store) = &store {
-        for summary in store
-            .list(Some("wish"), None)
-            .map_err(|error| store_error("cannot list wishes", error))?
-        {
-            store_ids.insert(summary.item_id.clone());
-            let flow_id = summary
-                .projection
+    with_store_view(state, |store| {
+        let mut store_ids = BTreeSet::new();
+        let mut entries = Vec::new();
+        if let Some(store) = &store {
+            for summary in store
+                .list(Some("wish"), None)
+                .map_err(|error| store_error("cannot list wishes", error))?
+            {
+                store_ids.insert(summary.item_id.clone());
+                let flow_id = summary
+                    .projection
+                    .as_ref()
+                    .map(|projection| projection.flow_id.clone())
+                    .unwrap_or_else(|| "simple-flow".into());
+                let status = summary
+                    .projection
+                    .as_ref()
+                    .map(|projection| wish_status_str(projection.status).to_owned())
+                    .unwrap_or_else(|| "received".into());
+                let current_stage = summary
+                    .projection
+                    .as_ref()
+                    .and_then(|projection| projection.current_stage.clone());
+                let source_text =
+                    store_wish_source(store, &summary.item_id, Some(summary.head_revision));
+                let (title, description) =
+                    wish_title_description(&summary.item_id, source_text.as_deref());
+                entries.push(WishListEntry {
+                    wish_id: summary.item_id,
+                    title,
+                    description,
+                    flow_id,
+                    status,
+                    current_stage,
+                    head_revision: Some(summary.head_revision),
+                    source: "store",
+                });
+            }
+        }
+        for (wish_id, directory) in legacy_registrations(&state.project_root) {
+            if !matches!(
+                crate::project_backend::classify(&state.project_root, &wish_id)
+                    .map_err(backend_error)?,
+                crate::project_backend::Cache::Legacy(_)
+            ) {
+                continue;
+            }
+            let Some(registry) = read_registry_file(&directory.join("registry.json")) else {
+                continue;
+            };
+            if !matches!(registry.flow_id.as_str(), "simple-flow" | "wish-verify") {
+                continue;
+            }
+            let run = fs::read_to_string(directory.join("run.json"))
+                .ok()
+                .and_then(|text| serde_json::from_str::<Value>(&text).ok());
+            let run_status = run
                 .as_ref()
-                .map(|projection| projection.flow_id.clone())
-                .unwrap_or_else(|| "simple-flow".into());
-            let status = summary
-                .projection
-                .as_ref()
-                .map(|projection| wish_status_str(projection.status).to_owned())
-                .unwrap_or_else(|| "received".into());
-            let current_stage = summary
-                .projection
-                .as_ref()
-                .and_then(|projection| projection.current_stage.clone());
+                .and_then(|run| run.get("status"))
+                .and_then(Value::as_str)
+                .unwrap_or("pending");
+            let status = map_run_status(run_status);
+            let current_stage = if status == "delivered" {
+                None
+            } else {
+                run.as_ref().and_then(current_stage_of_run)
+            };
             let source_text =
-                store_wish_source(store, &summary.item_id, Some(summary.head_revision));
-            let (title, description) =
-                wish_title_description(&summary.item_id, source_text.as_deref());
+                read_legacy_wish_source(&state.project_root, &registry.wish_model_uri);
+            let (title, description) = wish_title_description(&wish_id, source_text.as_deref());
             entries.push(WishListEntry {
-                wish_id: summary.item_id,
+                wish_id,
                 title,
                 description,
-                flow_id,
-                status,
+                flow_id: registry.flow_id,
+                status: status.into(),
                 current_stage,
-                head_revision: Some(summary.head_revision),
-                source: "store",
+                head_revision: None,
+                source: "legacy",
             });
         }
-    }
-    for (wish_id, directory) in legacy_registrations(&state.project_root) {
-        if store_ids.contains(&wish_id) {
-            continue;
-        }
-        let Some(registry) = read_registry_file(&directory.join("registry.json")) else {
-            continue;
-        };
-        if !matches!(registry.flow_id.as_str(), "simple-flow" | "wish-verify") {
-            continue;
-        }
-        let run = fs::read_to_string(directory.join("run.json"))
-            .ok()
-            .and_then(|text| serde_json::from_str::<Value>(&text).ok());
-        let run_status = run
-            .as_ref()
-            .and_then(|run| run.get("status"))
-            .and_then(Value::as_str)
-            .unwrap_or("pending");
-        let status = map_run_status(run_status);
-        let current_stage = if status == "delivered" {
-            None
-        } else {
-            run.as_ref().and_then(current_stage_of_run)
-        };
-        let source_text = read_legacy_wish_source(&state.project_root, &registry.wish_model_uri);
-        let (title, description) = wish_title_description(&wish_id, source_text.as_deref());
-        entries.push(WishListEntry {
-            wish_id,
-            title,
-            description,
-            flow_id: registry.flow_id,
-            status: status.into(),
-            current_stage,
-            head_revision: None,
-            source: "legacy",
+        entries.sort_by(|left, right| {
+            status_priority(&left.status)
+                .cmp(&status_priority(&right.status))
+                .then_with(|| left.wish_id.cmp(&right.wish_id))
         });
-    }
-    entries.sort_by(|left, right| {
-        status_priority(&left.status)
-            .cmp(&status_priority(&right.status))
-            .then_with(|| left.wish_id.cmp(&right.wish_id))
-    });
-    let wishes = entries
-        .iter()
-        .map(WishListEntry::to_json)
-        .collect::<Vec<_>>();
-    Ok(http::json_ok(json!({"wishes": wishes})))
+        let wishes = entries
+            .iter()
+            .map(|entry| {
+                let mut value = entry.to_json();
+                let conflict = entries
+                    .iter()
+                    .filter(|e| e.wish_id == entry.wish_id)
+                    .count()
+                    > 1;
+                value["conflict"] = json!(conflict);
+                value["actions_enabled"] = json!(!conflict);
+                value
+            })
+            .collect::<Vec<_>>();
+        Ok(http::json_ok(json!({"wishes": wishes})))
+    })
 }
 
 fn status_priority(status: &str) -> u8 {
@@ -670,9 +762,38 @@ struct LoadedWish {
 }
 
 fn load_wish(state: &AppState, wish_id: &str) -> Result<LoadedWish, ApiError> {
-    if let Some(store) = open_store(state)? {
+    load_wish_selected(state, wish_id, None)
+}
+fn load_wish_selected(
+    state: &AppState,
+    wish_id: &str,
+    backend: Option<&str>,
+) -> Result<LoadedWish, ApiError> {
+    with_store_view(state, |store| {
+        load_wish_in_view(state, wish_id, backend, store)
+    })
+}
+fn load_wish_in_view(
+    state: &AppState,
+    wish_id: &str,
+    backend: Option<&str>,
+    store: Option<&RsStore>,
+) -> Result<LoadedWish, ApiError> {
+    if backend == Some("legacy") {
+        return load_legacy_wish(state, wish_id);
+    }
+    let legacy = matches!(
+        crate::project_backend::classify(&state.project_root, wish_id).map_err(backend_error)?,
+        crate::project_backend::Cache::Legacy(_)
+    );
+    if let Some(store) = store {
         match store.get(wish_id, None) {
-            Ok(head) => return load_store_wish(&store, wish_id, &head),
+            Ok(head) => {
+                if legacy && backend.is_none() {
+                    return Err(backend_conflict(wish_id));
+                }
+                return load_store_wish(&store, wish_id, &head);
+            }
             Err(RsStoreError::NotFound(_)) => {}
             Err(error) => {
                 return Err(store_error(
@@ -682,13 +803,7 @@ fn load_wish(state: &AppState, wish_id: &str) -> Result<LoadedWish, ApiError> {
             }
         }
     }
-    if state
-        .project_root
-        .join("cache/xdesign")
-        .join(wish_id)
-        .join("registry.json")
-        .is_file()
-    {
+    if legacy && backend != Some("store") {
         return load_legacy_wish(state, wish_id);
     }
     Err(ApiError::not_found(
@@ -776,6 +891,15 @@ fn load_store_wish(
 }
 
 fn load_legacy_wish(state: &AppState, wish_id: &str) -> Result<LoadedWish, ApiError> {
+    if !matches!(
+        crate::project_backend::classify(&state.project_root, wish_id).map_err(backend_error)?,
+        crate::project_backend::Cache::Legacy(_)
+    ) {
+        return Err(ApiError::not_found(
+            "unknown_wish",
+            "no validated legacy registration",
+        ));
+    }
     let directory = state.project_root.join("cache/xdesign").join(wish_id);
     let registry = read_registry_file(&directory.join("registry.json")).ok_or_else(|| {
         ApiError::not_found(
@@ -823,12 +947,17 @@ fn load_legacy_wish(state: &AppState, wish_id: &str) -> Result<LoadedWish, ApiEr
 }
 
 fn wish_detail(state: &AppState, wish_id: &str) -> ApiResult {
-    let mut wish = load_wish(state, wish_id)?;
+    wish_detail_selected(state, wish_id, None)
+}
+fn wish_detail_selected(state: &AppState, wish_id: &str, backend: Option<&str>) -> ApiResult {
+    let mut wish = load_wish_selected(state, wish_id, backend)?;
     let warnings = attach_library_summaries(state, &mut wish.plan);
     let (title, description) = wish_title_description(wish_id, wish.source_text.as_deref());
     let events = derive_events(&wish.plan, &wish.run, &wish.flow_id);
     Ok(http::json_ok(json!({
         "wish_id": wish_id,
+        "inspection_backend":backend,
+        "actions_enabled":backend.is_none(),
         "title": title,
         "description": description,
         "flow_id": wish.flow_id,
@@ -1223,6 +1352,7 @@ fn next_stage_id(plan: &Value, stage_id: &str) -> Option<String> {
 
 fn work(state: &AppState, wish_id: &str) -> ApiResult {
     ensure_wish_exists(state, wish_id)?;
+    load_wish_selected(state, wish_id, None)?;
     let output = run_lifecycle(state, &["next", wish_id])
         .map_err(|message| ApiError::new(500, "work_failed", message))?;
     if output.exit_code == 0 {
@@ -1236,6 +1366,9 @@ fn work(state: &AppState, wish_id: &str) -> ApiResult {
             "stderr": String::from_utf8_lossy(&output.stderr),
         })))
     } else {
+        if let Some(error) = lifecycle_location_error(&output) {
+            return Err(error);
+        }
         Err(ApiError::new(
             500,
             "work_failed",
@@ -1304,9 +1437,13 @@ fn check(state: &AppState, wish_id: &str, request: &Request) -> ApiResult {
         }
     };
     ensure_wish_exists(state, wish_id)?;
+    load_wish_selected(state, wish_id, None)?;
     let next = run_lifecycle(state, &["next", wish_id])
         .map_err(|message| ApiError::new(500, "check_failed", message))?;
     if next.exit_code != 0 {
+        if let Some(error) = lifecycle_location_error(&next) {
+            return Err(error);
+        }
         return Err(ApiError::new(
             500,
             "work_failed",
@@ -1412,12 +1549,14 @@ fn check(state: &AppState, wish_id: &str, request: &Request) -> ApiResult {
                 "stderr": String::from_utf8_lossy(&output.stderr),
             })))
         }
-        _ => Err(ApiError::new(
-            500,
-            "check_failed",
-            lifecycle_message(&output, "xdesign check failed"),
-        )
-        .with_detail(lifecycle_detail(&output))),
+        _ => Err(lifecycle_location_error(&output).unwrap_or_else(|| {
+            ApiError::new(
+                500,
+                "check_failed",
+                lifecycle_message(&output, "xdesign check failed"),
+            )
+            .with_detail(lifecycle_detail(&output))
+        })),
     }
 }
 
@@ -1503,13 +1642,10 @@ fn ensure_wish_exists(state: &AppState, wish_id: &str) -> Result<(), ApiError> {
             }
         }
     }
-    if state
-        .project_root
-        .join("cache/xdesign")
-        .join(wish_id)
-        .join("registry.json")
-        .is_file()
-    {
+    if matches!(
+        crate::project_backend::classify(&state.project_root, wish_id).map_err(backend_error)?,
+        crate::project_backend::Cache::Legacy(_)
+    ) {
         return Ok(());
     }
     Err(ApiError::not_found(
@@ -1523,7 +1659,11 @@ fn run_lifecycle(state: &AppState, args: &[&str]) -> Result<LifecycleOutput, Str
         .iter()
         .map(|argument| argument.to_string())
         .collect::<Vec<_>>();
-    state.lifecycle.run(&owned, &state.project_root)
+    state.lifecycle.run(
+        &owned,
+        &state.project_root,
+        state.selected_root().as_deref(),
+    )
 }
 
 fn lifecycle_message(output: &LifecycleOutput, fallback: &str) -> String {
@@ -1538,6 +1678,12 @@ fn lifecycle_message(output: &LifecycleOutput, fallback: &str) -> String {
         return trimmed.to_owned();
     }
     format!("{fallback} (exit code {})", output.exit_code)
+}
+
+fn lifecycle_location_error(output: &LifecycleOutput) -> Option<ApiError> {
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    let message = stderr.trim().strip_prefix("xdesign: ")?;
+    location_error(message).map(|e| e.with_detail(lifecycle_detail(output)))
 }
 
 fn lifecycle_detail(output: &LifecycleOutput) -> Value {
@@ -1621,6 +1767,14 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
     }
     let bindings = parse_bindings(&flow_id, object.get("checks"))?;
     ensure_wish_absent(state, &wish_id)?;
+    state.require_persistent_root()?;
+    with_store_view(state, |store| {
+        if let Some(store) = store {
+            crate::storage::cli::validate_project_write(store)
+                .map_err(|e| store_error("cannot initialize a wish at this store", e))?;
+        }
+        Ok(())
+    })?;
     validate_library_bindings(state, &bindings)?;
     let source_uri = format!("cache/web/wishes/{wish_id}.sysml");
     let source_path = project_path(&state.project_root, &source_uri)?;
@@ -1673,9 +1827,12 @@ fn create_wish(state: &AppState, request: &Request) -> ApiResult {
     }
     let output = state
         .lifecycle
-        .run(&args, &state.project_root)
+        .run(&args, &state.project_root, state.selected_root().as_deref())
         .map_err(|message| ApiError::new(500, "init_failed", message))?;
     if output.exit_code != 0 {
+        if let Some(error) = lifecycle_location_error(&output) {
+            return Err(error);
+        }
         if init_rejected_binding(&output) {
             return Err(ApiError::bad_request(
                 "invalid_checks",
@@ -1932,13 +2089,20 @@ fn parse_bindings(flow_id: &str, value: Option<&Value>) -> Result<Vec<BindingReq
 }
 
 fn ensure_wish_absent(state: &AppState, wish_id: &str) -> Result<(), ApiError> {
+    let legacy = matches!(
+        crate::project_backend::classify(&state.project_root, wish_id).map_err(backend_error)?,
+        crate::project_backend::Cache::Legacy(_)
+    );
     if let Some(store) = open_store(state)? {
         match store.get(wish_id, None) {
             Ok(_) => {
+                if legacy {
+                    return Err(backend_conflict(wish_id));
+                }
                 return Err(ApiError::conflict(
                     "already_exists",
                     format!("Wish {wish_id} already exists in the store."),
-                ))
+                ));
             }
             Err(RsStoreError::NotFound(_)) => {}
             Err(error) => {
@@ -1963,79 +2127,87 @@ fn ensure_wish_absent(state: &AppState, wish_id: &str) -> Result<(), ApiError> {
 // ---------------------------------------------------------------------------
 
 fn material(state: &AppState, wish_id: &str, request: &Request) -> ApiResult {
-    let uri = request
-        .query_param("uri")
-        .filter(|uri| !uri.is_empty())
-        .map(str::to_owned)
-        .ok_or_else(|| {
-            ApiError::bad_request(
-                "missing_uri",
-                "The material request requires a ?uri= parameter.",
-            )
-        })?;
-    if !crate::core::valid_relative_path(&uri) {
-        return Err(ApiError::bad_request(
-            "invalid_uri",
-            "The material URI must be a normalized project-relative path.",
-        ));
-    }
-    if let Some(store) = open_store(state)? {
-        match store.get(wish_id, None) {
-            Ok(head) => return store_material(&store, wish_id, &head, &uri),
-            Err(RsStoreError::NotFound(_)) => {}
-            Err(error) => {
-                return Err(store_error(
-                    &format!("cannot read wish {wish_id} from the store"),
-                    error,
-                ))
+    with_store_view(state, |store| {
+        let uri = request
+            .query_param("uri")
+            .filter(|uri| !uri.is_empty())
+            .map(str::to_owned)
+            .ok_or_else(|| {
+                ApiError::bad_request(
+                    "missing_uri",
+                    "The material request requires a ?uri= parameter.",
+                )
+            })?;
+        if !crate::core::valid_relative_path(&uri) {
+            return Err(ApiError::bad_request(
+                "invalid_uri",
+                "The material URI must be a normalized project-relative path.",
+            ));
+        }
+        let backend = request.query_param("backend");
+        let _selected = load_wish_in_view(state, wish_id, backend, store)?;
+        if let Some(store) = if backend == Some("legacy") {
+            None
+        } else {
+            store
+        } {
+            match store.get(wish_id, None) {
+                Ok(head) => return store_material(&store, wish_id, &head, &uri),
+                Err(RsStoreError::NotFound(_)) => {}
+                Err(error) => {
+                    return Err(store_error(
+                        &format!("cannot read wish {wish_id} from the store"),
+                        error,
+                    ))
+                }
             }
         }
-    }
-    let directory = state.project_root.join("cache/xdesign").join(wish_id);
-    let registry = read_registry_file(&directory.join("registry.json")).ok_or_else(|| {
-        ApiError::not_found(
-            "unknown_wish",
-            format!("No wish with id {wish_id} exists in the store or the legacy cache."),
-        )
-    })?;
-    let prefix = format!("cache/xdesign/{wish_id}/");
-    let mut allowed = run_record_uris(&state.project_root, &registry.run_record_uri);
-    if uri.starts_with(&prefix) {
-        allowed.insert(uri.clone());
-    }
-    if !allowed.contains(&uri) {
-        return Err(ApiError::not_found(
-            "material_not_found",
-            format!("{uri} is not retained evidence or an artifact of wish {wish_id}."),
-        ));
-    }
-    let path = project_path(&state.project_root, &uri)?;
-    let metadata = fs::metadata(&path).map_err(|error| {
-        ApiError::not_found(
-            "material_not_found",
-            format!("material {uri} does not exist: {error}"),
-        )
-    })?;
-    if !metadata.is_file() {
-        return Err(ApiError::not_found(
-            "material_not_found",
-            format!("material {uri} is not a regular file."),
-        ));
-    }
-    if metadata.len() > MAX_MATERIAL_BYTES {
-        return Err(ApiError::new(
-            413,
-            "material_too_large",
-            format!("material {uri} exceeds the 512 KiB limit."),
-        ));
-    }
-    let bytes = fs::read(&path).map_err(|error| {
-        ApiError::not_found(
-            "material_not_found",
-            format!("material {uri} cannot be read: {error}"),
-        )
-    })?;
-    Ok(http::raw(material_content_type(&uri), bytes))
+        let directory = state.project_root.join("cache/xdesign").join(wish_id);
+        let registry = read_registry_file(&directory.join("registry.json")).ok_or_else(|| {
+            ApiError::not_found(
+                "unknown_wish",
+                format!("No wish with id {wish_id} exists in the store or the legacy cache."),
+            )
+        })?;
+        let prefix = format!("cache/xdesign/{wish_id}/");
+        let mut allowed = run_record_uris(&state.project_root, &registry.run_record_uri);
+        if uri.starts_with(&prefix) {
+            allowed.insert(uri.clone());
+        }
+        if !allowed.contains(&uri) {
+            return Err(ApiError::not_found(
+                "material_not_found",
+                format!("{uri} is not retained evidence or an artifact of wish {wish_id}."),
+            ));
+        }
+        let path = project_path(&state.project_root, &uri)?;
+        let metadata = fs::metadata(&path).map_err(|error| {
+            ApiError::not_found(
+                "material_not_found",
+                format!("material {uri} does not exist: {error}"),
+            )
+        })?;
+        if !metadata.is_file() {
+            return Err(ApiError::not_found(
+                "material_not_found",
+                format!("material {uri} is not a regular file."),
+            ));
+        }
+        if metadata.len() > MAX_MATERIAL_BYTES {
+            return Err(ApiError::new(
+                413,
+                "material_too_large",
+                format!("material {uri} exceeds the 512 KiB limit."),
+            ));
+        }
+        let bytes = fs::read(&path).map_err(|error| {
+            ApiError::not_found(
+                "material_not_found",
+                format!("material {uri} cannot be read: {error}"),
+            )
+        })?;
+        Ok(http::raw(material_content_type(&uri), bytes))
+    })
 }
 
 fn store_material(store: &RsStore, wish_id: &str, head: &RsItemRevision, uri: &str) -> ApiResult {
@@ -2395,24 +2567,65 @@ fn asset_like(path: &str) -> bool {
 // ---------------------------------------------------------------------------
 
 fn open_store(state: &AppState) -> Result<Option<RsStore>, ApiError> {
-    if !state.store_root.exists() {
-        return Ok(None);
+    if let Some(error) = &state.selection_failure {
+        return Err(
+            location_error(error).unwrap_or_else(|| ApiError::new(503, "store_unavailable", error))
+        );
     }
-    match RsStore::open(&state.store_root) {
+    let selected = state.selected_root();
+    let Some(root) = &selected else {
+        return Ok(None);
+    };
+    match RsStore::open(root) {
         Ok(store) => Ok(Some(store)),
-        Err(RsStoreError::NotFound(_)) | Err(RsStoreError::UnsupportedFormat(_)) => Ok(None),
+        Err(RsStoreError::NotFound(_))
+            if fs::symlink_metadata(root)
+                .is_err_and(|e| e.kind() == std::io::ErrorKind::NotFound) =>
+        {
+            Ok(None)
+        }
         Err(error) => Err(store_error("cannot open the operational store", error)),
     }
 }
 
+fn with_store_view<T>(
+    state: &AppState,
+    action: impl FnOnce(Option<&RsStore>) -> Result<T, ApiError>,
+) -> Result<T, ApiError> {
+    if let Some(error) = &state.selection_failure {
+        return Err(
+            location_error(error).unwrap_or_else(|| ApiError::new(503, "store_unavailable", error))
+        );
+    }
+    if let Some(root) = state.selected_root() {
+        return crate::storage::cli::with_optional_project_store(
+            &state.project_root,
+            &root,
+            action,
+        )
+        .map_err(|error| match error {
+            crate::storage::cli::WithProjectStoreError::Store(error) => {
+                store_error("cannot inspect the operational store", error)
+            }
+            crate::storage::cli::WithProjectStoreError::Action(error) => error,
+        });
+    }
+    let _lease =
+        crate::project_backend::LegacyLease::acquire(&state.project_root).map_err(backend_error)?;
+    action(None)
+}
+
 fn store_error(context: &str, error: RsStoreError) -> ApiError {
+    if let Some(mapped) = location_error(&error.to_string()) {
+        return mapped;
+    }
     match error {
         RsStoreError::NotFound(message) => ApiError::not_found("not_found", message),
         RsStoreError::InvalidInput(message) => ApiError::bad_request("invalid_request", message),
         RsStoreError::UnsupportedFormat(message) => {
-            ApiError::internal(format!("{context}: {message}"))
+            ApiError::new(503, "unsupported_format", format!("{context}: {message}"))
         }
-        other => ApiError::internal(format!("{context}: {other}")),
+        other => ApiError::new(503, "store_unavailable", format!("{context}: {other}")),
     }
 }
 
@@ -2751,7 +2964,12 @@ mod tests {
     }
 
     impl Lifecycle for FakeLifecycle {
-        fn run(&self, args: &[String], cwd: &Path) -> Result<LifecycleOutput, String> {
+        fn run(
+            &self,
+            args: &[String],
+            cwd: &Path,
+            store_root: Option<&Path>,
+        ) -> Result<LifecycleOutput, String> {
             self.inner
                 .calls
                 .lock()
@@ -3555,6 +3773,74 @@ mod tests {
         assert_eq!(data["run"]["status"], "completed");
         let events = data["events"].as_array().unwrap();
         assert_eq!(events.last().unwrap()["title"], "Run completed");
+    }
+
+    #[test]
+    fn same_id_views_preserve_both_backends_and_reject_mutation() {
+        let project = TestProject::new("same-id-inspection");
+        seed_store_wish(
+            &project,
+            "same-id",
+            "wish-verify",
+            "active",
+            Some(("Store history", "Persistent bytes")),
+            None,
+        );
+        seed_legacy_wish(
+            &project,
+            "same-id",
+            "wish-verify",
+            "completed",
+            "Legacy bytes",
+        );
+        let before = fs::read(project.root.join("cache/xdesign/same-id/run.json")).unwrap();
+        let state = test_state(&project, FakeLifecycle::default());
+        assert_eq!(
+            error_code(&get(&state, "/api/wishes/same-id")).1,
+            "backend_conflict"
+        );
+        assert_eq!(
+            error_code(&get(&state, "/api/wishes/same-id/work")).1,
+            "backend_conflict"
+        );
+        for backend in ["legacy", "store"] {
+            let view = ok_data(&get_query(
+                &state,
+                "/api/wishes/same-id",
+                &format!("backend={backend}"),
+            ));
+            assert_eq!(view["source"], backend);
+            assert_eq!(view["actions_enabled"], false);
+            let response = get_query(
+                &state,
+                "/api/wishes/same-id/material",
+                &format!("backend={backend}&uri=cache%2Fxdesign%2Fsame-id%2Frun.json"),
+            );
+            assert_eq!(response.status, 200);
+        }
+        let listed = ok_data(&get(&state, "/api/wishes"));
+        let rows = listed["wishes"].as_array().unwrap();
+        assert_eq!(rows.len(), 2);
+        assert!(rows
+            .iter()
+            .all(|row| row["conflict"] == true && row["actions_enabled"] == false));
+        assert_eq!(
+            error_code(&post_raw(&state, "/api/wishes/same-id/check", b"{}")).1,
+            "backend_conflict"
+        );
+        assert_eq!(
+            error_code(&post_raw(
+                &state,
+                "/api/wishes",
+                br#"{"wish_id":"same-id","title":"collision","flow_id":"wish-verify"}"#
+            ))
+            .1,
+            "backend_conflict"
+        );
+        assert_eq!(
+            fs::read(project.root.join("cache/xdesign/same-id/run.json")).unwrap(),
+            before
+        );
     }
 
     #[test]
@@ -5296,4 +5582,53 @@ mod tests {
         let month: u32 = now[5..7].parse().unwrap();
         assert!((1..=12).contains(&month), "{now}");
     }
+}
+
+fn backend_conflict(id: &str) -> ApiError {
+    ApiError::conflict("backend_conflict","legacy and persistent histories share this ID").with_detail(json!({"legacy":format!("/api/wishes/{id}?backend=legacy"),"store":format!("/api/wishes/{id}?backend=store")}))
+}
+fn backend_error(message: String) -> ApiError {
+    location_error(&message).unwrap_or_else(|| ApiError::conflict("backend_ambiguous", message))
+}
+fn location_error(message: &str) -> Option<ApiError> {
+    let reason = message.strip_prefix("location_reason=")?.split_once(';')?.0;
+    let (status, code) = match reason {
+        "invalid_input" => (400, "invalid_input"),
+        "binding_missing" | "not_found" => (404, "not_found"),
+        "backend_conflict" => (409, "backend_conflict"),
+        "backend_ambiguous" => (409, "backend_ambiguous"),
+        "migration_required" => (409, "migration_required"),
+        "history_conflict" => (409, "history_conflict"),
+        "migration_busy" => (409, "migration_busy"),
+        "source_retired" => (409, "source_retired"),
+        "source_changed" => (409, "source_changed"),
+        "source_moved" => (409, "source_moved"),
+        "coordination_corrupt" => (503, "coordination_corrupt"),
+        "identity_unprovable" => (503, "identity_unprovable"),
+        "home_unavailable" => (503, "home_unavailable"),
+        "unsafe_path" => (503, "unsafe_path"),
+        "coordination_unavailable" => (503, "coordination_unavailable"),
+        "migration_outcome_unknown" => (503, "migration_outcome_unknown"),
+        _ => return None,
+    };
+    Some(ApiError::new(status, code, message))
+}
+pub(super) fn legacy_only_project(project: &Path) -> Result<bool, String> {
+    let candidates = crate::project_backend::candidates(project, None)?;
+    if !candidates.is_empty() {
+        return Ok(false);
+    }
+    let ids = legacy_registrations(project);
+    if ids.is_empty() {
+        return Ok(false);
+    }
+    for (id, _) in ids {
+        if !matches!(
+            crate::project_backend::classify(project, &id)?,
+            crate::project_backend::Cache::Legacy(_)
+        ) {
+            return Ok(false);
+        }
+    }
+    Ok(true)
 }

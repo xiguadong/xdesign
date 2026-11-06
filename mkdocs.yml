@@ -34,6 +34,7 @@ nav:
     - "Checker execution": design/checker-execution.md
     - "Operator web program": design/web-operator.md
     - "Operational storage": design/storage.md
+    - "Worktree store migration": design/worktree-store-migration.md
     - "Evidence and revisions": design/evidence-and-revisions.md
     - "Ports and adapters": design/adapters.md
     - "SimpleFlow":
@@ -131,6 +132,8 @@ nav:
         - "RsDoctorFinding": design/api/storage/rs-doctor-finding.md
         - "RsDoctorReport": design/api/storage/rs-doctor-report.md
         - "RsStore": design/api/storage/rs-store.md
+        - "Planned root resolution bridge": design/api/storage/resolve-store-root.md
+        - "Planned command access bridge": design/api/storage/with-project-store.md
         - "RsStore::init": design/api/storage/rs-store-init.md
         - "RsStore::open": design/api/storage/rs-store-open.md
         - "RsStore::save": design/api/storage/rs-store-save.md
@@ -148,6 +151,7 @@ nav:
     - "Interface control document": interfaces/contracts.md
     - "Record format": interfaces/record-format.md
     - "Store format": interfaces/store-format.md
+    - "Worktree store location": interfaces/worktree-store.md
     - "Operator web API": interfaces/web-api.md
     - "Documentation and SysML contract": interfaces/documentation-contract.md
     - "Portable document kit interaction contract": interfaces/document-kit-api.md
@@ -155,6 +159,7 @@ nav:
     - "Verification design": verification/index.md
     - "Verification of requirements": verification/requirements.md
     - "Verification case design": verification/design.md
+    - "Worktree store procedures": verification/worktree-store.md
     - "Review criteria": verification/review-criteria.md
     - "Acceptance": verification/acceptance.md
   - "Records (frozen archive)":

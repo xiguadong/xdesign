@@ -25,13 +25,12 @@ import subprocess
 import sys
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-BINARY = REPO / "target/debug/xdesign"
-DEFAULT_STORE = pathlib.Path(".xdesign")
+BINARY = next((p for p in (REPO / "cache/target/debug/xdesign", REPO / "target/debug/xdesign") if p.is_file()), REPO / "cache/target/debug/xdesign")
 
 
-def store(*arguments: str, root: pathlib.Path) -> dict:
+def store(*arguments: str, root: pathlib.Path | None) -> dict:
     proc = subprocess.run(
-        [str(BINARY), "store", *arguments, "--root", str(root)],
+        [str(BINARY), "store", *arguments, *(["--root", str(root)] if root is not None else [])],
         cwd=REPO,
         capture_output=True,
         text=True,
@@ -79,8 +78,8 @@ def main() -> int:
     parser.add_argument(
         "--root",
         type=pathlib.Path,
-        default=DEFAULT_STORE,
-        help="store root relative to the repository root (default: .xdesign)",
+        default=None,
+        help="explicit store root relative to the repository; default delegates contextual selection to xdesign",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
     subparsers.add_parser("list", help="list record item heads")

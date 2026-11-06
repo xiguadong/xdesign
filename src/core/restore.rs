@@ -264,20 +264,7 @@ pub fn restore_run(
         return Err("invalid restoration run record URI".into());
     }
     let bytes = fs::read(&run_record_uri).map_err(|e| format!("cannot read run record: {e}"))?;
-    let record: StoredRun =
-        serde_json::from_slice(&bytes).map_err(|e| format!("invalid run record schema: {e}"))?;
-    let run_id = Uuid::parse_str(&record.run_id).map_err(|_| "invalid run UUID".to_owned())?;
-    if run_id.is_nil()
-        || run_id.to_string() != record.run_id
-        || record.execution_type != "FlowRun"
-        || record.plan_id != plan.plan_id
-        || record.plan_uri != plan.plan_uri
-        || record.plan_sha256 != plan.plan_sha256
-        || record.wish_model_uri != wish_model_uri
-    {
-        return Err("run identity, plan identity, or wish binding disagrees".into());
-    }
-    validate_lifecycle(&record, &plan)?;
+    let record=validated_record(&plan,&wish_model_uri,&bytes)?;
     Ok(RsFlowRun {
         run_id: record.run_id,
         plan_id: record.plan_id,
@@ -294,4 +281,27 @@ pub fn restore_run(
         persistence_error: false,
         last_error: None,
     })
+}
+
+fn validated_record(plan:&RsFlowPlan,wish_model_uri:&str,bytes:&[u8])->Result<StoredRun,String>{
+    let record: StoredRun =
+        serde_json::from_slice(&bytes).map_err(|e| format!("invalid run record schema: {e}"))?;
+    let run_id = Uuid::parse_str(&record.run_id).map_err(|_| "invalid run UUID".to_owned())?;
+    if run_id.is_nil()
+        || run_id.to_string() != record.run_id
+        || record.execution_type != "FlowRun"
+        || record.plan_id != plan.plan_id
+        || record.plan_uri != plan.plan_uri
+        || record.plan_sha256 != plan.plan_sha256
+        || record.wish_model_uri != wish_model_uri
+    {
+        return Err("run identity, plan identity, or wish binding disagrees".into());
+    }
+    validate_lifecycle(&record, &plan)?;
+    Ok(record)
+}
+
+/// Migration validation shares restoration's history rules but needs no cache files.
+pub(crate) fn validate_retained_run(plan:&RsFlowPlan,wish_model_uri:&str,bytes:&[u8])->Result<(),String>{
+    validated_record(plan,wish_model_uri,bytes).map(|_|())
 }

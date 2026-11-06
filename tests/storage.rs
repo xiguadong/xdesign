@@ -4,9 +4,43 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use xdesign::storage::{
-    cli, RsOperationOutcome, RsSaveMaterial, RsSaveRequest, RsStore, RsStoreError,
-};
+use xdesign::storage::{RsOperationOutcome, RsSaveMaterial, RsSaveRequest, RsStore, RsStoreError};
+
+// Concurrent clients may now receive a bounded, retryable lease refusal. Keep
+// the original storage assertions while retrying only that documented result.
+fn retry_busy<T>(mut call: impl FnMut() -> Result<T, RsStoreError>) -> T {
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+    loop {
+        match call() {
+            Ok(value) => return value,
+            Err(error)
+                if error
+                    .to_string()
+                    .contains("location_reason=migration_busy;")
+                    && std::time::Instant::now() < deadline =>
+            {
+                std::thread::sleep(std::time::Duration::from_millis(2));
+            }
+            Err(error) => panic!("storage call failed: {error}"),
+        }
+    }
+}
+
+mod cli {
+    pub use xdesign::storage::cli::request_bytes;
+    pub fn dispatch(args: &[String]) -> (serde_json::Value, i32) {
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(30);
+        loop {
+            let result = xdesign::storage::cli::dispatch(args);
+            if result.0["error"]["code"] != "migration_busy"
+                || std::time::Instant::now() >= deadline
+            {
+                return result;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(2));
+        }
+    }
+}
 
 fn digest(bytes: &[u8]) -> String {
     format!("{:x}", Sha256::digest(bytes))
@@ -1619,7 +1653,7 @@ fn concurrent_reads_stay_consistent_while_head_advances() {
     let root = fixture.root.clone();
     let project = fixture.project.clone();
     let writer = std::thread::spawn(move || {
-        let store = RsStore::open(&root).unwrap();
+        let store = retry_busy(|| RsStore::open(&root));
         for revision in 1..=40u64 {
             let content = format!("advance {revision}").into_bytes();
             let material = RsSaveMaterial {
@@ -1639,23 +1673,23 @@ fn concurrent_reads_stay_consistent_while_head_advances() {
                 materials: vec![material],
                 result: json!({"revision": revision}),
             };
-            let receipt = store.save(&project, &request).unwrap();
+            let receipt = retry_busy(|| store.save(&project, &request));
             assert_eq!(receipt.outcome, RsOperationOutcome::Committed);
         }
     });
-    let reader_store = RsStore::open(&fixture.root).unwrap();
+    let reader_store = retry_busy(|| RsStore::open(&fixture.root));
     let mut reads = 0u64;
     while !writer.is_finished() {
-        let selected = reader_store.get("shared-item", None).unwrap();
+        let selected = retry_busy(|| reader_store.get("shared-item", None));
         let material = selected
             .materials
             .iter()
             .find(|material| material.uri == "shared.txt")
             .cloned()
             .unwrap();
-        let bytes = reader_store
-            .read_material("shared-item", Some(selected.revision), "shared.txt")
-            .unwrap();
+        let bytes = retry_busy(|| {
+            reader_store.read_material("shared-item", Some(selected.revision), "shared.txt")
+        });
         assert_eq!(bytes.len() as u64, material.byte_length);
         assert_eq!(digest(&bytes), material.sha256);
         reads += 1;
