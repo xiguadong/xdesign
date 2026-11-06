@@ -103,7 +103,7 @@ sole-authority claim. The identity and ownership trust boundary above is unchang
 SQLite busy timeout is 5 s per connection and may be overridden with
 `XDESIGN_STORE_BUSY_TIMEOUT_MS` (1–600000) for tests and slow local volumes.
 
-The separate [planned worktree allocation](#d116) proposes an explicit verified local
+The separate [planned worktree allocation](#d118) proposes an explicit verified local
 migration and a different default for linked worktrees. Neither changes the behavior or
 the recovery boundary implemented by this existing storage slice today.
 
@@ -458,24 +458,24 @@ retained acceptance evidence for the delivered slices
 retains a Git-tracked evidence summary before the store record is cited as current
 ([D30](../interfaces/documentation-contract.md#d30)).
 
-<a id="d116"></a>
+<a id="d118"></a>
 
 ## 2. Linked-worktree location design
 
-This is the planned refinement of [R20](../requirements/requirements.md#r20), allocated to
+This is the planned refinement of [R21](../requirements/requirements.md#r21), allocated to
 `XDesignStorage::PlannedWorktreeStoreSelection`, `PlannedWorktreeStoreMigration`,
 `PlannedWorktreeStoreAccess` and their `PlannedWorktreeStoreIntegration`. These definitions
 retain the frozen requirements allocation. They are design responsibilities, not an
 implementation or acceptance claim. D86 describes the earlier implemented slice; the
-following sections and [migration protocol](worktree-store-migration.md#d117) specify its
-planned extension. [WTSTORE-01–13](../verification/design.md#d115) remain required.
+following sections and [migration protocol](worktree-store-migration.md#d119) specify its
+planned extension. [WTSTORE-01–13](../verification/design.md#d117) remain required.
 
 ![Planned selection, migration and access responsibilities](assets/worktree-store-boundaries.svg)
 
-> **Figure D116-1 — Worktree store responsibilities.**
+> **Figure D118-1 — Worktree store responsibilities.**
 > **Question:** Which planned boundaries provide isolated selection, verified migration and coordinated access?
 > **Model view:** `XDesignStorage::worktreeStoreBoundaries`, block-definition projection through `tools/render_docs.py`.
-> **Companions:** The resolution table below, [cutover protocol](worktree-store-migration.md#d117), [location interface](../interfaces/worktree-store.md#i21), and [verification procedures](../verification/worktree-store.md#d118).
+> **Companions:** The resolution table below, [cutover protocol](worktree-store-migration.md#d119), [location interface](../interfaces/worktree-store.md#i22), and [verification procedures](../verification/worktree-store.md#d120).
 > **Status:** renderable-now; designed-only.
 > **Reading:** Integration owns selection, migration and access. The three owned boundaries respectively bind a project, transfer verified history, and guard every supported caller. The composition edges identify ownership rather than a runtime call sequence.
 > **Limits:** This focused view omits the binding fields, cutover states and lock ordering; their tables are normative design detail. It does not demonstrate an executed migration.
@@ -485,7 +485,7 @@ importer. The figure selects only the four already allocated definitions; it nei
 second model nor expands the broad architecture figure's visual acceptance. For this slice,
 the block-definition view is required; the recovery state table and protocol steps answer
 the state-machine/activity/sequence questions. A second graphical projection of those tables
-is not required. Use-case and requirements views remain the R20/WTSTORE tables; package and
+is not required. Use-case and requirements views remain the R21/WTSTORE tables; package and
 internal-block questions use the source plan and this composition; parametric analysis is
 not applicable because no performance bound or numerical trade study is claimed.
 
@@ -496,7 +496,7 @@ expansion inside a supplied argument. An empty present option/environment value 
 not absence. Non-UTF-8 project/Git identity paths fail `identity_unprovable` in this first
 version rather than being lossily hashed. An explicit root still accepts the existing
 native `Path` API. Resolution returns a structured selection or a diagnostic, never an
-unvalidated `PathBuf` fallback. The [wire contract](../interfaces/worktree-store.md#i21)
+unvalidated `PathBuf` fallback. The [wire contract](../interfaces/worktree-store.md#i22)
 defines commands and errors.
 
 | Surface | First choice | Second choice | Contextual default and base |
@@ -553,7 +553,7 @@ ancestors must be owned by the effective UID and not writable by other users; th
 namespace and every controlled directory are `0700`, files `0600`. No controlled symlinks,
 hard-linked files, special files, unsupported ACL grants, or mount aliases are accepted.
 
-Namespace layout and versioned schemas are in [I21](../interfaces/worktree-store.md#i21).
+Namespace layout and versioned schemas are in [I22](../interfaces/worktree-store.md#i22).
 The first creation is exclusive and durable, with a random 256-bit namespace epoch and
 key. A namespace containing unknown/partial bytes is inspected, never silently completed
 by normal access. `location enroll` can finish only the exact journaled enrollment.
@@ -574,7 +574,7 @@ role; an HMAC-SHA256 over canonical length-prefixed fields detects edited/foreig
 not attacks by the key's owner. Directory creation evidence is birth time with nanoseconds
 plus volume/device identity and file ID; inode/path equality alone never passes.
 
-Enrollment uses D117’s complete discovery and physical-identity lock order (including the
+Enrollment uses D119’s complete discovery and physical-identity lock order (including the
 namespace, backend, parents and nonce objects), pins descriptors, validates Git registration,
 checks the registry's path and nonce indexes, journals the candidate, installs only missing
 nonce attributes, flushes directories, revalidates the complete tuple and Git chain, then
@@ -588,16 +588,16 @@ before enrollment/migration rather than automatic new authority.
 
 Normal initialization records the newly created root/database/store identity in an external
 initialization journal beside the binding, using the same guarded creation/recovery discipline
-as D117. An existing global store without either that verified initialization provenance or
+as D119. An existing global store without either that verified initialization provenance or
 a migration decision is unproven and refused; a raw rename into the binding does not establish
 a default authority. The immutable binding itself is never amended with a store ID. Before any global history
-is created, enrollment publishes D117's authenticated permanent routes at both the local
+is created, enrollment publishes D119's authenticated permanent routes at both the local
 candidate parent and destination parent; all are flushed before initialization is eligible.
 Partial routing publication is recoverable from the exact enrollment journal and never
 permits store creation. This also lets legacy classification discover an existing selected
 global candidate without requiring unrelated home lookup or enrollment.
 
-The store key uses the domain-separated SHA-256 encoding in I21 §2.2 of the identity tuple
+The store key uses the domain-separated SHA-256 encoding in I22 §2.2 of the identity tuple
 `schema_version, namespace_epoch, owner_uid, home, common, admin, worktree, project,
 project_relative` in that order; `key`, derived `store_root`, store identity and status are
 excluded to avoid circular derivation. Store placement is
@@ -609,7 +609,7 @@ identity; edited nonce/MAC/role/path fields fail comparison. A recreated reposit
 worktree normally loses its nonce and always requires a fresh incarnation, even if names
 and device/inode are reused. Moves change canonical paths and require operator inspection.
 
-This is a cooperative local-owner protocol. The exact I21 byte grammar and platform observation profile define these values.
+This is a cooperative local-owner protocol. The exact I22 byte grammar and platform observation profile define these values.
 Birth-time support, durable extended attributes,
 ordinary local directory locking, and trustworthy filesystem identities are capability
 preconditions, verified before enrollment. If a host cannot provide them, linked default
@@ -635,18 +635,18 @@ bind/overlay mounts and Windows are outside the admitted protocol; fail when det
 
 After a proven cutover the destination can progress independently. Before work and again immediately before the destination SQLite commit on each default
 or explicitly selected destination mutation (and every resumed mutation), compare a still-present source against its cutover identity and complete logical
-baseline; absence is allowed but is checked anew. D117 §3.3 states the detection point and
+baseline; absence is allowed but is checked anew. D119 §3.3 states the detection point and
 the unavoidable prohibited-old-writer race after that observation; this is not old-client fencing. A recreated or altered source blocks default mutation, including
 when the destination has advanced. A missing source that reappears is checked again, never
 cached as absent. Read-only default inspection reports the conflict and authority, while
-explicit inspection can view each valid history. The [protocol](worktree-store-migration.md#d117)
+explicit inspection can view each valid history. The [protocol](worktree-store-migration.md#d119)
 defines access to retained sources and partial targets, crash retry and old-client limits.
 
 ### 2.4 Integration and design boundary
 
-[Interface I21](../interfaces/worktree-store.md#i21) specifies exact CLI, Web, environment,
+[Interface I22](../interfaces/worktree-store.md#i22) specifies exact CLI, Web, environment,
 error and inspection behavior. [API U81](api/storage/rs-store.md#u81) owns the common guard
-on direct calls. [D117](worktree-store-migration.md#d117) owns the implementation file plan,
+on direct calls. [D119](worktree-store-migration.md#d119) owns the implementation file plan,
 physical rebind, lifecycle classification and cutover protocol. The existing
 `ProjectStore`, `LocalStageCliRuntime` and `OperatorWebProgram` are integration points;
 no flow engine, run record, plan, checker schema or gate authority changes in this design.

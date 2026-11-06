@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "purpose": "I21 encoding-only known answers with synthetic complete request; no real store or identity evidence",
+  "purpose": "I22 encoding-only known answers with synthetic complete request; no real store or identity evidence",
   "hmac_key_hex": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f",
   "vectors": [
     {

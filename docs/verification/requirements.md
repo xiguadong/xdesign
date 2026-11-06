@@ -24,7 +24,7 @@ declared case or a clean compiler result as an executed acceptance test.
 | Runtime gate and record conformance | Scripted test and inspection of local SimpleFlow run | four checks in [D06–D07](../design/flows/simple-flow/definition.md#d06) | Commands, Rust adapter tests, and a four-stage demo executed for this slice ([P08](../records/executions/simple-flow.md#p08), [P12](../records/reviews/simple-flow-fixes.md#p12)); VModel integration and project acceptance remain open |
 | Uniform stage CLI and restart integrity | Process-level tests and corruption/recovery tests | `LocalStageCliRuntimeVerification`; [CLI contract](../design/stage-cli.md#d85) | Planned cases and executed results are distinguished in the [stage CLI plan](../records/plans/stage-cli.md) |
 | Durable operational storage | Automated test, fault injection, process demonstration, and inspection at storage implementation verification | `StorageVerification`; STORE-01 through STORE-10 in the [storage plan](../records/plans/storage.md#p38) | Case and objective criteria defined; the storage plan records executed outcomes and their limits |
-| Linked-worktree location and verified local-store migration | Isolated process, integrity, concurrency and fault tests plus design and documentation review at implementation verification | `WorktreeStoreMigrationVerification`; WTSTORE-01 through WTSTORE-13 in [D115](design.md#d115) | Planned design allocation and criteria; no migration case is executed by this declaration |
+| Linked-worktree location and verified local-store migration | Isolated process, integrity, concurrency and fault tests plus design and documentation review at implementation verification | `WorktreeStoreMigrationVerification`; WTSTORE-01 through WTSTORE-13 in [D117](design.md#d117) | Planned design allocation and criteria; no migration case is executed by this declaration |
 
 The scenario-template requirements have the following planned acceptance mapping at
 implementation verification. No case is executed by its declaration or by a requirements-stage
@@ -53,8 +53,8 @@ planned criteria, not results; the case identifiers refer to the storage plan.
 | `wishStatusProjectsFlowExecution` | STORE-08 obtains identical status/current-stage projections from the stored selected flow and run record across reopen, including a blocked and a completed run; no independent status edit exists. |
 | `storageInputAndIntegrityAreChecked` | STORE-01 refuses foreign formats; STORE-03 rejects malformed and unsafe input; STORE-07 reports missing, altered, orphan and pending state without returning trusted bytes. |
 
-The linked-worktree requirements in [R20](../requirements/requirements.md#r20) have
-the following planned acceptance allocation. The [planned design](../design/storage.md#d116)
+The linked-worktree requirements in [R21](../requirements/requirements.md#r21) have
+the following planned acceptance allocation. The [planned design](../design/storage.md#d118)
 declares responsibility, not implementation. These cases require implementation and retained
 evidence; no requirement is established by a compiler or documentation audit.
 

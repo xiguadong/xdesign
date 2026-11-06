@@ -1,4 +1,4 @@
-//! Contextual store selection and the versioned identity grammar from I21.
+//! Contextual store selection and the versioned identity grammar from I22.
 use super::{
     access::{self, diagnostic},
     blobs, io_error, sha256, strict_json, RsStoreError,

@@ -429,12 +429,12 @@ declaring these cases does not execute them. Executed case results belong to
 the wish's revision-bound record.
 
 
-<a id="d115"></a>
+<a id="d117"></a>
 
 ## 10. Linked-worktree store location and migration acceptance
 
 `XDesignVerification::WorktreeStoreMigrationVerification` traces to the eight proposed
-[location and migration requirements](../requirements/requirements.md#r20). The following
+[location and migration requirements](../requirements/requirements.md#r21). The following
 are planned implementation-verification cases; declaring them or checking the model does
 not execute them. Use isolated fixtures under the project `cache/`, including a controlled
 home directory, distinct Git repositories, a primary checkout, linked worktrees, and
@@ -468,4 +468,4 @@ write authorities. Results and semantic judgments belong to the wish's revision-
 operational evidence, not to this case declaration.
 
 Detailed, unexecuted procedures for every row, including the complete operation/alias matrix,
-are in [worktree store verification procedures](worktree-store.md#d118).
+are in [worktree store verification procedures](worktree-store.md#d120).

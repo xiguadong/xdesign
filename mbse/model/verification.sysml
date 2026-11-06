@@ -338,7 +338,7 @@ package XDesignVerification {
     }
 
     verification def WorktreeStoreMigrationVerification {
-        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D115"; }
+        @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D117"; }
         doc /* Planned process, fault, concurrency and integrity cases WTSTORE-01
            through WTSTORE-13: compare default and explicit selection in primary,
            non-Git and linked worktrees; distinguish aliases, collisions, copied or
@@ -347,7 +347,7 @@ package XDesignVerification {
            runs; preserve receipts and legacy cache authority; refuse ambiguous,
            corrupt or pending sources; and recover injected interruptions under the
            stated old-client quiescence boundary. Concurrency includes API handles held
-           across cutover and source and destination path aliases. D118 includes first-
+           across cutover and source and destination path aliases. D120 includes first-
            reservation discovery boundaries, two-process lock-order barriers, adapter
            compile contracts, canonical known-answer bytes and explicit state/operation
            oracles; source validation includes the final destination commit boundary.

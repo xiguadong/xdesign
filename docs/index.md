@@ -105,4 +105,4 @@ Historical outcomes, plans, and reviews are the frozen `records/` archive and ke
 original dates and evidence; a document's presence does not freeze a baseline or establish
 an engineering acceptance.
 
-The [linked-worktree store design](design/storage.md#d116) and [cutover protocol](design/worktree-store-migration.md#d117) define the implemented location and migration commands. Start with the [operator example and recovery procedure](interfaces/worktree-store.md#i21). The [verification procedures](verification/worktree-store.md#d118) define required evidence; command availability alone does not establish platform validation or migration acceptance.
+The [linked-worktree store design](design/storage.md#d118) and [cutover protocol](design/worktree-store-migration.md#d119) define the implemented location and migration commands. Start with the [operator example and recovery procedure](interfaces/worktree-store.md#i22). The [verification procedures](verification/worktree-store.md#d120) define required evidence; command availability alone does not establish platform validation or migration acceptance.

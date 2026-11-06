@@ -119,7 +119,7 @@ as its four planned definitions; those 23 are not new work from this change. The
 requirements-stage comparison remains historical evidence. Its native SVG had 91 elisions
 and approximately 0.1235 px minimum text at 900 px article width; three inspected crops did
 not establish whole-figure visual acceptance. Use the focused
-[worktree store boundary view](../design/storage.md#d116) for the migration design.
+[worktree store boundary view](../design/storage.md#d118) for the migration design.
 
 <a id="a06"></a>
 

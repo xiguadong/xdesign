@@ -68,7 +68,7 @@ fn read_heads(store: &RsStore) -> Result<Vec<RsItemSummary>, RsStoreError> {
 
 ### Planned location-coordination extension
 
-The [D117 protocol](../../worktree-store-migration.md#d117) adds a common lease to **every**
+The [D119 protocol](../../worktree-store-migration.md#d119) adds a common lease to **every**
 public operation, including `init/open`, `save/save_bytes`, `outcome`,
 `pending_item_operations`, `list/get/history`, `read_material`, `checkout` and `doctor`,
 and to CLI `info/request` and root-doctor helpers. This is designed-only. The lease starts
@@ -80,10 +80,10 @@ sources permit verified inspection and refuse all saves/init. A moved/recreated 
 cannot be adopted through an old connection or fresh alias.
 
 Arguments and successful return types remain unchanged. The existing `RsStoreError` variant
-set is preserved; [I21](../../../interfaces/worktree-store.md#i21) defines the stable
+set is preserved; [I22](../../../interfaces/worktree-store.md#i22) defines the stable
 `location_reason=<code>;` prefix and adapter mappings for busy, retired, corrupt or
 unprovable coordination. Direct APIs use only their supplied root and do not run default
 Git/home selection; external root coordination still applies. Open/read create no namespace
 or lock files, although they acquire a process-releasing lock on the existing canonical
 parent. Full peer/witness loss cannot be authenticated by a fresh root-only call; the
-cooperative local-owner limitation in D117 remains part of this contract.
+cooperative local-owner limitation in D119 remains part of this contract.

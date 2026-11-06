@@ -3,12 +3,12 @@
 > Interface version: 1 | Store format remains schema 1. The CLI implements the commands
 > below; platform capability and engineering acceptance require their own retained evidence.
 
-<a id="i21"></a>
+<a id="i22"></a>
 
 ## 1. Selection and inspection
 
-[Storage D116](../design/storage.md#d116) owns the exact context and precedence algorithm;
-[D117](../design/worktree-store-migration.md#d117) owns leases and recovery. This extension
+[Storage D118](../design/storage.md#d118) owns the exact context and precedence algorithm;
+[D119](../design/worktree-store-migration.md#d119) owns leases and recovery. This extension
 does not change existing store request/receipt fields, the strict run schema or per-flow
 judgment authority. Existing `--root` and `XDESIGN_STORE_ROOT` retain their explicit meaning.
 Store commands are invoked from the selected project; existing `store save --project-root`
@@ -49,7 +49,7 @@ inspect`, migration status and root doctor report metadata/findings; they never 
 partial destination as committed history.
 
 Status/request/abort discovery uses the authenticated permanent route bucket under the
-supplied root's **parent**, plus checked pointers/attributes when present. D117 §2.1.2
+supplied root's **parent**, plus checked pointers/attributes when present. D119 §2.1.2
 requires routes at both parents before the first reservation is accepted. The route derives
 one exact-ID journal; status validates its authenticated reservation, binding and full
 root/path observations under the complete lease set. Root absence does not erase the route.
@@ -57,7 +57,7 @@ No original request/cache file or default home selection is required. Invalid/fo
 reservation, nonce or mismatched pointers refuse without adopting a journal. Before a valid
 reservation exists, routes alone produce `not_found`. Ordinary access/new attempts scan the
 full journal slot set through the route, so an unindexed prior attempt cannot be bypassed
-with a new ID; exact-ID discovery is not an adoption or active-index shortcut. D117 publishes
+with a new ID; exact-ID discovery is not an adoption or active-index shortcut. D119 publishes
 only a complete, synced reservation atomically into the final slot. Unpublished partial
 drafts live in a separate non-authoritative pool, are never recovered as requests, and are
 quarantined in place after creator proof is lost. Before any complete final was published,
@@ -182,7 +182,7 @@ canonical binary grammar in §2.2, never serialized JSON; request equality is by
 ```
 
 No key, binding or journal is stored inside the closed actual store root. Extended attributes
-hold incarnation/access witnesses as specified in D116/D117. Root/namespace records and
+hold incarnation/access witnesses as specified in D118/D119. Root/namespace records and
 attributes are operational coordination data, not Git products, item revisions or save
 receipts. A partial or foreign namespace is not silently initialized. Publishing bindings,
 indexes, tombstones or decisions is exclusively locked, atomic and durably flushed; an
@@ -356,7 +356,7 @@ local namespace key, not permission to mutate history or trust an arbitrary path
 The incarnation xattr is exactly 101 bytes:
 `ASCII("XDIN") || 01 || namespace_epoch[32] || nonce[32] || mac[32]`.
 Compute its MAC over kind 9 using the live kind-1 object including that nonce, canonical path,
-owner and creation/volume observations. Attribute names are D116's platform-specific names.
+owner and creation/volume observations. Attribute names are D118's platform-specific names.
 Read/create via pinned descriptors, install create-only, flush, reread and compare; no JSON,
 hex text, NUL padding, role list or native struct layout is stored in the xattr. Existing
 unknown/wrong-size/wrong-epoch/MAC attributes refuse. Home has no xattr. Access-reference
@@ -465,7 +465,7 @@ must handle the new error codes; old executables do not understand new commands 
 
 ## 4. Web and lifecycle delegation
 
-Web selects one absolute root at startup using D116 (a new eligible linked binding may be
+Web selects one absolute root at startup using D118 (a new eligible linked binding may be
 enrolled as persistent session setup, after legacy classification and without initializing store history); `AppState` retains the selection and
 root. Root-changing metadata is revalidated on access, not silently redirected. Health
 returns `project_root`, `store_root`, initialization/selection state and any location

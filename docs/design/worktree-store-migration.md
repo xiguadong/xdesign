@@ -2,15 +2,15 @@
 
 > Status: designed-only extension of schema-1 storage; no migration execution or acceptance
 > claim. Allocation: `XDesignStorage::PlannedWorktreeStoreMigration` and
-> `PlannedWorktreeStoreAccess`; selection and trust boundary: [D116](storage.md#d116).
+> `PlannedWorktreeStoreAccess`; selection and trust boundary: [D118](storage.md#d118).
 
-<a id="d117"></a>
+<a id="d119"></a>
 
 ## 1. Authority and implementation boundary
 
-This design preserves the accepted [R20 requirements](../requirements/requirements.md#r20)
-and their allocations. [I21](../interfaces/worktree-store.md#i21) owns the public command
-and record schemas; [D118](../verification/worktree-store.md#d118) owns executable test
+This design preserves the accepted [R21 requirements](../requirements/requirements.md#r21)
+and their allocations. [I22](../interfaces/worktree-store.md#i22) owns the public command
+and record schemas; [D120](../verification/worktree-store.md#d120) owns executable test
 procedures. D86's current behavior is not retroactively relabelled as implemented migration.
 
 The existing `src/storage/db.rs` creates a closed version-1 root, checks `format.json`,
@@ -28,7 +28,7 @@ make a global binding authoritative. Existing explicit-root inspection retains p
 validation; it cannot certify the unknown prior location.
 
 The source is exactly the canonical selected project's existing `.xdesign`, valid under
-the current version-1 rules. Destination is the dedicated D116 binding's absent `store`
+the current version-1 rules. Destination is the dedicated D118 binding's absent `store`
 child. General backup/restore, moving broken stores, schema conversion, merge, legacy
 cache import and relocating arbitrary explicit stores are excluded. Explicit selection
 continues to choose an existing root without migrating it.
@@ -81,7 +81,7 @@ ordered table names/digests. Blob digest/length rows participate after every phy
 has independently passed hash and length verification. Retain row counts, column names,
 per-table digests, blob count/byte count and verifier version alongside the aggregate;
 physical source/destination observations are retained separately because they intentionally
-differ. I21 records the nested baseline/verification representation. This implementation
+differ. I22 records the nested baseline/verification representation. This implementation
 refinement is a migration fingerprint, not a new item/revision snapshot.
 WAL/SHM bytes and page layout are not logical history; include their validation findings,
 not their changing byte layout, in the baseline. The source may checkpoint without changing
@@ -138,11 +138,11 @@ namespace. Unrelated existing content at the reserved sibling is refused and nev
 Roots nested inside another initialized store are refused to avoid foreign entries there.
 
 The access-root path key and authenticated route bytes are defined by
-[I21 §2.2](../interfaces/worktree-store.md#i21). Parent aliases use resolved filesystem
+[I22 §2.2](../interfaces/worktree-store.md#i22). Parent aliases use resolved filesystem
 names; a final root symlink is refused. Ordinary explicit access to an unbound root needs
 no account-home lookup, birth-time enrollment or coordination writes. It retains native
 `Path` support, including non-UTF-8 names, and the existing physical validation. Only
-participation in linked binding/migration requires I21's stronger identity capabilities.
+participation in linked binding/migration requires I22's stronger identity capabilities.
 
 A root-directory access-reference attribute (`user.xdesign.access.v1` on Linux,
 `org.xdesign.access.v1` on macOS) points to the external root pointer. It survives rename;
@@ -211,7 +211,7 @@ A probe is never an authority check or a lease retained into acquisition.
 Each invocation permits at most 8 acquisition/discovery attempts and a 250 ms monotonic
 acquisition budget, whichever is reached first. Between attempts use bounded jitter
 (1–16 ms), with no locks held; exhaustion returns `migration_busy`. Stable invalid data
-returns its I21 reason immediately. The budget covers acquisition, not a checker, full
+returns its I22 reason immediately. The budget covers acquisition, not a checker, full
 inventory or filesystem syscall latency. There is no starvation/fairness guarantee under
 continuous contention; after competing operations stop and identities stabilize a fresh
 call can acquire the fixed set. Tests use barriers and lock traces, not timing luck.
@@ -224,7 +224,7 @@ Before publishing **any** reservation or retained request bytes, install matchin
 `routes/<access-root-key>/<binding-key>.json` records under both parents' access directories.
 These permanent, namespace-HMAC-authenticated routes name the binding, source/destination
 paths and parents, and the deterministic destination journal base. They do not name a
-current attempt or grant authority. Validate their full I21 payload against the live
+current attempt or grant authority. Validate their full I22 payload against the live
 binding, namespace/key/owner and both paths; they survive root deletion and every abort.
 A route key collision compares full payloads; foreign, contradictory or invalid-MAC
 candidates return `coordination_corrupt`, never fall through to ordinary init. Normal access
@@ -480,7 +480,7 @@ observed refusal from this explicitly unsupported race.
 
 The current Web `ProcessLifecycle::run(args, cwd)` passes only arguments and cwd: an
 explicit `--store-root` affects Web reads but the child inherits a different
-`XDESIGN_STORE_ROOT` or defaults locally. The signature accepts an optional root parameter (I21);
+`XDESIGN_STORE_ROOT` or defaults locally. The signature accepts an optional root parameter (I22);
 production `Command` sets that **absolute** effective root in the child's environment on
 all persistent init/next/check paths. A validated legacy-only session without an explicit override or known persistent candidate
 passes no root and clears that environment variable; its child reclassifies before continuing without enrollment.
@@ -512,7 +512,7 @@ no local/explicit candidate means no selected persistent history for this legacy
 not search inaccessible unrelated homes. Reachable same-ID local/global candidates yield
 `backend_conflict` before any mutation. The full under-lock rescan includes candidate
 absence so a cooperating enrollment cannot race this decision. Only new or proven
-persistent operations proceed to U114; explicit-root failure is not ignored. Read-only
+persistent operations proceed to U116; explicit-root failure is not ignored. Read-only
 `--backend legacy` can inspect validated legacy bytes despite an unresolved store, but
 unqualified mutation cannot bypass a known unresolved candidate.
 
@@ -541,18 +541,18 @@ separate from this protocol's future verification and user acceptance.
 
 The binary's `stage_cli` cannot call library `pub(crate)` helpers. Therefore
 `xdesign::storage::cli::resolve_store_root` and `with_project_store` are additive, documented
-bridge functions ([root resolution](api/storage/resolve-store-root.md#u114),
-[command access](api/storage/with-project-store.md#u115)). The latter lends a guarded
+bridge functions ([root resolution](api/storage/resolve-store-root.md#u116),
+[command access](api/storage/with-project-store.md#u117)). The latter lends a guarded
 `&RsStore` to the whole lifecycle operation; stage helpers must use that handle instead of
 reopening. Its private shared-owned lease lets existing methods borrow and revalidate without
-recursively locking; U115 specifies the generic action-error wrapper and binary conversion. No lease or raw SQLite connection escapes the callback.
+recursively locking; U117 specifies the generic action-error wrapper and binary conversion. No lease or raw SQLite connection escapes the callback.
 
 The following is the allowed implementation surface for this design. No Rust application
 source is changed by this design stage. Adding another production path requires an explicit
 source-plan correction before its implementation, not silent expansion. Existing public
 Rust method signatures and enum variants remain; additive CLI bridge functions cross
 the library/binary boundary. Adapter diagnostics extend behavior as
-specified in I21/U81. Private capability types do not become a raw rebind public API.
+specified in I22/U81. Private capability types do not become a raw rebind public API.
 
 The implementation adds `validate_project_write(&RsStore)` beside the two originally
 planned CLI bridges. Cache restoration and checker scratch writes occur in the binary
@@ -572,7 +572,7 @@ is known to the project.
 
 | Planned path | Exact responsibility and validation |
 | --- | --- |
-| `src/storage/location.rs` (new) | D116 selection, sanitized Git probe, account-home seam, nonce/creation evidence, namespace schema/HMAC, immutable binding and enrollment recovery. Map selection/migration/access responsibilities to the existing planned model elements. |
+| `src/storage/location.rs` (new) | D118 selection, sanitized Git probe, account-home seam, nonce/creation evidence, namespace schema/HMAC, immutable binding and enrollment recovery. Map selection/migration/access responsibilities to the existing planned model elements. |
 | `src/storage/location/linux.rs` (new) | Linux descriptor/statx/fstatfs and mount-topology checks, no-replace publication, and create/replace-only xattr operations; fail closed on missing capabilities. |
 | `src/storage/access.rs` (new) | Directory leases, alias canonicalization, external root pointers, attributes, sorted peer discovery, held-handle checks and diagnostic classification. A private unforgeable lease parameter gates helpers. |
 | `src/storage/migration.rs` (new) | Strict request/status/abort protocol, complete inventory and comparison, private verified constructor, single decision publication, pre-decision discard and exact replay. No general restore. |
@@ -588,7 +588,7 @@ is known to the project.
 | `tests/test_worktree_public_cli.py` (new) | Public CLI inspect/enroll/prepare/apply/status/request/exact-retry with a separately built old binary, isolated effective-account lookup, independent history/blob comparisons and unchanged-state assertions. |
 | `Cargo.toml`, `Cargo.lock` | Only if tests expose a necessary dependency/API capability gap; prefer existing libc/sha2/SQLite and a small HMAC implementation with known-answer tests. No online/unpinned dependency update. |
 
-Doc changes during implementation are limited to the owning D116/D117/D118/I21 pages,
+Doc changes during implementation are limited to the owning D118/D119/D120/I22 pages,
 store API pages, stage/Web contracts and `web/SPEC.md` as behavior becomes available;
 immutable design evidence copies retain the designed baseline. Requirements and traceability
 files stay byte-identical. The model's four planned allocations remain truthful even if code

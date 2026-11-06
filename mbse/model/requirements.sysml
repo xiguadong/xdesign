@@ -550,7 +550,7 @@ package XDesignRequirements {
 
 
     requirement linkedWorktreeStoreIsIsolated : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* With no explicit root, a project in a valid linked Git worktree uses a
            dedicated operational store beneath the effective user's ~/.xdesign, not the
            worktree's .xdesign. Primary checkouts and non-Git projects retain the
@@ -564,7 +564,7 @@ package XDesignRequirements {
     }
 
     requirement storeRootSelectionIsConsistent : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* For storage CLI commands, an explicit --root takes precedence over
            XDESIGN_STORE_ROOT and the default; for Web, --store-root takes precedence
            over that environment variable and the default. The lifecycle CLI uses the
@@ -579,7 +579,7 @@ package XDesignRequirements {
     }
 
     requirement globalStoreNamespaceProtectsOtherContent : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* The global ~/.xdesign directory is a container, not itself a store root.
            A worktree uses its own dedicated child location, with an inspectable binding
            to its project and worktree identity. Existing unrelated content in the home
@@ -592,7 +592,7 @@ package XDesignRequirements {
     }
 
     requirement worktreeStoreMigrationPreservesHistory : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* Provide an explicit supported migration from a valid, quiescent linked
            worktree's old project-local store to its isolated global default. Before
            cutover, verify the complete logical source and destination: all generic items,
@@ -607,7 +607,7 @@ package XDesignRequirements {
     }
 
     requirement migratedRunsKeepTheirLifecycle : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* After verified migration, store-backed SimpleFlow and WishVerifyFlow runs
            retain wish and run identity, frozen plan and work, visits, revisions, gate
            assessments, evidence, derived status, operation receipts and state tokens for
@@ -620,7 +620,7 @@ package XDesignRequirements {
     }
 
     requirement worktreeStoreConflictsFailClosed : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* When an old local store or an unclassifiable local candidate exists,
            default operations must not silently create or use an unrelated empty global
            store; diagnose it and require explicit migration or selection.
@@ -635,7 +635,7 @@ package XDesignRequirements {
     }
 
     requirement worktreeMigrationHasRecoverableCutover : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* Migration requires the operator to stop non-cooperating older clients and
            reconcile pending operations and writer locks before it begins. Supported new
            readers and writers coordinate with migration so no source or destination write
@@ -652,7 +652,7 @@ package XDesignRequirements {
     }
 
     requirement legacyCacheRegistrationsStayLegacy : XDesignRequirement {
-        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R20"; }
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R21"; }
         doc /* Existing legacy cache-backed registrations and Git wish traces keep their
            existing backend and history; location migration neither imports, discards nor
            treats their cache as disposable store-backed material. Legacy active and

@@ -1,10 +1,10 @@
 # Worktree store verification procedures
 
 > Status: planned, unexecuted procedures. These refine and do not replace or weaken
-> [WTSTORE-01–13](design.md#d115). Design: [D116](../design/storage.md#d116),
-> [D117](../design/worktree-store-migration.md#d117); interface: [I21](../interfaces/worktree-store.md#i21).
+> [WTSTORE-01–13](design.md#d117). Design: [D118](../design/storage.md#d118),
+> [D119](../design/worktree-store-migration.md#d119); interface: [I22](../interfaces/worktree-store.md#i22).
 
-<a id="d118"></a>
+<a id="d120"></a>
 
 ## 1. Fixtures, seams and retained evidence
 
@@ -57,7 +57,7 @@ and store. For nested selection assert it is not collapsed to the Git toplevel.
 
 Inject misleading `.git` files, bare repo, stale backlink, wrong commondir, prunable/duplicate
 registration, Git command failure, external `GIT_DIR`/ceiling overrides and unavailable/unsafe
-home. Assert the exact I21 diagnostic, no local fallback, no created history and unchanged
+home. Assert the exact I22 diagnostic, no local fallback, no created history and unchanged
 foreign bytes. HOME alone cannot redirect default; explicit eligible root succeeds with a
 missing account-home lookup and does not call Git. Unsupported filesystem capabilities
 produce explicit `identity_unprovable`/`coordination_unavailable`, never a guessed identity.
@@ -114,7 +114,7 @@ committed/conflict receipts and valid noncanonical `format.json` whitespace/memb
 Require the exact marker bytes/digest at destination, not a compact reserialization. Seed both flows' active, blocked and completed wishes, checker
 bundles and artifacts. Use the old executable; retain its digest. Enroll and apply a migration
 request to the exact absent target after explicit quiescence. Independently compare every
-row/byte named in D117 §1.1 at every revision. Assert same logical store ID, distinct physical
+row/byte named in D119 §1.1 at every revision. Assert same logical store ID, distinct physical
 root/DB mapping, no extra revisions/receipts and original source history intact.
 
 Negative trials mutate an old revision/receipt or blob, drop a trigger, leave pending work,
@@ -277,7 +277,7 @@ Then terminate after destination pointer publish/sync, source pointer publish/sy
 attribute install/sync, baseline write, each blob publish, database import/commit/close,
 verification publication, source revalidation and immediately before decision publication.
 Restart with lost cache/original request. Status plus recovered exact request must resume
-from a fresh baseline or return the precise I21 refusal. Source histories remain identical;
+from a fresh baseline or return the precise I22 refusal. Source histories remain identical;
 partial targets never open normally.
 For each eligible state repeat with abort; source is released only after durable invalidation,
 old-ID retry returns aborted, and discard-prepared removes only proven owned residue. Inject
@@ -329,7 +329,7 @@ hostile metadata replay and physical power loss remain separate obligations.
 The versioned [oracle matrix](assets/worktree-store-oracle.json) is a design product, not
 executed WTSTORE results. It enumerates source/destination outcomes for every phase and
 operation class and defines Cartesian handle, alias, missing-root and default-selection
-overlays. Its symbols resolve to exact I21 reason, store CLI exit, lifecycle exit and HTTP
+overlays. Its symbols resolve to exact I22 reason, store CLI exit, lifecycle exit and HTTP
 status; `null` means that surface has no such endpoint. Read success means validated
 consistent retained history; `diagnostic` never exposes partial history. `replay` means
 identical terminal bytes, with no new store effect. Store operation request output and
@@ -341,7 +341,7 @@ Thus query/bytes always have `lifecycle_exit=null`; completed_read always has `h
 and `store_exit=null`, including location refusals. The oracle's separate completed Web
 cases cover `GET /api/wishes/{id}/work` (HTTP 200 completed work) and
 `POST /api/wishes/{id}/check` (HTTP 409 `already_delivered` after next reports completed).
-That POST performs no check/save; it is not the CLI's completed check success. I21 location
+That POST performs no check/save; it is not the CLI's completed check success. I22 location
 refusals take precedence and retain their existing status mappings on each actual surface.
 
 Apply overlays in the listed precedence; no wildcard permits an unspecified success.

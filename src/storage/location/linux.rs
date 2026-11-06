@@ -1,4 +1,4 @@
-//! Linux I21 observations. O_PATH avoids dropping SQLite's process-owned locks
+//! Linux I22 observations. O_PATH avoids dropping SQLite's process-owned locks
 //! when observing an already open database (filp_close skips locks for FMODE_PATH).
 use super::*;
 

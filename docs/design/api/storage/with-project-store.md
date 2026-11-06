@@ -5,7 +5,7 @@
 > unchecked import API. Allocation: `PlannedWorktreeStoreAccess`; planned source:
 > `src/storage/{cli,access,mod}.rs`.
 
-<a id="u115"></a>
+<a id="u117"></a>
 
 ## Guarded command access
 
@@ -55,8 +55,8 @@ for legacy same-ID conflict detection before continuation, rather than relying o
 earlier unlocked candidate scan.
 
 The root is already selected after the adapter's initial backend classification in
-[D117 §4](../../worktree-store-migration.md#d117). Run the complete probe/release/collect/
-deduplicate/order/acquire/revalidate algorithm in D117 §2.1.1, with project association and
+[D119 §4](../../worktree-store-migration.md#d119). Run the complete probe/release/collect/
+deduplicate/order/acquire/revalidate algorithm in D119 §2.1.1, with project association and
 source-baseline checks. Under the acquired set, classification is repeated before cache or
 history mutation. `initialize=true` uses private guarded initialization only where eligible;
 otherwise guarded open. Keep the lease through cache restoration, checker execution, final
@@ -123,14 +123,14 @@ The final binary renderer preserves lifecycle success/completed exit 0, checked 
 work exit 1 and command-error exit 2. It formats `UnknownOutcome { operation_id }`, and
 `Io`/`Database` optional operation IDs without loss; save IDs never become migration IDs.
 It recovers `location_reason` only from the defined stable prefix in a **Store** variant,
-retaining the I21 code and unchanged location message for Web's mapping. Structured
+retaining the I22 code and unchanged location message for Web's mapping. Structured
 selected-project/root fields come from the adapter’s captured context, never from parsing
 English; migration-specific structured diagnostics stay in its private command type. An arbitrary String
 message containing that prefix cannot forge a typed location diagnostic: final
 `StageError::Message` rendering prefixes `stage_error;` before its unchanged message, while
 only `StageError::Store` may render a leading `location_reason` token. Plan/work/run
 JSON and historical response/receipt bytes are not rewritten. The store CLI retains its
-separate I21 exit map; adapting a callback is not permission to flatten either protocol.
+separate I22 exit map; adapting a callback is not permission to flatten either protocol.
 
 Web releases preflight before starting a lifecycle child; the child owns its command lease.
 A genuine legacy command takes the private binary-side project/backend wrapper using the

@@ -347,9 +347,9 @@ this contract is [WEB-01 to WEB-05](../verification/design.md#d96) and
 [WEB2-01 to WEB2-05](../verification/design.md#d104); executed acceptance and retained
 command evidence belong to the branch's execution record, not to this page.
 
-The planned [worktree location extension](worktree-store.md#i21) specifies one effective root for reads, health and all lifecycle children, same-ID backend inspection and fail-closed location errors. Its new selectors and status behavior remain designed-only.
+The planned [worktree location extension](worktree-store.md#i22) specifies one effective root for reads, health and all lifecycle children, same-ID backend inspection and fail-closed location errors. Its new selectors and status behavior remain designed-only.
 
-The designed-only I21 extension permits `store_root=null` and `selection_state=legacy_only`
+The designed-only I22 extension permits `store_root=null` and `selection_state=legacy_only`
 for a validated legacy-only session; its classification and later persistent-resolution
-rules are owned by [the location interface](worktree-store.md#i21). Existing implemented
+rules are owned by [the location interface](worktree-store.md#i22). Existing implemented
 health fields above retain their current meaning until that extension is implemented.

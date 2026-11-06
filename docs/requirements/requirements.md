@@ -177,14 +177,14 @@ each already has full per-requirement acceptance and verification fields. [R11](
 | `workingCacheIsRecoverable` | Regenerate runtime cache and checkout every manifest byte; replay the SimpleFlow record checker on restored evidence | Cache is disposable only if durable copies reconstruct a usable record | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `wishStatusProjectsFlowExecution` | Derive wish status/current stage from the selected flow's run record and support kind/status queries | An independent status flag could contradict the flow's actual position | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
 | `storageInputAndIntegrityAreChecked` | Refuse incompatible, malformed, excessive, unsafe or replaced state; verify digests and report missing/altered/orphan/pending data | Durable but corrupt or unsafe bytes must not enter engineering decisions | `XDesignStorage` allocation in [R02](#r02) | Implemented; [STORE evidence](../records/plans/storage.md#p38) executed within disclosed limits |
-| `linkedWorktreeStoreIsIsolated` | Use an identity-bound home-directory store for each linked worktree project, retaining the ordinary project default | Independent workspaces need separate durable histories without project-local worktree stores | `PlannedWorktreeStoreSelection` | Planned; [R20](#r20) |
-| `storeRootSelectionIsConsistent` | Preserve root override precedence and make Web and delegated lifecycle operations use the same selection | Explicit locations and operator actions must refer to the same authority | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
-| `globalStoreNamespaceProtectsOtherContent` | Use a private bounded namespace and refuse occupied, unsafe or mismatched roots | Existing home-directory content and other stores must not be adopted or altered | `PlannedWorktreeStoreSelection` | Planned; [R20](#r20) |
-| `worktreeStoreMigrationPreservesHistory` | Verify and migrate the complete logical local-store history and map physical identity safely | A raw copy is not a valid location migration | `PlannedWorktreeStoreMigration` | Planned; [R20](#r20) |
-| `migratedRunsKeepTheirLifecycle` | Preserve active, blocked and completed run behavior, evidence and exact retries | Historical identity and safe continuation must survive cutover | `PlannedWorktreeStoreIntegration` | Planned; [R20](#r20) |
-| `worktreeStoreConflictsFailClosed` | Detect ambiguous local/global stores and prevent automatic merge or silent history loss | Similar IDs and paths cannot prove histories are the same | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
-| `worktreeMigrationHasRecoverableCutover` | Require quiescence, coordinate supported clients and recover interrupted cutovers | Concurrent writers and process crashes can otherwise create divergent authorities | `PlannedWorktreeStoreMigration` | Planned; [R20](#r20) |
-| `legacyCacheRegistrationsStayLegacy` | Preserve genuine legacy cache registrations and refuse ID ambiguity with stored wishes | Legacy authority differs from a disposable store-backed cache | `PlannedWorktreeStoreAccess` | Planned; [R20](#r20) |
+| `linkedWorktreeStoreIsIsolated` | Use an identity-bound home-directory store for each linked worktree project, retaining the ordinary project default | Independent workspaces need separate durable histories without project-local worktree stores | `PlannedWorktreeStoreSelection` | Planned; [R21](#r21) |
+| `storeRootSelectionIsConsistent` | Preserve root override precedence and make Web and delegated lifecycle operations use the same selection | Explicit locations and operator actions must refer to the same authority | `PlannedWorktreeStoreAccess` | Planned; [R21](#r21) |
+| `globalStoreNamespaceProtectsOtherContent` | Use a private bounded namespace and refuse occupied, unsafe or mismatched roots | Existing home-directory content and other stores must not be adopted or altered | `PlannedWorktreeStoreSelection` | Planned; [R21](#r21) |
+| `worktreeStoreMigrationPreservesHistory` | Verify and migrate the complete logical local-store history and map physical identity safely | A raw copy is not a valid location migration | `PlannedWorktreeStoreMigration` | Planned; [R21](#r21) |
+| `migratedRunsKeepTheirLifecycle` | Preserve active, blocked and completed run behavior, evidence and exact retries | Historical identity and safe continuation must survive cutover | `PlannedWorktreeStoreIntegration` | Planned; [R21](#r21) |
+| `worktreeStoreConflictsFailClosed` | Detect ambiguous local/global stores and prevent automatic merge or silent history loss | Similar IDs and paths cannot prove histories are the same | `PlannedWorktreeStoreAccess` | Planned; [R21](#r21) |
+| `worktreeMigrationHasRecoverableCutover` | Require quiescence, coordinate supported clients and recover interrupted cutovers | Concurrent writers and process crashes can otherwise create divergent authorities | `PlannedWorktreeStoreMigration` | Planned; [R21](#r21) |
+| `legacyCacheRegistrationsStayLegacy` | Preserve genuine legacy cache registrations and refuse ID ambiguity with stored wishes | Legacy authority differs from a disposable store-backed cache | `PlannedWorktreeStoreAccess` | Planned; [R21](#r21) |
 | `checkpointSourceIsProjectOwned` | Keep reusable source in the selected project and resolved run fields in its store | Tool installation and source edits must not redefine a registered run | `CheckpointLibrarySource` | As-built allocation; executor bytes are not pinned at init; [R16](#r16) |
 | `configuredChecksRetainAuthority` | Retain actual executor authority, identity, revision and evidence | An agent answer cannot be represented as deterministic script evidence | `RsCustomChecker` | As-built allocation; generic scripted-only policy conflict remains; [R16](#r16) |
 | `operatorDelegatesRunState` | Project stored facts and delegate lifecycle to the stage runtime | UI state must not become a second run authority | `OperatorWebProgram` | As-built allocation; [R16](#r16) |
@@ -378,8 +378,8 @@ and an honest software design status. Their absence from the `satisfy` table is 
 rather than an omitted obligation. The proposed `sharedChecksHavePinnedOrigins` and
 `crossProjectHistoryKeepsItsOwner` also have no implemented satisfier; their proposed
 design and planned verification are in [R16](#r16).
-The eight proposed worktree-location requirements in [R20](#r20) have planned design
-allocations in [D116](../design/storage.md#d116) and verification links in
+The eight proposed worktree-location requirements in [R21](#r21) have planned design
+allocations in [D118](../design/storage.md#d118) and verification links in
 `WorktreeStoreMigrationVerification`. The `satisfy` usages express planned design
 responsibilities, not proof of implementation, verification or acceptance. The existing
 `ProjectStore`, `LocalStageCliRuntime`, and `OperatorWebProgram` are integration points
@@ -564,7 +564,7 @@ and executed results are tracked in wish and review records, not inferred from
 these requirement statements.
 
 
-<a id="r20"></a>
+<a id="r21"></a>
 
 ## 16. Linked-worktree operational store location and migration
 
@@ -574,7 +574,7 @@ select a project-local store by default and bind a store to its root and databas
 filesystem identities; they provide no supported store migration. This requirement adds a
 specific verified local-to-home migration, not a general backup, restore, schema migration,
 history federation, or assumption that Git worktrees have a shared project identity.
-The [planned cases](../verification/design.md#d115) are not executed results.
+The [planned cases](../verification/design.md#d117) are not executed results.
 
 | Requirement | Normative behavior and rationale |
 | --- | --- |
@@ -598,7 +598,7 @@ adoption. User-managed backups, physical power-loss certification and synchroniz
 with unsupported or hostile writers are outside this requirement's acceptance claim.
 
 The model allocates these requirements to the explicitly planned selection, migration,
-access and integration boundaries in [D116](../design/storage.md#d116), and
+access and integration boundaries in [D118](../design/storage.md#d118), and
 `WorktreeStoreMigrationVerification` supplies planned verification links. These links do
 not establish a current implementation or an executed case. Later design must reconcile the
 existing storage, API, Web, lifecycle and operator contracts with these requirements,

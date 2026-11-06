@@ -75,7 +75,7 @@ fn simple_flow_file_plan_covers_the_source_and_test_inventory() {
                 .to_owned()
         })
         .collect();
-    // The accepted D117 extension adds files without rewriting the frozen
+    // The accepted D119 extension adds files without rewriting the frozen
     // SimpleFlow slice's historical model/file plan.
     let extension = fs::read_to_string("docs/design/worktree-store-migration.md").unwrap();
     let mut declared = declared;
@@ -96,7 +96,7 @@ fn simple_flow_file_plan_covers_the_source_and_test_inventory() {
         let stem = Path::new(leaf).file_stem().unwrap().to_str().unwrap();
         assert!(
             extension.contains(leaf) || extension.contains(stem),
-            "extension file must be approved by D117: {path}"
+            "extension file must be approved by D119: {path}"
         );
         declared.insert(path.to_owned());
     }

@@ -76,7 +76,7 @@ package XDesignTraceability {
     satisfy wishStatusProjectsFlowExecution by XDesignStorage::WishProjection;
     satisfy storageInputAndIntegrityAreChecked by XDesignStorage::DoctorOperation;
 
-    /* R20 is allocated to the explicitly planned worktree selection, migration,
+    /* R21 is allocated to the explicitly planned worktree selection, migration,
        access and integration definitions. These links declare design responsibility;
        they do not claim that ProjectStore, the lifecycle CLI or Web currently
        implements it, nor that any migration case or acceptance has passed. */
