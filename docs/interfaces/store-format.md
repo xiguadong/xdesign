@@ -95,6 +95,15 @@ and locks are not engineering history. There is no public delete/GC operation.
 
 ### 2.3 Identity, permissions, and publication
 
+New stage-adapter run documents may carry `artifact_snapshot_directory`, confined
+to their run's `artifact-snapshots/` cache namespace. Each completed visit then has
+an `artifact_snapshots` map from every original artifact URI to `DIRECTORY/SHA256`.
+The revision must retain each mapped digest as a material of role
+`artifact-snapshot`. Historical checker inputs can also retain earlier attempt
+versions in that namespace. Readers verify these bindings and their bytes; absence
+of these optional fields selects legacy workspace-bound checks. This is additive
+run-document bookkeeping, not migration or a change to immutable past revisions.
+
 At initialization/open and before each public operation and commit, the store checks:
 
 1. root and database are at their recorded device/inode identities, are owned by the

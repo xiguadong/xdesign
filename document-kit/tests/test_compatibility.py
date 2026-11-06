@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 import copy
 import json
 import tempfile
@@ -14,6 +16,7 @@ from xdesign_doc_kit.compatibility import DocumentKitError
 from xdesign_doc_kit.core import attach_figure, check_documents, create_document, get_contract, plan_document, update_section
 
 CACHE = REPO / "cache/document-kit-compatibility-tests"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 V1 = KIT / "compatibility/v1.0.0"
 V1_DIGEST = "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6"
 ZERO = "0" * 64

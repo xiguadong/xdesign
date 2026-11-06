@@ -1,0 +1,75 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.2.0",
+  "contract_digest_version": "2",
+  "document_class": "api-design",
+  "name": "create-run",
+  "layer": "core",
+  "template_id": "generic-api-design",
+  "metadata": {
+    "title": "Fictional api design example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "U2000",
+      "content": "This function example defines an in-memory boundary with no execution claim.",
+      "fields": {
+        "api_identity": "Example::create_run",
+        "api_kind": "function",
+        "layer": "core",
+        "purpose": "Construct an in-memory run for a validated plan."
+      }
+    },
+    "contract": {
+      "anchor": "U2001",
+      "content": "Invalid inputs are refused before a run is constructed.",
+      "fields": {
+        "declaration": "`create_run(plan: Plan) -> Result<Run, InvalidPlan>`",
+        "inputs": "One caller-owned plan with a nonempty ordered stage list.",
+        "outputs": "A new run at its first stage; ownership transfers to the caller.",
+        "errors": "InvalidPlan when the stage list is empty or repeats an identifier.",
+        "side_effects": "Not applicable: this fictional function does not persist data or invoke callbacks."
+      }
+    },
+    "behavior": {
+      "anchor": "U2002",
+      "content": "The stated invariant constrains the fictional transition.",
+      "fields": {
+        "behavior": "Validate the plan, then construct the initial run.",
+        "invariants": "An invalid plan never produces a run.",
+        "constraints": "The caller serializes access; concurrency is outside this example."
+      }
+    },
+    "trace": {
+      "anchor": "U2003",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_realization_or_reason": "Language-side helper; ExampleContext supplies boundary context but does not claim a realization of this function.",
+        "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+        "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+        "design_links": "The declaration and behavior sections on this page own the fictional contract.",
+        "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+      }
+    },
+    "limits": {
+      "anchor": "U2004",
+      "content": "The status is designed-only; no acceptance result is supplied.",
+      "fields": {
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/examples/generic-api-design.md"
+}

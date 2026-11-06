@@ -1,6 +1,6 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
   "documents": [
     {
@@ -55,7 +55,8 @@
           }
         }
       },
-      "expected_document": "catalog/examples/system-requirements.md"
+      "expected_document": "catalog/examples/system-requirements.md",
+      "layer": null
     },
     {
       "document_class": "architecture",
@@ -112,7 +113,8 @@
           }
         }
       },
-      "expected_document": "catalog/examples/system-context.md"
+      "expected_document": "catalog/examples/system-context.md",
+      "layer": null
     },
     {
       "document_class": "architecture",
@@ -177,7 +179,8 @@
           }
         }
       },
-      "expected_document": "catalog/examples/component-composition.md"
+      "expected_document": "catalog/examples/component-composition.md",
+      "layer": null
     },
     {
       "document_class": "design",
@@ -242,7 +245,8 @@
           }
         }
       },
-      "expected_document": "catalog/examples/interaction-flow.md"
+      "expected_document": "catalog/examples/interaction-flow.md",
+      "layer": null
     },
     {
       "document_class": "interface",
@@ -298,7 +302,8 @@
           }
         }
       },
-      "expected_document": "catalog/examples/operation-contract.md"
+      "expected_document": "catalog/examples/operation-contract.md",
+      "layer": null
     },
     {
       "document_class": "verification",
@@ -355,7 +360,235 @@
           }
         }
       },
-      "expected_document": "catalog/examples/verification-test-plan.md"
+      "expected_document": "catalog/examples/verification-test-plan.md",
+      "layer": null
+    },
+    {
+      "document_class": "api-design",
+      "name": "create-run",
+      "layer": "core",
+      "template_id": "generic-api-design",
+      "metadata": {
+        "title": "Fictional api design example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "U2000",
+          "content": "This function example defines an in-memory boundary with no execution claim.",
+          "fields": {
+            "api_identity": "Example::create_run",
+            "api_kind": "function",
+            "layer": "core",
+            "purpose": "Construct an in-memory run for a validated plan."
+          }
+        },
+        "contract": {
+          "anchor": "U2001",
+          "content": "Invalid inputs are refused before a run is constructed.",
+          "fields": {
+            "declaration": "`create_run(plan: Plan) -> Result<Run, InvalidPlan>`",
+            "inputs": "One caller-owned plan with a nonempty ordered stage list.",
+            "outputs": "A new run at its first stage; ownership transfers to the caller.",
+            "errors": "InvalidPlan when the stage list is empty or repeats an identifier.",
+            "side_effects": "Not applicable: this fictional function does not persist data or invoke callbacks."
+          }
+        },
+        "behavior": {
+          "anchor": "U2002",
+          "content": "The stated invariant constrains the fictional transition.",
+          "fields": {
+            "behavior": "Validate the plan, then construct the initial run.",
+            "invariants": "An invalid plan never produces a run.",
+            "constraints": "The caller serializes access; concurrency is outside this example."
+          }
+        },
+        "trace": {
+          "anchor": "U2003",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_realization_or_reason": "Language-side helper; ExampleContext supplies boundary context but does not claim a realization of this function.",
+            "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "design_links": "The declaration and behavior sections on this page own the fictional contract.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+          }
+        },
+        "limits": {
+          "anchor": "U2004",
+          "content": "The status is designed-only; no acceptance result is supplied.",
+          "fields": {
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/generic-api-design.md"
+    },
+    {
+      "document_class": "flow-definition",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-definition",
+      "metadata": {
+        "title": "Fictional flow definition example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "stages": {
+          "anchor": "D2020",
+          "content": "| Stage | Next stage |\n| --- | --- |\n| Prepare | Review |\n| Review | Complete after judgment |",
+          "fields": {
+            "stages": "Prepare collects the request; review assesses its completeness.",
+            "transitions": "Prepare proceeds to review after the request is complete.",
+            "exit_gates": "Prepare requires a readable request; review requires an explicit caller judgment."
+          }
+        },
+        "behavior": {
+          "anchor": "D2021",
+          "content": "The stated invariant constrains the fictional transition.",
+          "fields": {
+            "behavior": "Validate the plan, then construct the initial run.",
+            "invariants": "An invalid plan never produces a run."
+          }
+        },
+        "trace": {
+          "anchor": "D2022",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "ExampleContext is the context boundary; no flow realization is asserted.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/generic-flow-definition.md"
+    },
+    {
+      "document_class": "flow-implementation",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-implementation",
+      "metadata": {
+        "title": "Fictional flow implementation example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "allocation": {
+          "anchor": "D2030",
+          "content": "The controller and reviewer have separate responsibilities.",
+          "fields": {
+            "components": "A controller requests work and a reviewer supplies a decision.",
+            "interfaces": "The controller passes a request identifier and receives a recorded judgment."
+          }
+        },
+        "projection": {
+          "anchor": "D2031",
+          "content": "Source allocation is planned and subject to implementation review.",
+          "fields": {
+            "behavior": "Validate the plan, then construct the initial run.",
+            "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+            "constraints": "The caller serializes access; concurrency is outside this example."
+          }
+        },
+        "trace": {
+          "anchor": "D2032",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "ExampleContext is the context boundary; no flow realization is asserted.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed.",
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/generic-flow-implementation.md"
+    },
+    {
+      "document_class": "flow-views",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-views",
+      "metadata": {
+        "title": "Fictional flow views example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "coverage": {
+          "anchor": "D2040",
+          "content": "View applicability is decided by the author and remains subject to review.",
+          "fields": {
+            "view_coverage": "A stage table explains sequencing; prose identifies controller and reviewer responsibilities.",
+            "applicability_reasons": "A sequence figure is optional when interaction timing needs discussion; this example has no timing claim."
+          }
+        },
+        "views": {
+          "anchor": "D2041",
+          "content": "There is no figure to validate in this fictional input.",
+          "fields": {
+            "model_views": "Not applicable: the supplied context model declares no rendered flow view.",
+            "figure_references": "Not applicable: this example uses prose and a stage table, without an SVG.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+          }
+        },
+        "limits": {
+          "anchor": "D2042",
+          "content": "The status is designed-only; no acceptance result is supplied.",
+          "fields": {
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/generic-flow-views.md"
+    },
+    {
+      "document_class": "flow-index",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-index",
+      "metadata": {
+        "title": "Fictional flow index example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "D2010",
+          "content": "Read the three linked pages for the separate responsibilities.",
+          "fields": {
+            "flow_scope": "The fictional sample flow validates a request and records a review decision.",
+            "navigation_links": "[Definition](definition.md), [implementation](implementation.md), and [views](views.md)."
+          }
+        },
+        "trace": {
+          "anchor": "D2011",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "ExampleContext is the context boundary; no flow realization is asserted.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed.",
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/examples/generic-flow-index.md"
     }
   ],
   "coverage": {

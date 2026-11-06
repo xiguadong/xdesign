@@ -1,6 +1,6 @@
 # SysML documentation authoring contract
 
-> Contract: `xdesign-sysml-docs` 1.1.0. The adjacent `profile.json` is the
+> Contract: `xdesign-sysml-docs` 1.2.0. The adjacent `profile.json` is the
 > machine-readable route and template contract. Rule IDs below are stable within
 > this version. A project pins the version it uses and reviews any upgrade.
 
@@ -135,9 +135,8 @@ xdesign repository, the root `AGENTS.md`, `docs/AGENTS.md`, and
 - `index.md` is only a genuine class or layer landing page. API design has one
   page per API in the approved `docs/design/api/` branches. A new developed flow
   uses `docs/design/flows/<flow>/` with index, definition, implementation, and
-  views pages. The five flat class routes in this starter profile do not replace
-  those existing routes; add a reviewed derived profile before generating a
-  flow-specific or API page.
+  views pages. The bundled structured classes resolve those routes directly;
+  the five flat classes retain their earlier paths and defaults.
 - xdesign's explicit `DocSection` and `DocFigure` annotation syntax, renderer
   registry, canonical SVG ownership, and figure status vocabulary are normative.
   The nine diagram questions form an applicability checklist, and final figures
@@ -153,3 +152,14 @@ For another project, keep the pack versioned in Git and supply a project-specifi
 profile for its routes, model roots, anchor allocation, and added review criteria.
 Do not assume xdesign's frozen archive, flow subdirectories, or diagram count
 apply to that project.
+
+## Structured release
+
+Read [API.md](API.md) for the exact operations and publication outcomes. API pages
+require allocated U anchors and a layer field matching their route; index is
+reserved as an API basename. Flow index is a genuine landing page with natural
+headings; definition, implementation and views have distinct decimal sections.
+Every page supplies its own metadata and readable model sources. Optional figures
+still require supplied assets and complete figure blocks. Neither a failed
+publication nor a selected-document check implies whole-project acceptance.
+The original 1.0 and 1.1 closures remain selectable without migration.

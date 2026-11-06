@@ -19,7 +19,9 @@ completion.
 
 **Returns** — `true` only when each passed assessment has a nonempty
 `evidence_uris` list and every URI is a valid repository-relative path to an
-existing file. Assessments with other outcomes do not impose this check. An empty
+existing file. A completed visit resolves artifact evidence through its retained
+snapshot map, while report URIs and legacy visits retain their original locations.
+Assessments with other outcomes do not impose this check. An empty
 set of passed assessments satisfies this method; authorization separately requires
 current passed verdicts through
 [`completion_authorized`](rs-stage-visit-completion-authorized.md#u30).
@@ -32,7 +34,7 @@ current passed verdicts through
 1. for assessment in self.assessments where outcome == Passed:
 2.     if assessment.evidence_uris is empty: return false
 3.     for uri in assessment.evidence_uris:
-           if !valid_relative_path(uri) or !Path::new(uri).is_file():
+           if !valid_relative_path(uri) or !Path::new(retained_artifact_uri(uri)).is_file():
                return false
 4. return true
 ```

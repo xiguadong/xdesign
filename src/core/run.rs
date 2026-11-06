@@ -25,6 +25,7 @@ pub struct RsFlowRun {
     pub(crate) judgment: Box<dyn RsJudge>,
     pub(crate) persistence_error: bool,
     pub(crate) last_error: Option<String>,
+    pub(crate) artifact_snapshot_directory: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -38,9 +39,83 @@ struct RunRecord<'a> {
     status: RsFlowStatus,
     current_visit: usize,
     visits: &'a [RsStageVisit],
+    #[serde(skip_serializing_if = "Option::is_none")]
+    artifact_snapshot_directory: &'a Option<String>,
 }
 
 impl RsFlowRun {
+    /// Opt in before any work. Legacy records keep workspace-bound verification.
+    pub fn retain_completed_artifacts(&mut self, directory: String) -> Result<(), String> {
+        if !valid_relative_path(&directory)
+            || self.visits.iter().any(|v| !v.activities().is_empty())
+        {
+            return Err("artifact retention must be configured before recording work".into());
+        }
+        self.artifact_snapshot_directory = Some(directory);
+        Ok(())
+    }
+    pub fn artifact_snapshot_directory(&self) -> Option<&str> {
+        self.artifact_snapshot_directory.as_deref()
+    }
+    fn retain_current_artifacts(&mut self) -> Result<(), String> {
+        let Some(directory) = &self.artifact_snapshot_directory else {
+            return Ok(());
+        };
+        // No links in the retention namespace, including existing ancestors.
+        let mut prefix = std::path::PathBuf::new();
+        for part in Path::new(directory).components() {
+            prefix.push(part);
+            match fs::symlink_metadata(&prefix) {
+                Ok(metadata) if metadata.file_type().is_symlink() || !metadata.is_dir() => {
+                    return Err(format!(
+                        "unsafe artifact retention directory: {}",
+                        prefix.display()
+                    ))
+                }
+                Ok(_) => (),
+                Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                    fs::create_dir(&prefix).map_err(|e| e.to_string())?
+                }
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+        let mut snapshots = std::collections::BTreeMap::new();
+        for artifact in self.current().artifact_digests() {
+            let bytes = fs::read(&artifact.uri).map_err(|e| e.to_string())?;
+            if super::plan::sha256_bytes(&bytes) != artifact.sha256 {
+                return Err(format!(
+                    "artifact drifted before retention: {}",
+                    artifact.uri
+                ));
+            }
+            let uri = format!("{directory}/{}", artifact.sha256);
+            match fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&uri)
+            {
+                Ok(mut file) => {
+                    use std::io::Write;
+                    file.write_all(&bytes).map_err(|e| e.to_string())?;
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => {
+                    let metadata = fs::symlink_metadata(&uri).map_err(|e| e.to_string())?;
+                    if !metadata.is_file()
+                        || metadata.file_type().is_symlink()
+                        || fs::read(&uri).map_err(|e| e.to_string())? != bytes
+                    {
+                        return Err(format!(
+                            "retained artifact conflicts with assessed bytes: {uri}"
+                        ));
+                    }
+                }
+                Err(error) => return Err(error.to_string()),
+            }
+            snapshots.insert(artifact.uri.clone(), uri);
+        }
+        self.visits[self.current_visit].artifact_snapshots = snapshots;
+        Ok(())
+    }
     pub fn status(&self) -> RsFlowStatus {
         self.status
     }
@@ -81,6 +156,7 @@ impl RsFlowRun {
             status: self.status,
             current_visit: self.current_visit,
             visits: &self.visits,
+            artifact_snapshot_directory: &self.artifact_snapshot_directory,
         };
         let bytes = serde_json::to_vec_pretty(&record).map_err(|e| e.to_string())?;
         if let Some(parent) = Path::new(&self.run_record_uri).parent() {
@@ -294,6 +370,7 @@ impl RsFlowRun {
 
     fn remain_blocked(&mut self) -> RsAdvanceOutcome {
         self.status = RsFlowStatus::Blocked;
+        self.visits[self.current_visit].artifact_snapshots.clear();
         self.visits[self.current_visit].status = RsStageStatus::Blocked;
         self.persist();
         RsAdvanceOutcome::RemainBlocked
@@ -323,6 +400,11 @@ impl RsFlowRun {
         let old_visits = self.visits.clone();
         let old_index = self.current_visit;
         let old_status = self.status;
+        if let Err(error) = self.retain_current_artifacts() {
+            let outcome = self.remain_blocked();
+            self.last_error = Some(error);
+            return outcome;
+        }
         let stage = self.current().stage_id().to_owned();
         if self.plan.stage(&stage).is_some_and(|s| s.completes_flow) {
             self.status = RsFlowStatus::Completed;

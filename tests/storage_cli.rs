@@ -441,9 +441,16 @@ fn simple_flow_commits_checker_exchange_and_failed_gate_then_restores_reader_sna
         })
         .collect();
     assert_eq!(materials[&report_uri], sha256_bytes(&report_bytes));
+    let run: Value = serde_json::from_slice(
+        &fs::read(project.root.join("cache/xdesign/wish-test/run.json")).unwrap(),
+    )
+    .unwrap();
     for (uri, digest) in report["input_sha256"].as_object().unwrap() {
-        assert_eq!(materials[uri], digest.as_str().unwrap());
-        assert!(project.root.join(uri).is_file(), "missing {uri}");
+        let retained = run["visits"][0]["artifact_snapshots"][uri]
+            .as_str()
+            .unwrap_or(uri);
+        assert_eq!(materials[retained], digest.as_str().unwrap());
+        assert!(project.root.join(retained).is_file(), "missing {retained}");
     }
     for suffix in [".stdout.log", ".stderr.log"] {
         assert!(materials.contains_key(&format!("{report_uri}{suffix}")));
@@ -539,6 +546,9 @@ fn legacy_cache_run_stays_legacy_beside_persistent_items_and_store_root_can_be_o
         serde_json::from_slice(&fs::read(source_dir.join("run.json")).unwrap()).unwrap();
     run["plan_uri"] = json!("cache/xdesign/wish-legacy/plan.json");
     run["wish_model_uri"] = json!("mbse/wishes/wish-legacy.sysml");
+    run.as_object_mut()
+        .unwrap()
+        .remove("artifact_snapshot_directory");
     project.write(
         "cache/xdesign/wish-legacy/run.json",
         &serde_json::to_vec_pretty(&run).unwrap(),

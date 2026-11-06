@@ -110,6 +110,11 @@ store history, or cut over authority. The request contains no namespace secret k
 The `--older-clients-stopped` flag is required; it records an operator assertion, not a
 process-fencing claim. `apply` repeats identity/history checks before accepting the request.
 
+Enrollment also creates a `.xdesign-access-v1/` coordination directory beside the local
+source. It contains recovery metadata rather than store history and must remain in place
+while that source is retained. Exclude `.xdesign-access-v1/` from version control in each
+project, including nested projects, so these machine-specific records are not committed.
+
 Keep the request bytes unchanged. If an apply response is lost, run status through either
 original root, including an absent root whose original parent remains intact. Recover the
 accepted bytes to a **new** external file and replay them:

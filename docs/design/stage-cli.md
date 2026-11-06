@@ -83,6 +83,15 @@ A check response also carries `assessed` with the assessed stage, visit index, r
 snapshot digest and newly appended assessments, plus `advance`. Successor work is never
 misrepresented as the visit whose assessments just ran.
 
+Work includes `review_contract.syntactic` and `review_contract.semantic`, containing
+compact projections of the frozen checkpoint criteria, rule conditions/inputs,
+checker identity and judge permissions, without duplicating executor bundles.
+`exit_checkpoints` retains the full declarations. An empty semantic list means
+there is no formal semantic exit gate at that stage. Independent worker review is a
+coordinator policy and cannot replace a script result or authorize advancement.
+`correction_reasons` identifies retained artifact failures with stage/visit, original
+URI, retained URI, expected digest and observed digest or read error.
+
 The optional result file is strict JSON:
 
 ```json
@@ -149,6 +158,26 @@ JSON record copy at `reports/<stage>_<revision>_<uuid>.record.json` before each
 fixed checker call and passes that copy as the checker
 input, so the report's input URI and hash stay re-openable after the live run advances. Artifact paths stay inside the
 project, including after symlink resolution. A result file cannot choose commands to run.
+
+Supplemental read context does not freeze its live source forever. New persistent
+runs report `artifact_retention = "completed-stage-snapshots"`: on completion, each
+visit retains assessed bytes under `cache/xdesign/WISH_ID/artifact-snapshots/SHA256`.
+The run's optional `artifact_snapshot_directory` and each completed visit's
+`artifact_snapshots` map bind these locations to the original URI/digest list.
+Current-stage checks still read live files. Completed-stage checks use the retained
+versions, including when different stages assessed different versions of one URI.
+Missing cache snapshots are reconstructed from verified store materials; conflicting
+bytes or links are refused. Historical runs without this field retain
+`artifact_retention = "legacy-workspace"` and their original live-file checks.
+
+`workspace_changes` reports live product changes relative to the latest completed
+artifact per URI; it does not revoke or rewrite historical judgments. Before a new
+semantic PASS, the changed live files must be included in `result.artifacts` and the
+judgment must bind that complete current snapshot. A missing changed file cannot
+silently satisfy this requirement. Completion concerns the assessed snapshot, not
+arbitrary later workspace edits. Non-Rust products must supply their actual source,
+template and test artifacts explicitly; the built-in Rust selector is not a claim
+of automatic whole-product coverage.
 
 ### 1.4 Storage, recovery and limits
 

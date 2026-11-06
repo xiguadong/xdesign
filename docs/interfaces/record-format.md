@@ -28,6 +28,14 @@
 run retains their instance data in the revisioned run record instead. The wish source itself
 is an imported SysML material with a regenerable working copy, not a second Git authority
 ([A02](../architecture/index.md#a02), [store format](store-format.md#i11)).
+
+The Rust adapter adds optional retention bookkeeping for new store-backed runs:
+`artifact_snapshot_directory` on the run and `artifact_snapshots` on completed
+visits. The latter maps each original artifact URI to `DIRECTORY/SHA256`, with
+exact key coverage of that visit's artifact digests. It does not change the
+canonical original-URI/digest snapshot, activities, assessments or model vocabulary.
+Uncompleted visits have no map. Missing fields select legacy live-file checking;
+malformed, incomplete, misplaced or unretained mappings are integrity errors.
 `FlowStatus` has the literals `pending`, `active`, `blocked`, and `completed` for
 the execution as a whole. It is separate from each visit's `StageStatus`. Legacy traces
 retain an explicit `WishStatus`; store queries project wish status from `assignedFlow`,

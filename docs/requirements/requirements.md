@@ -14,6 +14,7 @@ source.
 | Working update | 2026-10-19 | Organized the requirements-stage topics around the existing model inventory and trace | Not an SRR or frozen functional baseline |
 | Working update | 2026-11-03 | Added scenario-based document template catalog requirements and acceptance allocation | Proposed; independent wish requirements review pending |
 | Working update | 2026-11-05 | Added linked-worktree store requirements and preliminary planned design allocations | Proposed; review of the revised allocation pending |
+| Working update | 2026-11-05 | Added structured API and flow documentation requirements and planned verification | Proposed; design and product acceptance pending |
 
 <a id="r04"></a>
 
@@ -358,7 +359,11 @@ model satisfier, as described below; they are not counterexamples to that attrib
 The seven proposed scenario-template requirements in [R19](#r19) also have no `satisfy` links at
 this requirements stage. `DocumentContractSource` and `DocumentContractEngine` are candidates for
 later design allocation, not established satisfaction; design reconciliation must establish
-an answer before adding those links.
+an answer before adding those links. The eight proposed structured-document requirements in
+[R20](#r20) likewise have no asserted satisfier; their planned verification relationships are
+in `XDesignVerification::StructuredDocumentKitVerification`, with cases in
+[V19](../verification/requirements.md#v19). The store-backed wish owns its derivation and run
+history; the project model does not refer to that wish.
 
 `wishProductsAreRetained` and `modelStandsWithoutWishes` have no satisfier: nothing in the
 model holds a wish's products to the model, and nothing keeps wish identity out of it.
@@ -563,10 +568,134 @@ source and engine elements are allocation candidates only. Implementation status
 and executed results are tracked in wish and review records, not inferred from
 these requirement statements.
 
+<a id="r20"></a>
+
+## 16. Structured API and flow documentation
+
+The earlier [initial catalog scope](#r19) remains the contract of that release;
+its exclusion of bundled structured routes does not exclude this later proposed
+capability. These requirements apply to a new, separately identified contract.
+The selected versioned profile defines the permitted routes and any project-specific
+layer vocabulary. In xdesign, API layers are `core`, `simple-flow`, `wish-verify`,
+and `storage`; a reviewed consumer profile may use its own semantic layer names.
+There is no `docs/mbse/` tree: model sources live under the configured model roots,
+such as `mbse/model/`. Planning may precede model authoring; creating and checking
+use the existing model-source prerequisite. This capability generates documents, not
+SysML models, diagrams, source code, or evidence of execution.
+
+| Proposed requirement | Observable condition and rationale |
+| --- | --- |
+| `structuredDocumentationHasNamedRoutes` | The contract supports a per-API page at `docs/design/api/<layer>/<api>.md` and separately selectable `index.md`, `definition.md`, `implementation.md`, and `views.md` roles at `docs/design/flows/<flow>/`. Each component is a semantic lowercase kebab-case name subject to the selected profile; `index.md` is a genuine landing page. The xdesign API route reserves `index` and rejects it as an API basename. A read-only plan returns the unique project-relative destination, required inputs and fields, selected contract and template identity, and existing-file state. A caller chooses a declared route and name components, never an arbitrary destination. The structured contract also retains the existing five flat class routes and authoring behavior; original contracts remain independently usable. Predictable routes preserve ownership and avoid a flat collection of unrelated pages. |
+| `apiDesignDocumentsCoverContract` | The reusable API template and guide let an author document one function, method, type, trait, or other API per page. Inputs cover identity, kind, layer, purpose, status/revision, model realization or a language-side rationale, implementation projection, related design/requirements/verification links, and the appropriate signature or definition, inputs, outputs, error behavior, side effects, behavior and invariants. Material that is inapplicable to a particular kind is recorded with a reason rather than invented. The xdesign profile uses an explicitly allocated globally unique `U` anchor; caller-provided engineering claims are never fabricated. The page must explain the API, not merely have an API-shaped filename. |
+| `flowDesignDocumentsCoverLayers` | The four named roles have suitable selectable templates and inputs: the landing page identifies scope and navigation, definition covers stages/gates and flow behavior, implementation covers allocation and source projection, and views covers model views, applicability decisions and relevant figure references. Links and figures obey the selected profile and require supplied targets and content; the kit does not invent a design, model or result. Distinct contracts keep the page roles useful rather than creating four indistinguishable files. |
+| `structuredDocumentationUsesSafeOperations` | Plan, create, check, section update and applicable figure attachment work for every structured role. Each page has explicit caller metadata and model sources; unmanaged pages, stale hashes, invalid routes and denied access have the operation-specific outcomes below. Update and attachment resolve the recorded effective contract, change only authorized content, and require the current hash. Publication failures report their actual or uncertain state without claiming a two-file transaction. Nested routing must retain the safety and ownership of flat routes. |
+| `structuredDocumentationKeepsVersionIdentity` | Changed contract resources have a new version and digest. The new structured contract retains the five existing flat routes, generic defaults and original 1.1 catalog selections, including their required sections, fields and view decisions; newly created pages carry the new contract identity. The original selectable schema 1.0 and `1.1.0` packs retain their exact resource bytes, identities, route behavior, marker and registry interpretation, including original 1.1 automatic routing of the exact bundled-v1 identity. The structured release checks exact bundled-v1, bundled-1.1.0 and new managed pages together under their own contracts as specified below. Unrecognized or mismatched identities fail without implicit migration; historical records and evidence remain immutable. This preserves both existing authoring behavior and the basis under which earlier documents and results were authored. |
+| `structuredDocumentationHasSharedSurfaces` | The Python public API, JSON CLI and bound stdio MCP tool/resource surface expose equivalent structured selections, required inputs, resolved paths, identities, results and diagnostics for the same operations. Existing calls/resources remain usable under their original contracts; MCP cannot redirect its bound project or pack. Equivalent adapters avoid agent-specific rule forks. |
+| `documentKitPublicApiIsDocumented` | Consumer-accessible documentation included with the distributed kit describes the public Python exports, CLI operations and MCP tools/resources: invocation, route selectors, required content and model inputs, outputs, errors, overwrite and hash behavior, version/identity rules, mixed-release and selected-check scope, incomplete or unknown publication outcomes, and semantic limits. A usable plan/create/check/update example and a pointer to the authoritative detailed contract are required. Consumers need to discover how to exercise the capability outside xdesign. |
+| `structuredDocumentationEvidenceIsReviewable` | Evidence identifies the assessed source revision, selected and effective contract versions/digests, caller inputs, actual generated paths and hashes, commands and outcomes, diagnostics and failure-preservation hashes, compiler limits, and permitted reviewer/judgment. The checker reports deterministic findings and whether semantic review remains required; engineering adequacy, model alignment and any figure fidelity are judged separately. Reproducible evidence must not confuse a structural pass with acceptance. |
+
+### 16.1 Inputs, unmanaged pages and figure decisions
+
+For every API page and each of the four flow roles, plan reports the required
+per-document metadata: nonempty `title`, `status`, `revision`, and a nonempty
+caller-supplied `model_sources` list. Each entry is a distinct, normalized,
+project-relative `.sysml` regular file under a configured required or optional
+model root and must be readable; create also requires at least one readable
+`.sysml` file in a required model root. Planning does not require those files to
+exist. Missing, empty, malformed, duplicate, out-of-root, nonexistent, unreadable
+or symlinked declared sources are rejected before publication with the applicable
+metadata, model-source, unreadable-input or unsafe-path diagnostic. Supplying a
+context model source is still required when an API's realization is language-side;
+that source does not by itself assert a model realization.
+
+For a readable existing page without a managed marker or registry entry, plan
+reports `exists` and its hash without adopting it. Create refuses the collision;
+whole-project check applies the existing ordinary project-level checks without
+imposing a managed template or registering the page. Update and attachment refuse
+an unmanaged target. These operations do not alter the unmanaged bytes or add a
+registry entry. A managed marker without a matching registry entry remains an
+identity error, not an unmanaged page to adopt. Invalid names, unexpected
+separators, absolute/traversing paths and symlink components are refused before
+unsafe access; the xdesign API basename `index` is reserved even though it is
+otherwise a valid kebab-case word. The flow `index.md` landing role remains valid.
+
+For each API and flow role, a selected contract's permitted figure decision can
+be attached using a supplied, already existing valid asset and the current document
+hash. A prohibited figure, disallowed or unknown concern, or non-figure decision
+is refused deterministically with a structured diagnostic. A stale expected hash
+is refused before a write. Successful attachment changes only the authorized
+section and retains effective identity and registry bytes; failed prepublication
+attempts preserve the page and registry. Figure fidelity and readability require
+separate review.
+
+### 16.2 Mixed-release validation boundary
+
+The structured release retains the exact original bundled `1.0.0` and `1.1.0`
+contract resource closures at selectable roots and validates their original
+digests and marker/registry forms. It recognizes those two exact bundled
+identities and its own new identity, resolves each managed page's effective
+contract before checking or updating it, and neither rewrites identity nor
+migrates a page as a side effect. In a single project containing all three,
+whole-project check under the structured release checks every supported managed
+page against its own effective contract and applies the normal project-wide
+checks. It reports each checked page's effective identity and succeeds only if
+all applicable checks pass. An unmanaged page receives its ordinary checks.
+
+The structured release also offers a read-only selected-document check for a
+registered page selected through a safe supported identity/route. It checks that
+page against its effective contract and reports its scope and any applicable
+project-wide context checks, such as anchor uniqueness and relevant model/link
+checks; it does not claim that the whole project passed. For example, the result
+can report a collision with another page even when only one page was selected.
+Other custom or later-release identities are supported only if a separately
+declared, verified compatibility binding explicitly recognizes their exact
+identity; otherwise affected checks and writes fail with identity diagnostics,
+without adoption or migration.
+
+Explicit selection of an original pack still permits that pack's original
+operations on its own documents. Its original whole-project check is unchanged
+and may report an identity mismatch when it sees new-release pages; it is not
+required to understand a future release. The structured release's mixed and
+selected checks supply the supported validation path for the three bundled
+identities. Route representation, retained-pack layout and API signatures remain
+design choices.
+
+### 16.3 Denied access and publication
+
+Denied reads of a selected pack, model source, document or registry and denied
+writes to a route, lock, staging file, page or registry return an unsuccessful
+result with an actionable structured diagnostic identifying the operation or
+phase and safely identifiable path. Use the established diagnostic vocabulary
+where applicable, including `unreadable-input` for an unreadable project input
+and `atomic-replace-failed` for a denied atomic replacement; pack validation
+keeps its specific error codes. Any added access-failure code is stable and
+documented. Python, CLI and MCP expose equivalent decisions and diagnostic
+details within their respective envelopes; a raw filesystem exception or a
+success result is not an adequate denial report.
+
+Before publication, denied reads, lock/staging/route writes, invalid requests and
+denied replacement leave pre-existing documents and registry bytes unchanged and
+do not change files outside the selected project. A failed single-file atomic
+replacement has no partial-write fallback. Creation publishes a new page and a
+registry entry separately: if registry publication fails, it attempts to remove
+only the newly created page. A successful cleanup leaves that page absent and the
+pre-existing registry unchanged; if cleanup is denied or interrupted, the new
+page may remain without a registry entry and the result reports incomplete
+publication. A subsequent check, once access is restored, reports the mismatch
+without adopting it. If an error occurs after publication or its outcome cannot
+be determined, the result reports the known phase and an unknown outcome rather
+than claiming that no effect occurred; inspect the page and registry before
+retrying. Neither pre-existing files nor outside-target bytes may be deleted or
+overwritten as cleanup. This is not a two-file atomicity guarantee.
+
+The planned method, test inputs, expected results and coverage for every requirement are
+specified in [V19](../verification/requirements.md#v19). The route and template schema,
+new release version, compatibility mechanism, API signatures, and source allocation are
+design-stage choices. Nothing above asserts that the existing kit already implements them.
 
 <a id="r21"></a>
 
-## 16. Linked-worktree operational store location and migration
+## 17. Linked-worktree operational store location and migration
 
 The eight model requirements below are proposed behavior. The currently implemented
 [storage design](../design/storage.md#d86) and [format contract](../interfaces/store-format.md#i11)

@@ -339,6 +339,17 @@ stored revision silently moves a legacy run to the new backend.
   artifact working files are never overwritten merely to make them match the head; changed
   bytes are input to the new check, while unexpected drift in frozen plan/work/registry is
   refused.
+- **Completed artifact versions.** New stage registrations opt into an immutable
+  artifact-snapshot directory in their run record. On visit completion, each original
+  artifact URI/digest is mapped to its content-addressed retained bytes. Materials of
+  role `artifact-snapshot` are confined to that run's `artifact-snapshots/` directory.
+  The store projection validates the complete map against the revision manifest.
+  Readers reconstruct missing cache copies and reject conflicting copies. Historical
+  checker-input digests resolve to the corresponding visit's snapshot, so a later
+  stage may use a newer version of the same live URI. Original activities,
+  assessments and artifact snapshot identities remain unchanged. Records without
+  the optional retention field preserve their previous behavior. Live changes are
+  disclosed separately and must be bound into any later passing semantic judgment.
 - **One check, one logical commit, one attempt area.** Engine output is speculative until
   the store commits it. Each `check` stages the engine's working copy of the run record
   and the stage response under `cache/xdesign/WISH_ID/attempts/` instead of the canonical

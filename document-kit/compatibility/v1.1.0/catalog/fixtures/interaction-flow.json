@@ -1,0 +1,78 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [{
+    "pack": "catalog/mixed/assets/interaction-flow.svg",
+    "target": "docs/design/assets/interaction-flow.svg",
+    "title": "Aster current-reading request and response",
+    "Question": "In what order do request, validation, response, and timeout occur?",
+    "Model view": "Example::InteractionFlow",
+    "Companions": "The operation-contract and alternate-flow tables.",
+    "Status": "renderable-now; designed-only",
+    "Reading": "Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.",
+    "Limits": "The view is fictional and omits transport encoding, authentication, and precise timeout duration."
+  }],
+  "document_class": "design",
+  "name": "sensor-interaction-flow",
+  "template_id": "interaction-flow",
+  "metadata": {
+    "title": "Aster current-reading interaction flow",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "D100",
+      "content": "The design explains the ordering for one current-reading request, including validation and timeout behavior rather than static schema details.",
+      "fields": {
+        "design_subject": "Synchronous request/validation/response flow between Controller and Sensor with one timeout alternate.",
+        "requirements_links": "Latest-reading query, explicit invalid-input rejection, and no-fabricated-value requirements drive the flow."
+      }
+    },
+    "participants": {
+      "anchor": "D101",
+      "content": "Controller originates ReadRequest, Sensor checks sensorId and buffer state, and the operation boundary returns ReadingResponse or an explicit outcome.",
+      "fields": {
+        "participants": "Controller is the requester; Sensor is the provider; RingBuffer is an internal read-only participant, not an external actor.",
+        "interfaces": "ReadRequest carries sensorId; ReadingResponse carries Reading, NOT_READY, UNKNOWN_SENSOR, or TIMEOUT."
+      }
+    },
+    "flow": {
+      "anchor": "D102",
+      "content": "The numbered flow is request, validation, buffer read, then response; timeout cannot produce a ReadingResponse after the deadline.\n\n![Aster request and response ordering](assets/interaction-flow.svg)\n\n> **Figure D102-1 — Aster request and response ordering.**  \n> **Question:** In what order do request, validation, response, and timeout occur?  \n> **Model view:** Example::InteractionFlow  \n> **Companions:** The operation-contract and alternate-flow tables.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.  \n> **Limits:** The view is fictional and omits transport encoding, authentication, and precise timeout duration.\n",
+      "fields": {
+        "interactions": "Controller sends ReadRequest, Sensor validates sensorId, reads newest valid Reading, and sends ReadingResponse.",
+        "ordering": "Validation precedes buffer access, buffer access precedes response, and timeout terminates the attempt without a value response.",
+        "diagram_decisions": "[{\"concern\":\"interaction-ordering\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"Numbered arrows and lifelines make request, validation, response, and timeout order explicit.\",\"asset\":\"assets/interaction-flow.svg\",\"model_view\":\"Example::InteractionFlow\"}]"
+      }
+    },
+    "alternates": {
+      "anchor": "D103",
+      "content": "Unknown sensorId returns UNKNOWN_SENSOR before buffer access, empty history returns NOT_READY, and timeout produces no reading rather than a stale fabricated response.",
+      "fields": {
+        "alternate_flows": "UNKNOWN_SENSOR skips reading, NOT_READY follows an empty read, and TIMEOUT ends the operation without ReadingResponse.",
+        "error_behavior": "Errors are explicit outcomes and never mutate history or turn an old value into a newly timestamped reading."
+      }
+    },
+    "constraints": {
+      "anchor": "D104",
+      "content": "The flow is read-only and single-request; concurrent retries, authentication, and transport retransmission are deliberately outside this example.",
+      "fields": {
+        "behavior": "One request produces at most one terminal outcome and never changes buffer contents or reading timestamps.",
+        "constraints": "No response after timeout, no buffer mutation, and no implicit retry or fallback value."
+      }
+    },
+    "projection": {
+      "anchor": "D105",
+      "content": "Tests record event order for success, unknown sensor, empty history, and timeout paths and inspect the corresponding Example::InteractionFlow view.",
+      "fields": {
+        "source_projection": "RequestHandler, RequestValidator, ReadLatestExporter, and a controllable timeout are intended design units.",
+        "verification_links": "Ordered success, unknown-sensor, empty-history, and timeout event-sequence cases are planned checks."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/interaction-flow.md"
+}

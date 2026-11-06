@@ -5,6 +5,8 @@ Fixtures live in cache and represent a separate engineering project.
 
 from __future__ import annotations
 
+import os
+
 import hashlib
 import errno
 import json
@@ -18,6 +20,7 @@ from unittest.mock import patch
 KIT = Path(__file__).resolve().parents[1]
 REPO = KIT.parent
 CACHE = REPO / "cache" / "document-kit-acceptance"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 sys.path.insert(0, str(KIT))
 
 from xdesign_doc_kit.core import (  # noqa: E402
@@ -84,8 +87,9 @@ class AcceptanceTests(unittest.TestCase):
         self.assertEqual(len(original_digest), 64)
         for document_class, spec in contract["profile"]["document_classes"].items():
             with self.subTest(document_class=document_class):
-                plan = plan_document(self.project, document_class, "sensor-system")
-                self.assertEqual(plan["path"], spec["path_template"].replace("{name}", "sensor-system"))
+                layer = "core" if spec.get("selector_kind") == "api" else None
+                plan = plan_document(self.project, document_class, "sensor-system", layer=layer)
+                self.assertEqual(plan["path"], spec["path_template"].replace("{name}", "sensor-system").replace("{layer}", layer or ""))
                 self.assertEqual(plan["required_sections"], spec["required_sections"])
                 self.assertEqual(plan["contract_sha256"], original_digest)
                 self.assertFalse(plan["exists"])

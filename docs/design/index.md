@@ -18,7 +18,7 @@ The project SysML model is the structural source. These pages explain the modele
 | [adapters.md](adapters.md) | common | checker-command and judge boundaries, reports, authority |
 | [web-operator.md](web-operator.md) | operator surface | embedded web program: position, request flow, view and executor wording, start-work handoff, embedded-asset release model |
 | [checkpoint-library.md](checkpoint-library.md) | authoring source | reusable syntactic and semantic checkpoint definitions, versions, scripts and scaffolds, plan binding and freezing |
-| [document-kit.md](document-kit.md) | portable authoring design | delivered profile and templates; planned constrained writing, CLI/MCP adapters, and validation boundary |
+| [document-kit.md](document-kit.md) | portable authoring design | existing versioned contract and [structured-release design](document-kit.md#d115) |
 | [storage.md](storage.md) | operational persistence | store authority, revisions, materials, atomic save, queries, checkout and recovery |
 | [flows/simple-flow/](flows/simple-flow/index.md) | flow-specific | four-stage definition, implementation, views |
 | [flows/wish-verify/](flows/wish-verify/index.md) | flow-specific | two-stage definition, implementation, views |

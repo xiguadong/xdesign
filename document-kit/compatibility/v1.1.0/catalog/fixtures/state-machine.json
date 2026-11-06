@@ -1,0 +1,68 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "design",
+  "name": "sensor-state-machine",
+  "template_id": "state-machine",
+  "metadata": {
+    "title": "Aster sampling lifecycle state machine",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "D100",
+      "content": "The lifecycle model distinguishes stopped, ready, sampling, and fault states so event handling and recovery are explicit rather than implied by a linear procedure.",
+      "fields": {
+        "design_subject": "AsterHub lifecycle states, events, guards, transitions, terminal behavior, and fault recovery.",
+        "requirements_links": "Continuous sampling, explicit invalid-data handling, and latest-valid retention requirements drive the lifecycle."
+      }
+    },
+    "states": {
+      "anchor": "D101",
+      "content": "Stopped has no collection, Ready waits for start, Sampling collects periodically, and Fault suspends acquisition while preserving history; no state view is needed for four states.",
+      "fields": {
+        "states": "Stopped, Ready, Sampling, and Fault are the meaningful states; history remains readable in every state.",
+        "invariants": "Samples are created only in Sampling, Fault never clears history, and Stopped never emits a new timestamp.",
+        "diagram_decisions": "[{\"concern\":\"lifecycle-states\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"Four states and their guards are clearer in a transition table than a diagram.\",\"asset\":null,\"model_view\":null}]"
+      }
+    },
+    "events": {
+      "anchor": "D102",
+      "content": "start, stop, tick, probeFault, reset, and shutdown are the events; tick is accepted only in Sampling and reset only in Fault.",
+      "fields": {
+        "events": "start begins collection, stop pauses it, tick acquires, probeFault enters Fault, reset recovers, and shutdown ends the lifecycle.",
+        "guards": "start requires Ready, tick requires Sampling and working probe, probeFault requires a detected failure, and reset requires a successful self-test."
+      }
+    },
+    "transitions": {
+      "anchor": "D103",
+      "content": "Stopped→Ready→Sampling→Fault→Sampling covers startup, failure, and recovery; any nonterminal state may enter Stopped on stop.",
+      "fields": {
+        "transitions": "Stopped to Ready on initialize, Ready to Sampling on start, Sampling to Fault on probeFault, Fault to Sampling on reset, and any to Stopped on stop.",
+        "terminal_states": "Shutdown from Stopped is terminal and releases resources without producing another reading or clearing retained history."
+      }
+    },
+    "recovery": {
+      "anchor": "D104",
+      "content": "A failed self-test keeps Fault active and raises an explicit maintenance status; a successful reset resumes cadence with a fresh timestamp, never a backdated value.",
+      "fields": {
+        "recovery_behavior": "Run self-test before reset, remain in Fault on failure, and resume with the next fresh sample after success.",
+        "constraints": "No automatic history deletion, no fabricated recovery sample, and no tick processing while Fault is active."
+      }
+    },
+    "projection": {
+      "anchor": "D105",
+      "content": "The projection is a transition-table test matrix covering illegal events, guard failure, recovery, terminal shutdown, and history preservation.",
+      "fields": {
+        "source_projection": "LifecycleController and ProbeSelfTest are intended units; transitions are evaluated against an explicit event log.",
+        "verification_links": "Illegal-tick, failed-reset, successful-reset, stop, shutdown, and history-retention cases are planned checks."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/state-machine.md"
+}

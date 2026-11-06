@@ -59,3 +59,13 @@ record that state and keep the wish at the current gate.
 Bind `check_documents` into another project's design-stage gate or CI if
 failed documents must block progression. The skill alone cannot block a
 flow transition.
+
+## Structured API and flow authoring
+
+Read [API.md](API.md). Select `api-design` with its configured layer, or one of
+the four flow roles with a flow name. Plan before supplying content; create link
+targets before a flow index. Keep API declarations, side effects, model rationale,
+source projection and verification trace explicit. Use selected checks for a
+registered page and whole-project checks for the project. Record the reported
+scope and effective identity. Inspect page and registry before retrying an
+incomplete or unknown publication outcome. Never adopt a stored example.

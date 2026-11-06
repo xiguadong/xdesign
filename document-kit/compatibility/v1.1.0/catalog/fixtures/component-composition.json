@@ -1,0 +1,68 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "architecture",
+  "name": "sensor-component-composition",
+  "template_id": "component-composition",
+  "metadata": {
+    "title": "Aster collector buffer and exporter composition",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "context": {
+      "anchor": "B110",
+      "content": "Within the AsterHub boundary, three components divide acquisition, retention, and query work; external actors are intentionally omitted from this composition view.",
+      "fields": {
+        "system_boundary": "Only Collector, RingBuffer, and Exporter are internal components in this example.",
+        "external_actors": "Probe and Operator appear only as interface endpoints so component responsibilities remain clear."
+      }
+    },
+    "parts": {
+      "anchor": "B111",
+      "content": "Collector validates and timestamps, RingBuffer keeps ten valid readings, and Exporter answers queries without mutation. A table is sufficient for these three responsibilities.",
+      "fields": {
+        "parts": "Collector, UtcClock, RingBuffer, and Exporter are the purposeful parts; no further decomposition is needed.",
+        "responsibilities": "Collector rejects invalid values, clock supplies UTC, buffer evicts oldest-first, and exporter returns newest or NOT_READY.",
+        "diagram_decisions": "[{\"concern\":\"component-structure\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"Three responsibilities and two relationships are clearer in a table than another diagram.\",\"asset\":null,\"model_view\":null}]"
+      }
+    },
+    "relationships": {
+      "anchor": "B112",
+      "content": "Collector depends on UtcClock and writes RingBuffer; Exporter depends only on RingBuffer's read interface and cannot call append or evict.",
+      "fields": {
+        "relationships": "Collector→UtcClock for time, Collector→RingBuffer for append, and Exporter→RingBuffer for readLatest are the only internal dependencies.",
+        "interfaces": "RingBuffer exposes append(Reading) to Collector and readLatest() to Exporter; mutation is unavailable to Exporter."
+      }
+    },
+    "behavior": {
+      "anchor": "B113",
+      "content": "The collector continues appending while the exporter is unavailable, and the eleventh valid sample evicts only the oldest retained sample.",
+      "fields": {
+        "interactions": "Validation precedes append, readLatest returns a copy, and export failure never propagates back into collection.",
+        "states": "Empty, partially full, and full buffer states distinguish NOT_READY, append, and FIFO eviction behavior."
+      }
+    },
+    "constraints": {
+      "anchor": "B114",
+      "content": "The composition intentionally avoids a shared database or bidirectional controller dependency so each internal responsibility remains independently testable.",
+      "fields": {
+        "constraints": "One writer per buffer, read-only export, ten-entry capacity, and no controller callback into collection.",
+        "design_rationale": "Single-writer FIFO and narrow interfaces make ordering, ownership, and failure isolation easy to inspect."
+      }
+    },
+    "trace": {
+      "anchor": "B115",
+      "content": "The composition traces to Example::Sensor and the interaction design; buffer eviction and exporter-isolation checks cover the important relationships.",
+      "fields": {
+        "model_elements": "Example::Sensor provides the owning part; Collector, RingBuffer, and Exporter are language-side design responsibilities.",
+        "verification_links": "Planned capacity, read-only export, FIFO eviction, and controller-outage cases verify composition behavior."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/component-composition.md"
+}

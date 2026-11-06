@@ -19,6 +19,8 @@ struct StoredRun {
     status: RsFlowStatus,
     current_visit: usize,
     visits: Vec<RsStageVisit>,
+    #[serde(default)]
+    artifact_snapshot_directory: Option<String>,
 }
 
 fn uri_set<'a>(uris: impl IntoIterator<Item = &'a str>) -> Result<HashSet<&'a str>, String> {
@@ -171,6 +173,34 @@ fn validate_history(visit: &RsStageVisit, plan: &RsFlowPlan) -> Result<(), Strin
 }
 
 fn validate_lifecycle(record: &StoredRun, plan: &RsFlowPlan) -> Result<(), String> {
+    if record
+        .artifact_snapshot_directory
+        .as_ref()
+        .is_some_and(|uri| !valid_relative_path(uri))
+    {
+        return Err("invalid artifact snapshot directory".into());
+    }
+    for visit in &record.visits {
+        let snapshots = visit.artifact_snapshots();
+        match (&record.artifact_snapshot_directory, visit.status()) {
+            (Some(directory), RsStageStatus::Completed) => {
+                if snapshots.len() != visit.artifact_digests().len()
+                    || visit.artifact_digests().iter().any(|a| {
+                        snapshots.get(&a.uri) != Some(&format!("{directory}/{}", a.sha256))
+                    })
+                {
+                    return Err(format!(
+                        "{} has incomplete or inconsistent retained artifacts",
+                        visit.stage_id()
+                    ));
+                }
+            }
+            _ if !snapshots.is_empty() => {
+                return Err("unexpected retained artifacts on a legacy or uncompleted visit".into())
+            }
+            _ => (),
+        }
+    }
     let stage_count = plan.stages.len();
     if record.visits.len() < stage_count || record.current_visit >= record.visits.len() {
         return Err("record is missing stage visits or has an invalid current index".into());
@@ -264,7 +294,7 @@ pub fn restore_run(
         return Err("invalid restoration run record URI".into());
     }
     let bytes = fs::read(&run_record_uri).map_err(|e| format!("cannot read run record: {e}"))?;
-    let record=validated_record(&plan,&wish_model_uri,&bytes)?;
+    let record = validated_record(&plan, &wish_model_uri, &bytes)?;
     Ok(RsFlowRun {
         run_id: record.run_id,
         plan_id: record.plan_id,
@@ -280,10 +310,15 @@ pub fn restore_run(
         judgment,
         persistence_error: false,
         last_error: None,
+        artifact_snapshot_directory: record.artifact_snapshot_directory,
     })
 }
 
-fn validated_record(plan:&RsFlowPlan,wish_model_uri:&str,bytes:&[u8])->Result<StoredRun,String>{
+fn validated_record(
+    plan: &RsFlowPlan,
+    wish_model_uri: &str,
+    bytes: &[u8],
+) -> Result<StoredRun, String> {
     let record: StoredRun =
         serde_json::from_slice(&bytes).map_err(|e| format!("invalid run record schema: {e}"))?;
     let run_id = Uuid::parse_str(&record.run_id).map_err(|_| "invalid run UUID".to_owned())?;
@@ -302,6 +337,10 @@ fn validated_record(plan:&RsFlowPlan,wish_model_uri:&str,bytes:&[u8])->Result<St
 }
 
 /// Migration validation shares restoration's history rules but needs no cache files.
-pub(crate) fn validate_retained_run(plan:&RsFlowPlan,wish_model_uri:&str,bytes:&[u8])->Result<(),String>{
-    validated_record(plan,wish_model_uri,bytes).map(|_|())
+pub(crate) fn validate_retained_run(
+    plan: &RsFlowPlan,
+    wish_model_uri: &str,
+    bytes: &[u8],
+) -> Result<(), String> {
+    validated_record(plan, wish_model_uri, bytes).map(|_| ())
 }

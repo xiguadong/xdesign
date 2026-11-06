@@ -1,19 +1,26 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
-  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
-  "figures": [{
-    "pack": "catalog/mixed/assets/interaction-flow.svg",
-    "target": "docs/design/assets/interaction-flow.svg",
-    "title": "Aster current-reading request and response",
-    "Question": "In what order do request, validation, response, and timeout occur?",
-    "Model view": "Example::InteractionFlow",
-    "Companions": "The operation-contract and alternate-flow tables.",
-    "Status": "renderable-now; designed-only",
-    "Reading": "Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.",
-    "Limits": "The view is fictional and omits transport encoding, authentication, and precise timeout duration."
-  }],
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [
+    {
+      "pack": "catalog/mixed/assets/interaction-flow.svg",
+      "target": "docs/design/assets/interaction-flow.svg",
+      "title": "Aster current-reading request and response",
+      "Question": "In what order do request, validation, response, and timeout occur?",
+      "Model view": "Example::InteractionFlow",
+      "Companions": "The operation-contract and alternate-flow tables.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.",
+      "Limits": "The view is fictional and omits transport encoding, authentication, and precise timeout duration."
+    }
+  ],
   "document_class": "design",
   "name": "sensor-interaction-flow",
   "template_id": "interaction-flow",
@@ -21,7 +28,9 @@
     "title": "Aster current-reading interaction flow",
     "status": "fictional-example",
     "revision": "1",
-    "model_sources": ["mbse/model/example.sysml"]
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
   },
   "sections": {
     "purpose": {
@@ -74,5 +83,6 @@
       }
     }
   },
-  "expected_document": "catalog/examples/interaction-flow.md"
+  "expected_document": "catalog/examples/interaction-flow.md",
+  "layer": null
 }

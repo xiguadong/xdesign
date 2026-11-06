@@ -192,6 +192,31 @@ class CheckerCases(unittest.TestCase):
         self.assertTrue(failures["evidence-exists"])
         self.assertEqual(report["overall_verdict"], "failed")
 
+    def test_record_uses_retained_stage_versions_after_live_source_changes(self) -> None:
+        source = self.directory / "source.py"
+        source.write_text("version = 1\n", encoding="utf-8")
+        assessed = artifact(uri(source))
+        directory = self.plan_path.parent / "artifact-snapshots"
+        directory.mkdir()
+        retained = directory / assessed["sha256"]
+        retained.write_bytes(source.read_bytes())
+        record = self.make_record(3)
+        record["artifact_snapshot_directory"] = uri(directory)
+        for previous in record["visits"][:3]:
+            previous["artifact_digests"] = [assessed]
+            previous["artifact_snapshot_digest"] = common.snapshot_digest([assessed])
+            previous["artifact_snapshots"] = {uri(source): uri(retained)}
+            previous["assessments"][0]["evaluated_snapshot_digest"] = previous["artifact_snapshot_digest"]
+        source.write_text("version = 2\n", encoding="utf-8")
+        completed, report = self.invoke("simple_record.py", simple_record.CHECKER_ID, record)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(report["overall_verdict"], "passed", report)
+        self.assertEqual(report["input_sha256"][uri(retained)], assessed["sha256"])
+        retained.write_text("tampered\n", encoding="utf-8")
+        completed, report = self.invoke("simple_record.py", simple_record.CHECKER_ID, record)
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(report["overall_verdict"], "failed")
+
     def test_record_rejects_schema_and_lifecycle_bypasses(self) -> None:
         baseline = self.make_record(3, [artifact("mbse/model/requirements.sysml")])
 

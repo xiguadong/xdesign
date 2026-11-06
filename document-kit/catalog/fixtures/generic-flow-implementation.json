@@ -1,0 +1,53 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.2.0",
+  "contract_digest_version": "2",
+  "document_class": "flow-implementation",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-implementation",
+  "metadata": {
+    "title": "Fictional flow implementation example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "allocation": {
+      "anchor": "D2030",
+      "content": "The controller and reviewer have separate responsibilities.",
+      "fields": {
+        "components": "A controller requests work and a reviewer supplies a decision.",
+        "interfaces": "The controller passes a request identifier and receives a recorded judgment."
+      }
+    },
+    "projection": {
+      "anchor": "D2031",
+      "content": "Source allocation is planned and subject to implementation review.",
+      "fields": {
+        "behavior": "Validate the plan, then construct the initial run.",
+        "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+        "constraints": "The caller serializes access; concurrency is outside this example."
+      }
+    },
+    "trace": {
+      "anchor": "D2032",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_elements": "ExampleContext is the context boundary; no flow realization is asserted.",
+        "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed.",
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/examples/generic-flow-implementation.md"
+}

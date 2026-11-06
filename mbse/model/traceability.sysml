@@ -104,4 +104,12 @@ package XDesignTraceability {
        design satisfiers. Existing source and engine elements are candidates for later
        design allocation, not established satisfaction. */
 
+    /* structuredDocumentationHasNamedRoutes, apiDesignDocumentsCoverContract,
+       flowDesignDocumentsCoverLayers, structuredDocumentationUsesSafeOperations,
+       structuredDocumentationKeepsVersionIdentity, structuredDocumentationHasSharedSurfaces,
+       documentKitPublicApiIsDocumented, and structuredDocumentationEvidenceIsReviewable
+       are proposed requirements. No satisfier is asserted before the structured
+       authoring design is allocated and reviewed; planned verification links live
+       in XDesignVerification::StructuredDocumentKitVerification. */
+
 }

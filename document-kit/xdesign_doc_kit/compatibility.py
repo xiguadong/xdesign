@@ -11,8 +11,9 @@ from typing import Any, Iterator, Mapping
 
 
 class DocumentKitError(ValueError):
-    def __init__(self, code: str, message: str, diagnostics: list[dict[str, Any]] | None = None):
+    def __init__(self, code: str, message: str, diagnostics: list[dict[str, Any]] | None = None, outcome: dict[str, Any] | None = None):
         super().__init__(message)
+        self.outcome = outcome
         self.code = code
         self.message = message
         self.diagnostics = diagnostics if diagnostics is not None else [
@@ -21,7 +22,7 @@ class DocumentKitError(ValueError):
 
     def as_dict(self) -> dict[str, Any]:
         return {"ok": False, "error": {"code": self.code, "message": self.message},
-                "diagnostics": self.diagnostics}
+                "diagnostics": self.diagnostics, **({"outcome": self.outcome} if self.outcome is not None else {})}
 
 
 def diagnostic(rule: str, code: str, file: str, detail: str, line: int | None = None) -> dict[str, Any]:
@@ -44,7 +45,8 @@ def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
 
 def _safe_rel(value: Any, label: str, code: str = "unsafe-path") -> PurePosixPath:
     if (not isinstance(value, str) or not value or "\\" in value or "\x00" in value
-            or ":" in value or value.startswith("/") or "//" in value):
+            or ":" in value or value.startswith("/") or "//" in value
+            or any(ord(char) < 32 or ord(char) == 127 for char in value)):
         raise _error(code, f"{label} must be a normalized POSIX relative path", "DOC-001")
     parts = value.split("/")
     if any(part in ("", ".", "..") for part in parts):
@@ -60,7 +62,7 @@ def _root(value: str | Path, label: str) -> Path:
         path = Path(value).expanduser().absolute()
     except (TypeError, ValueError) as error:
         raise _error("invalid-request", f"{label} is not a directory path") from error
-    if path.is_symlink() or not path.is_dir():
+    if any(parent.is_symlink() for parent in (path, *path.parents)) or not path.is_dir():
         raise _error("unsafe-path", f"{label} must be an existing nonsymlink directory", "DOC-001")
     return path.resolve()
 
@@ -82,29 +84,37 @@ def _reject_symlinks(root: Path, relative: PurePosixPath) -> None:
 
 @contextmanager
 def _parent_fd(root: Path, relative: PurePosixPath, create: bool = False) -> Iterator[tuple[int, str]]:
-    fd = os.open(str(root), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    fd = -1
     try:
-        for part in relative.parts[:-1]:
-            try:
-                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-            except FileNotFoundError:
-                if not create:
-                    raise _error("missing-document", f"Missing parent of {relative}", "DOC-001",
-                                 relative.as_posix())
-                os.mkdir(part, dir_fd=fd)
-                next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
-            os.close(fd)
-            fd = next_fd
+        try:
+            fd = os.open(str(root), os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+            for part in relative.parts[:-1]:
+                try:
+                    next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                except FileNotFoundError:
+                    if not create:
+                        raise _error("missing-document", f"Missing parent of {relative}", "DOC-001", relative.as_posix())
+                    os.mkdir(part, dir_fd=fd)
+                    next_fd = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+                os.close(fd)
+                fd = next_fd
+        except OSError as error:
+            from .io_boundary import CURRENT
+            current = CURRENT.get()
+            reading = current and current.phase in ("document-read", "model-read", "registry-read")
+            code = ("unreadable-input" if reading else "access-denied") if isinstance(error, PermissionError) else "unsafe-path"
+            raise _error(code, f"Cannot safely access {relative}: {error}", "DOC-001", relative.as_posix()) from error
         yield fd, relative.name
-    except OSError as error:
-        raise _error("unsafe-path", f"Cannot safely access {relative}: {error}", "DOC-001",
-                     relative.as_posix()) from error
     finally:
-        os.close(fd)
+        if fd >= 0:
+            os.close(fd)
 
 
 def _read_project_file(root: Path, relative: str, missing_code: str = "missing-document") -> bytes:
+    from .io_boundary import phase
+    phase("registry-read" if relative.endswith(".json") else "model-read" if relative.endswith(".sysml") else "document-read", relative)
     path = _safe_rel(relative, "Project file")
+    _reject_symlinks(root, path)
     with _parent_fd(root, path) as (parent, name):
         try:
             fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
@@ -124,7 +134,10 @@ def _read_project_file(root: Path, relative: str, missing_code: str = "missing-d
 
 
 def _read_pack_file(root: Path, relative: str) -> bytes:
+    from .io_boundary import phase
+    phase("pack-read")
     path = _safe_rel(relative, "Contract resource", "invalid-profile")
+    _reject_symlinks(root, path)
     try:
         with _parent_fd(root, path) as (parent, name):
             fd = os.open(name, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=parent)
@@ -275,6 +288,15 @@ def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text
             raise _error("registry-mismatch", "Managed marker differs from effective identity", "DOC-002",
                          registry_relative, 1)
         return spec, contract, effective
+
+    if profile.get("schema_version") == "1.2":
+        def children(c):
+            for child in c.get("compatibility_contracts", []):
+                yield child
+                yield from children(child)
+        for child in children(contract):
+            if all(entry.get(k) == identity(child)[k] for k in ("profile_id", "version", "contract_sha256")):
+                return resolve_document(child, entry, text, registry_relative)
 
     expected = {"profile_id": "xdesign-sysml-docs", "version": "1.0.0",
                 "contract_sha256": "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6"}

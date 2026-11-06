@@ -3,6 +3,7 @@
 
 # Durable local operational records and alternate acceptance stores; not engineering source
 /.xdesign/
+.xdesign-access-v1/
 /.xdesign-determinism/
 /.xdesign-final/
 

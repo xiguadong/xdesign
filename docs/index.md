@@ -28,7 +28,7 @@ package, timeline, and swimlane diagrams together on one page.
 | The simplest agent interaction, shown as a timeline and swimlane | [WishVerifyFlow CLI interaction](design/flows/wish-verify/views.md#d84) |
 | The class-and-function design of the crate | [design/api/index.md](design/api/index.md) |
 | Cross-boundary contracts, CLI, and record format | [interfaces/index.md](interfaces/index.md) |
-| The proposed document-kit CLI/MCP tool contract | [Portable document kit interaction contract](interfaces/document-kit-api.md#i20) |
+| The document-kit CLI/MCP contract and structured API design | [Original interaction contract](interfaces/document-kit-api.md#i20) and [structured release contract](interfaces/document-kit-api.md#i21) |
 | How the design is verified and accepted | [verification/index.md](verification/index.md) |
 | What currently runs, what is open, and what evidence exists | `python3 tools/records.py show record-status`; frozen 2026-10-25 summary in [records/status.md](records/status.md) |
 | Plans, reviews, executions, and wish history | `python3 tools/records.py list` for maintained records; frozen history in [records/index.md](records/index.md) |

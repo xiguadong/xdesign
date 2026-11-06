@@ -51,5 +51,6 @@ pub fn create_run(
         judgment,
         persistence_error: false,
         last_error: None,
+        artifact_snapshot_directory: None,
     })
 }

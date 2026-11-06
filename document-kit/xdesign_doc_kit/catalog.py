@@ -133,7 +133,7 @@ def _validate_sections(value: Any) -> None:
             fields.add(field)
 
 
-def _validate_concerns(value: Any, sections: list[dict[str, Any]]) -> None:
+def _validate_concerns(value: Any, sections: list[dict[str, Any]], structured=False) -> None:
     concerns = _nonempty_list(value, "view_concerns", True)
     section_keys = {section["key"] for section in sections}
     names: set[str] = set()
@@ -148,16 +148,18 @@ def _validate_concerns(value: Any, sections: list[dict[str, Any]]) -> None:
             raise _error("invalid-catalog", "Concern section_key must be nonempty text", "DOC-002")
         if concern["section_key"] not in section_keys:
             raise _error("invalid-catalog", f"Concern section is unknown: {concern['section_key']}", "DOC-002")
-        if concern["applicability"] not in ("expected", "conditional", "not-applicable"):
+        if concern["applicability"] not in ("expected", "conditional", "not-applicable", *(["optional"] if structured else [])):
             raise _error("invalid-catalog", "Invalid view applicability", "DOC-002")
-        if concern["applicability"] == "conditional":
+        if concern["applicability"] == "optional" and "diagram_decisions" not in next(s for s in sections if s["key"] == concern["section_key"])["required_fields"]:
+            raise _error("invalid-catalog", "Optional concern requires its section's diagram_decisions field")
+        if concern["applicability"] in ("conditional", "optional"):
             _text(concern["trigger"], "Conditional trigger", "invalid-catalog")
         alternatives = set(_string_list(concern["alternatives"], "View alternatives", False))
         if not alternatives or not alternatives.issubset(CHOICES):
             raise _error("invalid-catalog", f"Invalid view alternatives: {alternatives}", "DOC-002")
 
 
-def _validate_entry(entry: Any, classes: Mapping[str, Any], source_ids: set[str], bundled: bool) -> None:
+def _validate_entry(entry: Any, classes: Mapping[str, Any], source_ids: set[str], bundled: bool, structured=False) -> None:
     if not isinstance(entry, dict) or set(entry) != ENTRY_FIELDS:
         raise _error("invalid-catalog", "Catalog entry fields differ from the required set", "DOC-002")
     if not isinstance(entry["template_id"], str) or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", entry["template_id"]) is None:
@@ -180,7 +182,7 @@ def _validate_entry(entry: Any, classes: Mapping[str, Any], source_ids: set[str]
     checks = set(_string_list(entry["checks"], "Entry checks", False))
     if not checks or not checks.issubset(CHECK_IDS):
         raise _error("invalid-catalog", f"Unimplemented check IDs: {sorted(checks - CHECK_IDS)}", "DOC-002")
-    _validate_concerns(entry["view_concerns"], entry["required_sections"])
+    _validate_concerns(entry["view_concerns"], entry["required_sections"], structured)
     if bundled and not any(usage["source_id"] for usage in entry["sources"]):
         raise _error("invalid-source", "Bundled entry has no source", "DOC-006")
 
@@ -469,8 +471,11 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
             raise _error(code, f"Invalid JSON resource {relative}: {error}", "DOC-002") from error
 
     profile = json_resource("profile.json", "profile", "invalid-profile")
-    if not isinstance(profile, dict) or profile.get("schema_version") != "1.1":
+    if not isinstance(profile, dict) or profile.get("schema_version") not in ("1.1", "1.2"):
         raise _error("invalid-profile", "Unsupported profile schema")
+    structured = profile["schema_version"] == "1.2"
+    if structured:
+        from .routes import validate_routes, validate_family, resolve, request_selection
     for key in ("profile_id", "version", "rules_file", "skill_file", "document_classes", "project",
                 "anchor_policy", "figure_block", "validation", "catalog", "compatibility_packs"):
         if key not in profile:
@@ -544,6 +549,8 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
         if not isinstance(spec.get("default_template_id"), str) or not spec["default_template_id"]:
             raise _error("template-default", f"Class {class_name} has no generic default", "DOC-002")
 
+    if structured:
+        validate_routes(profile)
     manifest_info = profile["catalog"]
     if not isinstance(manifest_info, dict) or set(manifest_info) != {"manifest", "sources", "routing_guide", "mixed_fixture"}:
         raise _error("invalid-profile", "Catalog resource declarations are invalid")
@@ -556,7 +563,7 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
     except ValueError as error:
         raise _error("invalid-catalog", f"Invalid mixed fixture: {error}", "DOC-007") from error
     if not isinstance(manifest, dict) or set(manifest) != {"schema_version", "profile_id", "version", "entries"} \
-            or manifest.get("schema_version") != "1.1" \
+            or manifest.get("schema_version") != profile["schema_version"] \
             or manifest.get("profile_id") != profile["profile_id"] or manifest.get("version") != profile["version"] \
             or not isinstance(manifest.get("entries"), list):
         raise _error("invalid-catalog", "Catalog manifest identity or shape is invalid", "DOC-002")
@@ -573,21 +580,22 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
         source_ids.add(record["source_id"])
         if record["local_path"] is not None:
             source_locals.append(record["local_path"])
-    bundled = profile["profile_id"] == "xdesign-sysml-docs" and profile["version"] == "1.1.0"
+    bundled = profile["profile_id"] == "xdesign-sysml-docs" and profile["version"] in ("1.1.0", "1.2.0")
     entries: dict[str, Any] = {}
     for entry in manifest["entries"]:
-        _validate_entry(entry, classes, source_ids, bundled)
+        _validate_entry(entry, classes, source_ids, bundled, structured)
         if entry["template_id"] in entries:
             raise _error("invalid-catalog", f"Duplicate template ID: {entry['template_id']}", "DOC-002")
         entries[entry["template_id"]] = entry
     if bundled:
         actual_inventory = {entry_id: entry["document_class"] for entry_id, entry in entries.items()}
-        if actual_inventory != BUNDLED_INVENTORY:
+        expected_inventory = {**BUNDLED_INVENTORY, **({"generic-" + c: c for c in ("api-design", "flow-index", "flow-definition", "flow-implementation", "flow-views")} if structured else {})}
+        if actual_inventory != expected_inventory:
             raise _error("invalid-catalog", "Bundled 16-entry inventory is invalid", "DOC-002")
         cited = {usage["source_id"] for entry in manifest["entries"] for usage in entry["sources"]}
         if not {"DPR", "GOOD-DOCS", "GITHUB-DOCS", "SPECD", "C4", "OPENSPEC", "ARC42", "REQ42"}.issubset(cited):
             raise _error("invalid-catalog", "Bundled eight-source coverage is incomplete", "DOC-002")
-        for class_name in classes:
+        for class_name in set(BUNDLED_INVENTORY.values()):
             if sum(entry["document_class"] == class_name and not entry_id.startswith("generic-")
                    for entry_id, entry in entries.items()) < 2:
                 raise _error("invalid-catalog", f"Bundled class has fewer than two scenarios: {class_name}", "DOC-002")
@@ -618,6 +626,11 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
         if not isinstance(document, dict):
             raise _error("invalid-catalog", "Fixture caller input must be an object", "DOC-007")
         entry_id = entry["template_id"]
+        if structured:
+            try:
+                resolve(profile, request_selection(document["document_class"], document["name"], document["layer"]))
+            except DocumentKitError as error:
+                raise _error("invalid-catalog", f"Invalid fixture route: {error.message}") from error
         if not isinstance(document["name"], str) \
                 or re.fullmatch(classes[entry["document_class"]]["filename_pattern"], document["name"]) is None:
             raise _error("invalid-catalog", f"Fixture name is invalid for {entry_id}", "DOC-007")
@@ -675,6 +688,8 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
             raise _error("invalid-catalog", f"Invalid fixture for {entry_id}: {error}", "DOC-007") from error
         expected_keys = {"profile_id", "version", "contract_digest_version", "document_class", "name",
                          "template_id", "metadata", "sections", "models", "figures", "expected_document"}
+        if structured:
+            expected_keys.add("layer")
         if not isinstance(fixture, dict) or set(fixture) != expected_keys:
             raise _error("invalid-catalog", f"Fixture fields differ for {entry_id}", "DOC-007")
         if fixture["profile_id"] != profile["profile_id"] or fixture["version"] != profile["version"] \
@@ -702,7 +717,7 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
     _markdown_security(resources[routing_guide].decode("utf-8"), routing_guide)
     mixed_anchors: set[str] = set()
     for document in mixed_fixture["documents"]:
-        if not isinstance(document, dict) or set(document) != {"document_class", "name", "template_id", "metadata", "sections", "expected_document"}:
+        if not isinstance(document, dict) or set(document) != {"document_class", "name", "template_id", "metadata", "sections", "expected_document", *(["layer"] if structured else [])}:
             raise _error("invalid-catalog", "Mixed document input shape is invalid", "DOC-007")
         if not isinstance(document["template_id"], str) or not isinstance(document["document_class"], str):
             raise _error("invalid-catalog", "Mixed document class and template ID must be text", "DOC-007")
@@ -718,7 +733,7 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
             mixed_anchors.add(anchor)
     if bundled:
         mixed_classes = [document["document_class"] for document in mixed_fixture["documents"]]
-        if len(mixed_fixture["documents"]) != 6 or set(mixed_classes) != set(classes) \
+        if len(mixed_fixture["documents"]) != (11 if structured else 6) or set(mixed_classes) != set(classes) \
                 or not any(mixed_classes.count(class_name) >= 2 for class_name in classes):
             raise _error("invalid-catalog", "Bundled mixed fixture coverage is incomplete", "DOC-007")
     validate_inputs(mixed_fixture["models"], "mixed.models", False)
@@ -727,6 +742,8 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
     add(profile["rules_file"], "rules", "invalid-profile")
     add(profile["skill_file"], "skill", "invalid-profile")
     add("README.md", "readme", "invalid-profile")
+    if structured:
+        add("API.md", "consumer-api", "invalid-profile")
     figure_template = add(figure["template"], "figure-template", "invalid-profile")
     for spec in classes.values():
         add(spec["template"], "template", "invalid-profile")
@@ -737,11 +754,22 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
     descriptor_pairs = []
     if not isinstance(profile["compatibility_packs"], list):
         raise _error("invalid-profile", "compatibility_packs must be an array")
+    owned_paths = set(resources)
+    child_roots = set()
     for descriptor in profile["compatibility_packs"]:
         if not isinstance(descriptor, dict) or set(descriptor) != {"profile_id", "version", "root", "contract_sha256", "contract_digest_version"}:
             raise _error("invalid-profile", "Compatibility descriptor shape is invalid")
         compatibility_root = _safe_rel(descriptor["root"], "Compatibility root", "invalid-profile").as_posix()
+        if structured:
+            from .compatibility import _reject_symlinks
+            _reject_symlinks(root, PurePosixPath(compatibility_root))
+            if compatibility_root in child_roots or any(compatibility_root.startswith(r + '/') or r.startswith(compatibility_root + '/') for r in child_roots):
+                raise _error("invalid-profile", "Overlapping compatibility roots")
+            child_roots.add(compatibility_root)
         compatibility = legacy_loader(root / compatibility_root)
+        if structured and compatibility["profile"]["schema_version"] == "1.0":
+            if any(ZERO_SENTINEL.encode() in (v[1] if isinstance(v, tuple) else v) for v in compatibility["resources"].values()):
+                raise _error("invalid-catalog", "Stored-example sentinel occurs in a bound v1 pack")
         compatibility_contracts.append(compatibility)
         descriptor_pairs.append((descriptor, compatibility, compatibility_root))
         for relative, value in compatibility["resources"].items():
@@ -775,7 +803,26 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
                 or contract_sha256.encode("ascii") in data:
             raise _error("invalid-catalog", f"Stored example marker or sentinel is invalid: {path}", "DOC-002", path, 1)
     for path, data in resources.items():
+        if structured and path not in owned_paths:
+            continue  # Validated independently by the owning child; still hashed above.
         scan_data = data
+        if structured and path == "profile.json":
+            def check_sentinel(value, descriptor_value=False):
+                if isinstance(value, dict):
+                    for key, item in value.items():
+                        if key == "compatibility_packs":
+                            for descriptor in item:
+                                for k, v in descriptor.items():
+                                    check_sentinel(v, k == "contract_sha256")
+                        else:
+                            check_sentinel(item)
+                elif isinstance(value, list):
+                    for item in value:
+                        check_sentinel(item)
+                elif isinstance(value, str) and ZERO_SENTINEL in value and not (descriptor_value and value == ZERO_SENTINEL):
+                    raise _error("invalid-catalog", "Sentinel outside compatibility digest")
+            check_sentinel(profile)
+            continue
         if path == "profile.json":
             for descriptor in profile["compatibility_packs"]:
                 if descriptor["contract_sha256"] == ZERO_SENTINEL:
@@ -793,11 +840,21 @@ def load_catalog_contract(root: Path, legacy_loader, digest_provider=None) -> di
                 or compatibility["contract_digest_version"] != descriptor["contract_digest_version"]:
             raise _error("contract-drift", f"Compatibility contract differs from descriptor: {compatibility_root}")
 
+    if structured:
+        if bundled:
+            expected_bindings = {
+                "compatibility/v1.0.0": ("xdesign-sysml-docs", "1.0.0", "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6", "1"),
+                "compatibility/v1.1.0": ("xdesign-sysml-docs", "1.1.0", "e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef", "2"),
+            }
+            actual_bindings = {d["root"]: tuple(d[k] for k in ("profile_id", "version", "contract_sha256", "contract_digest_version")) for d in profile["compatibility_packs"]}
+            if actual_bindings != expected_bindings:
+                raise _error("contract-drift", "Bundled compatibility bindings differ from the exact original releases")
+        validate_family(profile, compatibility_contracts)
     templates = {class_name: resources[spec["template"]].decode("utf-8")
                  for class_name, spec in classes.items()}
     templates["figure-block"] = resources[figure_template].decode("utf-8")
     rules = resources[profile["rules_file"]].decode("utf-8")
-    catalog = {"schema_version": "1.1", "profile_id": profile["profile_id"],
+    catalog = {"schema_version": profile["schema_version"], "profile_id": profile["profile_id"],
                "version": profile["version"], "entries": manifest["entries"],
                "sources": source_records}
     return {"root": root, "profile": profile, "rules": rules, "templates": templates,
@@ -912,6 +969,8 @@ def diagram_decision_findings(text: str, spec: Mapping[str, Any]) -> list[dict[s
             continue
         matching = [decision for decision in decisions if decision["concern"] == concern["concern"]]
         if not matching:
+            if concern["applicability"] == "optional":
+                continue
             add("missing-diagram-decision", f"Section {section_key} has no selected decision for {concern['concern']}")
             continue
         if len(matching) != 1:

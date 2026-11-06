@@ -1,0 +1,53 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.2.0",
+  "contract_digest_version": "2",
+  "document_class": "flow-definition",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-definition",
+  "metadata": {
+    "title": "Fictional flow definition example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "stages": {
+      "anchor": "D2020",
+      "content": "| Stage | Next stage |\n| --- | --- |\n| Prepare | Review |\n| Review | Complete after judgment |",
+      "fields": {
+        "stages": "Prepare collects the request; review assesses its completeness.",
+        "transitions": "Prepare proceeds to review after the request is complete.",
+        "exit_gates": "Prepare requires a readable request; review requires an explicit caller judgment."
+      }
+    },
+    "behavior": {
+      "anchor": "D2021",
+      "content": "The stated invariant constrains the fictional transition.",
+      "fields": {
+        "behavior": "Validate the plan, then construct the initial run.",
+        "invariants": "An invalid plan never produces a run."
+      }
+    },
+    "trace": {
+      "anchor": "D2022",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_elements": "ExampleContext is the context boundary; no flow realization is asserted.",
+        "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+        "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/examples/generic-flow-definition.md"
+}

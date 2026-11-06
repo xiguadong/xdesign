@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "entries": [
     {
       "template_id": "generic-requirements",
@@ -1601,6 +1601,378 @@
         "model-locators",
         "figure-blocks",
         "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-api-design",
+      "document_class": "api-design",
+      "title": "Api Design",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the api-design responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "Purpose and boundary",
+          "required_fields": [
+            "api_identity",
+            "api_kind",
+            "layer",
+            "purpose"
+          ]
+        },
+        {
+          "key": "contract",
+          "heading": "Declaration and contract",
+          "required_fields": [
+            "declaration",
+            "inputs",
+            "outputs",
+            "errors",
+            "side_effects"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Trace and verification",
+          "required_fields": [
+            "model_realization_or_reason",
+            "source_projection",
+            "requirements_links",
+            "design_links",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-api-design.md",
+      "guide": "catalog/guides/generic-api-design.md",
+      "example": "catalog/examples/generic-api-design.md",
+      "fixture": "catalog/fixtures/generic-api-design.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-index",
+      "document_class": "flow-index",
+      "title": "Flow Index",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-index responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "Scope and navigation",
+          "required_fields": [
+            "flow_scope",
+            "navigation_links"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Status and trace",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-index.md",
+      "guide": "catalog/guides/generic-flow-index.md",
+      "example": "catalog/examples/generic-flow-index.md",
+      "fixture": "catalog/fixtures/generic-flow-index.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-definition",
+      "document_class": "flow-definition",
+      "title": "Flow Definition",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-definition responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "stages",
+          "heading": "1. Stages and gates",
+          "required_fields": [
+            "stages",
+            "transitions",
+            "exit_gates"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "2. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-definition.md",
+      "guide": "catalog/guides/generic-flow-definition.md",
+      "example": "catalog/examples/generic-flow-definition.md",
+      "fixture": "catalog/fixtures/generic-flow-definition.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-implementation",
+      "document_class": "flow-implementation",
+      "title": "Flow Implementation",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-implementation responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "allocation",
+          "heading": "1. Allocation",
+          "required_fields": [
+            "components",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "2. Behavior and source projection",
+          "required_fields": [
+            "behavior",
+            "source_projection",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Verification and limits",
+          "required_fields": [
+            "model_elements",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-implementation.md",
+      "guide": "catalog/guides/generic-flow-implementation.md",
+      "example": "catalog/examples/generic-flow-implementation.md",
+      "fixture": "catalog/fixtures/generic-flow-implementation.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-views",
+      "document_class": "flow-views",
+      "title": "Flow Views",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-views responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "coverage",
+          "heading": "1. Coverage and applicability",
+          "required_fields": [
+            "view_coverage",
+            "applicability_reasons"
+          ]
+        },
+        {
+          "key": "views",
+          "heading": "2. Views and references",
+          "required_fields": [
+            "model_views",
+            "figure_references",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "3. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-views.md",
+      "guide": "catalog/guides/generic-flow-views.md",
+      "example": "catalog/examples/generic-flow-views.md",
+      "fixture": "catalog/fixtures/generic-flow-views.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
         "sources",
         "license",
         "markdown-security",

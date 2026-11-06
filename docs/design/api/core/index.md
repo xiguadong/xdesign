@@ -40,3 +40,7 @@ Status: implemented. The source moved from `src/simple_flow/` to
 this map matches the code.
 
 The optional [checker bundle](rs-checker-bundle.md#u110) retains executor identity in new store-backed plans.
+
+The persistent adapter configures [completed-artifact retention](rs-flow-run-retain-completed-artifacts.md#u114)
+before work and uses [artifact diagnostics](rs-stage-visit-artifact-diagnostics.md#u115)
+to identify integrity failures before running further checkers.

@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "rules_file": "RULES.md",
   "skill_file": "SKILL.md",
   "rule_ids": [
@@ -274,6 +274,202 @@
         }
       ],
       "default_template_id": "generic-verification"
+    },
+    "api-design": {
+      "path_template": "docs/design/api/{layer}/{name}.md",
+      "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "template": "catalog/templates/generic-api-design.md",
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "Purpose and boundary",
+          "required_fields": [
+            "api_identity",
+            "api_kind",
+            "layer",
+            "purpose"
+          ]
+        },
+        {
+          "key": "contract",
+          "heading": "Declaration and contract",
+          "required_fields": [
+            "declaration",
+            "inputs",
+            "outputs",
+            "errors",
+            "side_effects"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Trace and verification",
+          "required_fields": [
+            "model_realization_or_reason",
+            "source_projection",
+            "requirements_links",
+            "design_links",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-api-design",
+      "selector_kind": "api",
+      "allowed_layers": [
+        "core",
+        "simple-flow",
+        "wish-verify",
+        "storage"
+      ],
+      "reserved_names": [
+        "index"
+      ]
+    },
+    "flow-index": {
+      "path_template": "docs/design/flows/{name}/index.md",
+      "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "template": "catalog/templates/generic-flow-index.md",
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "Scope and navigation",
+          "required_fields": [
+            "flow_scope",
+            "navigation_links"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Status and trace",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-flow-index",
+      "selector_kind": "flow"
+    },
+    "flow-definition": {
+      "path_template": "docs/design/flows/{name}/definition.md",
+      "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "template": "catalog/templates/generic-flow-definition.md",
+      "required_sections": [
+        {
+          "key": "stages",
+          "heading": "1. Stages and gates",
+          "required_fields": [
+            "stages",
+            "transitions",
+            "exit_gates"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "2. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links"
+          ]
+        }
+      ],
+      "default_template_id": "generic-flow-definition",
+      "selector_kind": "flow"
+    },
+    "flow-implementation": {
+      "path_template": "docs/design/flows/{name}/implementation.md",
+      "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "template": "catalog/templates/generic-flow-implementation.md",
+      "required_sections": [
+        {
+          "key": "allocation",
+          "heading": "1. Allocation",
+          "required_fields": [
+            "components",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "2. Behavior and source projection",
+          "required_fields": [
+            "behavior",
+            "source_projection",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Verification and limits",
+          "required_fields": [
+            "model_elements",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-flow-implementation",
+      "selector_kind": "flow"
+    },
+    "flow-views": {
+      "path_template": "docs/design/flows/{name}/views.md",
+      "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "template": "catalog/templates/generic-flow-views.md",
+      "required_sections": [
+        {
+          "key": "coverage",
+          "heading": "1. Coverage and applicability",
+          "required_fields": [
+            "view_coverage",
+            "applicability_reasons"
+          ]
+        },
+        {
+          "key": "views",
+          "heading": "2. Views and references",
+          "required_fields": [
+            "model_views",
+            "figure_references",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "3. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "default_template_id": "generic-flow-views",
+      "selector_kind": "flow"
     }
   },
   "anchor_policy": {
@@ -308,6 +504,21 @@
       ],
       "verification": [
         "V"
+      ],
+      "api-design": [
+        "U"
+      ],
+      "flow-index": [
+        "D"
+      ],
+      "flow-definition": [
+        "D"
+      ],
+      "flow-implementation": [
+        "D"
+      ],
+      "flow-views": [
+        "D"
       ]
     }
   },
@@ -371,6 +582,13 @@
       "root": "compatibility/v1.0.0",
       "contract_sha256": "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6",
       "contract_digest_version": "1"
+    },
+    {
+      "profile_id": "xdesign-sysml-docs",
+      "version": "1.1.0",
+      "root": "compatibility/v1.1.0",
+      "contract_sha256": "e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef",
+      "contract_digest_version": "2"
     }
   ]
 }

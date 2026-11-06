@@ -1,8 +1,13 @@
 {
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "contract_digest_version": "2",
-  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "models": [
+    {
+      "pack": "catalog/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
   "figures": [],
   "document_class": "requirements",
   "name": "sensor-generic-requirements",
@@ -11,13 +16,17 @@
     "title": "Aster sensor monitoring requirements",
     "status": "fictional-example",
     "revision": "1",
-    "model_sources": ["mbse/model/example.sysml"]
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
   },
   "sections": {
     "purpose": {
       "anchor": "R100",
       "content": "Aster is a fictional greenhouse sensor hub. The requirements cover periodic sampling and export of one temperature reading while leaving actuator control outside the product boundary.",
-      "fields": {"system_boundary": "The Aster hub samples its local probe and exports readings; greenhouse actuators and weather prediction are external."}
+      "fields": {
+        "system_boundary": "The Aster hub samples its local probe and exports readings; greenhouse actuators and weather prediction are external."
+      }
     },
     "requirements": {
       "anchor": "R101",
@@ -46,8 +55,11 @@
     "limits": {
       "anchor": "R104",
       "content": "Probe accuracy, hardware timing jitter, and security deployment settings are not specified by this small fictional requirements example.",
-      "fields": {"unresolved_items": "Probe calibration limits, real scheduler jitter, authentication, and production retention remain for the actual project to decide."}
+      "fields": {
+        "unresolved_items": "Probe calibration limits, real scheduler jitter, authentication, and production retention remain for the actual project to decide."
+      }
     }
   },
-  "expected_document": "catalog/examples/generic-requirements.md"
+  "expected_document": "catalog/examples/generic-requirements.md",
+  "layer": null
 }

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import hashlib
 import json
 import shutil
@@ -13,6 +15,7 @@ from pathlib import Path
 KIT = Path(__file__).resolve().parents[1]
 REPO = KIT.parent
 CACHE = REPO / "cache" / "document-kit-core-tests"
+CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 sys.path.insert(0, str(KIT))
 
 from xdesign_doc_kit.core import (  # noqa: E402

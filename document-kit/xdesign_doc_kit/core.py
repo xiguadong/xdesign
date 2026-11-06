@@ -56,7 +56,7 @@ def _contract(profile_root: str | Path | None = None) -> dict[str, Any]:
         raise _error("invalid-profile", f"Invalid profile.json: {error}") from error
     if not isinstance(profile, dict):
         raise _error("invalid-profile", "Profile must be a JSON object")
-    if profile.get("schema_version") == "1.1":
+    if profile.get("schema_version") in ("1.1", "1.2"):
         return load_catalog_contract(root, _contract)
     if profile.get("schema_version") != "1.0":
         raise _error("invalid-profile", "Unsupported profile schema")
@@ -212,12 +212,12 @@ def _identity(contract: Mapping[str, Any]) -> dict[str, Any]:
     return effective_identity_for_contract(contract)
 
 
-def get_contract(profile_root: str | Path | None = None) -> dict[str, Any]:
+def _legacy_get_contract(profile_root: str | Path | None = None) -> dict[str, Any]:
     """Return the complete versioned pack; no target project is needed."""
     contract = _contract(profile_root)
     catalog = synthesize_v1_catalog(contract) if contract["profile"]["schema_version"] == "1.0" else contract["catalog"]
     templates = dict(contract["templates"])
-    if contract["profile"]["schema_version"] == "1.1":
+    if contract["profile"]["schema_version"] in ("1.1", "1.2"):
         for entry_id, entry in contract["entries_by_id"].items():
             templates[entry_id] = contract["resources"][entry["template"]].decode("utf-8")
     return {"ok": True, **_identity(contract), "profile": contract["profile"],
@@ -260,7 +260,7 @@ def _class_plan(target_root: str | Path, document_class: str, name: str,
     return contract, target, spec, relative, selection["effective_identity"]
 
 
-def plan_document(target_root: str | Path, document_class: str, name: str,
+def _legacy_plan_document(target_root: str | Path, document_class: str, name: str,
                   profile_root: str | Path | None = None,
                   template_id: str | None = None) -> dict[str, Any]:
     """Resolve a class route and required inputs without writing."""
@@ -291,6 +291,8 @@ def _model_files(target: Path, profile: Mapping[str, Any]) -> list[str]:
         raise _error("invalid-profile", "Model roots must be nonempty required and optional path lists")
     found: list[str] = []
     for root_text in [*required, *optional]:
+        from .io_boundary import phase
+        phase("model-read", root_text)
         root_rel = _safe_rel(root_text, "Model root", "invalid-profile")
         _reject_symlinks(target, root_rel)
         root = target.joinpath(*root_rel.parts)
@@ -409,10 +411,13 @@ def _registry_path(contract: Mapping[str, Any]) -> str:
 
 def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
     relative = _registry_path(contract)
+    _reject_symlinks(target, PurePosixPath(relative))
     if not target.joinpath(*PurePosixPath(relative).parts).exists():
         return {"schema_version": 1, "entries": []}
     try:
         data = json.loads(_read_project_file(target, relative).decode("utf-8"), object_pairs_hook=_unique_pairs)
+    except DocumentKitError:
+        raise
     except (UnicodeError, ValueError) as error:
         raise _error("registry-mismatch", f"Registry is invalid: {error}", "DOC-002", relative) from error
     if (not isinstance(data, dict) or set(data) != {"schema_version", "entries"}
@@ -431,6 +436,8 @@ def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
                     and entry["contract_digest_version"] not in ("1", "2")):
             raise _error("registry-mismatch", "Registry entry is invalid", "DOC-002", relative)
         path = _safe_rel(entry["path"], "Registered document")
+        if contract["profile"]["schema_version"] == "1.2" and not entry["path"].startswith(contract["profile"]["project"]["docs_root"] + "/"):
+            raise _error("registry-mismatch", "Registered path is outside docs_root", "DOC-002", relative)
         if path.as_posix() in paths:
             raise _error("registry-mismatch", "Duplicate registry document", "DOC-002", relative)
         paths.add(path.as_posix())
@@ -451,7 +458,10 @@ def _registry_bytes(data: Mapping[str, Any]) -> bytes:
 
 @contextmanager
 def _writer_lock(target: Path) -> Iterator[None]:
+    from .io_boundary import phase
+    phase("lock")
     cache_rel = PurePosixPath("cache/document-kit.lock")
+    _reject_symlinks(target, cache_rel)
     with _parent_fd(target, cache_rel, create=True) as (parent, name):
         fd = os.open(name, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600, dir_fd=parent)
         try:
@@ -462,7 +472,9 @@ def _writer_lock(target: Path) -> Iterator[None]:
             os.close(fd)
 
 
-def _stage(target: Path, data: bytes) -> str:
+def _stage_bytes(target: Path, data: bytes) -> str:
+    from .io_boundary import phase
+    phase("staging")
     relative = f"cache/document-kit-{uuid.uuid4().hex}.tmp"
     with _parent_fd(target, PurePosixPath(relative), create=True) as (parent, name):
         fd = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
@@ -479,29 +491,56 @@ def _stage(target: Path, data: bytes) -> str:
     return relative
 
 
+def _stage(target: Path, data: bytes) -> str:
+    try:
+        return _stage_bytes(target, data)
+    except (OSError, DocumentKitError) as error:
+        from .io_boundary import annotate
+        if isinstance(error, DocumentKitError) and error.code == "unsafe-path":
+            raise
+        raise annotate(_error("access-denied", "Cannot stage document bytes")) from error
+
+
 def _replace(target: Path, relative: str, data: bytes, *, create: bool = False) -> None:
+    from .io_boundary import phase, published, CURRENT, annotate
+    current = CURRENT.get()
+    before = current.publication_state if current else "none"
+    phase("route", relative)
+    _reject_symlinks(target, PurePosixPath(relative))
+    with _parent_fd(target, PurePosixPath(relative), create=True):
+        pass
     staged = _stage(target, data)
+    published_here = False
     try:
         with _parent_fd(target, PurePosixPath(staged)) as (source_dir, source_name):
-            with _parent_fd(target, PurePosixPath(relative), create=True) as (dest_dir, dest_name):
+            with _parent_fd(target, PurePosixPath(relative)) as (dest_dir, dest_name):
+                phase("registry-publish" if relative.endswith(REGISTRY_NAME) else "page-publish", relative)
                 try:
                     if create:
                         os.link(source_name, dest_name, src_dir_fd=source_dir,
                                 dst_dir_fd=dest_dir, follow_symlinks=False)
                     else:
-                        os.replace(source_name, dest_name, src_dir_fd=source_dir,
-                                   dst_dir_fd=dest_dir)
+                        os.replace(source_name, dest_name, src_dir_fd=source_dir, dst_dir_fd=dest_dir)
                 except FileExistsError as error:
-                    raise _error("document-exists", f"Document already exists: {relative}",
-                                 "DOC-001", relative) from error
+                    raise _error("document-exists", f"Document already exists: {relative}", "DOC-001", relative) from error
                 except OSError as error:
-                    raise _error("atomic-replace-failed", f"Cannot atomically write {relative}: {error}",
-                                 "DOC-001", relative) from error
+                    raise annotate(_error("atomic-replace-failed", f"Cannot atomically write {relative}: {error}", "DOC-001", relative)) from error
+                published_here = True
+                published("page-only" if create else "unknown")
     finally:
         try:
-            (target / staged).unlink()
+            with _parent_fd(target, PurePosixPath(staged)) as (parent, name):
+                os.unlink(name, dir_fd=parent)
         except FileNotFoundError:
             pass
+        except OSError as error:
+            phase("cleanup", relative)
+            if published_here:
+                published("unknown")
+            else:
+                published(before)
+            raise annotate(_error("publication-unknown" if published_here else "access-denied",
+                                  "Cannot remove staging file after publication attempt")) from error
 
 
 def _expected_contract(contract: Mapping[str, Any], expected: str | None) -> None:
@@ -586,10 +625,14 @@ def _local_link_findings(target: Path, relative: str, text: str,
             return set()
         try:
             source = text if path == relative else _read_project_file(target, path).decode("utf-8")
-        except (DocumentKitError, UnicodeError):
+        except DocumentKitError as error:
+            if error.code == "unreadable-input":
+                raise
+            return set()
+        except UnicodeError:
             return set()
         counts: dict[str, int] = {}
-        slugs: set[str] = set()
+        slugs: set[str] = {m.group(1).casefold() for row in _masked_lines(source) if (m := ANCHOR.fullmatch(row))}
         for row in _masked_lines(source):
             heading = re.match(r"^#{1,6}\s+(.+?)\s*#*\s*$", row)
             if heading is None:
@@ -841,7 +884,7 @@ def _sysml_without_comments(source: str) -> str:
 
 
 def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, str],
-                         anchors: Mapping[str, tuple[str, int]]) -> list[dict[str, Any]]:
+                         anchors: Mapping[str, tuple[str, int]], focus: str | None = None) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     for model in models:
         try:
@@ -863,6 +906,14 @@ def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, st
             fields = {item.group(1): item.group(2) for item in assignments}
             expected = {"document", "section"} if kind == "DocSection" else {"document", "figure"}
             residue = FIELD_ASSIGNMENT.sub("", body.group(1)).replace(";", "").strip()
+            documents = [item.group(2) for item in assignments if item.group(1) == "document"]
+            if focus is not None and len(documents) == 1 and documents[0] != focus:
+                try:
+                    _safe_rel(documents[0], "Locator document")
+                except DocumentKitError:
+                    pass
+                else:
+                    continue
             if set(fields) != expected or len(assignments) != len(expected) or residue:
                 findings.append(diagnostic("DOC-004", "unsupported-annotation", model,
                                            f"Malformed {kind} locator fields", line))
@@ -874,12 +925,15 @@ def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, st
                 findings.append(diagnostic("DOC-004", "unsupported-annotation", model,
                                            f"Unsafe {kind} document path", line))
                 continue
+            if focus is not None and document != focus:
+                continue
+            document_anchors = _anchor_map({document: texts[document]})[0] if document in texts else {}
             if document not in texts:
                 findings.append(diagnostic("DOC-004", "invalid-docsection" if kind == "DocSection" else "invalid-docfigure",
                                            model, f"Locator document does not exist: {document}", line))
             elif kind == "DocSection":
                 section = fields["section"]
-                if section.casefold() not in anchors or anchors[section.casefold()][0] != document:
+                if section.casefold() not in document_anchors:
                     findings.append(diagnostic("DOC-004", "invalid-docsection", model,
                                                f"Missing section {section} in {document}", line))
             else:
@@ -904,7 +958,7 @@ def _annotation_findings(target: Path, models: list[str], texts: Mapping[str, st
     return findings
 
 
-def check_documents(target_root: str | Path, document_class: str | None = None,
+def _legacy_check_documents(target_root: str | Path, document_class: str | None = None,
                     profile_root: str | Path | None = None) -> dict[str, Any]:
     """Validate managed and legacy docs with model locator targets."""
     if document_class is not None and not isinstance(document_class, str):
@@ -1062,7 +1116,7 @@ def _commit_contract(profile_root: str | Path | None, first: Mapping[str, Any],
     _expected_contract(current, expected)
 
 
-def create_document(target_root: str | Path, document_class: str, name: str,
+def _legacy_create_document(target_root: str | Path, document_class: str, name: str,
                     metadata: Mapping[str, Any], sections: Mapping[str, Any],
                     profile_root: str | Path | None = None,
                     expected_contract_sha256: str | None = None,
@@ -1143,7 +1197,7 @@ def _section_span(text: str, spec: Mapping[str, Any], key: str) -> tuple[int, in
     return start, len(text) if next_start < 0 else next_start + 1
 
 
-def update_section(target_root: str | Path, document_class: str, name: str,
+def _legacy_update_section(target_root: str | Path, document_class: str, name: str,
                    section_key: str, content: str, expected_sha256: str,
                    fields: Mapping[str, str] | None = None,
                    profile_root: str | Path | None = None,
@@ -1189,7 +1243,7 @@ def update_section(target_root: str | Path, document_class: str, name: str,
             "effective_identity": effective, "semantic_review_required": True}
 
 
-def attach_figure(target_root: str | Path, document_class: str, name: str,
+def _legacy_attach_figure(target_root: str | Path, document_class: str, name: str,
                   section_key: str, figure: Mapping[str, Any], expected_sha256: str,
                   profile_root: str | Path | None = None,
                   expected_contract_sha256: str | None = None,
@@ -1258,3 +1312,63 @@ def attach_figure(target_root: str | Path, document_class: str, name: str,
             "provenance_review_notes": [
                 "Review that the SVG faithfully renders the cited SysML view"],
             "semantic_review_required": True}
+
+
+# Stable public positional API; structured additions are keyword-only.
+def _structured_selection(profile_root):
+    # This dispatch probe is not validation. Malformed/unreadable packs go through
+    # preflight first and then the normal typed loader; legacy valid packs retain
+    # their historical error ordering.
+    try:
+        root = Path(profile_root) if profile_root is not None else KIT_ROOT
+        profile = json.loads(_read_pack_file(root, "profile.json"))
+        return profile.get("schema_version") not in ("1.0", "1.1")
+    except (OSError, ValueError, TypeError):
+        return True
+
+
+def _public(name, arguments):
+    from . import structured
+    from .io_boundary import operation, LAUNCH_PIN, LAUNCH_SCHEMA
+    with operation(name):
+        structured_pack = LAUNCH_SCHEMA.get() == "1.2" or _structured_selection(arguments.get("profile_root"))
+        if structured_pack:
+            request = {k:v for k,v in arguments.items() if k not in ("target_root", "profile_root")}
+            structured.preflight(name, **request)
+            if name == "get_contract":
+                structured.load(arguments.get("profile_root"))
+                return _legacy_get_contract(arguments.get("profile_root"))
+            return getattr(structured, name)(**arguments)
+        if arguments.get("layer") is not None or arguments.get("selection") is not None or arguments.get("decision") is not None:
+            raise _error("invalid-request", "Structured selectors and decisions require schema 1.2")
+        if LAUNCH_PIN.get() is not None:
+            structured.load(arguments.get("profile_root"))
+        legacy_args = {k:v for k,v in arguments.items() if k not in ("layer", "selection", "decision")}
+        return globals()["_legacy_" + name](**legacy_args)
+
+
+def get_contract(profile_root=None):
+    return _public("get_contract", locals())
+
+
+def plan_document(target_root, document_class, name, profile_root=None, template_id=None, *, layer=None):
+    return _public("plan_document", locals())
+
+
+def create_document(target_root, document_class, name, metadata, sections, profile_root=None,
+                    expected_contract_sha256=None, template_id=None, *, layer=None):
+    return _public("create_document", locals())
+
+
+def update_section(target_root, document_class, name, section_key, content, expected_sha256,
+                   fields=None, profile_root=None, expected_contract_sha256=None, *, layer=None):
+    return _public("update_section", locals())
+
+
+def attach_figure(target_root, document_class, name, section_key, figure, expected_sha256,
+                  profile_root=None, expected_contract_sha256=None, concern=None, *, layer=None, decision=None):
+    return _public("attach_figure", locals())
+
+
+def check_documents(target_root, document_class=None, profile_root=None, *, selection=None):
+    return _public("check_documents", locals())

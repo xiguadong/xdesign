@@ -40,6 +40,6 @@ create/work/check actions, and the [checkpoint library endpoints](web-api.md#i19
 one of the four modeled exchanges above and not the documentation site's interface.
 
 The [portable document kit interaction contract](document-kit-api.md#i20)
-specifies planned CLI/MCP arguments, results, path and update guards, and the
-validation boundary for the separate template/rule component. It is designed
-only; no CLI or MCP endpoint is implemented in the current delivery.
+describes the original CLI/MCP arguments, results, path and update guards. Its
+[structured release contract](document-kit-api.md#i21) designs the later Python,
+CLI and MCP additions; that release is not yet implemented or accepted.
