@@ -39,12 +39,14 @@ DOC-06 and DOC-12 exercise whether the source realization shares the engine and 
 
 ## 2. Catalog and compatibility structure
 
-The root pack is the immutable 1.1.0 catalog. `catalog/manifest.json` binds each
-scenario to one existing class route, required sections, checks, view concerns,
-and template/guide/example/fixture resources. `catalog/sources.json` owns source
-and license identity. A byte-exact v1 pack lives at `compatibility/v1.0.0/`.
-Later releases have new versions and retain earlier 1.1 packs at selectable
-compatibility roots; no current catalog edit silently retargets an old document.
+The current root pack is schema 1.2.0 with 21 entries across ten classes.
+`catalog/manifest.json` binds each scenario to one existing class route, required
+sections, checks, view concerns, and template/guide/example/fixture resources.
+`catalog/sources.json` owns source and license identity. Byte-exact v1 and 1.1.0
+packs live at `compatibility/v1.0.0/` and `compatibility/v1.1.0/`. Later releases
+have new versions and retain earlier packs at selectable compatibility roots; no
+current catalog edit silently retargets an old document. The earlier 1.1 catalog
+had 16 entries in the five flat classes.
 
 `DocumentContractSource` carries the catalog/source/compatibility URIs and digest
 identity alongside the original profile/rules/template URIs. The detailed-design
@@ -96,19 +98,57 @@ packs remain explicitly selectable after later releases.
 
 ## 4. Structured release boundary
 
-The proposed schema 1.2 release preserves the four existing component boundaries.
-The contract source owns a new route/template catalog, the retained root-level
-v1 pack and the exact retained 1.1.0 closure including its original v1 child. The authoring boundary resolves a
+The schema 1.2 release preserves the four existing component boundaries and is
+present in the current `document-kit/` source. The contract source owns the
+route/template catalog, the retained root-level v1 pack and the exact retained
+1.1.0 closure including its original v1 child. The authoring boundary resolves a
 class/name/layer selection, validates each page against its recorded effective
 contract, and reports whole-project or selected-document scope. CLI and MCP remain
 adapters over the same engine; neither is an additional documentation authority.
 The retained compatibility closures are immutable inputs, not new operational
 stores or migration targets.
 
-`XDesignDetailedDesign::StructuredDocumentKitDesign` allocates the new route,
+`XDesignDetailedDesign::StructuredDocumentKitDesign` allocates the route,
 template, compatibility, operation, consumer and verification responsibilities.
 The [detailed design](../design/document-kit.md#d115) and
 [public interaction contract](../interfaces/document-kit-api.md#i21) define their
 observable behavior and [planned verification](../verification/design.md#d116).
-This is a design-stage allocation: it does not claim the existing product has
-implemented schema 1.2 or that its output is semantically accepted.
+Source presence does not establish SDK case execution or semantic acceptance, and
+this bilingual assignment does not add R20 satisfaction links.
+
+<a id="b35"></a>
+
+## 5. Bilingual release boundary
+
+`XDesignArchitecture::BilingualDocumentKitRelease` specializes the existing
+`PortableDocumentKit` allocation for the proposed `xdesign-sysml-docs@1.3.0`
+contract. It does not add a fifth component. `contract` owns one current catalog
+at `catalog/entries/<template-id>/<language>/`, shared language-neutral inputs,
+localized figure-block templates, and immutable compatibility closures;
+`authoring` resolves language and persisted identity through the same engine;
+`cli` and `mcp` expose that engine without separate translation or discovery
+rules.
+
+The current tree has exactly 21 entry directories, two variants per entry and four
+language-owned resources per variant. Shared sources, routing, mixed inputs,
+models and SVGs are referenced once rather than copied by language. The
+`compatibility/` tree is historical release storage, not an editable mirror of the
+current catalog. The proposed 1.3 distribution retains the complete current 1.2.0
+closure at `compatibility/v1.2.0/` in addition to the existing 1.0.0 and 1.1.0
+closures; nested closures remain intact and independently selectable.
+
+Language is part of the authoring contract and new managed identity, not the
+class/name/layer route. The target project still owns documents, model sources,
+links, figures and the single registry. A second creation at an occupied route is
+a collision, never a language conversion. No component infers language from a
+locale or prose, invents engineering content, or treats structural output as a
+Chinese-quality or English-equivalence judgment.
+
+The [detailed bilingual design](../design/document-kit.md#d122) allocates the
+resource, operation and compatibility mechanisms; the [public contract](../interfaces/document-kit-api.md#i23)
+defines selectors and resources; [BDK-01 through BDK-09](../verification/requirements.md#v20)
+and the [verification design](../verification/design.md#d121) remain planned
+implementation-verification obligations. The implementation projects this allocation through `bilingual.py`, the existing
+core, CLI and MCP adapters, entry-owned resources and exact retained closures.
+Product existence does not establish BDK execution, semantic equivalence or
+engineering acceptance; those remain revision-bound verification obligations.

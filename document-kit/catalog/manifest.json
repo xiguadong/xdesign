@@ -1,72 +1,11 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "entries": [
     {
       "template_id": "generic-requirements",
       "document_class": "requirements",
-      "title": "Requirements document",
-      "scenario": "General requirements contract",
-      "when_to_use": [
-        "When the generic requirements chapter structure fits"
-      ],
-      "when_not_to_use": [
-        "When a scenario-specific structure is clearer"
-      ],
-      "required_inputs": [
-        "Document class and slug",
-        "Model sources",
-        "Caller content"
-      ],
-      "dependencies": [
-        "Wish or product goals and model elements that own the behavior",
-        "Planned verification cases and downstream design links"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and scope",
-          "required_fields": [
-            "system_boundary"
-          ]
-        },
-        {
-          "key": "requirements",
-          "heading": "2. Requirements",
-          "required_fields": [
-            "normative_statements",
-            "rationale"
-          ]
-        },
-        {
-          "key": "acceptance",
-          "heading": "3. Acceptance conditions",
-          "required_fields": [
-            "measurable_conditions",
-            "verification_method"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "4. Model and design trace",
-          "required_fields": [
-            "model_elements",
-            "design_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-requirements.md",
-      "guide": "catalog/guides/generic-requirements.md",
-      "example": "catalog/examples/generic-requirements.md",
-      "fixture": "catalog/fixtures/generic-requirements.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -88,75 +27,180 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Requirements document",
+          "scenario": "General requirements contract",
+          "when_to_use": [
+            "When the generic requirements chapter structure fits"
+          ],
+          "when_not_to_use": [
+            "When a scenario-specific structure is clearer"
+          ],
+          "required_inputs": [
+            "Document class and slug",
+            "Model sources",
+            "Caller content"
+          ],
+          "dependencies": [
+            "Wish or product goals and model elements that own the behavior",
+            "Planned verification cases and downstream design links"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and scope",
+              "required_fields": [
+                "system_boundary"
+              ],
+              "field_labels": {
+                "system_boundary": "System boundary"
+              }
+            },
+            {
+              "key": "requirements",
+              "heading": "2. Requirements",
+              "required_fields": [
+                "normative_statements",
+                "rationale"
+              ],
+              "field_labels": {
+                "normative_statements": "Normative statements",
+                "rationale": "Rationale"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "3. Acceptance conditions",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "Measurable conditions",
+                "verification_method": "Verification method"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "4. Model and design trace",
+              "required_fields": [
+                "model_elements",
+                "design_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "design_links": "Design links"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. Status and limits",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-requirements/en/template.md",
+            "guide": "catalog/entries/generic-requirements/en/guide.md",
+            "example": "catalog/entries/generic-requirements/en/example.md",
+            "fixture": "catalog/entries/generic-requirements/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "通用需求文档",
+          "scenario": "适用于边界、规范陈述、验收和追踪关系完整的一般需求集合",
+          "when_to_use": [
+            "当通用需求章节能够完整承载问题边界、行为义务和验收论证时使用"
+          ],
+          "when_not_to_use": [
+            "当重点是既有行为变更或全新能力建设时，分别使用 change-requirements 或 system-requirements"
+          ],
+          "required_inputs": [
+            "文档类别、语义化名称和系统边界",
+            "可读取的模型来源及需求责任对象",
+            "具有可测量验收条件的调用方工程内容"
+          ],
+          "dependencies": [
+            "愿望或产品目标，以及拥有相关行为的模型元素",
+            "下游设计链接和仍处于计划状态的验证用例"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与范围",
+              "required_fields": [
+                "system_boundary"
+              ],
+              "field_labels": {
+                "system_boundary": "系统边界"
+              }
+            },
+            {
+              "key": "requirements",
+              "heading": "2. 需求",
+              "required_fields": [
+                "normative_statements",
+                "rationale"
+              ],
+              "field_labels": {
+                "normative_statements": "规范性陈述",
+                "rationale": "依据"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "3. 验收条件",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "可测量条件",
+                "verification_method": "验证方法"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "4. 模型与设计追踪",
+              "required_fields": [
+                "model_elements",
+                "design_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "design_links": "设计链接"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. 状态与限制",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-requirements/zh-CN/template.md",
+            "guide": "catalog/entries/generic-requirements/zh-CN/guide.md",
+            "example": "catalog/entries/generic-requirements/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-requirements/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-architecture",
       "document_class": "architecture",
-      "title": "Architecture document",
-      "scenario": "General architecture contract",
-      "when_to_use": [
-        "When the generic architecture chapter structure fits"
-      ],
-      "when_not_to_use": [
-        "When a scenario-specific structure is clearer"
-      ],
-      "required_inputs": [
-        "Document class and slug",
-        "Model sources",
-        "Caller content"
-      ],
-      "dependencies": [
-        "Requirements being allocated and model parts and exchanges",
-        "Downstream interface and verification documents"
-      ],
-      "required_sections": [
-        {
-          "key": "context",
-          "heading": "1. Context and boundary",
-          "required_fields": [
-            "system_boundary",
-            "external_actors"
-          ]
-        },
-        {
-          "key": "composition",
-          "heading": "2. Composition and responsibilities",
-          "required_fields": [
-            "parts",
-            "relationships"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "3. Behavior and lifecycle",
-          "required_fields": [
-            "interactions",
-            "states"
-          ]
-        },
-        {
-          "key": "constraints",
-          "heading": "4. Constraints and decisions",
-          "required_fields": [
-            "constraints",
-            "design_rationale"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-architecture.md",
-      "guide": "catalog/guides/generic-architecture.md",
-      "example": "catalog/examples/generic-architecture.md",
-      "fixture": "catalog/fixtures/generic-architecture.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -178,82 +222,192 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Architecture document",
+          "scenario": "General architecture contract",
+          "when_to_use": [
+            "When the generic architecture chapter structure fits"
+          ],
+          "when_not_to_use": [
+            "When a scenario-specific structure is clearer"
+          ],
+          "required_inputs": [
+            "Document class and slug",
+            "Model sources",
+            "Caller content"
+          ],
+          "dependencies": [
+            "Requirements being allocated and model parts and exchanges",
+            "Downstream interface and verification documents"
+          ],
+          "required_sections": [
+            {
+              "key": "context",
+              "heading": "1. Context and boundary",
+              "required_fields": [
+                "system_boundary",
+                "external_actors"
+              ],
+              "field_labels": {
+                "system_boundary": "System boundary",
+                "external_actors": "External actors"
+              }
+            },
+            {
+              "key": "composition",
+              "heading": "2. Composition and responsibilities",
+              "required_fields": [
+                "parts",
+                "relationships"
+              ],
+              "field_labels": {
+                "parts": "Parts",
+                "relationships": "Relationships"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. Behavior and lifecycle",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "Interactions",
+                "states": "States"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "4. Constraints and decisions",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "Constraints",
+                "design_rationale": "Design rationale"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Trace and verification",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "requirements_links": "Requirements links",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-architecture/en/template.md",
+            "guide": "catalog/entries/generic-architecture/en/guide.md",
+            "example": "catalog/entries/generic-architecture/en/example.md",
+            "fixture": "catalog/entries/generic-architecture/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "通用架构文档",
+          "scenario": "适用于需要在同一抽象层次说明背景、组成、行为、约束和追踪的一般架构",
+          "when_to_use": [
+            "当系统边界与内部组成需要均衡论述，且通用五章结构足以表达架构责任时使用"
+          ],
+          "when_not_to_use": [
+            "当论证重点是外部边界或内部组成中的单一问题时，使用更聚焦的 system-context 或 component-composition"
+          ],
+          "required_inputs": [
+            "文档类别、名称以及需求和模型来源",
+            "外部参与者、组成部分、关系、行为和约束的调用方分析",
+            "需求、设计和验证的可追踪链接"
+          ],
+          "dependencies": [
+            "待分配的需求以及模型中的部件和交换关系",
+            "下游接口契约与计划验证文档"
+          ],
+          "required_sections": [
+            {
+              "key": "context",
+              "heading": "1. 背景与边界",
+              "required_fields": [
+                "system_boundary",
+                "external_actors"
+              ],
+              "field_labels": {
+                "system_boundary": "系统边界",
+                "external_actors": "外部参与者"
+              }
+            },
+            {
+              "key": "composition",
+              "heading": "2. 组成与职责",
+              "required_fields": [
+                "parts",
+                "relationships"
+              ],
+              "field_labels": {
+                "parts": "组成部分",
+                "relationships": "关系"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. 行为与生命周期",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "交互",
+                "states": "状态"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "4. 约束与决策",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "约束",
+                "design_rationale": "设计依据"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 追踪与验证",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "requirements_links": "需求链接",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-architecture/zh-CN/template.md",
+            "guide": "catalog/entries/generic-architecture/zh-CN/guide.md",
+            "example": "catalog/entries/generic-architecture/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-architecture/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-design",
       "document_class": "design",
-      "title": "Design document",
-      "scenario": "General design contract",
-      "when_to_use": [
-        "When the generic design chapter structure fits"
-      ],
-      "when_not_to_use": [
-        "When a scenario-specific structure is clearer"
-      ],
-      "required_inputs": [
-        "Document class and slug",
-        "Model sources",
-        "Caller content"
-      ],
-      "dependencies": [
-        "Approved requirements and architecture",
-        "Intended source units and verification links"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and allocation",
-          "required_fields": [
-            "design_subject",
-            "requirements_links"
-          ]
-        },
-        {
-          "key": "structure",
-          "heading": "2. Structure and interfaces",
-          "required_fields": [
-            "components",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "3. Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "constraints"
-          ]
-        },
-        {
-          "key": "rationale",
-          "heading": "4. Decisions and rationale",
-          "required_fields": [
-            "chosen_design",
-            "tradeoffs"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "5. Implementation projection and verification",
-          "required_fields": [
-            "source_projection",
-            "verification_links",
-            "model_elements"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "6. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-design.md",
-      "guide": "catalog/guides/generic-design.md",
-      "example": "catalog/examples/generic-design.md",
-      "fixture": "catalog/fixtures/generic-design.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -275,74 +429,212 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Design document",
+          "scenario": "General design contract",
+          "when_to_use": [
+            "When the generic design chapter structure fits"
+          ],
+          "when_not_to_use": [
+            "When a scenario-specific structure is clearer"
+          ],
+          "required_inputs": [
+            "Document class and slug",
+            "Model sources",
+            "Caller content"
+          ],
+          "dependencies": [
+            "Approved requirements and architecture",
+            "Intended source units and verification links"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and allocation",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "Design subject",
+                "requirements_links": "Requirements links"
+              }
+            },
+            {
+              "key": "structure",
+              "heading": "2. Structure and interfaces",
+              "required_fields": [
+                "components",
+                "interfaces"
+              ],
+              "field_labels": {
+                "components": "Components",
+                "interfaces": "Interfaces"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. Behavior and constraints",
+              "required_fields": [
+                "behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "Behavior",
+                "constraints": "Constraints"
+              }
+            },
+            {
+              "key": "rationale",
+              "heading": "4. Decisions and rationale",
+              "required_fields": [
+                "chosen_design",
+                "tradeoffs"
+              ],
+              "field_labels": {
+                "chosen_design": "Chosen design",
+                "tradeoffs": "Tradeoffs"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "5. Implementation projection and verification",
+              "required_fields": [
+                "source_projection",
+                "verification_links",
+                "model_elements"
+              ],
+              "field_labels": {
+                "source_projection": "Source projection",
+                "verification_links": "Verification links",
+                "model_elements": "Model elements"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "6. Status and limits",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-design/en/template.md",
+            "guide": "catalog/entries/generic-design/en/guide.md",
+            "example": "catalog/entries/generic-design/en/example.md",
+            "fixture": "catalog/entries/generic-design/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "通用设计文档",
+          "scenario": "适用于需要连贯说明设计分配、行为、决策依据、实现映射和限制的一般设计",
+          "when_to_use": [
+            "当通用六章能够承载一个完整设计问题及其技术权衡时使用"
+          ],
+          "when_not_to_use": [
+            "当主要问题是交互顺序、生命周期状态或数据语义时，采用对应的专门设计条目"
+          ],
+          "required_inputs": [
+            "设计对象、需求分配和模型来源",
+            "组件接口、行为约束、选定方案及备选方案比较",
+            "预期源码单元、计划验证和未决限制"
+          ],
+          "dependencies": [
+            "已识别的需求与架构责任",
+            "预期源码单元及后续验证责任"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与分配",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "设计对象",
+                "requirements_links": "需求链接"
+              }
+            },
+            {
+              "key": "structure",
+              "heading": "2. 结构与接口",
+              "required_fields": [
+                "components",
+                "interfaces"
+              ],
+              "field_labels": {
+                "components": "组成要素",
+                "interfaces": "接口"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. 行为与约束",
+              "required_fields": [
+                "behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "行为",
+                "constraints": "约束"
+              }
+            },
+            {
+              "key": "rationale",
+              "heading": "4. 决策与依据",
+              "required_fields": [
+                "chosen_design",
+                "tradeoffs"
+              ],
+              "field_labels": {
+                "chosen_design": "选定设计",
+                "tradeoffs": "权衡"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "5. 实现映射与验证",
+              "required_fields": [
+                "source_projection",
+                "verification_links",
+                "model_elements"
+              ],
+              "field_labels": {
+                "source_projection": "源码映射",
+                "verification_links": "验证链接",
+                "model_elements": "模型元素"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "6. 状态与限制",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-design/zh-CN/template.md",
+            "guide": "catalog/entries/generic-design/zh-CN/guide.md",
+            "example": "catalog/entries/generic-design/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-design/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-interface",
       "document_class": "interface",
-      "title": "Interface document",
-      "scenario": "General interface contract",
-      "when_to_use": [
-        "When the generic interface chapter structure fits"
-      ],
-      "when_not_to_use": [
-        "When a scenario-specific structure is clearer"
-      ],
-      "required_inputs": [
-        "Document class and slug",
-        "Model sources",
-        "Caller content"
-      ],
-      "dependencies": [
-        "Owning design and exchanged model elements",
-        "Normal, error, and compatibility test cases"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and participants",
-          "required_fields": [
-            "boundary",
-            "participants"
-          ]
-        },
-        {
-          "key": "contract",
-          "heading": "2. Interface contract",
-          "required_fields": [
-            "operations",
-            "data_shapes"
-          ]
-        },
-        {
-          "key": "errors",
-          "heading": "3. Errors and invariants",
-          "required_fields": [
-            "error_behavior",
-            "invariants"
-          ]
-        },
-        {
-          "key": "compatibility",
-          "heading": "4. Versioning and compatibility",
-          "required_fields": [
-            "version_policy",
-            "compatibility_policy"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Model and verification trace",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-interface.md",
-      "guide": "catalog/guides/generic-interface.md",
-      "example": "catalog/examples/generic-interface.md",
-      "fixture": "catalog/fixtures/generic-interface.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -364,75 +656,188 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Interface document",
+          "scenario": "General interface contract",
+          "when_to_use": [
+            "When the generic interface chapter structure fits"
+          ],
+          "when_not_to_use": [
+            "When a scenario-specific structure is clearer"
+          ],
+          "required_inputs": [
+            "Document class and slug",
+            "Model sources",
+            "Caller content"
+          ],
+          "dependencies": [
+            "Owning design and exchanged model elements",
+            "Normal, error, and compatibility test cases"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and participants",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "Boundary",
+                "participants": "Participants"
+              }
+            },
+            {
+              "key": "contract",
+              "heading": "2. Interface contract",
+              "required_fields": [
+                "operations",
+                "data_shapes"
+              ],
+              "field_labels": {
+                "operations": "Operations",
+                "data_shapes": "Data shapes"
+              }
+            },
+            {
+              "key": "errors",
+              "heading": "3. Errors and invariants",
+              "required_fields": [
+                "error_behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "error_behavior": "Error behavior",
+                "invariants": "Invariants"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. Versioning and compatibility",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "Version policy",
+                "compatibility_policy": "Compatibility policy"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Model and verification trace",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-interface/en/template.md",
+            "guide": "catalog/entries/generic-interface/en/guide.md",
+            "example": "catalog/entries/generic-interface/en/example.md",
+            "fixture": "catalog/entries/generic-interface/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "通用接口文档",
+          "scenario": "适用于规模较小且需要同时说明操作、数据、错误、兼容性和追踪的一般接口",
+          "when_to_use": [
+            "当一个接口需要统一的参与者和契约说明，而无需拆分操作与数据专门文档时使用"
+          ],
+          "when_not_to_use": [
+            "当请求响应行为或数据版本规则需要独立深入论证时，使用 operation-contract 或 data-contract"
+          ],
+          "required_inputs": [
+            "接口边界、参与者和模型来源",
+            "操作、数据结构、错误、不变量和版本策略",
+            "正常、异常及兼容性验证链接"
+          ],
+          "dependencies": [
+            "拥有接口职责的设计和被交换的模型元素",
+            "覆盖正常、错误和兼容场景的验证用例"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与参与者",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "边界",
+                "participants": "参与者"
+              }
+            },
+            {
+              "key": "contract",
+              "heading": "2. 接口契约",
+              "required_fields": [
+                "operations",
+                "data_shapes"
+              ],
+              "field_labels": {
+                "operations": "操作",
+                "data_shapes": "数据结构"
+              }
+            },
+            {
+              "key": "errors",
+              "heading": "3. 错误与不变量",
+              "required_fields": [
+                "error_behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "error_behavior": "错误行为",
+                "invariants": "不变量"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. 版本管理与兼容性",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "版本策略",
+                "compatibility_policy": "兼容性策略"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 模型与验证追踪",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-interface/zh-CN/template.md",
+            "guide": "catalog/entries/generic-interface/zh-CN/guide.md",
+            "example": "catalog/entries/generic-interface/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-interface/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-verification",
       "document_class": "verification",
-      "title": "Verification document",
-      "scenario": "General verification contract",
-      "when_to_use": [
-        "When the generic verification chapter structure fits"
-      ],
-      "when_not_to_use": [
-        "When a scenario-specific structure is clearer"
-      ],
-      "required_inputs": [
-        "Document class and slug",
-        "Model sources",
-        "Caller content"
-      ],
-      "dependencies": [
-        "Identified requirements and testable designs",
-        "Execution transcripts and independent review judgments"
-      ],
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "1. Scope and basis",
-          "required_fields": [
-            "requirements_links",
-            "design_links"
-          ]
-        },
-        {
-          "key": "methods",
-          "heading": "2. Methods and environment",
-          "required_fields": [
-            "methods",
-            "environment"
-          ]
-        },
-        {
-          "key": "cases",
-          "heading": "3. Verification cases",
-          "required_fields": [
-            "inputs",
-            "procedure",
-            "expected_results"
-          ]
-        },
-        {
-          "key": "criteria",
-          "heading": "4. Acceptance criteria and trace",
-          "required_fields": [
-            "pass_criteria",
-            "trace_matrix"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unexecuted_cases",
-            "residual_risks"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-verification.md",
-      "guide": "catalog/guides/generic-verification.md",
-      "example": "catalog/examples/generic-verification.md",
-      "fixture": "catalog/fixtures/generic-verification.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -454,72 +859,192 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Verification document",
+          "scenario": "General verification contract",
+          "when_to_use": [
+            "When the generic verification chapter structure fits"
+          ],
+          "when_not_to_use": [
+            "When a scenario-specific structure is clearer"
+          ],
+          "required_inputs": [
+            "Document class and slug",
+            "Model sources",
+            "Caller content"
+          ],
+          "dependencies": [
+            "Identified requirements and testable designs",
+            "Execution transcripts and independent review judgments"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. Scope and basis",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "Requirements links",
+                "design_links": "Design links"
+              }
+            },
+            {
+              "key": "methods",
+              "heading": "2. Methods and environment",
+              "required_fields": [
+                "methods",
+                "environment"
+              ],
+              "field_labels": {
+                "methods": "Methods",
+                "environment": "Environment"
+              }
+            },
+            {
+              "key": "cases",
+              "heading": "3. Verification cases",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "Inputs",
+                "procedure": "Procedure",
+                "expected_results": "Expected results"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. Acceptance criteria and trace",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "Pass criteria",
+                "trace_matrix": "Trace matrix"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. Status and limits",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "Unexecuted cases",
+                "residual_risks": "Residual risks"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-verification/en/template.md",
+            "guide": "catalog/entries/generic-verification/en/guide.md",
+            "example": "catalog/entries/generic-verification/en/example.md",
+            "fixture": "catalog/entries/generic-verification/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "通用验证文档",
+          "scenario": "适用于需要完整说明方法、环境、用例、判定和追踪的一般验证计划",
+          "when_to_use": [
+            "当验证问题需要通用五章计划且不需要细分可执行测试或语义评审时使用"
+          ],
+          "when_not_to_use": [
+            "当重点是逐步可复现测试或模型与设计的语义判断时，使用 verification-test-plan 或 design-review"
+          ],
+          "required_inputs": [
+            "需求与设计依据以及可读取模型来源",
+            "验证方法、环境、精确输入、步骤和预期结果",
+            "可测量通过准则、追踪矩阵、未执行用例和残余风险"
+          ],
+          "dependencies": [
+            "已标识且可判定的需求和设计",
+            "后续独立生成的执行记录与评审判断"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. 范围与依据",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "需求链接",
+                "design_links": "设计链接"
+              }
+            },
+            {
+              "key": "methods",
+              "heading": "2. 方法与环境",
+              "required_fields": [
+                "methods",
+                "environment"
+              ],
+              "field_labels": {
+                "methods": "方法",
+                "environment": "环境"
+              }
+            },
+            {
+              "key": "cases",
+              "heading": "3. 验证用例",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "输入",
+                "procedure": "步骤",
+                "expected_results": "预期结果"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. 验收准则与追踪",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "通过准则",
+                "trace_matrix": "追踪矩阵"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. 状态与限制",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "未执行用例",
+                "residual_risks": "残余风险"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-verification/zh-CN/template.md",
+            "guide": "catalog/entries/generic-verification/zh-CN/guide.md",
+            "example": "catalog/entries/generic-verification/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-verification/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "system-requirements",
       "document_class": "requirements",
-      "title": "Define a new system or major capability",
-      "scenario": "Use for goals, scope, functional and quality requirements, not a narrow delta",
-      "when_to_use": [
-        "Use for goals, scope, functional and quality requirements, not a narrow delta"
-      ],
-      "when_not_to_use": [
-        "A narrow delta to existing behavior; use change-requirements"
-      ],
-      "required_inputs": [
-        "Capability goals, stakeholders, and system boundary",
-        "Functional and quality requirements with rationale and model sources",
-        "Measurable acceptance conditions, verification methods, trace, and limits"
-      ],
-      "dependencies": [
-        "Wish, stakeholder goals, and existing model context",
-        "Downstream context, architecture, and verification artifacts"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and scope",
-          "required_fields": [
-            "system_boundary"
-          ]
-        },
-        {
-          "key": "requirements",
-          "heading": "2. Requirements",
-          "required_fields": [
-            "normative_statements",
-            "rationale"
-          ]
-        },
-        {
-          "key": "acceptance",
-          "heading": "3. Acceptance conditions",
-          "required_fields": [
-            "measurable_conditions",
-            "verification_method"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "4. Model and design trace",
-          "required_fields": [
-            "model_elements",
-            "design_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/system-requirements.md",
-      "guide": "catalog/guides/system-requirements.md",
-      "example": "catalog/examples/system-requirements.md",
-      "fixture": "catalog/fixtures/system-requirements.json",
       "sources": [
         {
           "source_id": "REQ42",
@@ -547,74 +1072,180 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Define a new system or major capability",
+          "scenario": "Use for goals, scope, functional and quality requirements, not a narrow delta",
+          "when_to_use": [
+            "Use for goals, scope, functional and quality requirements, not a narrow delta"
+          ],
+          "when_not_to_use": [
+            "A narrow delta to existing behavior; use change-requirements"
+          ],
+          "required_inputs": [
+            "Capability goals, stakeholders, and system boundary",
+            "Functional and quality requirements with rationale and model sources",
+            "Measurable acceptance conditions, verification methods, trace, and limits"
+          ],
+          "dependencies": [
+            "Wish, stakeholder goals, and existing model context",
+            "Downstream context, architecture, and verification artifacts"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and scope",
+              "required_fields": [
+                "system_boundary"
+              ],
+              "field_labels": {
+                "system_boundary": "System boundary"
+              }
+            },
+            {
+              "key": "requirements",
+              "heading": "2. Requirements",
+              "required_fields": [
+                "normative_statements",
+                "rationale"
+              ],
+              "field_labels": {
+                "normative_statements": "Normative statements",
+                "rationale": "Rationale"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "3. Acceptance conditions",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "Measurable conditions",
+                "verification_method": "Verification method"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "4. Model and design trace",
+              "required_fields": [
+                "model_elements",
+                "design_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "design_links": "Design links"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. Status and limits",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/system-requirements/en/template.md",
+            "guide": "catalog/entries/system-requirements/en/guide.md",
+            "example": "catalog/entries/system-requirements/en/example.md",
+            "fixture": "catalog/entries/system-requirements/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "新系统或重大能力需求",
+          "scenario": "适用于定义新系统或重大能力的目标、边界、功能与质量需求，而非局部行为差异",
+          "when_to_use": [
+            "当需要从零界定一项能力及其利益相关方价值和完整验收范围时使用"
+          ],
+          "when_not_to_use": [
+            "当只改变既有系统的局部行为时，使用 change-requirements 保留基线和迁移分析"
+          ],
+          "required_inputs": [
+            "能力目标、利益相关方和系统边界",
+            "具有理由和模型来源的功能与质量需求",
+            "可测量验收条件、验证方法、追踪和未决限制"
+          ],
+          "dependencies": [
+            "愿望、利益相关方目标和既有模型环境",
+            "下游系统背景、架构、设计和验证制品"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与范围",
+              "required_fields": [
+                "system_boundary"
+              ],
+              "field_labels": {
+                "system_boundary": "系统边界"
+              }
+            },
+            {
+              "key": "requirements",
+              "heading": "2. 需求",
+              "required_fields": [
+                "normative_statements",
+                "rationale"
+              ],
+              "field_labels": {
+                "normative_statements": "规范性陈述",
+                "rationale": "依据"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "3. 验收条件",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "可测量条件",
+                "verification_method": "验证方法"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "4. 模型与设计追踪",
+              "required_fields": [
+                "model_elements",
+                "design_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "design_links": "设计链接"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. 状态与限制",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/system-requirements/zh-CN/template.md",
+            "guide": "catalog/entries/system-requirements/zh-CN/guide.md",
+            "example": "catalog/entries/system-requirements/zh-CN/example.md",
+            "fixture": "catalog/entries/system-requirements/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "change-requirements",
       "document_class": "requirements",
-      "title": "Change existing behavior compatibly",
-      "scenario": "Use for current/proposed behavior, impact and acceptance, not greenfield scope",
-      "when_to_use": [
-        "Use for current/proposed behavior, impact and acceptance, not greenfield scope"
-      ],
-      "when_not_to_use": [
-        "Greenfield scope with no existing behavior; use system-requirements"
-      ],
-      "required_inputs": [
-        "Current behavior, baseline requirements, and model sources",
-        "Proposed delta, affected requirements, compatibility and migration constraints",
-        "Measurable acceptance for new and retained behavior"
-      ],
-      "dependencies": [
-        "Existing requirements, current model, consumer contracts, and release policy",
-        "Regression and new-behavior verification cases"
-      ],
-      "required_sections": [
-        {
-          "key": "change",
-          "heading": "1. Change summary",
-          "required_fields": [
-            "current_behavior",
-            "proposed_behavior"
-          ]
-        },
-        {
-          "key": "impact",
-          "heading": "2. Affected requirements",
-          "required_fields": [
-            "impacted_items",
-            "rationale"
-          ]
-        },
-        {
-          "key": "compatibility",
-          "heading": "3. Compatibility and migration",
-          "required_fields": [
-            "compatibility_constraints",
-            "migration_notes"
-          ]
-        },
-        {
-          "key": "acceptance",
-          "heading": "4. Acceptance conditions",
-          "required_fields": [
-            "measurable_conditions",
-            "verification_method"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Trace and limits",
-          "required_fields": [
-            "model_elements",
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/change-requirements.md",
-      "guide": "catalog/guides/change-requirements.md",
-      "example": "catalog/examples/change-requirements.md",
-      "fixture": "catalog/fixtures/change-requirements.json",
       "sources": [
         {
           "source_id": "REQ42",
@@ -642,75 +1273,188 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Change existing behavior compatibly",
+          "scenario": "Use for current/proposed behavior, impact and acceptance, not greenfield scope",
+          "when_to_use": [
+            "Use for current/proposed behavior, impact and acceptance, not greenfield scope"
+          ],
+          "when_not_to_use": [
+            "Greenfield scope with no existing behavior; use system-requirements"
+          ],
+          "required_inputs": [
+            "Current behavior, baseline requirements, and model sources",
+            "Proposed delta, affected requirements, compatibility and migration constraints",
+            "Measurable acceptance for new and retained behavior"
+          ],
+          "dependencies": [
+            "Existing requirements, current model, consumer contracts, and release policy",
+            "Regression and new-behavior verification cases"
+          ],
+          "required_sections": [
+            {
+              "key": "change",
+              "heading": "1. Change summary",
+              "required_fields": [
+                "current_behavior",
+                "proposed_behavior"
+              ],
+              "field_labels": {
+                "current_behavior": "Current behavior",
+                "proposed_behavior": "Proposed behavior"
+              }
+            },
+            {
+              "key": "impact",
+              "heading": "2. Affected requirements",
+              "required_fields": [
+                "impacted_items",
+                "rationale"
+              ],
+              "field_labels": {
+                "impacted_items": "Impacted items",
+                "rationale": "Rationale"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "3. Compatibility and migration",
+              "required_fields": [
+                "compatibility_constraints",
+                "migration_notes"
+              ],
+              "field_labels": {
+                "compatibility_constraints": "Compatibility constraints",
+                "migration_notes": "Migration notes"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "4. Acceptance conditions",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "Measurable conditions",
+                "verification_method": "Verification method"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Trace and limits",
+              "required_fields": [
+                "model_elements",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/change-requirements/en/template.md",
+            "guide": "catalog/entries/change-requirements/en/guide.md",
+            "example": "catalog/entries/change-requirements/en/example.md",
+            "fixture": "catalog/entries/change-requirements/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "既有行为兼容变更需求",
+          "scenario": "适用于基于当前行为定义局部变更、影响、兼容迁移和验收，而非全新系统范围",
+          "when_to_use": [
+            "当既有系统行为需要调整，并且消费者兼容和保留行为必须同时得到证明时使用"
+          ],
+          "when_not_to_use": [
+            "当不存在既有行为基线或需要定义全新能力时，使用 system-requirements"
+          ],
+          "required_inputs": [
+            "当前行为、基线需求和模型来源",
+            "拟议差异、受影响需求、兼容约束与迁移说明",
+            "覆盖新行为和保留行为的可测量验收"
+          ],
+          "dependencies": [
+            "既有需求、当前模型、消费者契约和发布策略",
+            "回归验证与新行为验证用例"
+          ],
+          "required_sections": [
+            {
+              "key": "change",
+              "heading": "1. 变更摘要",
+              "required_fields": [
+                "current_behavior",
+                "proposed_behavior"
+              ],
+              "field_labels": {
+                "current_behavior": "当前行为",
+                "proposed_behavior": "拟议行为"
+              }
+            },
+            {
+              "key": "impact",
+              "heading": "2. 受影响的需求",
+              "required_fields": [
+                "impacted_items",
+                "rationale"
+              ],
+              "field_labels": {
+                "impacted_items": "受影响项",
+                "rationale": "依据"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "3. 兼容性与迁移",
+              "required_fields": [
+                "compatibility_constraints",
+                "migration_notes"
+              ],
+              "field_labels": {
+                "compatibility_constraints": "兼容性约束",
+                "migration_notes": "迁移说明"
+              }
+            },
+            {
+              "key": "acceptance",
+              "heading": "4. 验收条件",
+              "required_fields": [
+                "measurable_conditions",
+                "verification_method"
+              ],
+              "field_labels": {
+                "measurable_conditions": "可测量条件",
+                "verification_method": "验证方法"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 追踪与限制",
+              "required_fields": [
+                "model_elements",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/change-requirements/zh-CN/template.md",
+            "guide": "catalog/entries/change-requirements/zh-CN/guide.md",
+            "example": "catalog/entries/change-requirements/zh-CN/example.md",
+            "fixture": "catalog/entries/change-requirements/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "system-context",
       "document_class": "architecture",
-      "title": "Establish system boundary and external interactions",
-      "scenario": "Use for actors, external systems and exchanged information, not internal decomposition",
-      "when_to_use": [
-        "Use for actors, external systems and exchanged information, not internal decomposition"
-      ],
-      "when_not_to_use": [
-        "Internal part decomposition alone or runtime node allocation without external context"
-      ],
-      "required_inputs": [
-        "Boundary ownership, external actors, and model sources",
-        "Information flows, interface participants, and external-failure behavior",
-        "Context diagram decision, constraints, rationale, and trace"
-      ],
-      "dependencies": [
-        "Capability scope, external model participants, and exchange definitions",
-        "Component-composition and operation-contract documents for internal details"
-      ],
-      "required_sections": [
-        {
-          "key": "boundary",
-          "heading": "1. Context and boundary",
-          "required_fields": [
-            "system_boundary",
-            "external_actors",
-            "diagram_decisions"
-          ]
-        },
-        {
-          "key": "interfaces",
-          "heading": "2. External interfaces",
-          "required_fields": [
-            "information_flows",
-            "interface_participants"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "3. Interactions and lifecycle",
-          "required_fields": [
-            "interactions",
-            "states"
-          ]
-        },
-        {
-          "key": "constraints",
-          "heading": "4. Constraints and decisions",
-          "required_fields": [
-            "constraints",
-            "design_rationale"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/system-context.md",
-      "guide": "catalog/guides/system-context.md",
-      "example": "catalog/examples/system-context.md",
-      "fixture": "catalog/fixtures/system-context.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -743,95 +1487,216 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": [
-        {
-          "concern": "system-boundary",
-          "section_key": "boundary",
-          "applicability": "expected",
-          "trigger": "",
-          "alternatives": [
-            "figure",
-            "table",
-            "prose"
-          ]
+      "variants": {
+        "en": {
+          "title": "Establish system boundary and external interactions",
+          "scenario": "Use for actors, external systems and exchanged information, not internal decomposition",
+          "when_to_use": [
+            "Use for actors, external systems and exchanged information, not internal decomposition"
+          ],
+          "when_not_to_use": [
+            "Internal part decomposition alone or runtime node allocation without external context"
+          ],
+          "required_inputs": [
+            "Boundary ownership, external actors, and model sources",
+            "Information flows, interface participants, and external-failure behavior",
+            "Context diagram decision, constraints, rationale, and trace"
+          ],
+          "dependencies": [
+            "Capability scope, external model participants, and exchange definitions",
+            "Component-composition and operation-contract documents for internal details"
+          ],
+          "required_sections": [
+            {
+              "key": "boundary",
+              "heading": "1. Context and boundary",
+              "required_fields": [
+                "system_boundary",
+                "external_actors",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "system_boundary": "System boundary",
+                "external_actors": "External actors",
+                "diagram_decisions": "Diagram decisions"
+              }
+            },
+            {
+              "key": "interfaces",
+              "heading": "2. External interfaces",
+              "required_fields": [
+                "information_flows",
+                "interface_participants"
+              ],
+              "field_labels": {
+                "information_flows": "Information flows",
+                "interface_participants": "Interface participants"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. Interactions and lifecycle",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "Interactions",
+                "states": "States"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "4. Constraints and decisions",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "Constraints",
+                "design_rationale": "Design rationale"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Trace and verification",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "system-boundary",
+              "section_key": "boundary",
+              "applicability": "expected",
+              "trigger": "",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/system-context/en/template.md",
+            "guide": "catalog/entries/system-context/en/guide.md",
+            "example": "catalog/entries/system-context/en/example.md",
+            "fixture": "catalog/entries/system-context/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "系统背景与边界",
+          "scenario": "适用于论证外部参与者、系统边界和交换信息，而非单独分析内部组成",
+          "when_to_use": [
+            "当需要确定系统负责什么、外部参与者是谁以及信息如何跨界流动时使用"
+          ],
+          "when_not_to_use": [
+            "当问题仅涉及内部部件拆分或运行节点分配时，使用 component-composition 或相应派生配置"
+          ],
+          "required_inputs": [
+            "边界所有权、外部参与者及其模型来源",
+            "信息流、接口参与者和外部故障下的行为",
+            "背景视图决策、约束、设计依据和验证追踪"
+          ],
+          "dependencies": [
+            "能力范围、外部模型参与者和交换定义",
+            "拥有内部细节的 component-composition 与 operation-contract 文档"
+          ],
+          "required_sections": [
+            {
+              "key": "boundary",
+              "heading": "1. 背景与边界",
+              "required_fields": [
+                "system_boundary",
+                "external_actors",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "system_boundary": "系统边界",
+                "external_actors": "外部参与者",
+                "diagram_decisions": "图示决策"
+              }
+            },
+            {
+              "key": "interfaces",
+              "heading": "2. 外部接口",
+              "required_fields": [
+                "information_flows",
+                "interface_participants"
+              ],
+              "field_labels": {
+                "information_flows": "信息流",
+                "interface_participants": "接口参与者"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "3. 交互与生命周期",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "交互",
+                "states": "状态"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "4. 约束与决策",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "约束",
+                "design_rationale": "设计依据"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 追踪与验证",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "system-boundary",
+              "section_key": "boundary",
+              "applicability": "expected",
+              "trigger": "",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/system-context/zh-CN/template.md",
+            "guide": "catalog/entries/system-context/zh-CN/guide.md",
+            "example": "catalog/entries/system-context/zh-CN/example.md",
+            "fixture": "catalog/entries/system-context/zh-CN/fixture.json"
+          }
         }
-      ]
+      }
     },
     {
       "template_id": "component-composition",
       "document_class": "architecture",
-      "title": "Explain internal parts and their relationships",
-      "scenario": "Use for responsibilities, parts, connections and refinement, not context alone",
-      "when_to_use": [
-        "Use for responsibilities, parts, connections and refinement, not context alone"
-      ],
-      "when_not_to_use": [
-        "External context alone or runtime node allocation without internal components"
-      ],
-      "required_inputs": [
-        "Internal part inventory, responsibilities, and model sources",
-        "Relationships, interfaces, lifecycle behavior, and composition decision",
-        "Constraints, rationale, and model/verification trace"
-      ],
-      "dependencies": [
-        "System context, requirements, and internal model parts",
-        "Interaction and verification artifacts that consume the allocation"
-      ],
-      "required_sections": [
-        {
-          "key": "context",
-          "heading": "1. Context and boundary",
-          "required_fields": [
-            "system_boundary",
-            "external_actors"
-          ]
-        },
-        {
-          "key": "parts",
-          "heading": "2. Parts and responsibilities",
-          "required_fields": [
-            "parts",
-            "responsibilities",
-            "diagram_decisions"
-          ]
-        },
-        {
-          "key": "relationships",
-          "heading": "3. Relationships and interfaces",
-          "required_fields": [
-            "relationships",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "4. Behavior and lifecycle",
-          "required_fields": [
-            "interactions",
-            "states"
-          ]
-        },
-        {
-          "key": "constraints",
-          "heading": "5. Constraints and decisions",
-          "required_fields": [
-            "constraints",
-            "design_rationale"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "6. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/component-composition.md",
-      "guide": "catalog/guides/component-composition.md",
-      "example": "catalog/examples/component-composition.md",
-      "fixture": "catalog/fixtures/component-composition.json",
       "sources": [
         {
           "source_id": "ARC42",
@@ -864,95 +1729,240 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": [
-        {
-          "concern": "component-structure",
-          "section_key": "parts",
-          "applicability": "expected",
-          "trigger": "",
-          "alternatives": [
-            "figure",
-            "table",
-            "prose"
-          ]
+      "variants": {
+        "en": {
+          "title": "Explain internal parts and their relationships",
+          "scenario": "Use for responsibilities, parts, connections and refinement, not context alone",
+          "when_to_use": [
+            "Use for responsibilities, parts, connections and refinement, not context alone"
+          ],
+          "when_not_to_use": [
+            "External context alone or runtime node allocation without internal components"
+          ],
+          "required_inputs": [
+            "Internal part inventory, responsibilities, and model sources",
+            "Relationships, interfaces, lifecycle behavior, and composition decision",
+            "Constraints, rationale, and model/verification trace"
+          ],
+          "dependencies": [
+            "System context, requirements, and internal model parts",
+            "Interaction and verification artifacts that consume the allocation"
+          ],
+          "required_sections": [
+            {
+              "key": "context",
+              "heading": "1. Context and boundary",
+              "required_fields": [
+                "system_boundary",
+                "external_actors"
+              ],
+              "field_labels": {
+                "system_boundary": "System boundary",
+                "external_actors": "External actors"
+              }
+            },
+            {
+              "key": "parts",
+              "heading": "2. Parts and responsibilities",
+              "required_fields": [
+                "parts",
+                "responsibilities",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "parts": "Parts",
+                "responsibilities": "Responsibilities",
+                "diagram_decisions": "Diagram decisions"
+              }
+            },
+            {
+              "key": "relationships",
+              "heading": "3. Relationships and interfaces",
+              "required_fields": [
+                "relationships",
+                "interfaces"
+              ],
+              "field_labels": {
+                "relationships": "Relationships",
+                "interfaces": "Interfaces"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "4. Behavior and lifecycle",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "Interactions",
+                "states": "States"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "5. Constraints and decisions",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "Constraints",
+                "design_rationale": "Design rationale"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "6. Trace and verification",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "component-structure",
+              "section_key": "parts",
+              "applicability": "expected",
+              "trigger": "",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/component-composition/en/template.md",
+            "guide": "catalog/entries/component-composition/en/guide.md",
+            "example": "catalog/entries/component-composition/en/example.md",
+            "fixture": "catalog/entries/component-composition/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "组件组成与职责",
+          "scenario": "适用于分析内部部件、职责、连接和必要的分解层次，而非单独描述外部背景",
+          "when_to_use": [
+            "当内部职责分配和依赖方向决定架构可理解性与可验证性时使用"
+          ],
+          "when_not_to_use": [
+            "当只关心外部上下文或不涉及内部组件的节点部署时，使用其他责任文档"
+          ],
+          "required_inputs": [
+            "内部部件清单、职责和模型来源",
+            "关系、接口、生命周期行为和组成视图决策",
+            "约束、设计依据以及模型与验证追踪"
+          ],
+          "dependencies": [
+            "系统背景、需求和内部模型部件",
+            "消费职责分配的交互与验证制品"
+          ],
+          "required_sections": [
+            {
+              "key": "context",
+              "heading": "1. 背景与边界",
+              "required_fields": [
+                "system_boundary",
+                "external_actors"
+              ],
+              "field_labels": {
+                "system_boundary": "系统边界",
+                "external_actors": "外部参与者"
+              }
+            },
+            {
+              "key": "parts",
+              "heading": "2. 组成部分与职责",
+              "required_fields": [
+                "parts",
+                "responsibilities",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "parts": "组成部分",
+                "responsibilities": "职责",
+                "diagram_decisions": "图示决策"
+              }
+            },
+            {
+              "key": "relationships",
+              "heading": "3. 关系与接口",
+              "required_fields": [
+                "relationships",
+                "interfaces"
+              ],
+              "field_labels": {
+                "relationships": "关系",
+                "interfaces": "接口"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "4. 行为与生命周期",
+              "required_fields": [
+                "interactions",
+                "states"
+              ],
+              "field_labels": {
+                "interactions": "交互",
+                "states": "状态"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "5. 约束与决策",
+              "required_fields": [
+                "constraints",
+                "design_rationale"
+              ],
+              "field_labels": {
+                "constraints": "约束",
+                "design_rationale": "设计依据"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "6. 追踪与验证",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "component-structure",
+              "section_key": "parts",
+              "applicability": "expected",
+              "trigger": "",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/component-composition/zh-CN/template.md",
+            "guide": "catalog/entries/component-composition/zh-CN/guide.md",
+            "example": "catalog/entries/component-composition/zh-CN/example.md",
+            "fixture": "catalog/entries/component-composition/zh-CN/fixture.json"
+          }
         }
-      ]
+      }
     },
     {
       "template_id": "interaction-flow",
       "document_class": "design",
-      "title": "Describe significant runtime interactions",
-      "scenario": "Use for participants, ordering and alternate flows, not static data or a pure calculation",
-      "when_to_use": [
-        "Use for participants, ordering and alternate flows, not static data or a pure calculation"
-      ],
-      "when_not_to_use": [
-        "Static data alone or a simple pure calculation; use data-model or concise prose"
-      ],
-      "required_inputs": [
-        "Interaction purpose, requirements, participants, and interfaces",
-        "Ordered main flow, alternate/error flows, and behavior constraints",
-        "Interaction diagram decision and source/verification projection"
-      ],
-      "dependencies": [
-        "Operation and architecture responsibilities plus model participants",
-        "Data contracts and executable verification cases"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and allocation",
-          "required_fields": [
-            "design_subject",
-            "requirements_links"
-          ]
-        },
-        {
-          "key": "participants",
-          "heading": "2. Participants and interfaces",
-          "required_fields": [
-            "participants",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "flow",
-          "heading": "3. Main interaction flow",
-          "required_fields": [
-            "interactions",
-            "ordering",
-            "diagram_decisions"
-          ]
-        },
-        {
-          "key": "alternates",
-          "heading": "4. Alternate flows and errors",
-          "required_fields": [
-            "alternate_flows",
-            "error_behavior"
-          ]
-        },
-        {
-          "key": "constraints",
-          "heading": "5. Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "constraints"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "6. Projection and verification",
-          "required_fields": [
-            "source_projection",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/interaction-flow.md",
-      "guide": "catalog/guides/interaction-flow.md",
-      "example": "catalog/examples/interaction-flow.md",
-      "fixture": "catalog/fixtures/interaction-flow.json",
       "sources": [
         {
           "source_id": "ARC42",
@@ -985,96 +1995,242 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": [
-        {
-          "concern": "interaction-ordering",
-          "section_key": "flow",
-          "applicability": "conditional",
-          "trigger": "Multiple participants or meaningful timing and ordering",
-          "alternatives": [
-            "figure",
-            "table",
-            "prose",
-            "not-applicable"
-          ]
+      "variants": {
+        "en": {
+          "title": "Describe significant runtime interactions",
+          "scenario": "Use for participants, ordering and alternate flows, not static data or a pure calculation",
+          "when_to_use": [
+            "Use for participants, ordering and alternate flows, not static data or a pure calculation"
+          ],
+          "when_not_to_use": [
+            "Static data alone or a simple pure calculation; use data-model or concise prose"
+          ],
+          "required_inputs": [
+            "Interaction purpose, requirements, participants, and interfaces",
+            "Ordered main flow, alternate/error flows, and behavior constraints",
+            "Interaction diagram decision and source/verification projection"
+          ],
+          "dependencies": [
+            "Operation and architecture responsibilities plus model participants",
+            "Data contracts and executable verification cases"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and allocation",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "Design subject",
+                "requirements_links": "Requirements links"
+              }
+            },
+            {
+              "key": "participants",
+              "heading": "2. Participants and interfaces",
+              "required_fields": [
+                "participants",
+                "interfaces"
+              ],
+              "field_labels": {
+                "participants": "Participants",
+                "interfaces": "Interfaces"
+              }
+            },
+            {
+              "key": "flow",
+              "heading": "3. Main interaction flow",
+              "required_fields": [
+                "interactions",
+                "ordering",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "interactions": "Interactions",
+                "ordering": "Ordering",
+                "diagram_decisions": "Diagram decisions"
+              }
+            },
+            {
+              "key": "alternates",
+              "heading": "4. Alternate flows and errors",
+              "required_fields": [
+                "alternate_flows",
+                "error_behavior"
+              ],
+              "field_labels": {
+                "alternate_flows": "Alternate flows",
+                "error_behavior": "Error behavior"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "5. Behavior and constraints",
+              "required_fields": [
+                "behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "Behavior",
+                "constraints": "Constraints"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "6. Projection and verification",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "Source projection",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "interaction-ordering",
+              "section_key": "flow",
+              "applicability": "conditional",
+              "trigger": "Multiple participants or meaningful timing and ordering",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/interaction-flow/en/template.md",
+            "guide": "catalog/entries/interaction-flow/en/guide.md",
+            "example": "catalog/entries/interaction-flow/en/example.md",
+            "fixture": "catalog/entries/interaction-flow/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "关键运行时交互流程",
+          "scenario": "适用于分析参与者、消息顺序和备选路径，而非静态数据或纯计算",
+          "when_to_use": [
+            "当多个参与者的调用顺序、时限或异常分支决定设计正确性时使用"
+          ],
+          "when_not_to_use": [
+            "当只涉及静态数据结构或简单纯计算时，使用 data-model 或简洁文字说明"
+          ],
+          "required_inputs": [
+            "交互目的、需求、参与者和接口",
+            "有序主流程、备选与错误流程以及行为约束",
+            "交互视图决策、源码映射和验证投影"
+          ],
+          "dependencies": [
+            "操作与架构职责以及模型参与者",
+            "数据契约和可执行验证用例"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与分配",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "设计对象",
+                "requirements_links": "需求链接"
+              }
+            },
+            {
+              "key": "participants",
+              "heading": "2. 参与者与接口",
+              "required_fields": [
+                "participants",
+                "interfaces"
+              ],
+              "field_labels": {
+                "participants": "参与者",
+                "interfaces": "接口"
+              }
+            },
+            {
+              "key": "flow",
+              "heading": "3. 主交互流程",
+              "required_fields": [
+                "interactions",
+                "ordering",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "interactions": "交互",
+                "ordering": "顺序",
+                "diagram_decisions": "图示决策"
+              }
+            },
+            {
+              "key": "alternates",
+              "heading": "4. 备选流程与错误",
+              "required_fields": [
+                "alternate_flows",
+                "error_behavior"
+              ],
+              "field_labels": {
+                "alternate_flows": "备选流程",
+                "error_behavior": "错误行为"
+              }
+            },
+            {
+              "key": "constraints",
+              "heading": "5. 行为与约束",
+              "required_fields": [
+                "behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "行为",
+                "constraints": "约束"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "6. 映射与验证",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "源码映射",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "interaction-ordering",
+              "section_key": "flow",
+              "applicability": "conditional",
+              "trigger": "存在多个参与者，或消息时序、等待和终止顺序具有实质工程意义",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/interaction-flow/zh-CN/template.md",
+            "guide": "catalog/entries/interaction-flow/zh-CN/guide.md",
+            "example": "catalog/entries/interaction-flow/zh-CN/example.md",
+            "fixture": "catalog/entries/interaction-flow/zh-CN/fixture.json"
+          }
         }
-      ]
+      }
     },
     {
       "template_id": "state-machine",
       "document_class": "design",
-      "title": "Specify lifecycle states and transitions",
-      "scenario": "Use for states, events, guards and recovery, not stateless or one-way procedures",
-      "when_to_use": [
-        "Use for states, events, guards and recovery, not stateless or one-way procedures"
-      ],
-      "when_not_to_use": [
-        "Stateless behavior or a one-way linear procedure; use interaction-flow or prose"
-      ],
-      "required_inputs": [
-        "Lifecycle states, invariants, events, and guards",
-        "Transitions, terminal states, recovery behavior, and constraints",
-        "State diagram decision and source/verification projection"
-      ],
-      "dependencies": [
-        "Lifecycle requirements, model events, and design responsibilities",
-        "Operation contracts and transition verification cases"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and allocation",
-          "required_fields": [
-            "design_subject",
-            "requirements_links"
-          ]
-        },
-        {
-          "key": "states",
-          "heading": "2. States and invariants",
-          "required_fields": [
-            "states",
-            "invariants",
-            "diagram_decisions"
-          ]
-        },
-        {
-          "key": "events",
-          "heading": "3. Events and guards",
-          "required_fields": [
-            "events",
-            "guards"
-          ]
-        },
-        {
-          "key": "transitions",
-          "heading": "4. Transitions and lifecycle",
-          "required_fields": [
-            "transitions",
-            "terminal_states"
-          ]
-        },
-        {
-          "key": "recovery",
-          "heading": "5. Recovery and constraints",
-          "required_fields": [
-            "recovery_behavior",
-            "constraints"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "6. Projection and verification",
-          "required_fields": [
-            "source_projection",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/state-machine.md",
-      "guide": "catalog/guides/state-machine.md",
-      "example": "catalog/examples/state-machine.md",
-      "fixture": "catalog/fixtures/state-machine.json",
       "sources": [
         {
           "source_id": "ARC42",
@@ -1102,88 +2258,242 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": [
-        {
-          "concern": "lifecycle-states",
-          "section_key": "states",
-          "applicability": "conditional",
-          "trigger": "Multiple meaningful states and event-driven transitions",
-          "alternatives": [
-            "figure",
-            "table",
-            "prose",
-            "not-applicable"
-          ]
+      "variants": {
+        "en": {
+          "title": "Specify lifecycle states and transitions",
+          "scenario": "Use for states, events, guards and recovery, not stateless or one-way procedures",
+          "when_to_use": [
+            "Use for states, events, guards and recovery, not stateless or one-way procedures"
+          ],
+          "when_not_to_use": [
+            "Stateless behavior or a one-way linear procedure; use interaction-flow or prose"
+          ],
+          "required_inputs": [
+            "Lifecycle states, invariants, events, and guards",
+            "Transitions, terminal states, recovery behavior, and constraints",
+            "State diagram decision and source/verification projection"
+          ],
+          "dependencies": [
+            "Lifecycle requirements, model events, and design responsibilities",
+            "Operation contracts and transition verification cases"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and allocation",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "Design subject",
+                "requirements_links": "Requirements links"
+              }
+            },
+            {
+              "key": "states",
+              "heading": "2. States and invariants",
+              "required_fields": [
+                "states",
+                "invariants",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "states": "States",
+                "invariants": "Invariants",
+                "diagram_decisions": "Diagram decisions"
+              }
+            },
+            {
+              "key": "events",
+              "heading": "3. Events and guards",
+              "required_fields": [
+                "events",
+                "guards"
+              ],
+              "field_labels": {
+                "events": "Events",
+                "guards": "Guards"
+              }
+            },
+            {
+              "key": "transitions",
+              "heading": "4. Transitions and lifecycle",
+              "required_fields": [
+                "transitions",
+                "terminal_states"
+              ],
+              "field_labels": {
+                "transitions": "Transitions",
+                "terminal_states": "Terminal states"
+              }
+            },
+            {
+              "key": "recovery",
+              "heading": "5. Recovery and constraints",
+              "required_fields": [
+                "recovery_behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "recovery_behavior": "Recovery behavior",
+                "constraints": "Constraints"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "6. Projection and verification",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "Source projection",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "lifecycle-states",
+              "section_key": "states",
+              "applicability": "conditional",
+              "trigger": "Multiple meaningful states and event-driven transitions",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/state-machine/en/template.md",
+            "guide": "catalog/entries/state-machine/en/guide.md",
+            "example": "catalog/entries/state-machine/en/example.md",
+            "fixture": "catalog/entries/state-machine/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "生命周期状态机",
+          "scenario": "适用于定义有意义的状态、事件、监护条件、转换和恢复，而非无状态或单线过程",
+          "when_to_use": [
+            "当不同状态改变事件解释或合法行为，且恢复和终止语义需要精确约束时使用"
+          ],
+          "when_not_to_use": [
+            "当行为无状态或仅是单向线性过程时，使用 interaction-flow 或直接文字说明"
+          ],
+          "required_inputs": [
+            "生命周期状态、不变量、事件和监护条件",
+            "转换、终止状态、恢复行为和约束",
+            "状态视图决策以及源码与验证投影"
+          ],
+          "dependencies": [
+            "生命周期需求、模型事件和设计职责",
+            "操作契约与状态转换验证用例"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与分配",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "设计对象",
+                "requirements_links": "需求链接"
+              }
+            },
+            {
+              "key": "states",
+              "heading": "2. 状态与不变量",
+              "required_fields": [
+                "states",
+                "invariants",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "states": "状态",
+                "invariants": "不变量",
+                "diagram_decisions": "图示决策"
+              }
+            },
+            {
+              "key": "events",
+              "heading": "3. 事件与监护条件",
+              "required_fields": [
+                "events",
+                "guards"
+              ],
+              "field_labels": {
+                "events": "事件",
+                "guards": "监护条件"
+              }
+            },
+            {
+              "key": "transitions",
+              "heading": "4. 转换与生命周期",
+              "required_fields": [
+                "transitions",
+                "terminal_states"
+              ],
+              "field_labels": {
+                "transitions": "转换",
+                "terminal_states": "终止状态"
+              }
+            },
+            {
+              "key": "recovery",
+              "heading": "5. 恢复与约束",
+              "required_fields": [
+                "recovery_behavior",
+                "constraints"
+              ],
+              "field_labels": {
+                "recovery_behavior": "恢复行为",
+                "constraints": "约束"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "6. 映射与验证",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "源码映射",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "lifecycle-states",
+              "section_key": "states",
+              "applicability": "conditional",
+              "trigger": "存在多个会改变行为的状态以及由事件驱动的转换",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/state-machine/zh-CN/template.md",
+            "guide": "catalog/entries/state-machine/zh-CN/guide.md",
+            "example": "catalog/entries/state-machine/zh-CN/example.md",
+            "fixture": "catalog/entries/state-machine/zh-CN/fixture.json"
+          }
         }
-      ]
+      }
     },
     {
       "template_id": "data-model",
       "document_class": "design",
-      "title": "Define entities, relationships and invariants",
-      "scenario": "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing",
-      "when_to_use": [
-        "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing"
-      ],
-      "when_not_to_use": [
-        "Interaction sequencing or interface error behavior; use interaction-flow or operation-contract"
-      ],
-      "required_inputs": [
-        "Entity and field definitions with model sources",
-        "Relationships, ownership, lifecycle, invariants, and data decision",
-        "Persistence or exchange meaning and verification projection"
-      ],
-      "dependencies": [
-        "Domain requirements, model elements, and persistence/exchange responsibilities",
-        "Serialized data contracts and operation flows"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and allocation",
-          "required_fields": [
-            "design_subject",
-            "requirements_links"
-          ]
-        },
-        {
-          "key": "entities",
-          "heading": "2. Entities and fields",
-          "required_fields": [
-            "entities",
-            "fields"
-          ]
-        },
-        {
-          "key": "relationships",
-          "heading": "3. Relationships and ownership",
-          "required_fields": [
-            "relationships",
-            "ownership",
-            "diagram_decisions"
-          ]
-        },
-        {
-          "key": "invariants",
-          "heading": "4. Invariants and lifecycle",
-          "required_fields": [
-            "invariants",
-            "lifecycle"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "5. Projection and verification",
-          "required_fields": [
-            "source_projection",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/data-model.md",
-      "guide": "catalog/guides/data-model.md",
-      "example": "catalog/examples/data-model.md",
-      "fixture": "catalog/fixtures/data-model.json",
       "sources": [
         {
           "source_id": "SPECD",
@@ -1211,87 +2521,218 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": [
-        {
-          "concern": "data-relationships",
-          "section_key": "relationships",
-          "applicability": "conditional",
-          "trigger": "Relationships are not clear from the schema alone",
-          "alternatives": [
-            "figure",
-            "table",
-            "prose",
-            "not-applicable"
-          ]
+      "variants": {
+        "en": {
+          "title": "Define entities, relationships and invariants",
+          "scenario": "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing",
+          "when_to_use": [
+            "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing"
+          ],
+          "when_not_to_use": [
+            "Interaction sequencing or interface error behavior; use interaction-flow or operation-contract"
+          ],
+          "required_inputs": [
+            "Entity and field definitions with model sources",
+            "Relationships, ownership, lifecycle, invariants, and data decision",
+            "Persistence or exchange meaning and verification projection"
+          ],
+          "dependencies": [
+            "Domain requirements, model elements, and persistence/exchange responsibilities",
+            "Serialized data contracts and operation flows"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and allocation",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "Design subject",
+                "requirements_links": "Requirements links"
+              }
+            },
+            {
+              "key": "entities",
+              "heading": "2. Entities and fields",
+              "required_fields": [
+                "entities",
+                "fields"
+              ],
+              "field_labels": {
+                "entities": "Entities",
+                "fields": "Fields"
+              }
+            },
+            {
+              "key": "relationships",
+              "heading": "3. Relationships and ownership",
+              "required_fields": [
+                "relationships",
+                "ownership",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "relationships": "Relationships",
+                "ownership": "Ownership",
+                "diagram_decisions": "Diagram decisions"
+              }
+            },
+            {
+              "key": "invariants",
+              "heading": "4. Invariants and lifecycle",
+              "required_fields": [
+                "invariants",
+                "lifecycle"
+              ],
+              "field_labels": {
+                "invariants": "Invariants",
+                "lifecycle": "Lifecycle"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "5. Projection and verification",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "Source projection",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "data-relationships",
+              "section_key": "relationships",
+              "applicability": "conditional",
+              "trigger": "Relationships are not clear from the schema alone",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/data-model/en/template.md",
+            "guide": "catalog/entries/data-model/en/guide.md",
+            "example": "catalog/entries/data-model/en/example.md",
+            "fixture": "catalog/entries/data-model/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "数据模型与不变量",
+          "scenario": "适用于定义实体、字段、关系、所有权以及持久化或交换语义，而非交互顺序",
+          "when_to_use": [
+            "当数据含义、基数、所有权和生命周期规则决定系统行为时使用"
+          ],
+          "when_not_to_use": [
+            "当主要问题是交互顺序或操作错误语义时，使用 interaction-flow 或 operation-contract"
+          ],
+          "required_inputs": [
+            "实体和字段定义及模型来源",
+            "关系、所有权、生命周期、不变量和数据视图决策",
+            "持久化或交换语义以及验证投影"
+          ],
+          "dependencies": [
+            "领域需求、模型元素和持久化或交换职责",
+            "序列化数据契约与操作流程"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与分配",
+              "required_fields": [
+                "design_subject",
+                "requirements_links"
+              ],
+              "field_labels": {
+                "design_subject": "设计对象",
+                "requirements_links": "需求链接"
+              }
+            },
+            {
+              "key": "entities",
+              "heading": "2. 实体与字段",
+              "required_fields": [
+                "entities",
+                "fields"
+              ],
+              "field_labels": {
+                "entities": "实体",
+                "fields": "字段"
+              }
+            },
+            {
+              "key": "relationships",
+              "heading": "3. 关系与归属",
+              "required_fields": [
+                "relationships",
+                "ownership",
+                "diagram_decisions"
+              ],
+              "field_labels": {
+                "relationships": "关系",
+                "ownership": "归属",
+                "diagram_decisions": "图示决策"
+              }
+            },
+            {
+              "key": "invariants",
+              "heading": "4. 不变量与生命周期",
+              "required_fields": [
+                "invariants",
+                "lifecycle"
+              ],
+              "field_labels": {
+                "invariants": "不变量",
+                "lifecycle": "生命周期"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "5. 映射与验证",
+              "required_fields": [
+                "source_projection",
+                "verification_links"
+              ],
+              "field_labels": {
+                "source_projection": "源码映射",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [
+            {
+              "concern": "data-relationships",
+              "section_key": "relationships",
+              "applicability": "conditional",
+              "trigger": "仅凭字段模式无法清楚表达实体关系、基数或所有权",
+              "alternatives": [
+                "figure",
+                "table",
+                "prose",
+                "not-applicable"
+              ]
+            }
+          ],
+          "resources": {
+            "template": "catalog/entries/data-model/zh-CN/template.md",
+            "guide": "catalog/entries/data-model/zh-CN/guide.md",
+            "example": "catalog/entries/data-model/zh-CN/example.md",
+            "fixture": "catalog/entries/data-model/zh-CN/fixture.json"
+          }
         }
-      ]
+      }
     },
     {
       "template_id": "operation-contract",
       "document_class": "interface",
-      "title": "Specify an operation request, response and errors",
-      "scenario": "Use for a command, query, endpoint or tool operation, not schema alone",
-      "when_to_use": [
-        "Use for a command, query, endpoint or tool operation, not schema alone"
-      ],
-      "when_not_to_use": [
-        "A data schema with no operation behavior; use data-contract"
-      ],
-      "required_inputs": [
-        "Operation boundary, participants, request and response shapes",
-        "Error behavior, invariants, and version/compatibility policy",
-        "Model interaction and verification trace"
-      ],
-      "dependencies": [
-        "Operation design responsibility, data contract, and model interaction",
-        "Orchestration and executable interface tests"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and participants",
-          "required_fields": [
-            "boundary",
-            "participants"
-          ]
-        },
-        {
-          "key": "operation",
-          "heading": "2. Operation contract",
-          "required_fields": [
-            "operations",
-            "data_shapes"
-          ]
-        },
-        {
-          "key": "errors",
-          "heading": "3. Errors and invariants",
-          "required_fields": [
-            "error_behavior",
-            "invariants"
-          ]
-        },
-        {
-          "key": "compatibility",
-          "heading": "4. Versioning and compatibility",
-          "required_fields": [
-            "version_policy",
-            "compatibility_policy"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Model and verification trace",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/operation-contract.md",
-      "guide": "catalog/guides/operation-contract.md",
-      "example": "catalog/examples/operation-contract.md",
-      "fixture": "catalog/fixtures/operation-contract.json",
       "sources": [
         {
           "source_id": "GOOD-DOCS",
@@ -1319,74 +2760,188 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Specify an operation request, response and errors",
+          "scenario": "Use for a command, query, endpoint or tool operation, not schema alone",
+          "when_to_use": [
+            "Use for a command, query, endpoint or tool operation, not schema alone"
+          ],
+          "when_not_to_use": [
+            "A data schema with no operation behavior; use data-contract"
+          ],
+          "required_inputs": [
+            "Operation boundary, participants, request and response shapes",
+            "Error behavior, invariants, and version/compatibility policy",
+            "Model interaction and verification trace"
+          ],
+          "dependencies": [
+            "Operation design responsibility, data contract, and model interaction",
+            "Orchestration and executable interface tests"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and participants",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "Boundary",
+                "participants": "Participants"
+              }
+            },
+            {
+              "key": "operation",
+              "heading": "2. Operation contract",
+              "required_fields": [
+                "operations",
+                "data_shapes"
+              ],
+              "field_labels": {
+                "operations": "Operations",
+                "data_shapes": "Data shapes"
+              }
+            },
+            {
+              "key": "errors",
+              "heading": "3. Errors and invariants",
+              "required_fields": [
+                "error_behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "error_behavior": "Error behavior",
+                "invariants": "Invariants"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. Versioning and compatibility",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "Version policy",
+                "compatibility_policy": "Compatibility policy"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Model and verification trace",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/operation-contract/en/template.md",
+            "guide": "catalog/entries/operation-contract/en/guide.md",
+            "example": "catalog/entries/operation-contract/en/example.md",
+            "fixture": "catalog/entries/operation-contract/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "操作请求响应与错误契约",
+          "scenario": "适用于定义命令、查询、端点或工具操作的行为，而非单纯数据结构",
+          "when_to_use": [
+            "当单个操作的输入、输出、错误、副作用和兼容策略需要形成完整契约时使用"
+          ],
+          "when_not_to_use": [
+            "当只有数据模式而没有操作行为时，使用 data-contract"
+          ],
+          "required_inputs": [
+            "操作边界、参与者、请求和响应结构",
+            "错误行为、不变量以及版本与兼容策略",
+            "模型交互和验证追踪"
+          ],
+          "dependencies": [
+            "操作设计职责、数据契约和模型交互",
+            "流程编排与可执行接口测试"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与参与者",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "边界",
+                "participants": "参与者"
+              }
+            },
+            {
+              "key": "operation",
+              "heading": "2. 操作契约",
+              "required_fields": [
+                "operations",
+                "data_shapes"
+              ],
+              "field_labels": {
+                "operations": "操作",
+                "data_shapes": "数据结构"
+              }
+            },
+            {
+              "key": "errors",
+              "heading": "3. 错误与不变量",
+              "required_fields": [
+                "error_behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "error_behavior": "错误行为",
+                "invariants": "不变量"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. 版本管理与兼容性",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "版本策略",
+                "compatibility_policy": "兼容性策略"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 模型与验证追踪",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/operation-contract/zh-CN/template.md",
+            "guide": "catalog/entries/operation-contract/zh-CN/guide.md",
+            "example": "catalog/entries/operation-contract/zh-CN/example.md",
+            "fixture": "catalog/entries/operation-contract/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "data-contract",
       "document_class": "interface",
-      "title": "Specify exchanged or persisted data shapes",
-      "scenario": "Use for schema, validation, required fields and compatibility, not operation orchestration",
-      "when_to_use": [
-        "Use for schema, validation, required fields and compatibility, not operation orchestration"
-      ],
-      "when_not_to_use": [
-        "Operation orchestration or domain behavior; use operation-contract or interaction-flow"
-      ],
-      "required_inputs": [
-        "Schema, required fields, types, units, and participants",
-        "Validation, invariants, and version/compatibility policy",
-        "Semantic data model and verification trace"
-      ],
-      "dependencies": [
-        "Semantic data model, serialization format, and consumer versions",
-        "Operation contracts and interoperability tests"
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and participants",
-          "required_fields": [
-            "boundary",
-            "participants"
-          ]
-        },
-        {
-          "key": "schema",
-          "heading": "2. Data contract",
-          "required_fields": [
-            "data_shapes",
-            "required_fields"
-          ]
-        },
-        {
-          "key": "validation",
-          "heading": "3. Validation and invariants",
-          "required_fields": [
-            "validation_rules",
-            "invariants"
-          ]
-        },
-        {
-          "key": "compatibility",
-          "heading": "4. Versioning and compatibility",
-          "required_fields": [
-            "version_policy",
-            "compatibility_policy"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Model and verification trace",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/data-contract.md",
-      "guide": "catalog/guides/data-contract.md",
-      "example": "catalog/examples/data-contract.md",
-      "fixture": "catalog/fixtures/data-contract.json",
       "sources": [
         {
           "source_id": "SPECD",
@@ -1414,75 +2969,188 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Specify exchanged or persisted data shapes",
+          "scenario": "Use for schema, validation, required fields and compatibility, not operation orchestration",
+          "when_to_use": [
+            "Use for schema, validation, required fields and compatibility, not operation orchestration"
+          ],
+          "when_not_to_use": [
+            "Operation orchestration or domain behavior; use operation-contract or interaction-flow"
+          ],
+          "required_inputs": [
+            "Schema, required fields, types, units, and participants",
+            "Validation, invariants, and version/compatibility policy",
+            "Semantic data model and verification trace"
+          ],
+          "dependencies": [
+            "Semantic data model, serialization format, and consumer versions",
+            "Operation contracts and interoperability tests"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. Purpose and participants",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "Boundary",
+                "participants": "Participants"
+              }
+            },
+            {
+              "key": "schema",
+              "heading": "2. Data contract",
+              "required_fields": [
+                "data_shapes",
+                "required_fields"
+              ],
+              "field_labels": {
+                "data_shapes": "Data shapes",
+                "required_fields": "Required fields"
+              }
+            },
+            {
+              "key": "validation",
+              "heading": "3. Validation and invariants",
+              "required_fields": [
+                "validation_rules",
+                "invariants"
+              ],
+              "field_labels": {
+                "validation_rules": "Validation rules",
+                "invariants": "Invariants"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. Versioning and compatibility",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "Version policy",
+                "compatibility_policy": "Compatibility policy"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. Model and verification trace",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/data-contract/en/template.md",
+            "guide": "catalog/entries/data-contract/en/guide.md",
+            "example": "catalog/entries/data-contract/en/example.md",
+            "fixture": "catalog/entries/data-contract/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "交换或持久化数据契约",
+          "scenario": "适用于定义数据模式、校验、必填字段和版本兼容性，而非操作编排",
+          "when_to_use": [
+            "当交换或持久化数据的语义、有效性和跨版本互操作需要独立契约时使用"
+          ],
+          "when_not_to_use": [
+            "当主要问题是操作编排或领域行为时，使用 operation-contract 或 interaction-flow"
+          ],
+          "required_inputs": [
+            "模式、必填字段、类型、单位和参与者",
+            "校验规则、不变量以及版本与兼容策略",
+            "语义数据模型和验证追踪"
+          ],
+          "dependencies": [
+            "语义数据模型、序列化格式和消费者版本",
+            "操作契约与互操作验证"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "1. 目的与参与者",
+              "required_fields": [
+                "boundary",
+                "participants"
+              ],
+              "field_labels": {
+                "boundary": "边界",
+                "participants": "参与者"
+              }
+            },
+            {
+              "key": "schema",
+              "heading": "2. 数据契约",
+              "required_fields": [
+                "data_shapes",
+                "required_fields"
+              ],
+              "field_labels": {
+                "data_shapes": "数据结构",
+                "required_fields": "必填字段"
+              }
+            },
+            {
+              "key": "validation",
+              "heading": "3. 校验与不变量",
+              "required_fields": [
+                "validation_rules",
+                "invariants"
+              ],
+              "field_labels": {
+                "validation_rules": "校验规则",
+                "invariants": "不变量"
+              }
+            },
+            {
+              "key": "compatibility",
+              "heading": "4. 版本管理与兼容性",
+              "required_fields": [
+                "version_policy",
+                "compatibility_policy"
+              ],
+              "field_labels": {
+                "version_policy": "版本策略",
+                "compatibility_policy": "兼容性策略"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "5. 模型与验证追踪",
+              "required_fields": [
+                "model_elements",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/data-contract/zh-CN/template.md",
+            "guide": "catalog/entries/data-contract/zh-CN/guide.md",
+            "example": "catalog/entries/data-contract/zh-CN/example.md",
+            "fixture": "catalog/entries/data-contract/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "verification-test-plan",
       "document_class": "verification",
-      "title": "Plan executable verification and analysis",
-      "scenario": "Use for inputs, environment, procedure and pass criteria, not executed-result claims",
-      "when_to_use": [
-        "Use for inputs, environment, procedure and pass criteria, not executed-result claims"
-      ],
-      "when_not_to_use": [
-        "Recording an executed result or relying only on inspection; use evidence or design-review"
-      ],
-      "required_inputs": [
-        "Requirement/design basis and testable units or interfaces",
-        "Methods, environment, exact inputs, procedures, and expected results",
-        "Measurable pass criteria, trace, and unexecuted/residual limits"
-      ],
-      "dependencies": [
-        "Testable requirements, identified units/interfaces, fixtures and drivers",
-        "Later execution logs and evidence records"
-      ],
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "1. Scope and basis",
-          "required_fields": [
-            "requirements_links",
-            "design_links"
-          ]
-        },
-        {
-          "key": "methods",
-          "heading": "2. Methods and environment",
-          "required_fields": [
-            "methods",
-            "environment"
-          ]
-        },
-        {
-          "key": "cases",
-          "heading": "3. Verification cases",
-          "required_fields": [
-            "inputs",
-            "procedure",
-            "expected_results"
-          ]
-        },
-        {
-          "key": "criteria",
-          "heading": "4. Acceptance criteria and trace",
-          "required_fields": [
-            "pass_criteria",
-            "trace_matrix"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unexecuted_cases",
-            "residual_risks"
-          ]
-        }
-      ],
-      "template": "catalog/templates/verification-test-plan.md",
-      "guide": "catalog/guides/verification-test-plan.md",
-      "example": "catalog/examples/verification-test-plan.md",
-      "fixture": "catalog/fixtures/verification-test-plan.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1510,75 +3178,192 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Plan executable verification and analysis",
+          "scenario": "Use for inputs, environment, procedure and pass criteria, not executed-result claims",
+          "when_to_use": [
+            "Use for inputs, environment, procedure and pass criteria, not executed-result claims"
+          ],
+          "when_not_to_use": [
+            "Recording an executed result or relying only on inspection; use evidence or design-review"
+          ],
+          "required_inputs": [
+            "Requirement/design basis and testable units or interfaces",
+            "Methods, environment, exact inputs, procedures, and expected results",
+            "Measurable pass criteria, trace, and unexecuted/residual limits"
+          ],
+          "dependencies": [
+            "Testable requirements, identified units/interfaces, fixtures and drivers",
+            "Later execution logs and evidence records"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. Scope and basis",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "Requirements links",
+                "design_links": "Design links"
+              }
+            },
+            {
+              "key": "methods",
+              "heading": "2. Methods and environment",
+              "required_fields": [
+                "methods",
+                "environment"
+              ],
+              "field_labels": {
+                "methods": "Methods",
+                "environment": "Environment"
+              }
+            },
+            {
+              "key": "cases",
+              "heading": "3. Verification cases",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "Inputs",
+                "procedure": "Procedure",
+                "expected_results": "Expected results"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. Acceptance criteria and trace",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "Pass criteria",
+                "trace_matrix": "Trace matrix"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. Status and limits",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "Unexecuted cases",
+                "residual_risks": "Residual risks"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/verification-test-plan/en/template.md",
+            "guide": "catalog/entries/verification-test-plan/en/guide.md",
+            "example": "catalog/entries/verification-test-plan/en/example.md",
+            "fixture": "catalog/entries/verification-test-plan/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "可执行验证与分析计划",
+          "scenario": "适用于定义可复现的输入、环境、步骤和通过准则，而非宣称已经执行",
+          "when_to_use": [
+            "当测试、演示或分析需要由另一位执行者按明确步骤复现时使用"
+          ],
+          "when_not_to_use": [
+            "当目的是记录实际执行结果或仅进行语义检查时，分别使用证据记录或 design-review"
+          ],
+          "required_inputs": [
+            "需求与设计依据以及被测单元或接口",
+            "方法、环境、精确输入、步骤和预期结果",
+            "可测量通过准则、追踪、未执行用例和残余风险"
+          ],
+          "dependencies": [
+            "可测试需求、已标识接口、测试夹具和驱动器",
+            "后续独立保存的执行日志与证据记录"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. 范围与依据",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "需求链接",
+                "design_links": "设计链接"
+              }
+            },
+            {
+              "key": "methods",
+              "heading": "2. 方法与环境",
+              "required_fields": [
+                "methods",
+                "environment"
+              ],
+              "field_labels": {
+                "methods": "方法",
+                "environment": "环境"
+              }
+            },
+            {
+              "key": "cases",
+              "heading": "3. 验证用例",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "输入",
+                "procedure": "步骤",
+                "expected_results": "预期结果"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. 验收准则与追踪",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "通过准则",
+                "trace_matrix": "追踪矩阵"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. 状态与限制",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "未执行用例",
+                "residual_risks": "残余风险"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/verification-test-plan/zh-CN/template.md",
+            "guide": "catalog/entries/verification-test-plan/zh-CN/guide.md",
+            "example": "catalog/entries/verification-test-plan/zh-CN/example.md",
+            "fixture": "catalog/entries/verification-test-plan/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "design-review",
       "document_class": "verification",
-      "title": "Plan inspection and semantic design review",
-      "scenario": "Use for model meaning, design adequacy and source fidelity, not a premature pass",
-      "when_to_use": [
-        "Use for model meaning, design adequacy and source fidelity, not a premature pass"
-      ],
-      "when_not_to_use": [
-        "Claiming a review has passed before independent judgment; retain a planned review instead"
-      ],
-      "required_inputs": [
-        "Requirement/design basis and semantic review questions",
-        "Exact model/document/figure hashes, source records, and review procedure",
-        "Expected judgments, acceptance criteria, and unexecuted/residual limits"
-      ],
-      "dependencies": [
-        "Identified artifacts, coverage list, source records, and reviewer authority",
-        "Later independent review verdict and evidence"
-      ],
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "1. Scope and basis",
-          "required_fields": [
-            "requirements_links",
-            "design_links"
-          ]
-        },
-        {
-          "key": "questions",
-          "heading": "2. Review questions and methods",
-          "required_fields": [
-            "review_questions",
-            "methods"
-          ]
-        },
-        {
-          "key": "inputs",
-          "heading": "3. Inputs and procedure",
-          "required_fields": [
-            "inputs",
-            "procedure",
-            "expected_results"
-          ]
-        },
-        {
-          "key": "criteria",
-          "heading": "4. Acceptance criteria and trace",
-          "required_fields": [
-            "pass_criteria",
-            "trace_matrix"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unexecuted_cases",
-            "residual_risks"
-          ]
-        }
-      ],
-      "template": "catalog/templates/design-review.md",
-      "guide": "catalog/guides/design-review.md",
-      "example": "catalog/examples/design-review.md",
-      "fixture": "catalog/fixtures/design-review.json",
       "sources": [
         {
           "source_id": "ARC42",
@@ -1606,79 +3391,192 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Plan inspection and semantic design review",
+          "scenario": "Use for model meaning, design adequacy and source fidelity, not a premature pass",
+          "when_to_use": [
+            "Use for model meaning, design adequacy and source fidelity, not a premature pass"
+          ],
+          "when_not_to_use": [
+            "Claiming a review has passed before independent judgment; retain a planned review instead"
+          ],
+          "required_inputs": [
+            "Requirement/design basis and semantic review questions",
+            "Exact model/document/figure hashes, source records, and review procedure",
+            "Expected judgments, acceptance criteria, and unexecuted/residual limits"
+          ],
+          "dependencies": [
+            "Identified artifacts, coverage list, source records, and reviewer authority",
+            "Later independent review verdict and evidence"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. Scope and basis",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "Requirements links",
+                "design_links": "Design links"
+              }
+            },
+            {
+              "key": "questions",
+              "heading": "2. Review questions and methods",
+              "required_fields": [
+                "review_questions",
+                "methods"
+              ],
+              "field_labels": {
+                "review_questions": "Review questions",
+                "methods": "Methods"
+              }
+            },
+            {
+              "key": "inputs",
+              "heading": "3. Inputs and procedure",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "Inputs",
+                "procedure": "Procedure",
+                "expected_results": "Expected results"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. Acceptance criteria and trace",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "Pass criteria",
+                "trace_matrix": "Trace matrix"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. Status and limits",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "Unexecuted cases",
+                "residual_risks": "Residual risks"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/design-review/en/template.md",
+            "guide": "catalog/entries/design-review/en/guide.md",
+            "example": "catalog/entries/design-review/en/example.md",
+            "fixture": "catalog/entries/design-review/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "模型与设计语义评审计划",
+          "scenario": "适用于规划模型意义、设计充分性和来源保真度评审，而非预先给出通过结论",
+          "when_to_use": [
+            "当正确性需要通过模型、文档、图形和来源的独立语义判断来评估时使用"
+          ],
+          "when_not_to_use": [
+            "当独立评审尚未实施时，不得用本条目宣称评审通过；可执行行为用例应由测试计划承担"
+          ],
+          "required_inputs": [
+            "需求设计依据和语义评审问题",
+            "精确模型、文档、图形哈希以及来源记录和评审步骤",
+            "预期判断、通过准则、未执行事项和残余风险"
+          ],
+          "dependencies": [
+            "已标识制品、覆盖清单、来源记录和评审者权限",
+            "后续独立评审结论及其证据"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "1. 范围与依据",
+              "required_fields": [
+                "requirements_links",
+                "design_links"
+              ],
+              "field_labels": {
+                "requirements_links": "需求链接",
+                "design_links": "设计链接"
+              }
+            },
+            {
+              "key": "questions",
+              "heading": "2. 评审问题与方法",
+              "required_fields": [
+                "review_questions",
+                "methods"
+              ],
+              "field_labels": {
+                "review_questions": "评审问题",
+                "methods": "方法"
+              }
+            },
+            {
+              "key": "inputs",
+              "heading": "3. 输入与步骤",
+              "required_fields": [
+                "inputs",
+                "procedure",
+                "expected_results"
+              ],
+              "field_labels": {
+                "inputs": "输入",
+                "procedure": "步骤",
+                "expected_results": "预期结果"
+              }
+            },
+            {
+              "key": "criteria",
+              "heading": "4. 验收准则与追踪",
+              "required_fields": [
+                "pass_criteria",
+                "trace_matrix"
+              ],
+              "field_labels": {
+                "pass_criteria": "通过准则",
+                "trace_matrix": "追踪矩阵"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "5. 状态与限制",
+              "required_fields": [
+                "unexecuted_cases",
+                "residual_risks"
+              ],
+              "field_labels": {
+                "unexecuted_cases": "未执行用例",
+                "residual_risks": "残余风险"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/design-review/zh-CN/template.md",
+            "guide": "catalog/entries/design-review/zh-CN/guide.md",
+            "example": "catalog/entries/design-review/zh-CN/example.md",
+            "fixture": "catalog/entries/design-review/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-api-design",
       "document_class": "api-design",
-      "title": "Api Design",
-      "scenario": "generic",
-      "when_to_use": [
-        "Author the api-design responsibility at its canonical route."
-      ],
-      "when_not_to_use": [
-        "Do not use this page for executed results or a different flow role."
-      ],
-      "required_inputs": [
-        "Caller metadata, context model sources, allocated anchors and all section fields."
-      ],
-      "dependencies": [
-        "Readable context model; local link targets where cited."
-      ],
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "Purpose and boundary",
-          "required_fields": [
-            "api_identity",
-            "api_kind",
-            "layer",
-            "purpose"
-          ]
-        },
-        {
-          "key": "contract",
-          "heading": "Declaration and contract",
-          "required_fields": [
-            "declaration",
-            "inputs",
-            "outputs",
-            "errors",
-            "side_effects"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "invariants",
-            "constraints"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "Trace and verification",
-          "required_fields": [
-            "model_realization_or_reason",
-            "source_projection",
-            "requirements_links",
-            "design_links",
-            "verification_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-api-design.md",
-      "guide": "catalog/guides/generic-api-design.md",
-      "example": "catalog/examples/generic-api-design.md",
-      "fixture": "catalog/fixtures/generic-api-design.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1700,49 +3598,217 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Api Design",
+          "scenario": "generic",
+          "when_to_use": [
+            "Author the api-design responsibility at its canonical route."
+          ],
+          "when_not_to_use": [
+            "Do not use this page for executed results or a different flow role."
+          ],
+          "required_inputs": [
+            "Caller metadata, context model sources, allocated anchors and all section fields."
+          ],
+          "dependencies": [
+            "Readable context model; local link targets where cited."
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "Purpose and boundary",
+              "required_fields": [
+                "api_identity",
+                "api_kind",
+                "layer",
+                "purpose"
+              ],
+              "field_labels": {
+                "api_identity": "Api identity",
+                "api_kind": "Api kind",
+                "layer": "Layer",
+                "purpose": "Purpose"
+              }
+            },
+            {
+              "key": "contract",
+              "heading": "Declaration and contract",
+              "required_fields": [
+                "declaration",
+                "inputs",
+                "outputs",
+                "errors",
+                "side_effects"
+              ],
+              "field_labels": {
+                "declaration": "Declaration",
+                "inputs": "Inputs",
+                "outputs": "Outputs",
+                "errors": "Errors",
+                "side_effects": "Side effects"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "Behavior and constraints",
+              "required_fields": [
+                "behavior",
+                "invariants",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "Behavior",
+                "invariants": "Invariants",
+                "constraints": "Constraints"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "Trace and verification",
+              "required_fields": [
+                "model_realization_or_reason",
+                "source_projection",
+                "requirements_links",
+                "design_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_realization_or_reason": "Model realization or reason",
+                "source_projection": "Source projection",
+                "requirements_links": "Requirements links",
+                "design_links": "Design links",
+                "verification_links": "Verification links"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "Status and limits",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-api-design/en/template.md",
+            "guide": "catalog/entries/generic-api-design/en/guide.md",
+            "example": "catalog/entries/generic-api-design/en/example.md",
+            "fixture": "catalog/entries/generic-api-design/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "API 设计",
+          "scenario": "适用于在规范路由上定义单个 API 的声明、行为、追踪和边界",
+          "when_to_use": [
+            "当需要为一个函数、类型、方法或接口建立独立设计契约并分配 U 锚点时使用"
+          ],
+          "when_not_to_use": [
+            "当内容是执行结果、普通流程角色页或多个 API 的混合清单时，不应使用本页"
+          ],
+          "required_inputs": [
+            "API 身份、类型、层次、用途和模型来源",
+            "声明、输入、输出、错误、副作用、行为和不变量",
+            "模型实现或语言侧理由、源码映射、验证链接和未决事项"
+          ],
+          "dependencies": [
+            "可读取的背景模型和本地链接目标",
+            "需求、设计及计划验证的责任文档"
+          ],
+          "required_sections": [
+            {
+              "key": "purpose",
+              "heading": "目的与边界",
+              "required_fields": [
+                "api_identity",
+                "api_kind",
+                "layer",
+                "purpose"
+              ],
+              "field_labels": {
+                "api_identity": "API 标识",
+                "api_kind": "API 类型",
+                "layer": "层次",
+                "purpose": "目的"
+              }
+            },
+            {
+              "key": "contract",
+              "heading": "声明与契约",
+              "required_fields": [
+                "declaration",
+                "inputs",
+                "outputs",
+                "errors",
+                "side_effects"
+              ],
+              "field_labels": {
+                "declaration": "声明",
+                "inputs": "输入",
+                "outputs": "输出",
+                "errors": "错误",
+                "side_effects": "副作用"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "行为与约束",
+              "required_fields": [
+                "behavior",
+                "invariants",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "行为",
+                "invariants": "不变量",
+                "constraints": "约束"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "追踪与验证",
+              "required_fields": [
+                "model_realization_or_reason",
+                "source_projection",
+                "requirements_links",
+                "design_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_realization_or_reason": "模型实现或理由",
+                "source_projection": "源码映射",
+                "requirements_links": "需求链接",
+                "design_links": "设计链接",
+                "verification_links": "验证链接"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "状态与限制",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-api-design/zh-CN/template.md",
+            "guide": "catalog/entries/generic-api-design/zh-CN/guide.md",
+            "example": "catalog/entries/generic-api-design/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-api-design/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-flow-index",
       "document_class": "flow-index",
-      "title": "Flow Index",
-      "scenario": "generic",
-      "when_to_use": [
-        "Author the flow-index responsibility at its canonical route."
-      ],
-      "when_not_to_use": [
-        "Do not use this page for executed results or a different flow role."
-      ],
-      "required_inputs": [
-        "Caller metadata, context model sources, allocated anchors and all section fields."
-      ],
-      "dependencies": [
-        "Readable context model; local link targets where cited."
-      ],
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "Scope and navigation",
-          "required_fields": [
-            "flow_scope",
-            "navigation_links"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "Status and trace",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links",
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-flow-index.md",
-      "guide": "catalog/guides/generic-flow-index.md",
-      "example": "catalog/examples/generic-flow-index.md",
-      "fixture": "catalog/fixtures/generic-flow-index.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1764,57 +3830,121 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Flow Index",
+          "scenario": "generic",
+          "when_to_use": [
+            "Author the flow-index responsibility at its canonical route."
+          ],
+          "when_not_to_use": [
+            "Do not use this page for executed results or a different flow role."
+          ],
+          "required_inputs": [
+            "Caller metadata, context model sources, allocated anchors and all section fields."
+          ],
+          "dependencies": [
+            "Readable context model; local link targets where cited."
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "Scope and navigation",
+              "required_fields": [
+                "flow_scope",
+                "navigation_links"
+              ],
+              "field_labels": {
+                "flow_scope": "Flow scope",
+                "navigation_links": "Navigation links"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "Status and trace",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "requirements_links": "Requirements links",
+                "verification_links": "Verification links",
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-index/en/template.md",
+            "guide": "catalog/entries/generic-flow-index/en/guide.md",
+            "example": "catalog/entries/generic-flow-index/en/example.md",
+            "fixture": "catalog/entries/generic-flow-index/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "流程索引",
+          "scenario": "适用于作为流程角色导航和范围入口，而非定义全部流程行为",
+          "when_to_use": [
+            "当一个流程需要真实的索引页链接定义、实现和视图责任时使用"
+          ],
+          "when_not_to_use": [
+            "当页面需要承载执行结果、详细阶段规则或其他流程角色的完整内容时，不应使用索引页"
+          ],
+          "required_inputs": [
+            "流程范围、导航链接和模型来源",
+            "模型元素、需求与验证追踪以及未决事项",
+            "可解析的 definition、implementation 和 views 页面链接"
+          ],
+          "dependencies": [
+            "同一流程目录下的定义、实现和视图页面",
+            "可读取背景模型及需求验证责任文档"
+          ],
+          "required_sections": [
+            {
+              "key": "scope",
+              "heading": "范围与导航",
+              "required_fields": [
+                "flow_scope",
+                "navigation_links"
+              ],
+              "field_labels": {
+                "flow_scope": "流程范围",
+                "navigation_links": "导航链接"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "状态与追踪",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "requirements_links": "需求链接",
+                "verification_links": "验证链接",
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-index/zh-CN/template.md",
+            "guide": "catalog/entries/generic-flow-index/zh-CN/guide.md",
+            "example": "catalog/entries/generic-flow-index/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-flow-index/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-flow-definition",
       "document_class": "flow-definition",
-      "title": "Flow Definition",
-      "scenario": "generic",
-      "when_to_use": [
-        "Author the flow-definition responsibility at its canonical route."
-      ],
-      "when_not_to_use": [
-        "Do not use this page for executed results or a different flow role."
-      ],
-      "required_inputs": [
-        "Caller metadata, context model sources, allocated anchors and all section fields."
-      ],
-      "dependencies": [
-        "Readable context model; local link targets where cited."
-      ],
-      "required_sections": [
-        {
-          "key": "stages",
-          "heading": "1. Stages and gates",
-          "required_fields": [
-            "stages",
-            "transitions",
-            "exit_gates"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "2. Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "invariants"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "3. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-flow-definition.md",
-      "guide": "catalog/guides/generic-flow-definition.md",
-      "example": "catalog/examples/generic-flow-definition.md",
-      "fixture": "catalog/fixtures/generic-flow-definition.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1836,57 +3966,145 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Flow Definition",
+          "scenario": "generic",
+          "when_to_use": [
+            "Author the flow-definition responsibility at its canonical route."
+          ],
+          "when_not_to_use": [
+            "Do not use this page for executed results or a different flow role."
+          ],
+          "required_inputs": [
+            "Caller metadata, context model sources, allocated anchors and all section fields."
+          ],
+          "dependencies": [
+            "Readable context model; local link targets where cited."
+          ],
+          "required_sections": [
+            {
+              "key": "stages",
+              "heading": "1. Stages and gates",
+              "required_fields": [
+                "stages",
+                "transitions",
+                "exit_gates"
+              ],
+              "field_labels": {
+                "stages": "Stages",
+                "transitions": "Transitions",
+                "exit_gates": "Exit gates"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "2. Behavior and constraints",
+              "required_fields": [
+                "behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "behavior": "Behavior",
+                "invariants": "Invariants"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "3. Trace and verification",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "requirements_links": "Requirements links",
+                "verification_links": "Verification links"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-definition/en/template.md",
+            "guide": "catalog/entries/generic-flow-definition/en/guide.md",
+            "example": "catalog/entries/generic-flow-definition/en/example.md",
+            "fixture": "catalog/entries/generic-flow-definition/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "流程定义",
+          "scenario": "适用于定义流程阶段、转换、退出门控和行为不变量",
+          "when_to_use": [
+            "当流程需要规范说明阶段顺序、进入退出条件和非法转换时使用"
+          ],
+          "when_not_to_use": [
+            "当页面承担源码分配、执行结果或视图适用性时，应使用对应角色页"
+          ],
+          "required_inputs": [
+            "阶段、转换、退出门控和模型来源",
+            "流程行为、不变量以及需求与验证追踪",
+            "明确的调用方判定和非法状态边界"
+          ],
+          "dependencies": [
+            "可读取背景模型与需求责任文档",
+            "计划验证用例和后续实现角色页"
+          ],
+          "required_sections": [
+            {
+              "key": "stages",
+              "heading": "1. 阶段与门控",
+              "required_fields": [
+                "stages",
+                "transitions",
+                "exit_gates"
+              ],
+              "field_labels": {
+                "stages": "阶段",
+                "transitions": "转换",
+                "exit_gates": "退出门控"
+              }
+            },
+            {
+              "key": "behavior",
+              "heading": "2. 行为与约束",
+              "required_fields": [
+                "behavior",
+                "invariants"
+              ],
+              "field_labels": {
+                "behavior": "行为",
+                "invariants": "不变量"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "3. 追踪与验证",
+              "required_fields": [
+                "model_elements",
+                "requirements_links",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "requirements_links": "需求链接",
+                "verification_links": "验证链接"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-definition/zh-CN/template.md",
+            "guide": "catalog/entries/generic-flow-definition/zh-CN/guide.md",
+            "example": "catalog/entries/generic-flow-definition/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-flow-definition/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-flow-implementation",
       "document_class": "flow-implementation",
-      "title": "Flow Implementation",
-      "scenario": "generic",
-      "when_to_use": [
-        "Author the flow-implementation responsibility at its canonical route."
-      ],
-      "when_not_to_use": [
-        "Do not use this page for executed results or a different flow role."
-      ],
-      "required_inputs": [
-        "Caller metadata, context model sources, allocated anchors and all section fields."
-      ],
-      "dependencies": [
-        "Readable context model; local link targets where cited."
-      ],
-      "required_sections": [
-        {
-          "key": "allocation",
-          "heading": "1. Allocation",
-          "required_fields": [
-            "components",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "2. Behavior and source projection",
-          "required_fields": [
-            "behavior",
-            "source_projection",
-            "constraints"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "3. Verification and limits",
-          "required_fields": [
-            "model_elements",
-            "verification_links",
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-flow-implementation.md",
-      "guide": "catalog/guides/generic-flow-implementation.md",
-      "example": "catalog/examples/generic-flow-implementation.md",
-      "fixture": "catalog/fixtures/generic-flow-implementation.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1908,55 +4126,145 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Flow Implementation",
+          "scenario": "generic",
+          "when_to_use": [
+            "Author the flow-implementation responsibility at its canonical route."
+          ],
+          "when_not_to_use": [
+            "Do not use this page for executed results or a different flow role."
+          ],
+          "required_inputs": [
+            "Caller metadata, context model sources, allocated anchors and all section fields."
+          ],
+          "dependencies": [
+            "Readable context model; local link targets where cited."
+          ],
+          "required_sections": [
+            {
+              "key": "allocation",
+              "heading": "1. Allocation",
+              "required_fields": [
+                "components",
+                "interfaces"
+              ],
+              "field_labels": {
+                "components": "Components",
+                "interfaces": "Interfaces"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "2. Behavior and source projection",
+              "required_fields": [
+                "behavior",
+                "source_projection",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "Behavior",
+                "source_projection": "Source projection",
+                "constraints": "Constraints"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "3. Verification and limits",
+              "required_fields": [
+                "model_elements",
+                "verification_links",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "Model elements",
+                "verification_links": "Verification links",
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-implementation/en/template.md",
+            "guide": "catalog/entries/generic-flow-implementation/en/guide.md",
+            "example": "catalog/entries/generic-flow-implementation/en/example.md",
+            "fixture": "catalog/entries/generic-flow-implementation/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "流程实现分配",
+          "scenario": "适用于把流程行为分配到组件、接口和预期源码单元",
+          "when_to_use": [
+            "当流程定义已经明确，需要说明控制器、评审者和源码映射如何协作时使用"
+          ],
+          "when_not_to_use": [
+            "当页面需要重新定义流程阶段、记录执行结果或讨论视图适用性时，应使用其他责任文档"
+          ],
+          "required_inputs": [
+            "组件、接口和流程行为分配",
+            "预期源码位置、实现约束和模型来源",
+            "验证链接、未决事项以及语言侧实现理由"
+          ],
+          "dependencies": [
+            "已定义的流程行为和背景模型",
+            "预期源码单元及后续实现验证"
+          ],
+          "required_sections": [
+            {
+              "key": "allocation",
+              "heading": "1. 分配",
+              "required_fields": [
+                "components",
+                "interfaces"
+              ],
+              "field_labels": {
+                "components": "组成要素",
+                "interfaces": "接口"
+              }
+            },
+            {
+              "key": "projection",
+              "heading": "2. 行为与源码映射",
+              "required_fields": [
+                "behavior",
+                "source_projection",
+                "constraints"
+              ],
+              "field_labels": {
+                "behavior": "行为",
+                "source_projection": "源码映射",
+                "constraints": "约束"
+              }
+            },
+            {
+              "key": "trace",
+              "heading": "3. 验证与限制",
+              "required_fields": [
+                "model_elements",
+                "verification_links",
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "model_elements": "模型元素",
+                "verification_links": "验证链接",
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-implementation/zh-CN/template.md",
+            "guide": "catalog/entries/generic-flow-implementation/zh-CN/guide.md",
+            "example": "catalog/entries/generic-flow-implementation/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-flow-implementation/zh-CN/fixture.json"
+          }
+        }
+      }
     },
     {
       "template_id": "generic-flow-views",
       "document_class": "flow-views",
-      "title": "Flow Views",
-      "scenario": "generic",
-      "when_to_use": [
-        "Author the flow-views responsibility at its canonical route."
-      ],
-      "when_not_to_use": [
-        "Do not use this page for executed results or a different flow role."
-      ],
-      "required_inputs": [
-        "Caller metadata, context model sources, allocated anchors and all section fields."
-      ],
-      "dependencies": [
-        "Readable context model; local link targets where cited."
-      ],
-      "required_sections": [
-        {
-          "key": "coverage",
-          "heading": "1. Coverage and applicability",
-          "required_fields": [
-            "view_coverage",
-            "applicability_reasons"
-          ]
-        },
-        {
-          "key": "views",
-          "heading": "2. Views and references",
-          "required_fields": [
-            "model_views",
-            "figure_references",
-            "verification_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "3. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
-      "template": "catalog/templates/generic-flow-views.md",
-      "guide": "catalog/guides/generic-flow-views.md",
-      "example": "catalog/examples/generic-flow-views.md",
-      "fixture": "catalog/fixtures/generic-flow-views.json",
       "sources": [
         {
           "source_id": "DPR",
@@ -1978,7 +4286,133 @@
         "markdown-security",
         "fixtures"
       ],
-      "view_concerns": []
+      "variants": {
+        "en": {
+          "title": "Flow Views",
+          "scenario": "generic",
+          "when_to_use": [
+            "Author the flow-views responsibility at its canonical route."
+          ],
+          "when_not_to_use": [
+            "Do not use this page for executed results or a different flow role."
+          ],
+          "required_inputs": [
+            "Caller metadata, context model sources, allocated anchors and all section fields."
+          ],
+          "dependencies": [
+            "Readable context model; local link targets where cited."
+          ],
+          "required_sections": [
+            {
+              "key": "coverage",
+              "heading": "1. Coverage and applicability",
+              "required_fields": [
+                "view_coverage",
+                "applicability_reasons"
+              ],
+              "field_labels": {
+                "view_coverage": "View coverage",
+                "applicability_reasons": "Applicability reasons"
+              }
+            },
+            {
+              "key": "views",
+              "heading": "2. Views and references",
+              "required_fields": [
+                "model_views",
+                "figure_references",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_views": "Model views",
+                "figure_references": "Figure references",
+                "verification_links": "Verification links"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "3. Status and limits",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "Unresolved items"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-views/en/template.md",
+            "guide": "catalog/entries/generic-flow-views/en/guide.md",
+            "example": "catalog/entries/generic-flow-views/en/example.md",
+            "fixture": "catalog/entries/generic-flow-views/en/fixture.json"
+          }
+        },
+        "zh-CN": {
+          "title": "流程视图与适用性",
+          "scenario": "适用于论证流程需要哪些视图、何时不适用以及如何验证图表",
+          "when_to_use": [
+            "当流程需要系统说明模型视图、图形引用和替代表达的适用范围时使用"
+          ],
+          "when_not_to_use": [
+            "当页面需要承担流程导航、阶段定义或源码分配时，应使用对应角色页"
+          ],
+          "required_inputs": [
+            "视图覆盖范围、适用性理由和模型来源",
+            "模型视图、图引用和验证链接",
+            "未决事项以及无图或替代表达的明确理由"
+          ],
+          "dependencies": [
+            "流程定义与实现页面中的模型和职责",
+            "现有模型视图、SVG 资产和保真度验证"
+          ],
+          "required_sections": [
+            {
+              "key": "coverage",
+              "heading": "1. 覆盖范围与适用性",
+              "required_fields": [
+                "view_coverage",
+                "applicability_reasons"
+              ],
+              "field_labels": {
+                "view_coverage": "视图覆盖范围",
+                "applicability_reasons": "适用性理由"
+              }
+            },
+            {
+              "key": "views",
+              "heading": "2. 视图与引用",
+              "required_fields": [
+                "model_views",
+                "figure_references",
+                "verification_links"
+              ],
+              "field_labels": {
+                "model_views": "模型视图",
+                "figure_references": "图引用",
+                "verification_links": "验证链接"
+              }
+            },
+            {
+              "key": "limits",
+              "heading": "3. 状态与限制",
+              "required_fields": [
+                "unresolved_items"
+              ],
+              "field_labels": {
+                "unresolved_items": "未决事项"
+              }
+            }
+          ],
+          "view_concerns": [],
+          "resources": {
+            "template": "catalog/entries/generic-flow-views/zh-CN/template.md",
+            "guide": "catalog/entries/generic-flow-views/zh-CN/guide.md",
+            "example": "catalog/entries/generic-flow-views/zh-CN/example.md",
+            "fixture": "catalog/entries/generic-flow-views/zh-CN/fixture.json"
+          }
+        }
+      }
     }
   ]
 }

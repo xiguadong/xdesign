@@ -489,6 +489,127 @@ package XDesignDetailedDesign {
         }
     }
 
+    package BilingualDocumentKitDesign {
+        @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+        doc /* Proposed schema 1.3.0 bilingual release and entry-owned resource
+           design. Satisfy links from R22 to these declarations allocate design
+           responsibility only; they do not assert implementation, executed BDK
+           cases, translated-prose acceptance or a migrated document. */
+
+        item def BilingualResourceVariant {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* One language variant of one existing engineering entry. Stable
+               section and field keys bind localized headings and labels; four
+               declared paths own template, guide, example and full-input fixture
+               bytes without an editable mirror. */
+            attribute templateId : String;
+            attribute documentClass : String;
+            attribute language : String;
+            attribute requiredSections : String [1..*];
+            attribute fieldLabels : String [1..*];
+            attribute templateUri : String;
+            attribute guideUri : String;
+            attribute exampleUri : String;
+            attribute fixtureUri : String;
+        }
+
+        item def BilingualEffectiveIdentity :> DocumentTemplateLibraryDesign::DocumentEffectiveIdentity {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Schema 1.3 adds one required case-sensitive language value to
+               the existing six identity fields. Missing, unsupported or disagreeing
+               persisted language is registry-mismatch; old identities stay absent. */
+            attribute language : String;
+        }
+
+        part def BilingualCatalogLayout {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Own 21 entry directories under catalog/entries, 42 variants and
+               168 explicit template/guide/example/fixture paths. Shared sources,
+               routing, models and assets have one home; discovery never globs. */
+            attribute entryDirectoryCount : Integer;
+            attribute variantCount : Integer;
+            attribute languageSpecificResourceCount : Integer;
+            attribute entryRoot : String;
+        }
+
+        part def BilingualVariantLibrary {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Preserve all 21 IDs, ten classes, route semantics, ordered section
+               and field keys, checks and view concerns across English and Chinese.
+               Chinese guidance uses scholarly engineering prose rather than a
+               thesis-only document model; caller claims and citations stay honest. */
+            ref item variants : BilingualResourceVariant [42];
+        }
+
+        part def BilingualLanguageResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Accept only en and zh-CN, default omission to en under schema
+               1.3, and reject unsupported, malformed or conflicting selectors.
+               Never infer language from locale, environment, content or another
+               variant and never fall back to English after selection. */
+            attribute supportedLanguageIds : String [2];
+            attribute defaultLanguage : String;
+        }
+
+        part def BilingualIdentityResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Render and compare schema 1.3 marker, registry and effective
+               language identity. Optional selector arguments on updates, attachment
+               and selected checks only assert the recorded variant; conflict is
+               invalid-request, while prose alone never changes identity. */
+            ref item effectiveIdentity : BilingualEffectiveIdentity;
+        }
+
+        part def BilingualCompatibilityResolver :> StructuredDocumentKitDesign::StructuredCompatibilityResolver {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Retain exact 1.0.0, 1.1.0 and 1.2.0 closures and resolve old/new
+               pages independently under schema 1.3 without adoption, migration or
+               language backfill. Digest version 3 covers the current variants and
+               recursively retained bytes with the stored-example sentinel intact. */
+            attribute selectedDigest : String;
+            attribute effectiveDigest : String;
+        }
+
+        part def BilingualDocumentOperations :> StructuredDocumentKitDesign::StructuredDocumentOperations {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Reuse the six existing operations and class/name/layer routes.
+               Plan/create select a variant; update/attachment/check use persisted
+               identity. Same-route second creation keeps its collision refusal. */
+            ref part catalog : BilingualCatalogLayout;
+            ref part variants : BilingualVariantLibrary;
+            ref part languages : BilingualLanguageResolver;
+            ref part identities : BilingualIdentityResolver;
+            ref part releases : BilingualCompatibilityResolver;
+        }
+
+        part def BilingualConsumerContract :> StructuredDocumentKitDesign::StructuredConsumerContract {
+            @XDesignCommon::DocSection { document = "docs/interfaces/document-kit-api.md"; section = "I23"; }
+            doc /* Add keyword-only language selection and equivalent CLI/MCP
+               arguments while preserving operation names, positional calls and MCP
+               binding. Declared reads cover all four resource kinds and 42 variants. */
+        }
+
+        item def BilingualScholarlyProseContract {
+            @XDesignCommon::DocSection { document = "docs/design/document-kit.md"; section = "D122"; }
+            doc /* Authoring and independent-review obligations for every Chinese
+               and English pair: precise terms, coherent objective reasoning,
+               class-appropriate problem/rationale/method/evidence/limits, semantic
+               equivalence and inspectable citations. This is not a deterministic
+               prose-language detector or a sampled translation acceptance. */
+            attribute classRubric : String [1..*];
+            attribute terminologyResponsibility : String;
+            attribute citationBoundary : String;
+            attribute independentReviewScope : String;
+        }
+
+        part def BilingualValidationBoundary :> StructuredDocumentKitDesign::StructuredValidationBoundary {
+            @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D121"; }
+            doc /* BDK-01 through BDK-09 require the complete resource matrix,
+               isolated and mixed variants, real stdio MCP, exact old closures,
+               nonwrite proofs and 21 independent semantic judgments at one revision. */
+        }
+    }
+
     package ProposedProjectChecks {
         @XDesignCommon::DocSection { document = "docs/design/checkpoint-library.md"; section = "D108"; }
         doc /* Discussion proposal only. No runtime, serialized contract, project

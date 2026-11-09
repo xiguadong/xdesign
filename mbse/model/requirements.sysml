@@ -779,4 +779,123 @@ package XDesignRequirements {
            merging either history. */
         attribute redefines rationale = "Legacy cache registrations are authoritative for their own runs, unlike a store-backed working cache, and a matching local wish ID is not proof of one history.";
     }
+
+    requirement documentKitCatalogHasCoherentResourceLayout : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. The new bundled catalog organizes its
+           21 entries into entry-owned packages with language-scoped template, guide,
+           complete fictional example and full-input fixture resources. Shared
+           language-neutral resources have separate shared homes. The manifest binds
+           every resource role and language to exactly one normalized, digest-covered
+           authoritative path. Discovery uses those explicit declarations, not directory
+           globs, network lookup or editable mirror trees. The bundled layout has 21
+           entry directories, 42 language variants and 168 language-specific resources;
+           missing, duplicate, ambiguous or competing declarations fail before writes. */
+        attribute redefines rationale = "One inspectable owner for every logical resource variant prevents divergent translations and duplicate editing while making the complete catalog discoverable without knowing incidental filenames.";
+    }
+
+    requirement documentKitSupportsCompleteChineseAndEnglish : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. Every one of the 21 existing entries
+           has complete en and zh-CN variants, not a translated sample subset. Each
+           variant supplies its template, guide, complete fictional example and
+           full-input fixture. Both languages preserve class, template ID, route,
+           ordered section and required-field semantics, checks, view concerns,
+           anchor/model rules and equivalent engineering obligations; headings,
+           guidance, examples and fixture prose may be localized. Fixtures identify
+           their language and a same-language expected document. All 42 variants
+           support complete plan/create/check authoring, with no unresolved
+           placeholder, missing translation or silent English substitution. */
+        attribute redefines rationale = "Bilingual authoring is usable only when every engineering entry and its supporting inputs are available in both languages with equivalent structure and meaning.";
+    }
+
+    requirement documentTemplateLanguageSelectionIsDeterministic : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. The bundled language IDs are exactly
+           case-sensitive en and zh-CN, and the declared default is en. Plan/create
+           and language-addressed resource reads accept an explicit selector; omission
+           under the new release selects en. Locale, environment and document content
+           are never inferred as language, and an unsupported variant never falls back
+           to English. A well-formed unsupported ID reports unknown-language; malformed
+           or conflicting selectors report invalid-request before writes. Language does
+           not change the class/name/layer route or permit a same-path overwrite.
+           Original packs have no language axis: a supplied selector is invalid-request,
+           while omission retains their original behavior. */
+        attribute redefines rationale = "Explicit, deterministic selection lets a caller predict the authoring language and failure behavior without hidden locale dependence or destructive fallback.";
+    }
+
+    requirement documentTemplateLanguageIdentityIsPersistent : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. New-release creation records the
+           selected language consistently in the document marker, registry and
+           effective identity, and responses and checks expose it. Update, attachment
+           and checking resolve the recorded variant rather than a changed default or
+           caller preference. A same-path creation in another language remains a
+           collision, not a conversion. Missing, unsupported or disagreeing persisted
+           language identity fails registry-mismatch without adoption or migration;
+           original language-less identities are never backfilled. New stored examples
+           retain the one-contract-sentinel convention, and acceptance comparison also
+           asserts their actual language while replacing only the contract field. */
+        attribute redefines rationale = "Persisted language identity keeps later edits and validation attached to the contract actually authored instead of silently reinterpreting a document after defaults change.";
+    }
+
+    requirement documentTemplateLanguageSurfacesAreShared : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. Python, the JSON CLI and bound stdio
+           MCP expose equivalent language selection, defaults, effective identities,
+           validation and discovery for all 21 entries. Their contract/catalog surface
+           enumerates every language variant and the locations and exact bytes of its
+           template, guide, example and fixture; language-addressed reads return the
+           selected bytes, and examples never become template selections. New Python
+           selection is additive and keyword-only, CLI uses a documented option and MCP
+           uses equivalent arguments/resources, retaining existing operation names,
+           positional parameters and MCP root/profile binding. Equivalent requests
+           produce equivalent routes, bytes, identities and diagnostics within their
+           transport envelopes. */
+        attribute redefines rationale = "Authors need the same complete bilingual resources and decisions regardless of transport, without adapter-specific fallback or resource discovery forks.";
+    }
+
+    requirement chineseTemplatesUseScholarlyEngineeringProse : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. Chinese template guidance, guides,
+           examples and fixture prose use precise consistent terminology, an objective
+           tone, complete coherent paragraphs and traceable reasoning. Each engineering
+           class develops problem or context, rationale, method or design, evidence or
+           verification, and limitations to the extent appropriate to that class; no
+           thesis-only chapter set replaces those classes. No citation, source,
+           standard, model fact, implementation, test or review result is fabricated.
+           English variants retain equivalent normative meaning rather than requiring
+           literal word-for-word translation. A permitted reviewer independent of the
+           author reviews every one of the 21 language pairs section by section. */
+        attribute redefines rationale = "Scholarly engineering prose improves precision and auditability only when applied to the whole engineering catalog with verifiable claims, not when reduced to academic formatting or selected examples.";
+    }
+
+    requirement bilingualDocumentKitPreservesCompatibility : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. The bilingual catalog has a new
+           version and digest and retains the exact current 1.0.0, 1.1.0 and 1.2.0
+           resource closures as independently selectable compatibility packs, including
+           nested closures and original behavior. Existing positional calls, document
+           routes and language-less effective identities remain valid under their
+           original packs. The new release resolves supported old and new pages under
+           each page's effective contract without implicit migration, adoption,
+           language backfill or edits to unmanaged and historical artifacts. Retained
+           immutable compatibility bytes are not duplicate editable current sources.
+           Original packs may refuse foreign new identities as before. */
+        attribute redefines rationale = "Reorganizing and translating the current catalog must not redefine released contracts, strand consumers or rewrite the basis of existing documents and evidence.";
+    }
+
+    requirement bilingualDocumentKitEvidenceIsReviewable : XDesignRequirement {
+        @XDesignCommon::DocSection { document = "docs/requirements/requirements.md"; section = "R22"; }
+        doc /* Proposed; no design satisfier yet. Verification binds the assessed source
+           revision, old and new contract identities and digests, the complete resource
+           coverage matrix, exact caller inputs and outputs, resource and document
+           hashes, commands, exits, transcripts, failure-preservation evidence,
+           diagnostics, skips and unevaluated checks. It separately retains reviewer
+           identity and authority, per-entry Chinese quality and English-equivalence
+           judgments, findings and residual risks. A missing variant, case or required
+           semantic review prevents bilingual acceptance; compiler, structural and
+           requirements-stage checks are not product acceptance. */
+        attribute redefines rationale = "Complete, revision-bound evidence distinguishes genuine bilingual coverage and scholarly quality from a few successful translations or mechanical checks.";
+    }
 }

@@ -457,16 +457,17 @@ or unapproved comparison fails closed without migration or silent refresh.
 
 ## 10. Structured document-kit public API (designed release)
 
-This section is the consumer-facing design for the proposed 1.2.0 kit. It is not
-an assertion that these additions execute today. The original [1.0/1.1 contract](#i20)
-continues unchanged when either original pack is selected; the [design allocation](../design/document-kit.md#d115)
-and [planned tests](../verification/design.md#d116) explain how the new release
-preserves those contracts. The distributed 1.2 kit will include a self-contained
-`API.md` with these operation signatures, route and template-field tables, original
-pack selection rules, error/outcome vocabulary and examples. It includes the
-necessary 1.0/1.1 behavior instead of linking to an unpublished repository path;
-the pack's README, rules and skill link to it locally. A consumer need not have
-this repository to understand or use the kit.
+This section is the consumer-facing contract for the 1.2.0 kit present in the
+current `document-kit/` source; source presence is not an SDK acceptance result.
+The original [1.0/1.1 contract](#i20) continues unchanged when either original
+pack is selected; the [design allocation](../design/document-kit.md#d115) and
+[planned tests](../verification/design.md#d116) explain how the release preserves
+those contracts. The distributed 1.2 kit includes a self-contained `API.md` with
+these operation signatures, route and template-field tables, original pack
+selection rules, error/outcome vocabulary and examples. It includes the necessary
+1.0/1.1 behavior instead of linking to an unpublished repository path; the pack's
+README, rules and skill link to it locally. A consumer need not have this
+repository to understand or use the kit.
 
 ### 10.1 Selection and profile representation
 
@@ -813,3 +814,499 @@ publication whose effect cannot be established is `publication-unknown`; inspect
 the page and registry before retrying. These outcomes do not promise a two-file
 transaction or deletion of a pre-existing file. Before publication, rejected and
 denied requests leave existing page/registry and outside-target bytes unchanged.
+
+<a id="i23"></a>
+
+## 11. Bilingual document-kit public API
+
+This section specifies the proposed schema `1.3`, version `1.3.0`, digest-version
+`"3"` consumer contract. It is not an assertion that the release or its Chinese
+resources exist. The [entry-owned design](../design/document-kit.md#d122) owns the
+exact directory/schema allocation and migration sequence; the [verification plan](../verification/design.md#d121)
+owns BDK-01 through BDK-09. Original 1.0/1.1 behavior remains in I20, structured
+1.2 behavior remains in I21, and no original resource or language-less identity is
+rewritten by selecting this design.
+
+### 11.1 Selection grammar, defaults and errors
+
+The bundled `language_policy` is exactly:
+
+```json
+{"supported_ids": ["en", "zh-CN"], "default": "en"}
+```
+
+Language values are case-sensitive. Omission under schema 1.3 means explicit `en`;
+there is no locale, environment, content or neighboring-document inference and no
+fallback to another variant after selection. A supplied well-formed but unlisted
+ID returns `unknown-language`. Well-formed selector grammar is
+`[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*`, which deliberately classifies `zh`,
+`en-US`, `ZH-CN`, and `zh_CN` as unsupported rather than malformed. Empty,
+non-string, whitespace, non-ASCII, repeated/leading/trailing-separator, overlong
+or conflicting selector inputs are `invalid-request`.
+
+`unknown-language` is the only new operation-error code in this section. A missing,
+unsupported or disagreeing **persisted** language is instead `registry-mismatch`.
+An explicitly conflicting selector on an operation that exposes one is
+`invalid-request`. No `identity-mismatch` or prose-language error exists: arbitrary
+caller prose neither selects nor changes identity, and prose adequacy remains
+BDK-06 independent semantic review.
+
+Plan/create and language-addressed resource reads accept selection. Update,
+attachment and selected-document check accept an optional assertion that must
+match the recorded variant; omission uses that variant and never the current
+default. Whole-project/class-filter checks reject non-null language as
+`invalid-request`. A same-route second create retains `document-exists` when the
+file exists and `registry-mismatch` when only its registry path is occupied.
+
+Under every selected original pack, any supplied language selector/assertion is
+`invalid-request`, even if the value would be unsupported under 1.3. Omission
+preserves original behavior. When 1.3 resolves an old effective page, omission
+permits its old update/check behavior; supplying language for that old effective
+page is `invalid-request`. Old language-less entries are not backfilled. Original
+loaders may reject a foreign language key, digest-version 3 or mixed registry;
+this is retained fail-closed behavior, not an instruction to migrate.
+
+### 11.2 Python operations and results
+
+The public exports remain the six functions and `DocumentKitError`. Existing
+positional parameters and defaults are unchanged; every language addition is
+keyword-only and follows the existing keyword arguments:
+
+```python
+get_contract(profile_root=None)
+plan_document(target_root, document_class, name, profile_root=None,
+              template_id=None, *, layer=None, language=None)
+create_document(target_root, document_class, name, metadata, sections,
+                profile_root=None, expected_contract_sha256=None,
+                template_id=None, *, layer=None, language=None)
+update_section(target_root, document_class, name, section_key, content,
+               expected_sha256, fields=None, profile_root=None,
+               expected_contract_sha256=None, *, layer=None, language=None)
+attach_figure(target_root, document_class, name, section_key, figure,
+              expected_sha256, profile_root=None, expected_contract_sha256=None,
+              concern=None, *, layer=None, decision=None, language=None)
+check_documents(target_root, document_class=None, profile_root=None, *,
+                selection=None, language=None)
+```
+
+`route_selection` and the `selection` input remain exactly the I21
+class/name/layer object. Language is a separate argument and may not be inserted
+into that object. Create/update/attach JSON payloads likewise retain their I21
+keys; Python callers select language only by the keyword argument. Metadata and
+section caller keys, including the English `figure` member names, do not change.
+Supplying a root/output path or language inside a payload is an extra-key
+`invalid-request`, never a silent override.
+
+| Operation | Schema 1.3 success result and behavior |
+| --- | --- |
+| `get_contract` | Existing fields plus `language_policy`, complete variant declarations in `catalog.entries`, `resource_index`, `shared_resource_index`, and `resource_bytes`. The existing `templates` projection and `templates["figure-block"]` explicitly use default `en`; `figure_templates` maps both language IDs to their exact figure-block strings. No project is read or written. |
+| `plan_document` | Existing fields plus `language` and a seven-field `effective_identity`. `required_sections` contains the selected variant's headings, stable keys and localized `field_labels`; `figure_block` describes its localized labels/template. Route and existence reporting are unchanged and no file is written. |
+| `create_document` | Existing fields plus `language`, seven-field effective identity and unchanged `route_selection`. The new marker/registry/page bytes agree. Existing destinations and occupied registry paths retain their collision behavior. |
+| `update_section` | Existing fields plus `language` and effective identity. Only the selected stable-key section changes; localized labels are preserved and marker/registry bytes remain identical. A supplied assertion must match the persisted variant. |
+| `attach_figure` | Existing fields plus `language` and effective identity. The existing figure input keys are rendered through the effective variant's figure block; all other section and registry bytes are preserved. |
+| `check_documents` | Existing fields, language-bearing effective identities for new pages and language-less identities for old pages. `scope.language` is the selected assertion or null. Whole/class scope and all context-scan disclosures remain unchanged. |
+
+Every new effective identity has exactly `profile_id`, `version`,
+`document_class`, `template_id`, `language`, `contract_sha256`, and
+`contract_digest_version`. New top-level plan/create/update/attach results also
+have `language`; old effective identities have no language member. Selected-pack
+identity at the result top level remains distinct from each old or new page's
+effective identity.
+
+`resource_index` is an array of exactly 168 objects, one for every
+`(template_id, language, kind)` in 21 × 2 × 4. Each object has exactly
+`template_id`, `document_class`, `language`, `kind`, `path`, `sha256`, and
+`mime_type`; `kind` is `template`, `guide`, `example`, or `fixture`, `path` is the
+manifest-declared pack-relative path, and SHA-256 covers the exact bytes.
+`shared_resource_index` uses exactly `path`, `sha256`, and `mime_type` for shared
+sources, routing, mixed inputs, models/assets and both figure-block templates.
+Repeated references to a shared path have one index entry.
+
+`resource_bytes` is an object keyed by each current index path whose values are
+the exact UTF-8 resource strings, including guide, example and fixture bytes. It
+contains no retained-compatibility mirror and no synthesized translation. An
+example returned under `kind="example"` remains an example and cannot become a
+selected template. CLI `get-contract` emits the same object; Python consumers use
+the returned mapping directly. MCP uses the equivalent catalog index and resource
+reads below rather than creating a second byte projection.
+
+### 11.3 Marker, registry and selected/effective contracts
+
+The exact new marker form is:
+
+```text
+<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} language={language} contract={contract_sha256} digest-version={contract_digest_version} -->
+```
+
+Registry `schema_version` remains 1. A new entry has exactly `path`, `class`,
+`profile_id`, `version`, `contract_sha256`, `template_id`,
+`contract_digest_version`, and `language`; the last value is required and the
+digest version is `"3"`. Existing old entries have no language key and keep their
+old exact key set. The registry stores no document hash. Missing, extra,
+unsupported or disagreeing language in a new marker/registry/resolved variant is
+`registry-mismatch` before mutation.
+
+Under the selected 1.3 pack, whole/selected checks resolve exact bundled 1.0.0,
+1.1.0, 1.2.0 and 1.3.0 entries under their effective contracts. Update/attachment
+can operate on those old pages without language and preserves their marker,
+language-less effective identity and registry bytes. Original selected packs keep
+their original strict registry behavior and may reject the new key or foreign new
+pages; they are not required to understand a mixed registry. The 1.3 pack is the
+supported mixed-project checker/updater, and no operation adopts an unmanaged
+page or silently migrates an identity.
+
+### 11.4 JSON CLI contract
+
+The command and existing flag names are retained. `--language <id>` is added to
+`plan-document`, `create-document`, `update-section`, `attach-figure`, and selected
+`check-documents`. For check it requires `--class` and `--name`; `--language`
+without `--name` is `invalid-request`. Repeating `--language`, supplying it through
+both a selection object and the flag, or placing it in an operation JSON payload
+is a conflicting/invalid request rather than last-value-wins behavior. All
+`--layer` rules remain unchanged.
+
+Create input remains exactly `metadata` and `sections`; update input remains
+`content`, `expected_sha256`, and optional `fields`; attach input remains `figure`,
+`expected_sha256`, and optional `decision`. Contract pins still use
+`--expected-contract-sha256`, and update/attach still use the current page hash.
+CLI emits one JSON object and retains exit 0 for success, 1 for a rejected
+operation/failing check and 2 for invalid invocation. `unknown-language` and
+`invalid-request` use the same core envelope and diagnostic shape as every other
+operation error.
+
+For example, after supplying a real context model and complete Chinese caller
+input at `cache/zh-create.json`, the consumer sequence is:
+
+```sh
+xdesign-doc-kit plan-document --target-root . --profile-root /path/to/kit \
+  --class requirements --name sensor-requirements --language zh-CN
+xdesign-doc-kit create-document --target-root . --profile-root /path/to/kit \
+  --class requirements --name sensor-requirements --language zh-CN \
+  --input cache/zh-create.json
+xdesign-doc-kit check-documents --target-root . --profile-root /path/to/kit \
+  --class requirements --name sensor-requirements --language zh-CN
+xdesign-doc-kit update-section --target-root . --profile-root /path/to/kit \
+  --class requirements --name sensor-requirements --section purpose \
+  --input cache/zh-update.json
+```
+
+The update intentionally omits language and uses the persisted variant. Omitting
+language from plan/create in this release would select `en`, not inspect the
+Chinese payload. The equivalent Python calls use the signatures above, with
+`language="zh-CN"` on plan/create and the optional selected-check assertion.
+
+### 11.5 Bound stdio MCP tools and resources
+
+The six MCP tools retain their names and launch-bound project/profile. Optional
+`language` arguments mirror Python on plan/create/update/attach and selected
+check; `get_contract` has no language filter because it enumerates every variant.
+An absent expected contract digest uses the launch pin, and any supplied digest
+must match it. Root/profile redirection, including redirection smuggled into a
+selection object, is rejected before language processing. Tool errors serialize
+`DocumentKitError.as_dict()` in full; a completed check with findings remains a
+normal structured `ok=false` report.
+
+Existing fixed resources `xdesign-doc-kit://contract`,
+`xdesign-doc-kit://rules`, and `xdesign-doc-kit://catalog` remain. The catalog
+resource contains the same language policy, entries and resource indexes as
+`get_contract`. Existing template reads have these explicit-default semantics
+under 1.3:
+
+| Resource | Bytes and selection |
+| --- | --- |
+| `xdesign-doc-kit://template/{document_class}` | The class generic entry's `en` template. |
+| `xdesign-doc-kit://template/{document_class}/{template_id}` | The named entry's `en` template. Omission means the declared default, not a response to client locale. |
+| `xdesign-doc-kit://template/{document_class}/{template_id}/{language}` | The named entry and language's exact template bytes. |
+| `xdesign-doc-kit://entry/{template_id}/{language}/{resource_kind}` | Canonical read for any declared `template`, `guide`, `example`, or `fixture` variant. |
+
+Every URI segment is one exact value; encoded separators, traversal, extra
+segments and arbitrary filesystem paths are invalid. Unknown class/template/kind
+retains resource-not-found behavior. Malformed language is `invalid-request` and
+well-formed unsupported language is `unknown-language`, both with the core error
+envelope; these are not silently converted to not-found or English bytes.
+Discovery through `catalog` and the registered resource templates enumerates all
+42 variants and four kinds without a filesystem glob. MCP revalidates the launch
+pin and retained child bindings on every tool/resource request.
+
+For example, the Chinese generic-requirements guide and fixture reads are:
+
+```text
+xdesign-doc-kit://entry/generic-requirements/zh-CN/guide
+xdesign-doc-kit://entry/generic-requirements/zh-CN/fixture
+```
+
+The corresponding example URI returns the fictional example, never a template
+selection. No network resource or seventh authoring tool is added.
+
+### 11.6 Localized page and figure serialization
+
+Each selected variant supplies exact metadata labels, H2 headings and per-field
+labels. Caller keys and model identities remain stable. Metadata label allocation
+is `Status`/`Revision`/`Model sources` in English and `状态`/`修订`/`模型来源` in
+Chinese. The ASCII `:**` delimiter, vertical metadata separators and content
+comments are stable serialization syntax.
+
+The figure API object retains its eight existing English member names. Rendered
+figure labels are:
+
+| Semantic token | English output | zh-CN output |
+| --- | --- | --- |
+| Figure label | `Figure <section-id>-<ordinal>` | `图 <section-id>-<ordinal>` |
+| `question` | `Question` | `问题` |
+| `model_view` | `Model view` | `模型视图` |
+| `companions` | `Companions` | `配套材料` |
+| `status` | `Status` | `状态` |
+| `reading` | `Reading` | `解读` |
+| `limits` | `Limits` | `限制` |
+
+`figure_number` remains `<section-id>-<ordinal>`. Statuses, qualifiers, concern and
+choice IDs, asset paths and model-view identities retain their machine tokens.
+Shared SVGs have one canonical path per consumer document and one pack resource;
+localized captions do not duplicate those SVG bytes.
+
+The initial variant manifests use the following exact field-label allocation.
+English labels are the current 1.2 strings; Chinese labels are required strings,
+not suggestions for later ad hoc translation.
+
+| Current English field label | Required zh-CN label |
+| --- | --- |
+| Alternate flows | 备选流程 |
+| Api identity | API 标识 |
+| Api kind | API 类型 |
+| Applicability reasons | 适用性理由 |
+| Behavior | 行为 |
+| Boundary | 边界 |
+| Chosen design | 选定设计 |
+| Compatibility constraints | 兼容性约束 |
+| Compatibility policy | 兼容性策略 |
+| Components | 组成要素 |
+| Constraints | 约束 |
+| Current behavior | 当前行为 |
+| Data shapes | 数据结构 |
+| Declaration | 声明 |
+| Design links | 设计链接 |
+| Design rationale | 设计依据 |
+| Design subject | 设计对象 |
+| Diagram decisions | 图示决策 |
+| Entities | 实体 |
+| Environment | 环境 |
+| Error behavior | 错误行为 |
+| Errors | 错误 |
+| Events | 事件 |
+| Exit gates | 退出门控 |
+| Expected results | 预期结果 |
+| External actors | 外部参与者 |
+| Fields | 字段 |
+| Figure references | 图引用 |
+| Flow scope | 流程范围 |
+| Guards | 监护条件 |
+| Impacted items | 受影响项 |
+| Information flows | 信息流 |
+| Inputs | 输入 |
+| Interactions | 交互 |
+| Interface participants | 接口参与者 |
+| Interfaces | 接口 |
+| Invariants | 不变量 |
+| Layer | 层次 |
+| Lifecycle | 生命周期 |
+| Measurable conditions | 可测量条件 |
+| Methods | 方法 |
+| Migration notes | 迁移说明 |
+| Model elements | 模型元素 |
+| Model realization or reason | 模型实现或理由 |
+| Model views | 模型视图 |
+| Navigation links | 导航链接 |
+| Normative statements | 规范性陈述 |
+| Operations | 操作 |
+| Ordering | 顺序 |
+| Outputs | 输出 |
+| Ownership | 归属 |
+| Participants | 参与者 |
+| Parts | 组成部分 |
+| Pass criteria | 通过准则 |
+| Procedure | 步骤 |
+| Proposed behavior | 拟议行为 |
+| Purpose | 目的 |
+| Rationale | 依据 |
+| Recovery behavior | 恢复行为 |
+| Relationships | 关系 |
+| Required fields | 必填字段 |
+| Requirements links | 需求链接 |
+| Residual risks | 残余风险 |
+| Responsibilities | 职责 |
+| Review questions | 评审问题 |
+| Side effects | 副作用 |
+| Source projection | 源码映射 |
+| Stages | 阶段 |
+| States | 状态 |
+| System boundary | 系统边界 |
+| Terminal states | 终止状态 |
+| Trace matrix | 追踪矩阵 |
+| Tradeoffs | 权衡 |
+| Transitions | 转换 |
+| Unexecuted cases | 未执行用例 |
+| Unresolved items | 未决事项 |
+| Validation rules | 校验规则 |
+| Verification links | 验证链接 |
+| Verification method | 验证方法 |
+| Version policy | 版本策略 |
+| View coverage | 视图覆盖范围 |
+
+The initial exact heading allocation is:
+
+| Current English heading | Required zh-CN heading |
+| --- | --- |
+| 1. Allocation | 1. 分配 |
+| 1. Change summary | 1. 变更摘要 |
+| 1. Context and boundary | 1. 背景与边界 |
+| 1. Coverage and applicability | 1. 覆盖范围与适用性 |
+| 1. Purpose and allocation | 1. 目的与分配 |
+| 1. Purpose and participants | 1. 目的与参与者 |
+| 1. Purpose and scope | 1. 目的与范围 |
+| 1. Scope and basis | 1. 范围与依据 |
+| 1. Stages and gates | 1. 阶段与门控 |
+| 2. Affected requirements | 2. 受影响的需求 |
+| 2. Behavior and constraints | 2. 行为与约束 |
+| 2. Behavior and source projection | 2. 行为与源码映射 |
+| 2. Composition and responsibilities | 2. 组成与职责 |
+| 2. Data contract | 2. 数据契约 |
+| 2. Entities and fields | 2. 实体与字段 |
+| 2. External interfaces | 2. 外部接口 |
+| 2. Interface contract | 2. 接口契约 |
+| 2. Methods and environment | 2. 方法与环境 |
+| 2. Operation contract | 2. 操作契约 |
+| 2. Participants and interfaces | 2. 参与者与接口 |
+| 2. Parts and responsibilities | 2. 组成部分与职责 |
+| 2. Requirements | 2. 需求 |
+| 2. Review questions and methods | 2. 评审问题与方法 |
+| 2. States and invariants | 2. 状态与不变量 |
+| 2. Structure and interfaces | 2. 结构与接口 |
+| 2. Views and references | 2. 视图与引用 |
+| 3. Acceptance conditions | 3. 验收条件 |
+| 3. Behavior and constraints | 3. 行为与约束 |
+| 3. Behavior and lifecycle | 3. 行为与生命周期 |
+| 3. Compatibility and migration | 3. 兼容性与迁移 |
+| 3. Errors and invariants | 3. 错误与不变量 |
+| 3. Events and guards | 3. 事件与监护条件 |
+| 3. Inputs and procedure | 3. 输入与步骤 |
+| 3. Interactions and lifecycle | 3. 交互与生命周期 |
+| 3. Main interaction flow | 3. 主交互流程 |
+| 3. Relationships and interfaces | 3. 关系与接口 |
+| 3. Relationships and ownership | 3. 关系与归属 |
+| 3. Status and limits | 3. 状态与限制 |
+| 3. Trace and verification | 3. 追踪与验证 |
+| 3. Validation and invariants | 3. 校验与不变量 |
+| 3. Verification and limits | 3. 验证与限制 |
+| 3. Verification cases | 3. 验证用例 |
+| 4. Acceptance conditions | 4. 验收条件 |
+| 4. Acceptance criteria and trace | 4. 验收准则与追踪 |
+| 4. Alternate flows and errors | 4. 备选流程与错误 |
+| 4. Behavior and lifecycle | 4. 行为与生命周期 |
+| 4. Constraints and decisions | 4. 约束与决策 |
+| 4. Decisions and rationale | 4. 决策与依据 |
+| 4. Invariants and lifecycle | 4. 不变量与生命周期 |
+| 4. Model and design trace | 4. 模型与设计追踪 |
+| 4. Transitions and lifecycle | 4. 转换与生命周期 |
+| 4. Versioning and compatibility | 4. 版本管理与兼容性 |
+| 5. Behavior and constraints | 5. 行为与约束 |
+| 5. Constraints and decisions | 5. 约束与决策 |
+| 5. Implementation projection and verification | 5. 实现映射与验证 |
+| 5. Model and verification trace | 5. 模型与验证追踪 |
+| 5. Projection and verification | 5. 映射与验证 |
+| 5. Recovery and constraints | 5. 恢复与约束 |
+| 5. Status and limits | 5. 状态与限制 |
+| 5. Trace and limits | 5. 追踪与限制 |
+| 5. Trace and verification | 5. 追踪与验证 |
+| 6. Projection and verification | 6. 映射与验证 |
+| 6. Status and limits | 6. 状态与限制 |
+| 6. Trace and verification | 6. 追踪与验证 |
+| Behavior and constraints | 行为与约束 |
+| Declaration and contract | 声明与契约 |
+| Purpose and boundary | 目的与边界 |
+| Scope and navigation | 范围与导航 |
+| Status and limits | 状态与限制 |
+| Status and trace | 状态与追踪 |
+| Trace and verification | 追踪与验证 |
+
+Each variant may refine title, guidance, examples and prose without literal
+translation, but may not weaken these section/field meanings or their ordered
+engineering obligations. Missing labels, duplicate labels within a section,
+English-label substitution in a selected Chinese structural position and malformed
+variant/template disagreement are catalog defects. Whether the remaining prose is
+actually Chinese, scholarly or equivalent is not inferred by this table or a
+deterministic scan; BDK-06 judges it.
+
+### 11.7 Digest, sentinel and retained closure contract
+
+Digest version `"3"` initializes SHA-256 with
+`xdesign-doc-kit-contract\0` followed by ASCII `3\0`, then sorts unique normalized
+pack-relative paths bytewise by UTF-8 and feeds each path, NUL, ASCII decimal byte
+length, NUL and exact bytes. The explicit closure includes profile, consumer
+README/RULES/SKILL/API, manifest, all 168 variant resources, shared source/routing/
+mixed/model/asset resources, both figure blocks, and every declared compatibility
+descriptor and recursive child byte. Shared paths are hashed once; no directory
+glob, network input, text normalization or sentinel masking is permitted.
+
+| Release and selectable root | Digest version | Required recomputation |
+| --- | --- | --- |
+| `compatibility/v1.0.0/` | `"1"` | `1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6` |
+| `compatibility/v1.1.0/` | `"2"` | `e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef` |
+| `compatibility/v1.2.0/` | `"2"` | `a4ab976f05769bff34f3b6d3acd0de1dafb728dcf372d099fc3ac938758cf698` |
+| new root | `"3"` | Computed only after the exact future 1.3 bytes exist; no digest is asserted by this design. |
+
+The 1.2.0 closure includes its original 1.0.0 and 1.1.0 children; the 1.1.0
+closure includes its original v1 child. The root-level 1.0.0 and 1.1.0 selectable
+copies are also retained. Only these exact historical duplicate identities are
+permitted, and each copy must match its canonical relative paths and bytes. Any
+other duplicate identity, differing duplicate bytes, cycle, overlapping nonnested
+root or symlink is invalid. Child digests are always recomputed relative to the
+child root before its descriptor is trusted; parent hashing prefixes those exact
+bytes with their parent-relative paths.
+
+Each of the 42 new stored examples has exactly one 64-lowercase-zero sentinel `Z`
+in the `contract` field of its exact first-line marker, actual non-contract
+identity including `language`, and digest-version `"3"`; its actual digest `D`
+occurs nowhere in the example. No other 1.3-owned resource contains `Z`.
+Compatibility children enforce their own example/sentinel domains independently,
+while the parent hashes every retained byte. Recomputed `D == Z` is
+`invalid-catalog`; a zero descriptor with nonzero actual recomputation is
+`contract-drift`; caller expected `Z` is `invalid-request`; a zero target marker or
+registry is `registry-mismatch`.
+
+Every isolated and mixed fixture omits `D`, `Z`, `contract_sha256`, and
+`expected_contract_sha256`. The three-field external manifest and its separately
+computed evidence hash remain unchanged. The acceptance comparator independently
+asserts created/stored language and all other identity fields, replaces only the
+parsed first-marker `contract=` sentinel span in memory, and compares all
+remaining bytes, whitespace and line endings. Product operations never perform
+that substitution.
+
+### 11.8 Failure order, packaging and evidence boundary
+
+Adapter request-shape checks and MCP binding rejection come first. Dispatch then
+preserves old-pack language rejection and old operation precedence. Under 1.3,
+language syntax is checked before pack-dependent support resolution; selected
+pack/child validation and digest integrity precede target identity resolution.
+Create keeps existing-file before occupied-registry collision precedence.
+Update/attachment keep ownership, readability and current-hash checks before
+effective-contract and language-assertion checks. Candidate content, model and
+figure checks precede publication; selected and effective pins plus document hash
+are rechecked immediately before replacement. No error path changes existing
+pages, registry or outside-target bytes unless the existing publication-outcome
+contract explicitly reports a page-only or unknown state.
+
+The supported package is the complete copied or pinned distribution, not just the
+Python wheel's modules. It includes all declared current resources and exact old
+closures at their selectable roots. Source-distribution assembly must enumerate
+those files for packaging without making that enumeration a runtime discovery
+rule. Installation into a consumer cache never creates another editable current
+catalog: the consumer selects one copied root and pins its digest, while any
+earlier pinned copy remains a distinct reviewed release rather than a synchronized
+mirror.
+
+Evidence records selected/effective languages and digests, every resource-index
+hash, exact inputs and rendered bytes, all commands/exits/transcripts, before/after
+nonwrite hashes, old-closure comparisons and unevaluated checks. The independent
+reviewer records 21 per-entry Chinese-quality and English-equivalence judgments.
+Structural passes, this interface's existence and compiler reports establish none
+of those semantic judgments and do not execute BDK-01 through BDK-09.

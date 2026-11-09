@@ -883,7 +883,7 @@ def synthesize_v1_catalog(contract: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def select_template(contract: Mapping[str, Any], document_class: str,
-                    template_id: str | None) -> dict[str, Any]:
+                    template_id: str | None, language: str | None = None) -> dict[str, Any]:
     profile = contract["profile"]
     classes = profile["document_classes"]
     if document_class not in classes:
@@ -906,6 +906,17 @@ def select_template(contract: Mapping[str, Any], document_class: str,
     if entry["document_class"] != document_class:
         raise _error("template-class-mismatch", f"Template {template_id} belongs to {entry['document_class']}")
     class_spec = classes[document_class]
+    if profile.get("schema_version") == "1.3":
+        from .bilingual import FIGURE_LABELS, select_language
+        selected_language = select_language(contract, language)
+        variant = entry["variants"][selected_language]
+        path = variant["resources"]["template"]
+        spec = {**class_spec, **{key: value for key, value in entry.items() if key != "variants"}, **variant,
+                "document_class": document_class, "language": selected_language,
+                "_template_text": contract["resources"][path].decode("utf-8"), "_entry": entry,
+                "_variant": variant, "_figure_field_labels": FIGURE_LABELS[selected_language]}
+        effective = identity(contract, document_class, template_id, selected_language)
+        return {"spec": spec, "effective_identity": effective}
     spec = {**class_spec, **entry, "document_class": document_class,
             "_template_text": contract["resources"][entry["template"]].decode("utf-8"), "_entry": entry}
     return {"spec": spec, "effective_identity": identity(contract, document_class, template_id)}
@@ -923,10 +934,11 @@ def _section_blocks(text: str, sections: list[dict[str, Any]]) -> dict[str, str]
     return blocks
 
 
-def _parse_decisions(block: str, section_key: str) -> list[dict[str, Any]]:
+def _parse_decisions(block: str, section_key: str, label: str | None = None) -> list[dict[str, Any]]:
     decisions = []
+    prefixes = ("**Diagram decision:**", "**Diagram decisions:**") if label is None else (f"**{label}:**",)
     for line in block.splitlines():
-        if not line.startswith(("**Diagram decision:**", "**Diagram decisions:**")):
+        if not line.startswith(prefixes):
             continue
         try:
             value = json.loads(line.split(":**", 1)[1].strip())
@@ -941,13 +953,20 @@ def _parse_decisions(block: str, section_key: str) -> list[dict[str, Any]]:
     return decisions
 
 
+def _decision_label(spec: Mapping[str, Any], section_key: str) -> str | None:
+    if spec.get("language") is None:
+        return None
+    from .bilingual import field_label
+    return field_label(spec, section_key, "diagram_decisions")
+
+
 def diagram_decision_findings(text: str, spec: Mapping[str, Any]) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     blocks = _section_blocks(text, spec["required_sections"])
     parsed: dict[str, Any] = {}
     for section_key, block in blocks.items():
         try:
-            parsed[section_key] = _parse_decisions(block, section_key)
+            parsed[section_key] = _parse_decisions(block, section_key, _decision_label(spec, section_key))
         except DocumentKitError as error:
             parsed[section_key] = error
 
@@ -999,7 +1018,8 @@ def diagram_decision_findings(text: str, spec: Mapping[str, Any]) -> list[dict[s
                 add("invalid-diagram-decision", f"Figure decision asset is invalid for {concern['concern']}")
             elif re.search(r"\]\(\s*" + re.escape(asset) + r"\s*\)", block) is None:
                 add("invalid-diagram-decision", f"Figure decision asset is not embedded for {concern['concern']}")
-            if not isinstance(model_view, str) or not model_view.strip() or f"**Model view:** {model_view}" not in block:
+            model_label = spec.get("_figure_field_labels", {}).get("Model view", "Model view")
+            if not isinstance(model_view, str) or not model_view.strip() or f"**{model_label}:** {model_view}" not in block:
                 add("invalid-diagram-decision", f"Figure decision model view differs for {concern['concern']}")
         elif decision["asset"] not in (None, ""):
             add("invalid-diagram-decision", f"Non-figure decision carries an asset for {concern['concern']}")
@@ -1028,7 +1048,7 @@ def attachment_decision(text: str, spec: Mapping[str, Any], section_key: str,
     block = _section_blocks(text, spec["required_sections"]).get(section_key)
     if block is None:
         raise _error("missing-diagram-decision", f"Section {section_key} has no selected decision")
-    decisions = [decision for decision in _parse_decisions(block, section_key)
+    decisions = [decision for decision in _parse_decisions(block, section_key, _decision_label(spec, section_key))
                  if decision["concern"] == concern]
     if len(decisions) != 1:
         raise _error("invalid-diagram-decision", f"Unknown or mismatched concern: {concern}")

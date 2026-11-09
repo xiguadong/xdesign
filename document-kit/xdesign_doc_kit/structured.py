@@ -32,8 +32,13 @@ def preflight(
     concern=None,
     decision=None,
     selection=None,
+    language=None,
 ):
     c._validate_expected_contract_request(expected_contract_sha256)
+    from .bilingual import validate_language_syntax
+    validate_language_syntax(language)
+    if operation == "check_documents" and selection is None and language is not None:
+        raise _error("invalid-request", "language requires a selected-document check")
     if operation in (
         "plan_document",
         "create_document",
@@ -180,11 +185,14 @@ def plan_parts(
     template_id=None,
     layer=None,
     expected=None,
+    language=None,
 ):
     selection = request_selection(document_class, name, layer)
     contract = load(profile_root, expected)
+    if contract["profile"]["schema_version"] != "1.3" and language is not None:
+        raise _error("invalid-request", "Language selectors require schema 1.3")
     relative = resolve(contract["profile"], selection)
-    choice = select_template(contract, document_class, template_id)
+    choice = select_template(contract, document_class, template_id, language)
     phase("route", relative)
     target = c._root(target_root, "Target project root")
     c._reject_symlinks(target, PurePosixPath(relative))
@@ -206,15 +214,18 @@ def plan_document(
     template_id=None,
     *,
     layer=None,
+    language=None,
 ):
     contract, target, spec, relative, effective, selection = plan_parts(
-        target_root, document_class, name, profile_root, template_id, layer
+        target_root, document_class, name, profile_root, template_id, layer, language=language
     )
     exists = (target / relative).exists()
     digest = c._sha(c._read_project_file(target, relative)) if exists else None
+    from .bilingual import figure_policy, language_result
     return dict(
         ok=True,
         **c._identity(contract),
+        **language_result(effective),
         document_class=document_class,
         name=name,
         path=relative,
@@ -226,7 +237,7 @@ def plan_document(
         required_metadata=["title", "status", "revision", "model_sources"],
         required_sections=spec["required_sections"],
         anchor_policy=contract["profile"]["anchor_policy"],
-        figure_block=contract["profile"]["figure_block"],
+        figure_block=figure_policy(contract, effective),
         semantic_review_required=True,
     )
 
@@ -275,7 +286,7 @@ def managed_findings(target, contract, spec, effective, relative, text, models):
             )
         )
     if (
-        contract["profile"]["schema_version"] == "1.2"
+        contract["profile"]["schema_version"] in ("1.2", "1.3")
         and spec.get("selector_kind") == "api"
     ):
         for line, row in enumerate(c._masked_lines(text), 1):
@@ -291,7 +302,12 @@ def managed_findings(target, contract, spec, effective, relative, text, models):
                     )
                 )
         blocks = _section_blocks(text, spec["required_sections"])
-        layer = re.search(r"^\*\*Layer:\*\* ([^\n]+)$", blocks.get("purpose", ""), re.M)
+        if effective["contract_digest_version"] == "3":
+            from .bilingual import field_label
+            layer_label = field_label(spec, "purpose", "layer")
+        else:
+            layer_label = "Layer"
+        layer = re.search(rf"^\*\*{re.escape(layer_label)}:\*\* ([^\n]+)$", blocks.get("purpose", ""), re.M)
         if selection and (layer is None or layer[1].strip() != selection["layer"]):
             findings.append(
                 diagnostic(
@@ -303,7 +319,7 @@ def managed_findings(target, contract, spec, effective, relative, text, models):
             )
     # A bare non-applicability label is not an explanation.
     for line, row in enumerate(c._masked_lines(text), 1):
-        if contract["profile"]["schema_version"] == "1.2" and re.fullmatch(
+        if contract["profile"]["schema_version"] in ("1.2", "1.3") and re.fullmatch(
             r"\*\*[^*]+:\*\*\s*not applicable[.\s]*", row, re.I
         ):
             findings.append(
@@ -334,12 +350,14 @@ def validate_candidate(
     findings += c._annotation_findings(
         target, sorted(models), texts, anchors, focus=relative
     )
-    if previous and contract["profile"]["schema_version"] == "1.2":
+    if previous and contract["profile"]["schema_version"] in ("1.2", "1.3"):
         old_blocks = _section_blocks(previous, spec["required_sections"])
         new_blocks = _section_blocks(text, spec["required_sections"])
+        from .catalog import _decision_label
         for key, old in old_blocks.items():
-            new_decisions = _parse_decisions(new_blocks.get(key, ""), key)
-            for decision in _parse_decisions(old, key):
+            label = _decision_label(spec, key)
+            new_decisions = _parse_decisions(new_blocks.get(key, ""), key, label)
+            for decision in _parse_decisions(old, key, label):
                 if decision["choice"] == "figure" and f"]({decision['asset']})" in old:
                     match = next(
                         (
@@ -425,6 +443,7 @@ def create_document(
     template_id=None,
     *,
     layer=None,
+    language=None,
 ):
     contract, target, spec, relative, effective, selection = plan_parts(
         target_root,
@@ -434,6 +453,7 @@ def create_document(
         template_id,
         layer,
         expected_contract_sha256,
+        language=language,
     )
     known = c._model_files(target, contract["profile"])
     c._model_sources(target, contract["profile"], metadata["model_sources"], known)
@@ -487,9 +507,11 @@ def create_document(
                 ) from failure
             cleanup_creation(target, relative, data, created_stat, failure)
     phase("response", relative)
+    from .bilingual import language_result
     return dict(
         ok=True,
         **c._identity(contract),
+        **language_result(effective),
         path=relative,
         sha256=c._sha(data),
         anchors=anchors,
@@ -515,7 +537,7 @@ def change_fields(source, spec, key, fields):
         raise _error("empty-content", "Content boundary is missing")
     area = block[:field_end]
     for field, value in fields.items():
-        label = field.replace("_", " ").capitalize()
+        label = section.get("field_labels", {}).get(field, field.replace("_", " ").capitalize())
         pattern = re.compile(rf"(?m)^(\*\*{re.escape(label)}:\*\*)[^\n]*$")
         if len(pattern.findall(area)) != 1:
             raise _error("missing-field", f"Field {label} is missing")
@@ -537,6 +559,7 @@ def update_section(
     expected_contract_sha256=None,
     *,
     layer=None,
+    language=None,
 ):
     contract, target, _, relative, _, selection = plan_parts(
         target_root,
@@ -550,6 +573,8 @@ def update_section(
         source, _, effective_contract, spec, effective = c._managed_current(
             target, contract, relative, document_class, expected_sha256
         )
+        from .bilingual import assert_effective_language
+        assert_effective_language(contract, effective, language)
         changed = change_fields(source, spec, section_key, fields)
         begin, finish = c._section_bounds(changed, section_key)
         changed = (
@@ -575,9 +600,11 @@ def update_section(
         data = changed.encode()
         c._replace(target, relative, data)
     phase("response", relative)
+    from .bilingual import language_result
     return dict(
         ok=True,
         **c._identity(contract),
+        **language_result(effective),
         path=relative,
         sha256=c._sha(data),
         effective_identity=effective,
@@ -599,6 +626,7 @@ def attach_figure(
     *,
     layer=None,
     decision=None,
+    language=None,
 ):
     contract, target, _, relative, _, selection = plan_parts(
         target_root,
@@ -612,12 +640,14 @@ def attach_figure(
         source, _, effective_contract, spec, effective = c._managed_current(
             target, contract, relative, document_class, expected_sha256
         )
+        from .bilingual import assert_effective_language, figure_policy, language_result
+        assert_effective_language(contract, effective, language)
         if (
             decision is not None
-            and effective_contract["profile"]["schema_version"] != "1.2"
+            and effective_contract["profile"]["schema_version"] not in ("1.2", "1.3")
         ):
             raise _error(
-                "invalid-request", "decision requires a schema 1.2 effective pack"
+                "invalid-request", "decision requires a schema 1.2 or 1.3 effective pack"
             )
         if not any(s["key"] == section_key for s in spec["required_sections"]):
             raise _error("invalid-request", f"Unknown section key: {section_key}")
@@ -633,9 +663,11 @@ def attach_figure(
             raise _error("invalid-diagram-decision", f"Unknown concern: {concern}")
         changed = source
         if selected_concern is not None:
+            from .catalog import _decision_label
             existing = _parse_decisions(
                 _section_blocks(source, spec["required_sections"])[section_key],
                 section_key,
+                _decision_label(spec, section_key),
             )
             matches = [d for d in existing if d["concern"] == concern]
             if not matches and selected_concern["applicability"] == "optional":
@@ -712,11 +744,13 @@ def attach_figure(
         )
         if anchor is None:
             raise _error("missing-anchor", "Section lacks an anchor")
+        policy = figure_policy(effective_contract, effective)
+        figure_label = policy.get("figure_label", "Figure")
         ordinal = (
             max(
                 [
                     int(m[1])
-                    for m in re.finditer(rf"(?m)^> \*\*Figure {anchor}-(\d+) —", block)
+                    for m in re.finditer(rf"(?m)^> \*\*{re.escape(figure_label)} {anchor}-(\d+) —", block)
                 ],
                 default=0,
             )
@@ -736,9 +770,10 @@ def attach_figure(
                 ].items()
             }
         )
-        rendered = c.TOKEN.sub(
-            lambda m: values[m[1]], effective_contract["templates"]["figure-block"]
-        )
+        template = (effective_contract["figure_templates"][effective["language"]]
+                    if effective["contract_digest_version"] == "3"
+                    else effective_contract["templates"]["figure-block"])
+        rendered = c.TOKEN.sub(lambda m: values[m[1]], template)
         _, finish = c._section_bounds(changed, section_key)
         insertion = finish + len(c.CONTENT_END.format(key=section_key))
         changed = (
@@ -767,6 +802,7 @@ def attach_figure(
     return dict(
         ok=True,
         **c._identity(contract),
+        **language_result(effective),
         path=relative,
         sha256=c._sha(data),
         figure_number=f"{anchor}-{ordinal}",
@@ -780,7 +816,7 @@ def attach_figure(
 
 
 def check_documents(
-    target_root, document_class=None, profile_root=None, *, selection=None
+    target_root, document_class=None, profile_root=None, *, selection=None, language=None
 ):
     contract = load(profile_root)
     profile = contract["profile"]
@@ -844,6 +880,9 @@ def check_documents(
                 spec, effective_contract, effective = c.resolve_document(
                     contract, entries[path], text, path
                 )
+                if focus is not None:
+                    from .bilingual import assert_effective_language
+                    assert_effective_language(contract, effective, language)
                 known = c._model_files(target, effective_contract["profile"])
                 models.update(known)
                 identities[path] = effective
@@ -856,6 +895,8 @@ def check_documents(
                     "access-denied",
                     "unsafe-path",
                     "missing-model-root",
+                    "invalid-request",
+                    "unknown-language",
                 ):
                     raise
                 global_findings += error.diagnostics
@@ -878,6 +919,13 @@ def check_documents(
     global_findings.sort(key=order)
     findings = sorted(global_findings + findings, key=order)
     hashes = {p: c._sha(texts[p].encode()) for p in checked if p in texts}
+    unevaluated = [
+        "SysML compiler syntax/name resolution",
+        "engineering adequacy",
+        "figure readability",
+    ]
+    if profile["schema_version"] == "1.3":
+        unevaluated += ["Chinese scholarly engineering quality", "English semantic equivalence"]
     return dict(
         ok=not findings,
         **c._identity(contract),
@@ -890,15 +938,12 @@ def check_documents(
         scope=dict(
             document_class=document_class,
             selection=normalized,
+            language=language,
             document_checks=checked,
             global_checks=["anchor-uniqueness", "registry-integrity", "model-locators"],
         ),
         global_findings=global_findings,
         diagnostics=findings,
         semantic_review_required=True,
-        unevaluated_checks=[
-            "SysML compiler syntax/name resolution",
-            "engineering adequacy",
-            "figure readability",
-        ],
+        unevaluated_checks=unevaluated,
     )

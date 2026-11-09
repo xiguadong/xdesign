@@ -33,7 +33,7 @@ class BoundMCPServer(MCPServer):
     async def call_tool(self, name, arguments, context=None):
         # Preflight raw JSON before SDK coercion or live pack reads. This keeps
         # all request-shape errors in the same public envelope as Python/CLI.
-        if _binding is not None and _binding.schema_version == "1.2" and name in (
+        if _binding is not None and _binding.schema_version in ("1.2", "1.3") and name in (
             "get_contract", "plan_document", "create_document", "update_section",
             "attach_figure", "check_documents",
         ):
@@ -153,11 +153,12 @@ def plan_document(
     profile: str | None = None,
     template_id: str | None = None,
     layer: str | None = None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     """Resolve a class route, required metadata, and ordered sections without writing."""
     _reject_selectors(target_root, project_root, profile_root, profile)
     return _tool_call(core.plan_document, _selected().project_root, document_class, name,
-                      template_id=template_id, layer=layer)
+                      template_id=template_id, layer=layer, language=language)
 
 
 @mcp.tool()
@@ -173,6 +174,7 @@ def create_document(
     template_id: str | None = None,
     layer: str | None = None,
     expected_contract_sha256: str | None = None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     """Write a complete new document from caller-supplied engineering content."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -187,6 +189,7 @@ def create_document(
         expected_contract_sha256=expected_contract_sha256 if expected_contract_sha256 is not None else selected.contract_sha256,
         layer=layer,
         template_id=template_id,
+        language=language,
     )
 
 
@@ -204,6 +207,7 @@ def update_section(
     profile: str | None = None,
     layer: str | None = None,
     expected_contract_sha256: str | None = None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     """Update one anchored section only when its document hash is current."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -219,6 +223,7 @@ def update_section(
         fields=fields,
         expected_contract_sha256=expected_contract_sha256 if expected_contract_sha256 is not None else selected.contract_sha256,
         layer=layer,
+        language=language,
     )
 
 
@@ -237,6 +242,7 @@ def attach_figure(
     layer: str | None = None,
     expected_contract_sha256: str | None = None,
     decision: dict[str, Any] | None = None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     """Embed an existing canonical SVG with the six required figure fields."""
     _reject_selectors(target_root, project_root, profile_root, profile)
@@ -253,6 +259,7 @@ def attach_figure(
         layer=layer,
         concern=concern,
         decision=decision,
+        language=language,
     )
 
 
@@ -264,10 +271,12 @@ def check_documents(
     profile_root: str | None = None,
     profile: str | None = None,
     selection: dict[str, Any] | None = None,
+    language: str | None = None,
 ) -> dict[str, Any]:
     """Return deterministic findings for the bound project's document set."""
     _reject_selectors(target_root, project_root, profile_root, profile)
-    return _tool_call(core.check_documents, _selected().project_root, document_class=document_class, selection=selection)
+    return _tool_call(core.check_documents, _selected().project_root,
+                      document_class=document_class, selection=selection, language=language)
 
 
 def _resource_contract() -> dict[str, Any]:
@@ -275,6 +284,23 @@ def _resource_contract() -> dict[str, Any]:
         return _live_contract()
     except core.DocumentKitError as error:
         raise ResourceError(json.dumps(error.as_dict(), ensure_ascii=False, sort_keys=True)) from error
+
+
+def _resource_failure(error: core.DocumentKitError) -> ResourceError:
+    return ResourceError(json.dumps(error.as_dict(), ensure_ascii=False, sort_keys=True))
+
+
+def _declared_resource_text(contract: dict[str, Any], template_id: str,
+                            language: str, resource_kind: str) -> str:
+    """Resolve and read only the snapshot already verified against the launch pin."""
+    from .bilingual import declared_resource
+    snapshot = {
+        "profile": contract["profile"],
+        "entries_by_id": {entry["template_id"]: entry for entry in contract["catalog"]["entries"]},
+        "resources": {path: text.encode("utf-8") for path, text in contract["resource_bytes"].items()},
+    }
+    _, data = declared_resource(snapshot, template_id, language, resource_kind)
+    return data.decode("utf-8")
 
 
 @mcp.resource("xdesign-doc-kit://contract", mime_type="application/json")
@@ -306,13 +332,43 @@ def template_resource(document_class: str) -> str:
 
 @mcp.resource("xdesign-doc-kit://template/{document_class}/{template_id}", mime_type="text/markdown")
 def selected_template_resource(document_class: str, template_id: str) -> str:
-    """Exact Markdown template for one selected catalog entry."""
+    """Exact English-default Markdown template for one selected catalog entry."""
     contract = _resource_contract()
     entries = {entry["template_id"]: entry for entry in contract["catalog"]["entries"]}
     entry = entries.get(template_id)
     if entry is None or entry["document_class"] != document_class:
         raise ResourceNotFoundError(f"Unknown template selection: {document_class}/{template_id}")
     return str(contract["templates"][template_id])
+
+
+@mcp.resource("xdesign-doc-kit://template/{document_class}/{template_id}/{language}", mime_type="text/markdown")
+def language_template_resource(document_class: str, template_id: str, language: str) -> str:
+    """Exact template bytes for an explicitly selected language."""
+    contract = _resource_contract()
+    if contract["profile"]["schema_version"] != "1.3":
+        raise _resource_failure(core.DocumentKitError("invalid-request", "Language-addressed resources require schema 1.3"))
+    entries = {entry["template_id"]: entry for entry in contract["catalog"]["entries"]}
+    entry = entries.get(template_id)
+    if entry is None or entry["document_class"] != document_class:
+        raise ResourceNotFoundError(f"Unknown template selection: {document_class}/{template_id}")
+    try:
+        return _declared_resource_text(contract, template_id, language, "template")
+    except core.DocumentKitError as error:
+        raise _resource_failure(error) from error
+
+
+@mcp.resource("xdesign-doc-kit://entry/{template_id}/{language}/{resource_kind}", mime_type="text/markdown")
+def entry_resource(template_id: str, language: str, resource_kind: str) -> str:
+    """Exact bytes for a declared template, guide, example, or fixture variant."""
+    contract = _resource_contract()
+    if contract["profile"]["schema_version"] != "1.3":
+        raise _resource_failure(core.DocumentKitError("invalid-request", "Language-addressed resources require schema 1.3"))
+    try:
+        return _declared_resource_text(contract, template_id, language, resource_kind)
+    except core.DocumentKitError as error:
+        if error.code == "resource-not-found":
+            raise ResourceNotFoundError(error.message) from error
+        raise _resource_failure(error) from error
 
 
 def main(argv: list[str] | None = None) -> int:

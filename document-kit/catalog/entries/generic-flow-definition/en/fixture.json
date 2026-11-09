@@ -1,0 +1,54 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-definition",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-definition",
+  "metadata": {
+    "title": "Fictional flow definition example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "stages": {
+      "anchor": "D2020",
+      "content": "| Stage | Next stage and exit condition |\n| --- | --- |\n| Prepare | Review only after the request is readable and complete |\n| Review | Complete only after the designated caller judgment is recorded |\n\nPrepare collects and validates the request; Review assesses completeness and records the explicit decision. Input existence alone cannot establish review completion.",
+      "fields": {
+        "stages": "Prepare collects and validates the request; Review assesses completeness and records a decision.",
+        "transitions": "Prepare enters Review only after a readable, complete request; Review completes only after the designated caller judgment is recorded.",
+        "exit_gates": "Prepare requires a readable, complete request; Review requires an explicit judgment by the designated caller."
+      }
+    },
+    "behavior": {
+      "anchor": "D2021",
+      "content": "Factory initialization is a prerequisite. The flow then advances only through the declared stages when their exit gates are satisfied; initialization alone is not completion.",
+      "fields": {
+        "behavior": "Validate Plan and construct the first-stage Run, then execute stage input checks and guarded transitions in order.",
+        "invariants": "Invalid Plan produces no Run; incomplete Prepare cannot enter Review; absent recorded judgment cannot complete the flow."
+      }
+    },
+    "trace": {
+      "anchor": "D2022",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+        "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+        "verification_links": "Planned checks cover empty plans, repeated stages, first-stage initialization, rejection of incomplete Prepare and rejection of completion without recorded gate judgment; none has executed."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-definition/en/example.md",
+  "language": "en"
+}

@@ -107,6 +107,32 @@ package XDesignVerification {
         }
     }
 
+    verification def BilingualDocumentKitVerification {
+        @XDesignCommon::DocSection { document = "docs/verification/requirements.md"; section = "V20"; }
+        doc /* Planned acceptance, not an executed result. Inspect 21 entry-owned
+           packages and 42 complete en and zh-CN variant sets with explicit template,
+           guide, example and fixture resources. Exercise explicit and default language
+           selection, unsupported and malformed rejection, persisted language identity,
+           same-path collision protection and mixed-language projects. Compare Python,
+           CLI and actual stdio MCP decisions and resource bytes for every variant;
+           review all 21 Chinese sets against their English equivalents using the
+           class-specific scholarly engineering rubric. Preserve exact original 1.0.0,
+           1.1.0 and 1.2.0 closures and language-less identities, run their regressions,
+           and retain the complete inventory, transport, compatibility, semantic-review
+           and evidence matrix. A declaration or compiler pass executes none of this. */
+        subject kit : XDesignArchitecture::PortableDocumentKit;
+        objective bilingualContract {
+            verify requirement layout :> XDesignRequirements::documentKitCatalogHasCoherentResourceLayout;
+            verify requirement completeness :> XDesignRequirements::documentKitSupportsCompleteChineseAndEnglish;
+            verify requirement selection :> XDesignRequirements::documentTemplateLanguageSelectionIsDeterministic;
+            verify requirement identity :> XDesignRequirements::documentTemplateLanguageIdentityIsPersistent;
+            verify requirement surfaces :> XDesignRequirements::documentTemplateLanguageSurfacesAreShared;
+            verify requirement prose :> XDesignRequirements::chineseTemplatesUseScholarlyEngineeringProse;
+            verify requirement compatibility :> XDesignRequirements::bilingualDocumentKitPreservesCompatibility;
+            verify requirement evidence :> XDesignRequirements::bilingualDocumentKitEvidenceIsReviewable;
+        }
+    }
+
     verification def StageCliInteractionVerification {
         @XDesignCommon::DocSection { document = "docs/verification/design.md"; section = "D54"; }
         doc /* Planned verification of the two-command stage interaction, not

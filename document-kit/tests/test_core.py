@@ -12,16 +12,22 @@ import tempfile
 import unittest
 from pathlib import Path
 
-KIT = Path(__file__).resolve().parents[1]
-REPO = KIT.parent
+DISTRIBUTION = Path(__file__).resolve().parents[1]
+KIT = DISTRIBUTION / "compatibility/v1.0.0"
+REPO = DISTRIBUTION.parent
 CACHE = REPO / "cache" / "document-kit-core-tests"
 CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
-sys.path.insert(0, str(KIT))
+sys.path.insert(0, str(DISTRIBUTION))
 
 from xdesign_doc_kit.core import (  # noqa: E402
     DocumentKitError, attach_figure, check_documents, create_document,
     get_contract, plan_document, update_section,
 )
+
+
+from _release_support import select_release
+for _name in ("get_contract", "plan_document", "create_document", "update_section", "attach_figure", "check_documents"):
+    globals()[_name] = select_release(globals()[_name], KIT)
 
 
 def payload() -> tuple[dict, dict]:

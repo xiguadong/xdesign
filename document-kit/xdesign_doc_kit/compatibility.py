@@ -173,7 +173,7 @@ def _load_json(root: Path, relative: str, code: str = "invalid-profile") -> Any:
 
 
 def identity(contract: Mapping[str, Any], document_class: str | None = None,
-             template_id: str | None = None) -> dict[str, Any]:
+             template_id: str | None = None, language: str | None = None) -> dict[str, Any]:
     profile = contract["profile"]
     result = {"profile_id": profile["profile_id"], "version": profile["version"],
               "contract_sha256": contract["contract_sha256"]}
@@ -182,6 +182,12 @@ def identity(contract: Mapping[str, Any], document_class: str | None = None,
                   "document_class": document_class, "template_id": template_id,
                   "contract_sha256": contract["contract_sha256"],
                   "contract_digest_version": contract["contract_digest_version"]}
+        if contract["contract_digest_version"] == "3":
+            if language not in profile["language_policy"]["supported_ids"]:
+                raise _error("registry-mismatch", "A schema 1.3 effective identity requires a supported language", "DOC-002")
+            result["language"] = language
+        elif language is not None:
+            raise _error("registry-mismatch", "A historical effective identity cannot carry language", "DOC-002")
     else:
         result["contract_digest_version"] = contract["contract_digest_version"]
     return result
@@ -193,8 +199,10 @@ def marker(effective_identity: Mapping[str, Any]) -> str:
     document_class = effective_identity["document_class"]
     if effective_identity["contract_digest_version"] == "1":
         return f"<!-- document-kit: profile={profile_id}@{version} class={document_class} -->"
+    language = (f"language={effective_identity['language']} "
+                if effective_identity["contract_digest_version"] == "3" else "")
     return (f"<!-- document-kit: profile={profile_id}@{version} class={document_class} "
-            f"template={effective_identity['template_id']} "
+            f"template={effective_identity['template_id']} {language}"
             f"contract={effective_identity['contract_sha256']} "
             f"digest-version={effective_identity['contract_digest_version']} -->")
 
@@ -205,12 +213,15 @@ def registry_entry(effective_identity: Mapping[str, Any], relative: str) -> dict
                 "profile_id": effective_identity["profile_id"],
                 "version": effective_identity["version"],
                 "contract_sha256": effective_identity["contract_sha256"]}
-    return {"path": relative, "class": effective_identity["document_class"],
-            "profile_id": effective_identity["profile_id"],
-            "version": effective_identity["version"],
-            "contract_sha256": effective_identity["contract_sha256"],
-            "template_id": effective_identity["template_id"],
-            "contract_digest_version": effective_identity["contract_digest_version"]}
+    result = {"path": relative, "class": effective_identity["document_class"],
+              "profile_id": effective_identity["profile_id"],
+              "version": effective_identity["version"],
+              "contract_sha256": effective_identity["contract_sha256"],
+              "template_id": effective_identity["template_id"],
+              "contract_digest_version": effective_identity["contract_digest_version"]}
+    if effective_identity["contract_digest_version"] == "3":
+        result["language"] = effective_identity["language"]
+    return result
 
 
 def digest_v1(resources: Mapping[str, bytes]) -> str:
@@ -239,17 +250,31 @@ def digest_v2(resources: Mapping[str, bytes]) -> str:
     return hasher.hexdigest()
 
 
+def digest_v3(resources: Mapping[str, bytes]) -> str:
+    hasher = hashlib.sha256()
+    hasher.update(b"xdesign-doc-kit-contract\0")
+    hasher.update(b"3\0")
+    for path in sorted(resources, key=lambda value: value.encode("utf-8")):
+        data = resources[path]
+        hasher.update(path.encode("utf-8"))
+        hasher.update(b"\0")
+        hasher.update(str(len(data)).encode("ascii"))
+        hasher.update(b"\0")
+        hasher.update(data)
+    return hasher.hexdigest()
+
+
 def selected_spec(contract: Mapping[str, Any], document_class: str,
-                  template_id: str | None) -> tuple[dict[str, Any], dict[str, Any]]:
+                  template_id: str | None, language: str | None = None) -> tuple[dict[str, Any], dict[str, Any]]:
     from .catalog import select_template
-    selection = select_template(contract, document_class, template_id)
+    selection = select_template(contract, document_class, template_id, language)
     return selection["spec"], selection["effective_identity"]
 
 
 def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text: str,
                      registry_relative: str) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     zero = "0" * 64
-    identity_keys = ("profile_id", "version", "class", "template_id", "contract_sha256",
+    identity_keys = ("profile_id", "version", "class", "template_id", "language", "contract_sha256",
                      "contract_digest_version")
     first_line = text.split("\n", 1)[0]
     if any(entry.get(key) == zero for key in identity_keys) or f"contract={zero}" in first_line:
@@ -263,7 +288,7 @@ def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text
     if profile.get("schema_version") == "1.0":
         if entry.get("profile_id") != profile["profile_id"] or entry.get("version") != selected_version \
                 or entry.get("contract_sha256") != contract["contract_sha256"] \
-                or "template_id" in entry or "contract_digest_version" in entry:
+                or "template_id" in entry or "contract_digest_version" in entry or "language" in entry:
             raise _error("registry-mismatch", "Schema 1.0 registry identity differs from selected pack",
                          "DOC-002", registry_relative)
         effective = identity(contract, document_class, None)
@@ -276,20 +301,25 @@ def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text
             and entry.get("contract_sha256") == contract["contract_sha256"]:
         template_id = entry.get("template_id")
         digest_version = entry.get("contract_digest_version")
-        if not isinstance(template_id, str) or digest_version != "2":
-            raise _error("registry-mismatch", "Schema 1.1 template identity is incomplete", "DOC-002",
-                         registry_relative)
+        expected_digest = "3" if profile.get("schema_version") == "1.3" else "2"
+        if not isinstance(template_id, str) or digest_version != expected_digest:
+            raise _error("registry-mismatch", "Managed template identity is incomplete", "DOC-002", registry_relative)
+        if expected_digest == "2" and "language" in entry:
+            raise _error("registry-mismatch", "A historical registry identity cannot carry language", "DOC-002", registry_relative)
+        language = entry.get("language") if expected_digest == "3" else None
+        if expected_digest == "3" and language not in profile["language_policy"]["supported_ids"]:
+            raise _error("registry-mismatch", "Persisted language is missing or unsupported", "DOC-002", registry_relative)
         try:
-            spec, effective = selected_spec(contract, document_class, template_id)
+            spec, effective = selected_spec(contract, document_class, template_id, language)
         except DocumentKitError as error:
-            raise _error("registry-mismatch", "Registry template or class differs from the selected catalog",
+            raise _error("registry-mismatch", "Registry template, language, or class differs from the selected catalog",
                          "DOC-002", registry_relative) from error
         if not text.startswith(marker(effective) + "\n"):
             raise _error("registry-mismatch", "Managed marker differs from effective identity", "DOC-002",
                          registry_relative, 1)
         return spec, contract, effective
 
-    if profile.get("schema_version") == "1.2":
+    if profile.get("schema_version") in ("1.2", "1.3"):
         def children(c):
             for child in c.get("compatibility_contracts", []):
                 yield child
@@ -300,7 +330,8 @@ def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text
 
     expected = {"profile_id": "xdesign-sysml-docs", "version": "1.0.0",
                 "contract_sha256": "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6"}
-    legacy_fields = entry.get("template_id") is None and entry.get("contract_digest_version") in (None, "1")
+    legacy_fields = entry.get("template_id") is None and entry.get("contract_digest_version") in (None, "1") \
+        and "language" not in entry
     if all(entry.get(key) == value for key, value in expected.items()) and legacy_fields:
         for compatibility in contract.get("compatibility_contracts", []):
             candidate = compatibility["profile"]
@@ -315,10 +346,10 @@ def resolve_document(contract: Mapping[str, Any], entry: Mapping[str, Any], text
         raise _error("unsupported-legacy-identity", "Bundled v1 compatibility resources are unavailable",
                      "DOC-002", registry_relative)
 
-    looks_v11 = (entry.get("contract_digest_version") == "2" or entry.get("template_id") is not None
-                 or " digest-version=2" in first_line or " template=" in first_line)
-    if looks_v11:
-        raise _error("registry-mismatch", "Document belongs to a different 1.1 release or identity; select its original pack",
+    looks_versioned = (entry.get("contract_digest_version") in ("2", "3") or entry.get("template_id") is not None
+                       or " digest-version=" in first_line or " template=" in first_line or "language" in entry)
+    if looks_versioned:
+        raise _error("registry-mismatch", "Document belongs to a different managed release or identity; select its original pack",
                      "DOC-002", registry_relative)
     raise _error("unsupported-legacy-identity", "Unknown legacy document identity; select its original pack",
                  "DOC-002", registry_relative)

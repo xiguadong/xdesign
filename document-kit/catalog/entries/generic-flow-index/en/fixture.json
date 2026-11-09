@@ -1,0 +1,46 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-index",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-index",
+  "metadata": {
+    "title": "Fictional flow index example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "D2010",
+      "content": "Read the three linked pages for the separate responsibilities.",
+      "fields": {
+        "flow_scope": "The fictional sample flow validates a request and records a review decision.",
+        "navigation_links": "[Definition](definition.md), [implementation](implementation.md), and [views](views.md)."
+      }
+    },
+    "trace": {
+      "anchor": "D2011",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+        "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+        "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed.",
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-index/en/example.md",
+  "language": "en"
+}

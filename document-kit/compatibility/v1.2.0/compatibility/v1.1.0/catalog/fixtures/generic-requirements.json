@@ -1,0 +1,53 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "requirements",
+  "name": "sensor-generic-requirements",
+  "template_id": "generic-requirements",
+  "metadata": {
+    "title": "Aster sensor monitoring requirements",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "R100",
+      "content": "Aster is a fictional greenhouse sensor hub. The requirements cover periodic sampling and export of one temperature reading while leaving actuator control outside the product boundary.",
+      "fields": {"system_boundary": "The Aster hub samples its local probe and exports readings; greenhouse actuators and weather prediction are external."}
+    },
+    "requirements": {
+      "anchor": "R101",
+      "content": "The hub shall sample every 60 seconds, timestamp each sample in UTC, and export a reading only after validation. Timely delivery matters because irrigation decisions consume the data.",
+      "fields": {
+        "normative_statements": "Sample at 60-second intervals, record UTC timestamps, reject non-finite values, and preserve the latest valid reading during export outages.",
+        "rationale": "Predictable cadence and validated timestamps let the external controller compare independent sensor hubs without accepting corrupt readings."
+      }
+    },
+    "acceptance": {
+      "anchor": "R102",
+      "content": "Acceptance uses a fictional ten-minute run with a controllable clock and one injected invalid sample; these are planned criteria, not an executed test result.",
+      "fields": {
+        "measurable_conditions": "Ten valid samples arrive at 60±0.1-second intervals, invalid input is rejected, and the last valid reading remains available throughout a two-minute outage.",
+        "verification_method": "Demonstrate sampling and outage behavior with a fake clock, scripted probe inputs, and an export recorder."
+      }
+    },
+    "trace": {
+      "anchor": "R103",
+      "content": "Example::Sensor and Example::Controller identify the model participants for the sampling requirement and its intended sampling design.",
+      "fields": {
+        "model_elements": "Example::Sensor and Example::Controller provide the fictional source elements for the sampling requirement.",
+        "design_links": "The Aster reading-pipeline design owns validation and export behavior; no implementation result is asserted here."
+      }
+    },
+    "limits": {
+      "anchor": "R104",
+      "content": "Probe accuracy, hardware timing jitter, and security deployment settings are not specified by this small fictional requirements example.",
+      "fields": {"unresolved_items": "Probe calibration limits, real scheduler jitter, authentication, and production retention remain for the actual project to decide."}
+    }
+  },
+  "expected_document": "catalog/examples/generic-requirements.md"
+}

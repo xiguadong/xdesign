@@ -13,8 +13,9 @@ import tempfile
 import unittest
 
 
-KIT_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = KIT_ROOT.parent
+DISTRIBUTION = Path(__file__).resolve().parents[1]
+KIT_ROOT = DISTRIBUTION / "compatibility/v1.1.0"
+REPO_ROOT = DISTRIBUTION.parent
 CACHE = REPO_ROOT / "cache" / "document-kit-mcp-tests"
 CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
 
@@ -69,7 +70,7 @@ class McpServerProcessTests(unittest.IsolatedAsyncioTestCase):
         _project(self.cli_project)
         self.environment = {
             **os.environ,
-            "PYTHONPATH": str(KIT_ROOT),
+            "PYTHONPATH": str(DISTRIBUTION),
             "PYTHONDONTWRITEBYTECODE": "1",
             "TMPDIR": str(CACHE),
             "TMP": str(CACHE),

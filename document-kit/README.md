@@ -3,8 +3,7 @@
 This directory is a versioned authoring contract for SysML-backed engineering
 documents. Copy or pin the complete directory in a consumer project. Its
 `profile.json` supplies the allowed document paths, exact ordered chapters,
-required fields, anchor policy, and figure block. Schema 1.2 includes 21 entries across ten classes; each entry has selection
-metadata, a template, guide, complete fictional example, and canonical fixture.
+required fields, anchor policy, and figure block. Schema 1.3 (`xdesign-sysml-docs@1.3.0`, digest version 3) includes 21 engineering entries across ten classes. Each entry has complete `en` and `zh-CN` variants with a template, guide, fictional example and canonical fixture.
 `RULES.md` explains the rules and `SKILL.md` gives the design-before-implementation
 sequence. The Python package uses one core for the JSON CLI and stdio MCP server;
 it does not generate engineering claims.
@@ -14,8 +13,8 @@ it does not generate engineering claims.
 | `profile.json` | Versioned, machine-readable document contract |
 | `RULES.md` | Normative DOC-001..010 explanations and evidence limits |
 | `catalog/` | Twenty-one entry packages, routing, sources, and mixed fixture |
-| `templates/figure-block.md` | Exact figure block shared by the current pack |
-| `compatibility/` | Byte-exact selectable 1.0 and 1.1.0 closures |
+| `templates/figure-block.{en,zh-CN}.md` | Localized figure blocks |
+| `compatibility/` | Byte-exact selectable 1.0.0, 1.1.0 and 1.2.0 closures |
 | `API.md` | Standalone Python, JSON CLI and MCP consumer contract |
 | `SKILL.md` | Provider-neutral authoring and check sequence |
 | `xdesign_doc_kit/` | Shared authoring/checking core, CLI, and MCP adapter |
@@ -75,7 +74,7 @@ The server exposes `get_contract`, `plan_document`, `create_document`,
 create accept an optional `template_id`; attach accepts an optional `concern`
 with the same meaning as CLI `--template-id` and `--concern`. Resources expose
 the contract, rules, catalog, each class's generic template, and each selected
-entry's exact template. Stored examples are never template resources. An agent
+entry's exact template. Canonical entry resources also expose guide, example and fixture bytes; examples remain fictional inputs and cannot be selected as templates. An agent
 using GPT, Claude, Kimi, DeepSeek, GLM, or another MCP-capable host can follow
 `SKILL.md` and call the same operations. The host must support local stdio MCP
 servers; copy the skill text into the host's skill or instruction mechanism
@@ -105,3 +104,35 @@ to fit a new template; registered managed pages receive its exact chapter and
 field checks, while existing pages retain project-level checks.
 
 Selected checks accept a class/name/layer selection and report context scans separately. All writes can pin `expected_contract_sha256`; update/attach also require the current page hash. MCP pins the selected closure at launch and refuses drift or redirection.
+
+
+## Bilingual selection and distribution
+
+The current layout is `catalog/entries/<template-id>/{en,zh-CN}/` with exactly
+`template.md`, `guide.md`, `example.md` and `fixture.json` in each variant.
+Shared sources, routing and mixed inputs live in `catalog/shared/`; no language
+copies of model or SVG assets are needed. Read declarations in `get_contract`:
+`resource_index` binds all 168 resources and their hashes; `resource_bytes`
+returns exact UTF-8 bytes. MCP reads use
+`xdesign-doc-kit://entry/<template-id>/<language>/<template|guide|example|fixture>`.
+
+For plan/create, use Python `language="zh-CN"`, CLI `--language zh-CN`, or the
+MCP `language` argument. Omission selects `en`; locale and caller prose never
+select language. IDs are exact and case-sensitive. Routes do not include language:
+use different names for two pages of the same class. A second create at an
+occupied route is refused. Update, attachment and selected check use persisted
+identity; their optional language argument is an assertion. Whole/class checks
+cannot take a language filter. Retained releases reject all language arguments.
+
+Copy the complete source distribution, including compatibility closures. A source
+archive includes the contract resources through `MANIFEST.in`; install it locally
+and keep the extracted kit at a stable path for `--profile-root` / `--profile`.
+A Python wheel installs the engine; supply the complete extracted contract as a
+separate selected pack. Do not assume an installed wheel contains profile data.
+The fixture JSON supplies complete fictional caller input; materialize its declared
+model and figure inputs before create, and create linked role pages before an index.
+Run the source distribution's consumer and transport tests to inspect examples.
+
+Structural checks do not establish Chinese scholarly quality, English equivalence,
+model realization, figure readability or engineering acceptance. Those need a
+separate review of the actual claims and evidence.

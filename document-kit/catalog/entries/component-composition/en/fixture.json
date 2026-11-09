@@ -1,0 +1,77 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "architecture",
+  "name": "sensor-component-composition",
+  "template_id": "component-composition",
+  "metadata": {
+    "title": "Aster collector buffer and exporter composition",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "context": {
+      "anchor": "B110",
+      "content": "Inside the fictional AsterHub, four internal parts separate collection, UTC time, retention and query responsibilities. Probe and Operator remain external interface endpoints.",
+      "fields": {
+        "system_boundary": "Collector, UtcClock, RingBuffer and Exporter are the four internal parts.",
+        "external_actors": "Probe and Operator appear only as interface endpoints so component responsibilities remain clear."
+      }
+    },
+    "parts": {
+      "anchor": "B111",
+      "content": "Four responsibilities and three internal dependencies are explicit in the table. This bounded allocation makes interface direction inspectable without an additional composition figure.\n\n| Part | Responsibility | Internal dependency |\n| --- | --- | --- |\n| Collector | Validate and append readings | UtcClock for UTC; RingBuffer.append for writes |\n| UtcClock | Supply UTC instants | None |\n| RingBuffer | Retain up to ten valid values in FIFO order | None |\n| Exporter | Read latest immutable copy or NOT_READY | RingBuffer.readLatest only |",
+      "fields": {
+        "parts": "Collector, UtcClock, RingBuffer, and Exporter are the purposeful parts; no further decomposition is needed.",
+        "responsibilities": "Collector rejects invalid values, clock supplies UTC, buffer evicts oldest-first, and exporter returns newest or NOT_READY.",
+        "diagram_decisions": "[{\"concern\":\"component-structure\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"Four responsibilities and three dependencies are fully allocated in the supplied table.\",\"asset\":null,\"model_view\":null}]"
+      }
+    },
+    "relationships": {
+      "anchor": "B112",
+      "content": "Collector depends on UtcClock and writes RingBuffer; Exporter depends only on RingBuffer's read interface and cannot call append or evict.",
+      "fields": {
+        "relationships": "Collector→UtcClock for time, Collector→RingBuffer for append, and Exporter→RingBuffer for readLatest are the only internal dependencies.",
+        "interfaces": "RingBuffer exposes append(Reading) to Collector and readLatest() to Exporter; mutation is unavailable to Exporter."
+      }
+    },
+    "behavior": {
+      "anchor": "B113",
+      "content": "The collector continues appending while the exporter is unavailable, and the eleventh valid sample evicts only the oldest retained sample.",
+      "fields": {
+        "interactions": "Validation precedes append, readLatest returns a copy, and export failure never propagates back into collection.",
+        "states": "Empty, partially full, and full buffer states distinguish NOT_READY, append, and FIFO eviction behavior."
+      }
+    },
+    "constraints": {
+      "anchor": "B114",
+      "content": "The composition intentionally avoids a shared database or bidirectional controller dependency so each internal responsibility remains independently testable.",
+      "fields": {
+        "constraints": "One writer per buffer, read-only export, ten-entry capacity, and no controller callback into collection.",
+        "design_rationale": "Single-writer FIFO and narrow interfaces make ordering, ownership, and failure isolation easy to inspect."
+      }
+    },
+    "trace": {
+      "anchor": "B115",
+      "content": "The composition traces to Example::Sensor and the interaction design; buffer eviction and exporter-isolation checks cover the important relationships.",
+      "fields": {
+        "model_elements": "Example::Sensor is the supplied owning participant; Collector, UtcClock, RingBuffer and Exporter are language-side responsibilities without claimed model realization.",
+        "verification_links": "Planned capacity, read-only export, FIFO eviction, and controller-outage cases verify composition behavior."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/component-composition/en/example.md",
+  "layer": null,
+  "language": "en"
+}

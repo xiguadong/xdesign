@@ -15,6 +15,8 @@ source.
 | Working update | 2026-11-03 | Added scenario-based document template catalog requirements and acceptance allocation | Proposed; independent wish requirements review pending |
 | Working update | 2026-11-05 | Added linked-worktree store requirements and preliminary planned design allocations | Proposed; review of the revised allocation pending |
 | Working update | 2026-11-05 | Added structured API and flow documentation requirements and planned verification | Proposed; design and product acceptance pending |
+| Working update | 2026-11-06 | Added complete bilingual document-kit, resource organization and scholarly prose requirements | Accepted at requirements correction; design, product and independent semantic acceptance pending |
+| Working update | 2026-11-06 | Allocated accepted bilingual requirements to the proposed schema 1.3 design | Design-only satisfaction links; implementation, BDK execution and semantic acceptance pending |
 
 <a id="r04"></a>
 
@@ -350,6 +352,14 @@ model features allocated to answer them:
 | `documentAuthoringFollowsContract` | `DocumentContractEngine` |
 | `documentChecksReportContractGaps` | `DocumentContractEngine` |
 | `documentToolsShareOneContract` | `DocumentContractEngine` |
+| `documentKitCatalogHasCoherentResourceLayout` | `BilingualCatalogLayout` (planned design) |
+| `documentKitSupportsCompleteChineseAndEnglish` | `BilingualVariantLibrary` (planned design) |
+| `documentTemplateLanguageSelectionIsDeterministic` | `BilingualLanguageResolver` (planned design) |
+| `documentTemplateLanguageIdentityIsPersistent` | `BilingualIdentityResolver` (planned design) |
+| `documentTemplateLanguageSurfacesAreShared` | `BilingualConsumerContract` (planned design) |
+| `chineseTemplatesUseScholarlyEngineeringProse` | `BilingualScholarlyProseContract` (planned design) |
+| `bilingualDocumentKitPreservesCompatibility` | `BilingualCompatibilityResolver` (planned design) |
+| `bilingualDocumentKitEvidenceIsReviewable` | `BilingualValidationBoundary` (planned design) |
 
 `semanticCheckNamesItsJudges` is the one requirement with two links; every requirement
 with a model satisfier added since has one link. The compiler export cannot attribute
@@ -362,8 +372,11 @@ later design allocation, not established satisfaction; design reconciliation mus
 an answer before adding those links. The eight proposed structured-document requirements in
 [R20](#r20) likewise have no asserted satisfier; their planned verification relationships are
 in `XDesignVerification::StructuredDocumentKitVerification`, with cases in
-[V19](../verification/requirements.md#v19). The store-backed wish owns its derivation and run
-history; the project model does not refer to that wish.
+[V19](../verification/requirements.md#v19). The accepted bilingual requirements in
+[R22](#r22) now have the planned design satisfiers above and planned verification links in
+`BilingualDocumentKitVerification`, with cases in [V20](../verification/requirements.md#v20).
+These design-only links assert no implementation or executed acceptance. The store-backed
+wish owns its derivation and run history; the project model does not refer to that wish.
 
 `wishProductsAreRetained` and `modelStandsWithoutWishes` have no satisfier: nothing in the
 model holds a wish's products to the model, and nothing keeps wish identity out of it.
@@ -432,7 +445,7 @@ repository does not implement formal change approval or a frozen RTM workflow.
 | Document concern | Model source | Current limit |
 | --- | --- | --- |
 | Requirement and rationale | `XDesignRequirements::XDesignRequirement` usages; `DocSection` to [R01](#r01) | Requirement fields are not yet a full SRS acceptance record. |
-| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations, four documentation obligations, two proposed cross-project requirements, and seven proposed scenario-template requirements have no design or implemented satisfier. |
+| Design allocation | `XDesignTraceability` `satisfy` links; [R02](#r02) | Three model obligations, four documentation obligations, two proposed cross-project requirements, seven scenario-template requirements and eight structured-document requirements have no design satisfier. Eight bilingual requirements have planned design satisfiers but no implemented satisfier; no listed allocation alone establishes implementation. |
 | Software design documentation | UML guide and SimpleFlow design; [D52](../design/flows/simple-flow/views.md#d52) | UML applicability and status have a planned review, not a model satisfier. |
 | Planned verification | `XDesignVerification` cases and `verify` links | Case declaration does not record a passed result. |
 | User goals | `XDesignDetailedDesign::ProgressWish`, `ReviewEvidence`, and `useCaseDiagram`; [R06](#r06) | The view concerns SimpleFlow and is not a complete deployed-product scenario set. |
@@ -732,3 +745,45 @@ access and integration boundaries in [D118](../design/storage.md#d118), and
 not establish a current implementation or an executed case. Later design must reconcile the
 existing storage, API, Web, lifecycle and operator contracts with these requirements,
 including the current default of a project-local `.xdesign`.
+
+<a id="r22"></a>
+
+## 18. Bilingual document kit and catalog organization
+
+The baseline has 21 entries across ten classes: the 16 flat-class entries in [R19](#r19)
+and five structured entries in [R20](#r20). These eight proposed requirements govern a
+new, separately versioned bilingual release; they do not assert that the behavior exists.
+A *language variant* is one entry in one declared language. The release retains the
+engineering classes and routes rather than replacing them with a thesis-only kit.
+
+| Proposed requirement | Normative behavior and rationale | Acceptance condition |
+| --- | --- | --- |
+| `documentKitCatalogHasCoherentResourceLayout` | Organize the bundled catalog into 21 entry-owned packages, with language-scoped template, guide, complete fictional example and full-input fixture locations and separate shared homes for language-neutral sources, routing, models and assets. The manifest explicitly binds every resource role/language to one normalized digest-covered path; discovery uses declarations, not globs, network lookup or editable mirrors. One authoritative source per logical variant prevents drift and makes ownership inspectable. | Inspection resolves exactly 21 entry directories and 42 variant sets (21 entries × two languages), with four resources per set (168 language-specific resources), no missing, duplicate, ambiguous or competing editable source, and shared language-neutral resources referenced once. Missing, unsafe or duplicate declarations fail before writes. Reorganization changes only the new release identity, never retained closures. BDK-01 and BDK-07. |
+| `documentKitSupportsCompleteChineseAndEnglish` | Supply complete `en` and `zh-CN` variants for every existing ID, not selected samples. Each preserves class, ID, route selection, section keys and ordered semantics, required field keys, checks, view concerns, anchor/model rules and equivalent engineering obligations; headings, labels, guidance, examples and fixture prose may be localized. Each fixture explicitly identifies its language and same-language expected document. Equivalent content lets either language support real authoring. | All 42 variants plan/create/check with complete caller content and pass their effective structural contract; all ten classes and both languages occur in the mixed project. Every required section, field and applicable figure alternative is checked. No unresolved placeholder, missing translation, English fallback or invented engineering claim is accepted. BDK-01, BDK-03, BDK-05 and BDK-06. |
+| `documentTemplateLanguageSelectionIsDeterministic` | The bundled IDs are exactly case-sensitive `en` and `zh-CN`; the profile declares default `en`. Plan/create and language-addressed resource reads accept an explicit selector, while omission under the new release selects `en`. Never infer locale/environment/content or silently fall back. Language does not change class/name/layer routes or permit a same-path overwrite. Deterministic selection prevents hidden locale dependence and destructive fallback. | Explicit selection succeeds for every entry in both languages; omission is identical to explicit `en`. Well-formed unsupported IDs such as `zh`, `en-US` or case variants return `unknown-language`; empty, malformed or conflicting selectors return `invalid-request`; both leave all target bytes unchanged. Under original packs a supplied selector is `invalid-request`, while omission retains original behavior. BDK-02 through BDK-05. |
+| `documentTemplateLanguageIdentityIsPersistent` | New-release creation records language consistently in marker, registry and effective identity; responses and checks expose it. Update, attachment and checking use the recorded variant, never a changed default or caller preference. Arbitrary caller prose neither infers nor changes selected or persisted language; prose-language adequacy is an independent semantic review obligation under BDK-06, not an identity-mismatch rule. Same-route second creation in another language retains the existing collision refusal, not conversion. Persisted identity prevents later reinterpretation. | Marker, registry, response and actual bytes agree at creation. Updates change only authorized content and preserve the recorded language identity, other sections and registry; changed defaults have no effect. A prose-only edit with otherwise valid identity has no required identity-mismatch rejection. An explicit conflicting selector is `invalid-request`; missing, unsupported or disagreeing persisted language is `registry-mismatch` without adoption or migration. Old language-less identities are not backfilled. Stored-example comparison also asserts actual language while replacing only the marker contract sentinel. BDK-04, BDK-05 and BDK-07. |
+| `documentTemplateLanguageSurfacesAreShared` | Python, JSON CLI and bound stdio MCP expose equivalent selection, defaults, effective identities, validation and discovery for all entries. Their contract/catalog surfaces enumerate every variant and the locations and exact bytes of its template, guide, example and fixture; language-addressed reads return selected bytes, and examples never become template selections. Python selection is additive and keyword-only, CLI has a documented option and MCP has equivalent arguments/resources; existing operation names, positional parameters and MCP binding remain. Shared surfaces avoid transport-specific forks. | For all 42 variants, equivalent plan/create/check calls through all three surfaces produce the same route, rendered bytes, language identity, hashes and diagnostics within their envelopes; update/attachment decisions and all resource-byte hashes agree. Unknown language, stale hashes, drift and MCP redirection cannot bypass common decisions. BDK-03, BDK-05 and BDK-08. |
+| `chineseTemplatesUseScholarlyEngineeringProse` | Chinese template guidance, guides, examples and fixture prose use precise consistent terminology, objective tone, complete coherent paragraphs and traceable reasoning. Each class develops problem/context, rationale, method/design, evidence/verification and limitations as appropriate; no thesis-only chapters replace engineering classes. Never fabricate a citation, source, standard, model fact, implementation, test or review result. English retains equivalent normative meaning without requiring literal wording. This makes scholarly writing an auditable quality obligation rather than academic formatting. | A permitted reviewer independent of the author reviews every one of the 21 language pairs section by section using the class-specific rubric and terminology mapping in [D121](../verification/design.md#d121). All 21 Chinese sets pass and English requirements, rationale, acceptance and limits are confirmed equivalent. Every citation resolves to an inspectable source that supports its claim; fictional examples remain identified as fictional. Findings are corrected before acceptance; no sampled-entry shortcut is allowed. BDK-06 and BDK-09. |
+| `bilingualDocumentKitPreservesCompatibility` | Give the bilingual catalog a new version/digest and retain exact current 1.0.0, 1.1.0 and 1.2.0 resource closures as independently selectable packs, including nested closures and original behavior. Existing positional calls, routes and language-less identities remain valid under original packs. The new release resolves supported old/new pages under each effective contract without implicit migration, adoption, language backfill or edits to unmanaged/historical artifacts. Immutable compatibility copies are not editable current mirrors; original packs may reject foreign new identities as before. This protects consumers and prior evidence. | Recompute original digests and byte-compare every retained closure; run existing DOC/SDK regressions and record skips. In mixed projects, whole/selected checks use each page's effective contract, and old-page updates preserve marker, language-less identity and registry bytes. Original-pack calls behave as before, and a supplied language selector under them fails without writes. BDK-02, BDK-04, BDK-07 and BDK-09. |
+| `bilingualDocumentKitEvidenceIsReviewable` | Bind assessed source revision, old/new identities and digests, complete resource coverage, exact inputs/outputs and hashes, commands, exits, transcripts, failure preservation, diagnostics, skips and unevaluated checks. Separately retain reviewer identity/authority, per-entry Chinese-quality and English-equivalence judgments, findings and residual risks. Complete evidence prevents a few translations or mechanical passes being mistaken for bilingual acceptance. | BDK-09 retains the full 21 × 2 × 4 resource matrix, all case commands/logs/transcripts and nonwrite hashes, the compatibility baseline and every required review at one assessed revision. A missing variant, unexecuted required case or absent semantic review prevents acceptance. Compiler, structural and requirements-stage checks remain supporting evidence only. |
+
+Language is a content-contract axis, not a route or locale alias. Update/check/attach need
+no new selector because persisted identity is authoritative; the [designed optional assertions](../design/document-kit.md#d122)
+follow the same rule, and a conflicting selector is `invalid-request`. Exact filenames,
+schema/version numbers, serialization keys, resource URI syntax and source allocation are
+specified by the proposed design rather than left to implementation discretion. Derived
+profiles may choose another inventory or language set only through explicit profile
+declarations and their own identity; they do not inherit the bundled count of 21.
+
+The new mixed fixture covers both languages in all ten classes, at least two template IDs
+in one original class, and the existing concern/omission coverage. Its expected documents
+reuse the same-language stored examples. New fixtures retain full caller inputs without
+actual or sentinel contract digests; old fixtures and comparison behavior remain unchanged.
+Shared language-neutral assets are not copied per language; any genuinely language-specific
+resource receives its own declared variant instead.
+
+[BDK-01 through BDK-09](../verification/requirements.md#v20) define the planned acceptance
+and [D121](../verification/design.md#d121) its concrete procedures. `BilingualDocumentKitVerification`
+supplies planned verification links, while the [D122 allocation](../design/document-kit.md#d122)
+adds design-only `satisfy` links to defined bilingual design elements. Neither allocation
+executes these cases or claims implementation, translated-resource availability or acceptance.

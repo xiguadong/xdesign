@@ -1,0 +1,69 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-generic-verification-zh",
+  "template_id": "generic-verification",
+  "metadata": {
+    "title": "虚构 Aster 采样验证计划",
+    "status": "虚构示例",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V10500",
+      "content": "本计划针对虚构 Aster 集线器的采样周期、无效输入拒绝和最新有效值行为，所有用例均处于计划状态。验证范围不包含硬件计量特性或真实网络环境。",
+      "fields": {
+        "requirements_links": "60 秒采样、拒绝非有限数值、UTC 时间戳以及中断期间保留最新有效读数的需求构成验收依据。",
+        "design_links": "读取管线设计中的 ProbeValidator、RingBuffer 和 ReadLatestExporter 是被测职责及其公开接口。"
+      }
+    },
+    "methods": {
+      "anchor": "V10501",
+      "content": "计划以虚拟时钟驱动时间戳，以脚本化探头提供有限值和非有限值，并用记录型导出器捕获控制器可见结果。确定性输入用于消除与当前验证问题无关的环境波动。",
+      "fields": {
+        "methods": "采用确定性演示、采样周期边界分析和导出顺序检查，分别验证时间行为、输入过滤和结果含义。",
+        "environment": "在隔离测试进程中使用虚拟 UTC 时钟、内存缓存和脚本化探头，不连接物理传感器或网络控制器。"
+      }
+    },
+    "cases": {
+      "anchor": "V10502",
+      "content": "每个计划用例分别从空缓存、已连接的导出端及虚拟 UTC 时钟 T0 = 2026-01-01T00:00:00Z 开始。下表逐项分配刺激和查询时刻，仅描述预期结果。\n\n| 用例 | 事件安排 | 计划预期输出 |\n| --- | --- | --- |\n| 周期 | 在 T0+60n 秒注入 20.0+(n-1)/10，n=1..10；每次 tick 后查询。 | 第 n 次查询返回该值及时间戳 T0+60n；相邻接受间隔为 60±0.1 秒。 |\n| 无效输入 | T0+60 秒注入 NaN，T0+61 秒查询。 | 拒绝 NaN，缓存保持为空，返回 NOT_READY。 |\n| FIFO | T0+60n 秒注入 20.0+(n-1)/10，n=1..11；T0+661 秒检查并查询。 | 按顺序保留 n=2..11，即 20.1..21.0，时间戳为 T0+120..660；最新值为 21.0，时间戳为 2026-01-01T00:11:00Z。 |\n| 空历史 | 在 T0、任何注入之前查询。 | 返回 NOT_READY，空历史保持为空。 |\n| 中断 | T0+60 秒接受 20.0，随即断开导出至 T0+180 秒；不再提供样本；T0+90 秒远程查询，T0+150 秒本地查询，重连后 T0+181 秒远程查询。 | 中断期间抑制远程导出；本地及恢复后的查询均返回 20.0 和 2026-01-01T00:01:00Z，不得虚构更新样本。 |",
+      "fields": {
+        "inputs": "严格使用用例表中的时钟起点、数值、NaN、连接事件和查询时刻；不预装样本，也不执行表外采集。",
+        "procedure": "每行执行前重置状态，按时间顺序施加事件，记录校验、本地历史和远程响应，再逐项比较该行规定的数值、时间戳、顺序和错误。",
+        "expected_results": "所有输出必须等于用例表中的预期，包括精确 UTC 时刻、FIFO 保留范围、NOT_READY 和中断期间的导出抑制。"
+      }
+    },
+    "criteria": {
+      "anchor": "V10503",
+      "content": "每个计划用例都必须与既定数值、时间戳、顺序和错误预期完全一致。除已声明的周期容差外，不允许以未评审的近似比较替代精确判定。",
+      "fields": {
+        "pass_criteria": "用例表中的每项观察均须符合预期；仅周期允许已声明的 ±0.1 秒容差。不得插入无效值、重排历史、合成时间戳或在中断期间导出。",
+        "trace_matrix": "采样需求映射到周期用例，验证需求映射到 NaN 用例，缓存约束映射到淘汰用例，最新有效值需求映射到空缓存和中断用例。"
+      }
+    },
+    "limits": {
+      "anchor": "V10504",
+      "content": "硬件抖动、并发访问、物理探头精度和真实网络行为不在本虚构计划范围内。确定性仿真能够验证约定逻辑，但不能据此证明嵌入式实时性或生产可靠性。",
+      "fields": {
+        "unexecuted_cases": "全部用例均未执行，本示例不提供命令、观察值或通过结果。",
+        "residual_risks": "虚拟时钟计划不能证明硬件校准、调度实时性、安全性或生产负载下的可靠性。"
+      }
+    }
+  },
+  "expected_document": "catalog/entries/generic-verification/zh-CN/example.md",
+  "layer": null,
+  "language": "zh-CN"
+}

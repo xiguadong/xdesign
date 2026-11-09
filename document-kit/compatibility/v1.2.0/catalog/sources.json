@@ -1,0 +1,171 @@
+{
+  "sources": [
+    {
+      "source_id": "DPR",
+      "title": "Design Practice Repository artifact templates",
+      "publisher": "socadk",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Scenario routing",
+        "Artifact purpose and examples"
+      ],
+      "limitations": [
+        "Tutorial is incomplete; no wholesale template adoption"
+      ],
+      "url": "https://socadk.github.io/design-practice-repository/artifact-templates/",
+      "local_path": null,
+      "additional_urls": [
+        "https://socadk.github.io/design-practice-repository/artifact-templates/SDPR-APIDescription.html"
+      ],
+      "license_name": "CC-BY-4.0",
+      "license_version": "4.0",
+      "license_url": "https://raw.githubusercontent.com/socadk/design-practice-repository/master/LICENSE"
+    },
+    {
+      "source_id": "GOOD-DOCS",
+      "title": "The Good Docs Project template catalog",
+      "publisher": "The Good Docs Project",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Template guide example packaging",
+        "API reference guidance"
+      ],
+      "limitations": [
+        "Reader-documentation taxonomy is adapted, not adopted unchanged"
+      ],
+      "url": "https://www.thegooddocsproject.dev/template",
+      "local_path": null,
+      "additional_urls": [
+        "https://gitlab.com/tgdp/templates/-/raw/main/index.json",
+        "https://www.thegooddocsproject.dev/template/api-reference",
+        "https://gitlab.com/tgdp/chronologue"
+      ],
+      "license_name": "MIT No Attribution",
+      "license_version": "MIT-0",
+      "license_url": "https://gitlab.com/tgdp/templates/-/raw/main/LICENSE"
+    },
+    {
+      "source_id": "GITHUB-DOCS",
+      "title": "GitHub Docs content model and checks",
+      "publisher": "GitHub",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Content types and linting boundaries",
+        "Diagram audience/readability review"
+      ],
+      "limitations": [
+        "Governance sample, not a SysML template source"
+      ],
+      "url": "https://docs.github.com/en/contributing/style-guide-and-content-model/about-the-content-model",
+      "local_path": null,
+      "additional_urls": [
+        "https://docs.github.com/en/contributing/writing-for-github-docs/templates",
+        "https://docs.github.com/en/contributing/collaborating-on-github-docs/using-the-content-linter",
+        "https://docs.github.com/en/contributing/writing-for-github-docs/creating-diagrams-for-github-docs"
+      ],
+      "license_name": "CC-BY-4.0",
+      "license_version": "4.0",
+      "license_url": "https://raw.githubusercontent.com/github/docs/main/LICENSE"
+    },
+    {
+      "source_id": "SPECD",
+      "title": "SpecD schema guidance",
+      "publisher": "specd-sdd",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Data-shape and cross-artifact checks"
+      ],
+      "limitations": [
+        "Active-development project; no stability dependency"
+      ],
+      "url": "https://github.com/specd-sdd/SpecD/blob/main/docs/guide/schemas.md",
+      "local_path": null,
+      "additional_urls": [],
+      "license_name": "MIT",
+      "license_version": "MIT",
+      "license_url": "https://raw.githubusercontent.com/specd-sdd/SpecD/main/LICENSE"
+    },
+    {
+      "source_id": "C4",
+      "title": "C4 diagram checklist",
+      "publisher": "Simon Brown",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Context and composition diagram review"
+      ],
+      "limitations": [
+        "C4 notation is optional, not a replacement for SysML"
+      ],
+      "url": "https://c4model.com/diagrams/checklist",
+      "local_path": null,
+      "additional_urls": [],
+      "license_name": "unknown",
+      "license_version": "unknown",
+      "license_url": null
+    },
+    {
+      "source_id": "OPENSPEC",
+      "title": "OpenSpec schemas and artifact workflow",
+      "publisher": "Fission-AI",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Manifest and dependency organization",
+        "Change-oriented routing"
+      ],
+      "limitations": [
+        "Natural-language rules and file existence are not quality gates"
+      ],
+      "url": "https://github.com/Fission-AI/OpenSpec/blob/main/docs-lab/reference/schemas/schema-yaml.md",
+      "local_path": null,
+      "additional_urls": [
+        "https://github.com/Fission-AI/OpenSpec/blob/main/schemas/spec-driven/schema.yaml",
+        "https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md"
+      ],
+      "license_name": "MIT",
+      "license_version": "MIT",
+      "license_url": "https://raw.githubusercontent.com/Fission-AI/OpenSpec/main/LICENSE"
+    },
+    {
+      "source_id": "ARC42",
+      "title": "arc42 architecture documentation guidance",
+      "publisher": "Gernot Starke and Peter Hruschka",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Right-sized architecture content",
+        "Runtime and formal-versus-content review"
+      ],
+      "limitations": [
+        "One twelve-chapter document is not mandatory"
+      ],
+      "url": "https://arc42.org/overview/",
+      "local_path": null,
+      "additional_urls": [
+        "https://faq.arc42.org/questions/B-4/",
+        "https://docs.arc42.org/section-6/",
+        "https://faq.arc42.org/questions/J-4/"
+      ],
+      "license_name": "CC-BY-SA-4.0",
+      "license_version": "4.0",
+      "license_url": "https://arc42.org/license/"
+    },
+    {
+      "source_id": "REQ42",
+      "title": "req42 requirements knowledge units",
+      "publisher": "req42",
+      "retrieved_at": "2026-11-03",
+      "ideas_used": [
+        "Requirements knowledge separation",
+        "Product and change concerns"
+      ],
+      "limitations": [
+        "Does not supply the full cross-class catalog"
+      ],
+      "url": "https://req42.de/en/req42-at-a-glance",
+      "local_path": null,
+      "additional_urls": [],
+      "license_name": "unknown",
+      "license_version": "unknown",
+      "license_url": null
+    }
+  ]
+}

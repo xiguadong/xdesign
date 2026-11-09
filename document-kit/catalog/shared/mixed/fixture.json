@@ -1,0 +1,1105 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "documents": [
+    {
+      "document_class": "requirements",
+      "name": "sensor-generic-requirements",
+      "layer": null,
+      "template_id": "generic-requirements",
+      "language": "en",
+      "metadata": {
+        "title": "Aster sensor monitoring requirements",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "R100",
+          "content": "Aster is a fictional greenhouse sensor hub. The requirements cover periodic sampling and export of one temperature reading while leaving actuator control outside the product boundary.",
+          "fields": {
+            "system_boundary": "The Aster hub samples its local probe and exports readings; greenhouse actuators and weather prediction are external."
+          }
+        },
+        "requirements": {
+          "anchor": "R101",
+          "content": "The hub shall sample every 60 seconds, timestamp each sample in UTC, and export a reading only after validation. Timely delivery matters because irrigation decisions consume the data.",
+          "fields": {
+            "normative_statements": "Sample at 60-second intervals, record UTC timestamps, reject non-finite values, and preserve the latest valid reading during export outages.",
+            "rationale": "Predictable cadence and validated timestamps let the external controller compare independent sensor hubs without accepting corrupt readings."
+          }
+        },
+        "acceptance": {
+          "anchor": "R102",
+          "content": "All criteria below are planned for this fictional example. Cadence, invalid-input and outage cases run independently from an empty buffer at T0 = 2026-01-01T00:00:00Z; no result has been observed.",
+          "fields": {
+            "measurable_conditions": "Cadence case: inject 20.0+i/10 Celsius at T0+60(i+1) seconds for i=0..9; ten samples must have adjacent intervals 60±0.1 seconds and UTC timestamps exactly equal to those fake-clock instants. Invalid case: inject NaN at T0+60 seconds; reject it and retain empty history. Outage case: accept 20.0 at T0+60 seconds, disconnect export immediately afterwards until T0+180 seconds, and supply no further samples; local latest queries at T0+90 and T0+150 seconds must retain 20.0 and 2026-01-01T00:01:00Z.",
+            "verification_method": "Use a fake UTC clock, scripted probe and recorder. Compare every timestamp with T0+60(i+1), compare adjacent cadence intervals, inspect rejection and buffer state in the independent NaN case, and compare the value and original timestamp in both local outage queries. These are planned comparisons, not executed evidence."
+          }
+        },
+        "trace": {
+          "anchor": "R103",
+          "content": "Example::Sensor and Example::Controller identify the model participants for the sampling requirement and its intended sampling design.",
+          "fields": {
+            "model_elements": "Example::Sensor and Example::Controller provide the fictional source elements for the sampling requirement.",
+            "design_links": "The Aster reading-pipeline design owns validation and export behavior; no implementation result is asserted here."
+          }
+        },
+        "limits": {
+          "anchor": "R104",
+          "content": "Probe accuracy, hardware timing jitter, and security deployment settings are not specified by this small fictional requirements example.",
+          "fields": {
+            "unresolved_items": "Probe calibration limits, real scheduler jitter, authentication, and production retention remain for the actual project to decide."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-requirements/en/example.md"
+    },
+    {
+      "document_class": "requirements",
+      "name": "sensor-system-requirements-zh",
+      "layer": null,
+      "template_id": "system-requirements",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 Aster 远程监测能力需求",
+        "status": "虚构示例",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "R10600",
+          "content": "Aster 为过去依赖人工读数的温室引入新的远程监测能力，目标是持续掌握环境状态，而非对既有接口做局部修改。能力范围包括本地感知、缓冲和远程读取，不包括自动灌溉或长期分析。",
+          "fields": {
+            "system_boundary": "能力包含本地传感、短期缓冲和远程读取；灌溉控制与长期分析由独立系统承担。"
+          }
+        },
+        "requirements": {
+          "anchor": "R10601",
+          "content": "系统应每分钟采样一次，在连接中断时保留最近十个有效读数，并向已授权控制器提供当前值和近期值。该能力以连续可见性为目标，同时避免把集线器扩展为控制或分析平台。",
+          "fields": {
+            "normative_statements": "系统应提供 60 秒采样、UTC 时间戳、中断期间十项有效历史、最新值查询以及明确的无效数据拒绝行为。",
+            "rationale": "操作人员需要可信的当前状态和有限的故障追溯信息，授权边界与有限历史则控制实现复杂度和误用风险。"
+          }
+        },
+        "acceptance": {
+          "anchor": "R10602",
+          "content": "能力验收由周期采样演示、连接中断演示和授权查询演示共同构成。每项演示都必须产生可测量的输出，以下数值是计划准则而非已经观察到的能力结果。",
+          "fields": {
+            "measurable_conditions": "从空历史和虚拟 UTC 时刻 T0 = 2026-01-01T00:00:00Z 开始，在 T0+60n 秒注入 20.0+(n-1)/10，n=1..60。全部 59 个相邻间隔应为 60±0.1 秒，所有时间戳应等于对应的 UTC 时刻 T0+60n，一小时内应接受 60 个样本。第 58 次 tick 后断开连接，第 60 次 tick 后立即重连，期间继续采集；重连后的授权最新值及历史查询应返回最新值 25.9 和 2026-01-01T01:00:00Z，并按顺序返回 n=51..60 的 25.0..25.9 及原始时间戳。在独立重置用例中于 T0+60 秒注入 NaN，应拒绝该值且历史为空，查询返回 NOT_READY。",
+            "verification_method": "使用虚拟 UTC 时钟和脚本探头执行规定计划，记录每次接受的 tick，比较精确时间戳、相邻周期及总数。重连后检查保留历史和授权最新值、历史查询响应，再从重置状态独立检查无效输入拒绝。全部条件均尚未执行。"
+          }
+        },
+        "trace": {
+          "anchor": "R10603",
+          "content": "新能力将分别由背景、组成、交互、数据、操作和验证制品细化，需求文档不复制这些制品的内部细节。模型参与者用于建立能力上下文，设计链接用于分配后续实现责任。",
+          "fields": {
+            "model_elements": "Example::Sensor、Example::Controller 和 Example::WeatherService 标识新能力的模型参与者。",
+            "design_links": "Aster system-context 与读取管线设计拥有实现分配，需求仅保留外部可观察目标和约束。"
+          }
+        },
+        "limits": {
+          "anchor": "R10604",
+          "content": "控制器注册、授权机制、多年数据保留和执行器安全需求仍需独立分析。在这些事项解决前，本示例不能作为真实能力批准或生产部署的依据。",
+          "fields": {
+            "unresolved_items": "控制器注册、凭据管理、长期存储和执行器安全性超出本虚构能力示例的范围。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/system-requirements/zh-CN/example.md"
+    },
+    {
+      "document_class": "architecture",
+      "name": "sensor-system-context",
+      "layer": null,
+      "template_id": "system-context",
+      "language": "en",
+      "metadata": {
+        "title": "Aster system context and boundary",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "boundary": {
+          "anchor": "B100",
+          "content": "AsterHub is the only element inside the product boundary. Operator and WeatherService are external actors; the figure shows exchange direction without implying internal decomposition.\n\n![Aster boundary and exchanges](assets/system-context.svg)\n\n> **Figure B100-1 — Aster boundary and exchanges.**  \n> **Question:** Which parts are inside Aster and what crosses its boundary?  \n> **Model view:** Example::SystemContext  \n> **Companions:** The external interface table and component-composition example.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.  \n> **Limits:** The view shows context and exchange direction, not internal components, protocols, or deployment nodes.\n",
+          "fields": {
+            "system_boundary": "AsterHub owns sampling and buffering; Operator and WeatherService, probe power supply, and irrigation decisions are outside.",
+            "external_actors": "Operator requests current readings and sends calibration commands; WeatherService supplies forecast data used only for display context.",
+            "diagram_decisions": "[{\"concern\":\"system-boundary\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"A boundary view makes inside/outside ownership and exchange direction unambiguous.\",\"asset\":\"assets/system-context.svg\",\"model_view\":\"Example::SystemContext\"}]"
+          }
+        },
+        "interfaces": {
+          "anchor": "B101",
+          "content": "Validated readings leave AsterHub for Operator, calibration commands enter from Operator, and forecast records arrive from WeatherService without being stored as sensor measurements.",
+          "fields": {
+            "information_flows": "Outgoing Reading and HistoryResponse, incoming CalibrationCommand, and incoming ForecastRecord have distinct meanings and owners.",
+            "interface_participants": "AsterHub is provider for readings and receiver for calibration; Operator consumes readings; WeatherService is a read-only forecast source."
+          }
+        },
+        "behavior": {
+          "anchor": "B102",
+          "content": "AsterHub continues sampling when Operator disconnects and labels forecast data as external context rather than using it to alter readings.",
+          "fields": {
+            "interactions": "Operator queries and calibrates, WeatherService publishes forecasts, and AsterHub samples and responds independently of forecast availability.",
+            "states": "Online, operator-disconnected, and forecast-unavailable states clarify which external losses do and do not affect collection."
+          }
+        },
+        "constraints": {
+          "anchor": "B103",
+          "content": "No external actor may rewrite buffered history, and calibration commands never change the meaning of the Reading timestamp or measured value.",
+          "fields": {
+            "constraints": "History is read-only externally, forecast data is informational, and calibration applies only to subsequent samples.",
+            "design_rationale": "These boundaries prevent external systems from silently corrupting measurement provenance or becoming hidden sampling dependencies."
+          }
+        },
+        "trace": {
+          "anchor": "B104",
+          "content": "Example::SystemContext names the fictional view behind the figure; the component-composition and operation-contract examples own internal and protocol details.",
+          "fields": {
+            "model_elements": "Example::SystemContext, Example::Sensor, Example::Controller, and Example::WeatherService define the context participants and view.",
+            "verification_links": "A planned context review checks boundary placement, actor coverage, exchange direction, and the absence of internal-only details."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/system-context/en/example.md"
+    },
+    {
+      "document_class": "architecture",
+      "name": "sensor-system-context-zh",
+      "layer": null,
+      "template_id": "system-context",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 Aster 系统背景与边界",
+        "status": "虚构示例",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "boundary": {
+          "anchor": "B10800",
+          "content": "AsterHub 是产品边界内唯一的系统主体，Operator 和 WeatherService 均为外部参与者。本例仅有三个参与者和两类主要交换方向，表格足以准确呈现归属与方向，因此不再增加背景图。\n\n| 边界要素 | 归属与交换关系 |\n| --- | --- |\n| AsterHub | 边界内负责采样、缓冲和响应 |\n| Operator | 边界外读取 Reading 并发送 CalibrationCommand |\n| WeatherService | 边界外提供 ForecastRecord，不参与测量写入 |",
+          "fields": {
+            "system_boundary": "AsterHub 负责采样和缓冲；Operator、WeatherService、探头供电及灌溉决策均位于边界之外。",
+            "external_actors": "Operator 查询当前读数并发送校准命令，WeatherService 仅提供用于显示背景的天气预报。",
+            "diagram_decisions": "[{\"concern\":\"system-boundary\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"三个参与者和两类交换方向用表格即可无歧义地表达，图形不会增加新的边界信息。\",\"asset\":null,\"model_view\":null}]"
+          }
+        },
+        "interfaces": {
+          "anchor": "B10801",
+          "content": "经过验证的读数由 AsterHub 流向 Operator，校准命令由 Operator 流入，天气预报则由 WeatherService 独立到达。ForecastRecord 不会被保存为传感器测量，因而三类信息的所有权和语义不会混淆。",
+          "fields": {
+            "information_flows": "出向 Reading 与 HistoryResponse、入向 CalibrationCommand 和入向 ForecastRecord 分别具有独立的生产者、消费者和语义。",
+            "interface_participants": "AsterHub 是读数提供者和校准接收者，Operator 消费读数，WeatherService 是只读预报来源。"
+          }
+        },
+        "behavior": {
+          "anchor": "B10802",
+          "content": "Operator 断开时 AsterHub 继续采样，天气预报不可用时仅标记外部背景缺失，不改变任何测量值。该行为说明两类外部依赖的消失具有不同影响，不能统一解释为采集中断。",
+          "fields": {
+            "interactions": "Operator 执行查询和校准，WeatherService 发布预报，AsterHub 独立采样并响应，预报可用性不参与测量控制。",
+            "states": "在线、操作者断连和预报不可用三个状态用于区分外部缺失是否影响采集行为。"
+          }
+        },
+        "constraints": {
+          "anchor": "B10803",
+          "content": "任何外部参与者都不得改写已缓冲历史，校准命令不得改变 Reading 时间戳和测量值的含义。通过这些约束，外部输入不能悄悄破坏测量来源或成为隐藏的采样依赖。",
+          "fields": {
+            "constraints": "历史对外只读，预报仅作背景信息，校准只影响命令接受后的样本。",
+            "design_rationale": "明确限制外部写入和校准作用时点，可以保护测量溯源并避免天气预报成为采样正确性的隐式前提。"
+          }
+        },
+        "trace": {
+          "anchor": "B10804",
+          "content": "Example::SystemContext 标识本虚构背景的模型视图，component-composition 和 operation-contract 示例分别拥有内部组成与协议细节。计划评审只检查边界和交换，不据此声称内部实现已经验证。",
+          "fields": {
+            "model_elements": "Example::SystemContext、Example::Sensor、Example::Controller 和 Example::WeatherService 定义背景参与者及视图。",
+            "verification_links": "计划背景评审检查边界位置、参与者覆盖、交换方向以及内部细节是否被误写入本文。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/system-context/zh-CN/example.md"
+    },
+    {
+      "document_class": "design",
+      "name": "sensor-interaction-flow",
+      "layer": null,
+      "template_id": "interaction-flow",
+      "language": "en",
+      "metadata": {
+        "title": "Aster current-reading interaction flow",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "D100",
+          "content": "The design explains the ordering for one current-reading request, including validation and timeout behavior rather than static schema details.",
+          "fields": {
+            "design_subject": "Synchronous request/validation/response flow between Controller and Sensor with one timeout alternate.",
+            "requirements_links": "Latest-reading query, explicit invalid-input rejection, and no-fabricated-value requirements drive the flow."
+          }
+        },
+        "participants": {
+          "anchor": "D101",
+          "content": "Controller originates ReadRequest, Sensor checks sensorId and buffer state, and the operation boundary returns ReadingResponse or an explicit outcome.",
+          "fields": {
+            "participants": "Controller is the requester; Sensor is the provider; RingBuffer is an internal read-only participant, not an external actor.",
+            "interfaces": "ReadRequest carries sensorId. ReadingResponse carries exactly one of Reading, NOT_READY, UNKNOWN_SENSOR or TIMEOUT; an error carries no Reading value."
+          }
+        },
+        "flow": {
+          "anchor": "D102",
+          "content": "The numbered flow is request, validation, buffer read, then response; timeout cannot produce a ReadingResponse after the deadline.\n\n![Aster request and response ordering](assets/interaction-flow.svg)\n\n> **Figure D102-1 — Aster request and response ordering.**  \n> **Question:** In what order do request, validation, response, and timeout occur?  \n> **Model view:** Example::InteractionFlow  \n> **Companions:** The operation-contract and alternate-flow tables.  \n> **Status:** renderable-now; designed-only  \n> **Reading:** Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.  \n> **Limits:** The view is fictional and omits transport encoding, authentication, and precise timeout duration.\n",
+          "fields": {
+            "interactions": "Controller sends ReadRequest, Sensor validates sensorId, reads newest valid Reading, and sends ReadingResponse.",
+            "ordering": "Validation precedes buffer access, buffer access precedes response, and timeout terminates the attempt without a value response.",
+            "diagram_decisions": "[{\"concern\":\"interaction-ordering\",\"applies\":true,\"choice\":\"figure\",\"rationale\":\"Numbered arrows and lifelines make request, validation, response, and timeout order explicit.\",\"asset\":\"assets/interaction-flow.svg\",\"model_view\":\"Example::InteractionFlow\"}]"
+          }
+        },
+        "alternates": {
+          "anchor": "D103",
+          "content": "UNKNOWN_SENSOR returns before buffer access; empty history returns NOT_READY. At the deadline the operation boundary emits one ReadingResponse(TIMEOUT) without a Reading and discards any later provider result. It never retimestamps an old value.",
+          "fields": {
+            "alternate_flows": "UNKNOWN_SENSOR skips reading, NOT_READY denotes empty history, and TIMEOUT is the single error ReadingResponse emitted at the deadline; later provider responses are suppressed.",
+            "error_behavior": "Errors are explicit outcomes and never mutate history or turn an old value into a newly timestamped reading."
+          }
+        },
+        "constraints": {
+          "anchor": "D104",
+          "content": "This read-only, single-request design excludes concurrent retries, authentication and retransmission. Each request has at most one terminal ReadingResponse, including the deadline TIMEOUT error; after that outcome no late provider response or fallback value may be forwarded.",
+          "fields": {
+            "behavior": "One request produces at most one terminal outcome and never changes buffer contents or reading timestamps.",
+            "constraints": "No response after a terminal outcome, history mutation, implicit retry or substitute measurement; the deadline TIMEOUT error itself is permitted."
+          }
+        },
+        "projection": {
+          "anchor": "D105",
+          "content": "Planned tests compare event order and unique terminal outcomes against the fictional language-side interaction prose on this page. Example::InteractionFlow is only an empty named view declaration, not behavior evidence. Source unit names remain proposed allocations.",
+          "fields": {
+            "source_projection": "RequestHandler, RequestValidator, ReadLatestExporter, and a controllable timeout are intended design units.",
+            "verification_links": "Ordered success, unknown-sensor, empty-history, and timeout event-sequence cases are planned checks."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/interaction-flow/en/example.md"
+    },
+    {
+      "document_class": "design",
+      "name": "sensor-interaction-flow-zh",
+      "layer": null,
+      "template_id": "interaction-flow",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 Aster 当前读数交互流程",
+        "status": "虚构示例",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "D11000",
+          "content": "本设计说明一次当前读数请求的顺序，包括标识验证、缓存读取和超时行为，而非静态数据结构。主问题是一次请求如何在不同条件下恰好产生一个明确的终止结果。",
+          "fields": {
+            "design_subject": "Controller 与 Sensor 之间的同步请求、验证和响应流程，以及一个超时备选路径。",
+            "requirements_links": "最新值查询、明确拒绝无效输入以及不得虚构读数的需求驱动该交互设计。"
+          }
+        },
+        "participants": {
+          "anchor": "D11001",
+          "content": "Controller 发起 ReadRequest，Sensor 检查 sensorId 和缓存状态，操作边界最终返回 ReadingResponse 或明确错误。RingBuffer 是内部只读参与者，不应被误画为外部调用方。",
+          "fields": {
+            "participants": "Controller 是请求方，Sensor 是提供方，RingBuffer 仅作为内部只读参与者。",
+            "interfaces": "ReadRequest 携带 sensorId；ReadingResponse 恰好携带 Reading、NOT_READY、UNKNOWN_SENSOR 或 TIMEOUT 之一，错误结果不携带 Reading 值。"
+          }
+        },
+        "flow": {
+          "anchor": "D11002",
+          "content": "主流程严格按以下顺序执行：第一，Controller 发送 ReadRequest；第二，Sensor 验证 sensorId；第三，验证成功后读取最新有效 Reading；第四，操作边界返回 ReadingResponse。超时终止当前尝试，截止时间之后不得再产生读数响应。\n\n本例只有一条主路径和三个明确终止分支，有序文字已经完整表达时序，因此不增加序列图。",
+          "fields": {
+            "interactions": "Controller 发送 ReadRequest，Sensor 验证 sensorId 并读取最新有效 Reading，随后返回 ReadingResponse。",
+            "ordering": "验证先于缓存访问，缓存访问先于响应，超时先于任何迟到结果并终止本次操作。",
+            "diagram_decisions": "[{\"concern\":\"interaction-ordering\",\"applies\":true,\"choice\":\"prose\",\"rationale\":\"一条主路径和三个终止分支可用编号顺序和禁止条件准确说明，无需额外序列图。\",\"asset\":null,\"model_view\":null}]"
+          }
+        },
+        "alternates": {
+          "anchor": "D11003",
+          "content": "UNKNOWN_SENSOR 在缓存访问前返回，空历史返回 NOT_READY。到达截止时间时，操作边界发出一次不携带 Reading 的 ReadingResponse(TIMEOUT)，并丢弃后续提供方结果，不得重新标记旧值的时间戳。",
+          "fields": {
+            "alternate_flows": "UNKNOWN_SENSOR 跳过读取，NOT_READY 表示空历史，TIMEOUT 是截止时间到达时发出的唯一错误 ReadingResponse；后续提供方响应均被抑制。",
+            "error_behavior": "所有错误都是明确终止结果，不修改历史，也不把旧值或新时间戳组合成替代读数。"
+          }
+        },
+        "constraints": {
+          "anchor": "D11004",
+          "content": "该只读单请求设计不覆盖并发重试、认证和重传。每次请求至多产生一个终止 ReadingResponse，包括截止时刻的 TIMEOUT 错误；终止后不得转发迟到的提供方响应或回退值。",
+          "fields": {
+            "behavior": "一次请求至多产生一个终止结果，并且不改变缓存内容、读数顺序或原始时间戳。",
+            "constraints": "禁止终止结果之后再响应、修改历史、隐式重试或返回替代测量值；截止时刻的 TIMEOUT 错误响应本身是允许的。"
+          }
+        },
+        "projection": {
+          "anchor": "D11005",
+          "content": "计划测试以本页虚构的语言侧交互文字为依据，比较事件顺序及终止结果唯一性。Example::InteractionFlow 仅为空的具名视图声明，不是行为证据；源码单元名称仍为拟议分配。",
+          "fields": {
+            "source_projection": "RequestHandler、RequestValidator、ReadLatestExporter 和可控超时器是预期设计单元。",
+            "verification_links": "计划检查包括有序成功、未知传感器、空历史和超时的事件序列及终止结果唯一性。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/interaction-flow/zh-CN/example.md"
+    },
+    {
+      "document_class": "interface",
+      "name": "sensor-operation-contract",
+      "layer": null,
+      "template_id": "operation-contract",
+      "language": "en",
+      "metadata": {
+        "title": "Aster getCurrentReading operation contract",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "I100",
+          "content": "getCurrentReading returns the newest valid value for one known sensor without exposing history mutation or acting as a generic data schema.",
+          "fields": {
+            "boundary": "The operation is the public query boundary; validation, buffering, and controller orchestration remain internal or external respectively.",
+            "participants": "Controller invokes the operation and Aster export adapter executes it read-only."
+          }
+        },
+        "operation": {
+          "anchor": "I101",
+          "content": "The request contains only sensorId; success returns the current Reading and does not accept time ranges, writes, or arbitrary buffer indices.",
+          "fields": {
+            "operations": "getCurrentReading(sensorId) returns Reading, NOT_READY, UNKNOWN_SENSOR, or TIMEOUT and has no retry or mutation side effect.",
+            "data_shapes": "Request is {sensorId: string}; Reading is {sensorId, utcTimestamp, celsius, quality?} with finite numeric celsius."
+          }
+        },
+        "errors": {
+          "anchor": "I102",
+          "content": "Unknown identifiers return UNKNOWN_SENSOR before buffer access, empty history returns NOT_READY, and timeout returns no value or fallback timestamp.",
+          "fields": {
+            "error_behavior": "UNKNOWN_SENSOR, NOT_READY, and TIMEOUT are terminal outcomes; none creates, updates, or backdates a Reading.",
+            "invariants": "At most one terminal outcome per request, no history mutation, and success always returns the newest valid value at read time."
+          }
+        },
+        "compatibility": {
+          "anchor": "I103",
+          "content": "Version 1 returns three required fields; version 2 may add optional quality while preserving request shape, operation name, and all error meanings.",
+          "fields": {
+            "version_policy": "Major changes alter required fields or outcomes; optional response fields and additive documentation are minor compatible changes.",
+            "compatibility_policy": "Old callers may ignore quality and new callers must accept its absence; UNKNOWN_SENSOR and NOT_READY never change meaning."
+          }
+        },
+        "trace": {
+          "anchor": "I104",
+          "content": "The operation traces to Example::InteractionFlow and planned success, unknown, empty, timeout, and compatibility checks.",
+          "fields": {
+            "model_elements": "Example::InteractionFlow declares only an empty view name. The fictional language-side operation and interaction prose own the ordered behavior; the supplied model does not encode that sequence.",
+            "verification_links": "Success, unknown, empty, timeout, no-mutation, and version 1/2 response checks are planned verification cases."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/operation-contract/en/example.md"
+    },
+    {
+      "document_class": "interface",
+      "name": "sensor-operation-contract-zh",
+      "layer": null,
+      "template_id": "operation-contract",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 Aster getCurrentReading 操作契约",
+        "status": "虚构示例",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "I11300",
+          "content": "getCurrentReading 返回一个已知传感器的最新有效值，不暴露历史修改，也不承担通用数据模式文档的职责。该操作只定义查询边界及其可观察行为。",
+          "fields": {
+            "boundary": "操作是公共只读查询边界，验证和缓冲属于内部职责，控制器编排属于外部职责。",
+            "participants": "Controller 调用操作，Aster 导出适配器以只读方式执行。"
+          }
+        },
+        "operation": {
+          "anchor": "I11301",
+          "content": "请求仅包含 sensorId，成功时返回当前 Reading，不接受时间范围、写入参数或任意缓存索引。操作不包含自动重试，也不产生历史修改副作用。",
+          "fields": {
+            "operations": "getCurrentReading(sensorId) 返回 Reading、NOT_READY、UNKNOWN_SENSOR 或 TIMEOUT，且无重试或修改副作用。",
+            "data_shapes": "请求为 {sensorId: string}；Reading 为 {sensorId, utcTimestamp, celsius, quality?}，其中 celsius 必须为有限数。"
+          }
+        },
+        "errors": {
+          "anchor": "I11302",
+          "content": "未知标识在访问缓存前返回 UNKNOWN_SENSOR，空历史返回 NOT_READY，超时返回 TIMEOUT 且不附带数值或回退时间戳。三类结果均终止请求且不创建或回填 Reading。",
+          "fields": {
+            "error_behavior": "UNKNOWN_SENSOR、NOT_READY 和 TIMEOUT 均为终止结果，不得创建、更新或回填 Reading。",
+            "invariants": "每次请求至多一个终止结果，历史不得改变，成功响应必须是读取时刻最新的有效值。"
+          }
+        },
+        "compatibility": {
+          "anchor": "I11303",
+          "content": "版本 1 返回三个必填字段，版本 2 可增加可选 quality，同时保持请求结构、操作名称和全部错误含义。旧调用方可忽略新增字段，新调用方必须接受其缺省。",
+          "fields": {
+            "version_policy": "改变必填字段或结果语义属于主版本变化，增加可选响应字段和补充文档属于兼容的次版本变化。",
+            "compatibility_policy": "旧调用方可以忽略 quality，新调用方必须接受 quality 缺省，UNKNOWN_SENSOR 和 NOT_READY 的含义不得改变。"
+          }
+        },
+        "trace": {
+          "anchor": "I11304",
+          "content": "操作追踪到 Example::InteractionFlow 以及计划中的成功、未知、空历史、超时和兼容性检查。该追踪规定应验证的行为范围，不表示检查已经执行。",
+          "fields": {
+            "model_elements": "Example::InteractionFlow 仅声明一个空视图名称。顺序行为由虚构的语言侧操作及交互文字规定，所提供模型并未编码该顺序。",
+            "verification_links": "计划验证包括成功、未知、空历史、超时、无修改以及版本 1 和版本 2 的响应检查。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/operation-contract/zh-CN/example.md"
+    },
+    {
+      "document_class": "verification",
+      "name": "sensor-verification-test-plan",
+      "layer": null,
+      "template_id": "verification-test-plan",
+      "language": "en",
+      "metadata": {
+        "title": "Aster outage and cadence test plan",
+        "status": "fictional-example",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "V100",
+          "content": "The plan tests 60-second cadence and latest-valid behavior during a controller outage; it does not record an executed result or substitute review for execution.",
+          "fields": {
+            "requirements_links": "The cadence and latest-valid requirements define observable acceptance for these planned cases.",
+            "design_links": "Collector, RingBuffer, Exporter, and fake-clock interfaces identify the units under test."
+          }
+        },
+        "methods": {
+          "anchor": "V101",
+          "content": "Deterministic demonstration drives twelve samples and a two-minute outage while recording every accepted value and exported response.",
+          "fields": {
+            "methods": "Use a scheduled demonstration, FIFO boundary analysis, and exact output comparison rather than inspection alone.",
+            "environment": "Use fake UTC time, an in-memory buffer, a scripted valid probe, and a controllable controller-connection flag."
+          }
+        },
+        "cases": {
+          "anchor": "V102",
+          "content": "This planned case starts at fake UTC T0 = 2026-01-01T00:00:00Z with empty buffer and connected controller. At T0+60n seconds inject 20.0+(n-1)/10 Celsius, n=1..12. Process tick 10 first, then disconnect immediately at T0+600 seconds. Continue ticks 11 and 12 while disconnected; reconnect at T0+720 seconds only after tick 12.\n\n| Observation | Planned oracle |\n| --- | --- |\n| Query at T0+601, during outage | No remote Reading response; buffer retains 20.0..20.9 with original UTC timestamps. |\n| Query at T0+661, after tick 11 | No remote Reading response; local buffer retains 20.1..21.0. |\n| Inspect after tick 12, before reconnect | Buffer retains 20.2..21.1, timestamps T0+180..720 in 60-second steps. |\n| Remote query T0+721, after reconnect | Return 21.1 and original timestamp 2026-01-01T00:12:00Z; history remains unchanged. |",
+          "fields": {
+            "inputs": "Use exactly the initial state, twelve tick/value pairs, tick-10 disconnect, post-tick-12 reconnect and queries in the case table.",
+            "procedure": "Apply the declared event ordering, record every tick and buffer state, issue both outage queries and the recovery query, then compare original timestamps and suppression with the table.",
+            "expected_results": "Twelve timestamps are 60 seconds apart, the buffer holds 20.2–21.1, and final export returns 21.1 with its exact UTC timestamp."
+          }
+        },
+        "criteria": {
+          "anchor": "V103",
+          "content": "Pass requires exact cadence, exact retained values and order, no export during outage, and exact latest-valid response after recovery; all remain planned expectations.",
+          "fields": {
+            "pass_criteria": "No missed tick, ten retained values are exactly 20.2–21.1, outage exports are suppressed, and recovery returns only 21.1.",
+            "trace_matrix": "Cadence maps to tick records, FIFO to retained history, latest-valid to recovery response, and read-only export to unchanged timestamps."
+          }
+        },
+        "limits": {
+          "anchor": "V104",
+          "content": "The plan does not measure real scheduler jitter, physical sensor accuracy, network behavior, or multi-controller concurrency.",
+          "fields": {
+            "unexecuted_cases": "Every case is unexecuted in this fictional document; no transcript or observed outcome is asserted.",
+            "residual_risks": "Deterministic simulation cannot demonstrate embedded timing, hardware faults, transport security, or production load behavior."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/verification-test-plan/en/example.md"
+    },
+    {
+      "document_class": "verification",
+      "name": "sensor-verification-test-plan-zh",
+      "layer": null,
+      "template_id": "verification-test-plan",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 Aster 中断与采样周期测试计划",
+        "status": "虚构示例",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "V11500",
+          "content": "本计划检验 60 秒采样周期和控制器中断期间的最新有效值行为，不记录任何执行结果，也不以评审代替测试。被测对象仅限于 Collector、RingBuffer、Exporter 及其可控时钟接口。",
+          "fields": {
+            "requirements_links": "采样周期和最新有效值需求定义这些计划用例的可观察验收依据。",
+            "design_links": "Collector、RingBuffer、Exporter 和虚拟时钟接口标识被测单元及其协作边界。"
+          }
+        },
+        "methods": {
+          "anchor": "V11501",
+          "content": "确定性演示将驱动十二个样本和一次两分钟中断，并记录每个被接受值和每次导出响应。该方法通过受控时序排除真实调度抖动，以便单独检验周期逻辑和 FIFO 边界。",
+          "fields": {
+            "methods": "采用计划演示、FIFO 边界分析和精确输出比较，不以单纯代码检查代替行为执行。",
+            "environment": "使用虚拟 UTC 时间、内存缓存、脚本化有效探头和可控控制器连接标志。"
+          }
+        },
+        "cases": {
+          "anchor": "V11502",
+          "content": "本计划用例从虚拟 UTC 时刻 T0 = 2026-01-01T00:00:00Z、空缓存和已连接的控制器开始。在 T0+60n 秒注入 20.0+(n-1)/10 摄氏度，n=1..12。先处理第 10 次 tick，再于 T0+600 秒立即断开连接；断开期间继续处理第 11 和第 12 次 tick，仅在 T0+720 秒的第 12 次 tick 处理完成后重连。\n\n| 观察时刻 | 计划判据 |\n| --- | --- |\n| T0+601 秒，中断期间查询 | 不产生远程 Reading 响应；缓存保留 20.0..20.9 及原始 UTC 时间戳。 |\n| T0+661 秒，第 11 次 tick 后查询 | 不产生远程 Reading 响应；本地缓存保留 20.1..21.0。 |\n| 第 12 次 tick 后、重连前检查 | 缓存保留 20.2..21.1，时间戳为 T0+180..720，步长 60 秒。 |\n| T0+721 秒，重连后远程查询 | 返回 21.1 和原始时间戳 2026-01-01T00:12:00Z，历史不变。 |",
+          "fields": {
+            "inputs": "严格采用用例表的初始状态、十二组 tick 与数值、第 10 次 tick 后断开、第 12 次 tick 后重连及规定查询。",
+            "procedure": "按规定顺序施加事件，记录每次 tick 和缓存状态，发出两次中断查询及恢复查询，再依表比较原始时间戳和响应抑制。",
+            "expected_results": "十二个时间戳依次相差 60 秒，缓存保留 20.2–21.1，最终导出仅返回 21.1 及其原始 UTC 时间戳。"
+          }
+        },
+        "criteria": {
+          "anchor": "V11503",
+          "content": "通过要求采样周期、保留值及顺序、故障期间导出抑制和恢复后的最新值响应均精确符合预期。上述内容均是计划判定条件，不是本例已经观察到的结果。",
+          "fields": {
+            "pass_criteria": "不得遗漏时钟步长，十项保留值必须恰为 20.2–21.1，中断期间不得导出，恢复后只能返回 21.1。",
+            "trace_matrix": "周期需求映射到时钟记录，FIFO 映射到保留历史，最新有效值映射到恢复响应，只读导出映射到时间戳不变性。"
+          }
+        },
+        "limits": {
+          "anchor": "V11504",
+          "content": "本计划不测量真实调度抖动、物理传感器精度、网络行为或多控制器并发。确定性模拟未覆盖的条件必须作为残余风险保留。",
+          "fields": {
+            "unexecuted_cases": "本虚构文档中的全部用例均未执行，不提供任何转录或观察结果。",
+            "residual_risks": "确定性模拟不能证明嵌入式时序、硬件故障、传输安全或生产负载行为。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/verification-test-plan/zh-CN/example.md"
+    },
+    {
+      "document_class": "api-design",
+      "name": "create-run",
+      "layer": "core",
+      "template_id": "generic-api-design",
+      "language": "en",
+      "metadata": {
+        "title": "Fictional api design example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "U2000",
+          "content": "This function example defines an in-memory boundary with no execution claim.",
+          "fields": {
+            "api_identity": "Example::create_run",
+            "api_kind": "function",
+            "layer": "core",
+            "purpose": "Construct an in-memory run for a validated plan."
+          }
+        },
+        "contract": {
+          "anchor": "U2001",
+          "content": "Invalid inputs are refused before a run is constructed.",
+          "fields": {
+            "declaration": "`create_run(plan: Plan) -> Result<Run, InvalidPlan>`",
+            "inputs": "One caller-owned plan with a nonempty ordered stage list.",
+            "outputs": "A new run at its first stage; ownership transfers to the caller.",
+            "errors": "InvalidPlan when the stage list is empty or repeats an identifier.",
+            "side_effects": "Not applicable: this fictional function does not persist data or invoke callbacks."
+          }
+        },
+        "behavior": {
+          "anchor": "U2002",
+          "content": "The stated invariant constrains the fictional transition.",
+          "fields": {
+            "behavior": "Validate the plan, then construct the initial run.",
+            "invariants": "An invalid plan never produces a run.",
+            "constraints": "The caller serializes access; concurrency is outside this example."
+          }
+        },
+        "trace": {
+          "anchor": "U2003",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_realization_or_reason": "Language-side helper; package Example supplies participant context only and declares no realization of create_run.",
+            "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "design_links": "The declaration and behavior sections on this page own the fictional contract.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed."
+          }
+        },
+        "limits": {
+          "anchor": "U2004",
+          "content": "The status is designed-only; no acceptance result is supplied.",
+          "fields": {
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-api-design/en/example.md"
+    },
+    {
+      "document_class": "api-design",
+      "name": "create-run-zh",
+      "layer": "core",
+      "template_id": "generic-api-design",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 create_run API 设计（仅设计）",
+        "status": "虚构示例；仅设计",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "purpose": {
+          "anchor": "U13600",
+          "content": "本函数示例定义一个内存中的运行构造边界，不包含任何执行或持久化声明。API 的责任是依据经过验证的计划产生初始运行对象，其他生命周期职责不在此扩展。",
+          "fields": {
+            "api_identity": "Example::create_run",
+            "api_kind": "function",
+            "layer": "core",
+            "purpose": "根据有效 Plan 构造位于第一个阶段的内存 Run，并将结果所有权移交给调用方。"
+          }
+        },
+        "contract": {
+          "anchor": "U13601",
+          "content": "函数在构造任何运行对象之前拒绝无效输入，因此验证失败不会产生部分初始化结果，也不会触发回调或持久化副作用。",
+          "fields": {
+            "declaration": "`create_run(plan: Plan) -> Result<Run, InvalidPlan>`",
+            "inputs": "一个由调用方拥有、阶段列表非空且顺序确定的 Plan。",
+            "outputs": "一个位于第一阶段的新 Run，其所有权移交给调用方。",
+            "errors": "阶段列表为空或阶段标识重复时返回 InvalidPlan。",
+            "side_effects": "不适用：本虚构函数只构造内存值，不持久化数据，也不调用外部回调。"
+          }
+        },
+        "behavior": {
+          "anchor": "U13602",
+          "content": "行为顺序为先验证计划，再构造初始运行。该顺序形成明确不变量：任何无效计划都不能产生 Run，调用方负责串行化访问。",
+          "fields": {
+            "behavior": "先验证 Plan 的阶段列表和标识唯一性，再构造初始 Run。",
+            "invariants": "无效 Plan 永远不产生 Run，有效结果始终从第一个阶段开始。",
+            "constraints": "调用方负责串行化访问，并发执行和共享状态协调超出本示例范围。"
+          }
+        },
+        "trace": {
+          "anchor": "U13603",
+          "content": "背景模型和计划用例仅作为设计评审输入。Example 提供边界上下文，但不被宣称为本函数的模型实现；预期源码路径也不证明文件已经存在。",
+          "fields": {
+            "model_realization_or_reason": "语言侧辅助函数；Example 包仅提供参与者背景，并未声明 create_run 的模型实现。",
+            "source_projection": "src/example/factory.rs 是拟议实现位置，不是现存制品或完成声明。",
+            "requirements_links": "需求分配仍待作者评审，本示例不宣称任何已批准需求。",
+            "design_links": "本页的声明与行为章节拥有该虚构 API 的设计契约。",
+            "verification_links": "计划用例覆盖空计划、重复阶段和首阶段初始化，均未执行。"
+          }
+        },
+        "limits": {
+          "anchor": "U13604",
+          "content": "当前状态仅为设计，未提供验收结果。并发访问和持久恢复需要独立需求与设计，不能由内存构造函数推导。",
+          "fields": {
+            "unresolved_items": "并发语义、持久恢复和真实需求分配仍超出本虚构示例。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-api-design/zh-CN/example.md"
+    },
+    {
+      "document_class": "flow-index",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-index",
+      "language": "en",
+      "metadata": {
+        "title": "Fictional flow index example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "D2010",
+          "content": "Read the three linked pages for the separate responsibilities.",
+          "fields": {
+            "flow_scope": "The fictional sample flow validates a request and records a review decision.",
+            "navigation_links": "[Definition](definition.md), [implementation](implementation.md), and [views](views.md)."
+          }
+        },
+        "trace": {
+          "anchor": "D2011",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "verification_links": "Planned cases cover empty plans, repeated stages, and first-stage initialization; none has executed.",
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-index/en/example.md"
+    },
+    {
+      "document_class": "flow-index",
+      "name": "sample-flow-zh",
+      "layer": null,
+      "template_id": "generic-flow-index",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 sample-flow 流程索引（仅设计）",
+        "status": "虚构示例；仅设计",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "scope": {
+          "anchor": "D13710",
+          "content": "sample-flow 是用于说明文档分工的虚构流程，其目标是验证请求并记录评审决定。读者应通过以下三个链接分别阅读行为定义、实现分配和视图适用性，而不是在索引页查找全部细节。",
+          "fields": {
+            "flow_scope": "虚构 sample-flow 负责验证请求并记录一项评审决定，不包含真实执行历史。",
+            "navigation_links": "[流程定义](definition.md)、[实现分配](implementation.md) 和 [视图与适用性](views.md)。"
+          }
+        },
+        "trace": {
+          "anchor": "D13711",
+          "content": "Example 仅提供背景边界，计划用例仅说明后续验证方向。索引页不声称流程模型实现、需求批准或任何执行结果。",
+          "fields": {
+            "model_elements": "Example 包仅提供参与者背景，并未声明 sample-flow 的模型实现。",
+            "requirements_links": "需求分配仍待作者评审，本示例不宣称已批准需求。",
+            "verification_links": "计划用例覆盖空计划、重复阶段和首阶段初始化，均未执行。",
+            "unresolved_items": "并发语义、持久恢复和真实需求分配仍超出本虚构索引。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-index/zh-CN/example.md"
+    },
+    {
+      "document_class": "flow-definition",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-definition",
+      "language": "en",
+      "metadata": {
+        "title": "Fictional flow definition example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "stages": {
+          "anchor": "D2020",
+          "content": "| Stage | Next stage and exit condition |\n| --- | --- |\n| Prepare | Review only after the request is readable and complete |\n| Review | Complete only after the designated caller judgment is recorded |\n\nPrepare collects and validates the request; Review assesses completeness and records the explicit decision. Input existence alone cannot establish review completion.",
+          "fields": {
+            "stages": "Prepare collects and validates the request; Review assesses completeness and records a decision.",
+            "transitions": "Prepare enters Review only after a readable, complete request; Review completes only after the designated caller judgment is recorded.",
+            "exit_gates": "Prepare requires a readable, complete request; Review requires an explicit judgment by the designated caller."
+          }
+        },
+        "behavior": {
+          "anchor": "D2021",
+          "content": "Factory initialization is a prerequisite. The flow then advances only through the declared stages when their exit gates are satisfied; initialization alone is not completion.",
+          "fields": {
+            "behavior": "Validate Plan and construct the first-stage Run, then execute stage input checks and guarded transitions in order.",
+            "invariants": "Invalid Plan produces no Run; incomplete Prepare cannot enter Review; absent recorded judgment cannot complete the flow."
+          }
+        },
+        "trace": {
+          "anchor": "D2022",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+            "requirements_links": "Requirement allocation remains an author review item; this example claims no approved requirement.",
+            "verification_links": "Planned checks cover empty plans, repeated stages, first-stage initialization, rejection of incomplete Prepare and rejection of completion without recorded gate judgment; none has executed."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-definition/en/example.md"
+    },
+    {
+      "document_class": "flow-definition",
+      "name": "sample-flow-zh",
+      "layer": null,
+      "template_id": "generic-flow-definition",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 sample-flow 流程定义（仅设计）",
+        "status": "虚构示例；仅设计",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "stages": {
+          "anchor": "D13820",
+          "content": "| 阶段 | 后续阶段与退出依据 |\n| --- | --- |\n| Prepare | 请求可读取且完整后才能进入 Review |\n| Review | 记录指定调用方的明确判断后才能结束 |\n\nPrepare 收集并验证请求，Review 评估完整性并记录明确决定。仅有输入存在不能证明评审已经完成。",
+          "fields": {
+            "stages": "Prepare 收集并验证请求，Review 评估完整性并记录决定。",
+            "transitions": "Prepare 仅在请求可读取且完整后进入 Review；Review 仅在记录指定调用方的明确判断后结束。",
+            "exit_gates": "Prepare 要求请求可读取且完整；Review 要求指定调用方提供明确判断。"
+          }
+        },
+        "behavior": {
+          "anchor": "D13821",
+          "content": "工厂初始化是前提。流程随后仅在退出门满足时按声明阶段推进；初始化本身不构成完成。",
+          "fields": {
+            "behavior": "验证 Plan 并构造首阶段 Run，随后按顺序执行阶段输入检查和受门控约束的转换。",
+            "invariants": "无效 Plan 不产生 Run；Prepare 未完成不得进入 Review；未记录判断不得完成流程。"
+          }
+        },
+        "trace": {
+          "anchor": "D13822",
+          "content": "Example 提供背景边界，需求分配仍待评审，计划用例用于覆盖空计划、重复阶段和首阶段初始化。当前定义不声明流程实现或执行证据。",
+          "fields": {
+            "model_elements": "Example 包仅提供参与者背景，并未声明 sample-flow 的模型实现。",
+            "requirements_links": "需求分配仍待作者评审，本示例不宣称已批准需求。",
+            "verification_links": "计划检查覆盖空计划、重复阶段、首阶段初始化、未完成 Prepare 的拒绝路径，以及缺少已记录门控判断时拒绝完成的路径，均未执行。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-definition/zh-CN/example.md"
+    },
+    {
+      "document_class": "flow-implementation",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-implementation",
+      "language": "en",
+      "metadata": {
+        "title": "Fictional flow implementation example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "allocation": {
+          "anchor": "D2030",
+          "content": "Controller owns state and gate enforcement; Reviewer supplies a judgment without request-mutation access. Separating these permissions prevents review logic from bypassing stage conditions.",
+          "fields": {
+            "components": "Controller initiates work and maintains flow state and gates. Reviewer supplies a judgment and cannot mutate the request.",
+            "interfaces": "Controller passes a request identifier to Reviewer only in Review after readable, complete Prepare input; Reviewer returns a judgment that Controller records before completion. The interface grants no request-mutation access."
+          }
+        },
+        "projection": {
+          "anchor": "D2031",
+          "content": "Source allocation is planned and subject to implementation review.",
+          "fields": {
+            "behavior": "Validate Plan and construct initial Run; Controller then checks Prepare input, advances to Review only after its gate, invokes Reviewer in Review, records the designated judgment and completes only after that gate.",
+            "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+            "constraints": "The caller serializes access; concurrency is outside this example."
+          }
+        },
+        "trace": {
+          "anchor": "D2032",
+          "content": "The context model and planned cases are review inputs, not proof of implementation.",
+          "fields": {
+            "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+            "verification_links": "Planned checks cover empty plans, repeated stages, first-stage initialization and invalid judgment-interface calls outside Review or without complete Prepare; verify no request mutation and no completion without a recorded judgment. None has executed.",
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-implementation/en/example.md"
+    },
+    {
+      "document_class": "flow-implementation",
+      "name": "sample-flow-zh",
+      "layer": null,
+      "template_id": "generic-flow-implementation",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 sample-flow 实现分配（仅设计）",
+        "status": "虚构示例；仅设计",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "allocation": {
+          "anchor": "D13930",
+          "content": "Controller 拥有状态及门控执行职责，Reviewer 仅提供判断，不具备请求修改权限。该权限分离防止评审逻辑绕过阶段条件。",
+          "fields": {
+            "components": "Controller 发起工作并维护流程状态及门控；Reviewer 提供判断，不能修改请求。",
+            "interfaces": "Controller 仅在 Prepare 输入可读取且完整、流程进入 Review 后将请求标识交给 Reviewer；Reviewer 返回判断，由 Controller 在完成前记录。该接口不授予请求修改权限。"
+          }
+        },
+        "projection": {
+          "anchor": "D13931",
+          "content": "行为仍为先验证计划再构造初始运行，源码分配仅处于拟议状态。src/example/factory.rs 表示候选实现位置，不是仓库中已经存在的制品。",
+          "fields": {
+            "behavior": "先验证 Plan 并构造初始 Run；Controller 随后检查 Prepare 输入，仅在其门满足后进入 Review，在 Review 调用 Reviewer，记录指定判断，并仅在该门满足后完成。",
+            "source_projection": "src/example/factory.rs 是拟议实现位置，不是现存源码或完成声明。",
+            "constraints": "调用方负责串行化访问，并发、共享状态和持久恢复超出本示例。"
+          }
+        },
+        "trace": {
+          "anchor": "D13932",
+          "content": "Example 仅提供背景，计划用例用于评审实现分配是否保持流程定义。任何实现或验证结论都需要后续真实代码与执行证据。",
+          "fields": {
+            "model_elements": "Example 包仅提供参与者背景，并未声明 sample-flow 的模型实现。",
+            "verification_links": "计划检查覆盖空计划、重复阶段、首阶段初始化，以及在 Review 之外或 Prepare 未完成时调用判断接口的非法路径；核对请求不被修改，且未记录判断不得完成。均未执行。",
+            "unresolved_items": "并发语义、持久恢复、真实源码组织和需求分配仍待解决。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-implementation/zh-CN/example.md"
+    },
+    {
+      "document_class": "flow-views",
+      "name": "sample-flow",
+      "layer": null,
+      "template_id": "generic-flow-views",
+      "language": "en",
+      "metadata": {
+        "title": "Fictional flow views example",
+        "status": "designed-only",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "coverage": {
+          "anchor": "D2040",
+          "content": "View applicability is decided by the author and remains subject to review.",
+          "fields": {
+            "view_coverage": "The stage table in definition.md#d2020 (Chinese: definition.md#d13820) owns stage order and exit conditions; responsibility prose in implementation.md#d2030 (Chinese: implementation.md#d13930) owns Controller/Reviewer allocation.",
+            "applicability_reasons": "A sequence figure is optional when interaction timing needs discussion; this example has no timing claim."
+          }
+        },
+        "views": {
+          "anchor": "D2041",
+          "content": "There is no figure to validate in this fictional input.",
+          "fields": {
+            "model_views": "Not applicable: package Example supplies participant context but declares no rendered sample-flow view.",
+            "figure_references": "Not applicable: this example uses prose and a stage table, without an SVG.",
+            "verification_links": "Planned review compares the referenced definition stage table with its stage/transition/gate fields for order and coverage, then compares implementation responsibility prose with Controller state/gate ownership and Reviewer permissions. Check that neither completion before judgment nor Reviewer mutation is allowed. SVG fidelity is inapplicable because no SVG is selected; no review has executed."
+          }
+        },
+        "limits": {
+          "anchor": "D2042",
+          "content": "The status is designed-only; no acceptance result is supplied.",
+          "fields": {
+            "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-views/en/example.md"
+    },
+    {
+      "document_class": "flow-views",
+      "name": "sample-flow-zh",
+      "layer": null,
+      "template_id": "generic-flow-views",
+      "language": "zh-CN",
+      "metadata": {
+        "title": "虚构 sample-flow 视图与适用性（仅设计）",
+        "status": "虚构示例；仅设计",
+        "revision": "1",
+        "model_sources": [
+          "mbse/model/example.sysml"
+        ]
+      },
+      "sections": {
+        "coverage": {
+          "anchor": "D14040",
+          "content": "本例只需要解释两个阶段的先后顺序和 Controller 与 Reviewer 的职责，阶段表和连贯文字已经足够。是否采用视图由读者问题决定，而不是由流程角色页的形式要求决定。",
+          "fields": {
+            "view_coverage": "definition.md#d2020（中文：definition.md#d13820）的阶段表规定阶段顺序和退出条件；implementation.md#d2030（中文：implementation.md#d13930）的职责文字规定 Controller 与 Reviewer 分配。",
+            "applicability_reasons": "只有需要讨论交互时序时才考虑序列图；本示例没有时序声明，因此不增加序列图。"
+          }
+        },
+        "views": {
+          "anchor": "D14041",
+          "content": "输入未提供可渲染流程视图或 SVG，因此本例没有需要校验的图形。视图适用性和无图理由均保留在文档中，避免将缺省解释为遗漏。",
+          "fields": {
+            "model_views": "不适用：Example 包仅提供参与者背景，并未声明已渲染的 sample-flow 视图。",
+            "figure_references": "不适用：本例采用阶段表和职责文字，没有 SVG，也不声称图形验证结果。",
+            "verification_links": "计划评审将所指向定义页的阶段表与其阶段、转换及退出门字段逐项比较，核对顺序与覆盖；再将实现页的职责文字与 Controller 状态和门控所有权、Reviewer 权限进行比较。应核对未记录判断不得完成，Reviewer 不得修改请求。由于未选择 SVG，SVG 保真度不适用；尚未执行评审。"
+          }
+        },
+        "limits": {
+          "anchor": "D14042",
+          "content": "当前状态仅为设计，未提供验收结果。若后续加入并发、时序或持久恢复语义，需要重新评估视图适用性和验证范围。",
+          "fields": {
+            "unresolved_items": "并发、持久恢复和后续时序视图需求仍超出本虚构示例。"
+          }
+        }
+      },
+      "expected_document": "catalog/entries/generic-flow-views/zh-CN/example.md"
+    }
+  ],
+  "coverage": {
+    "pack": "catalog/shared/mixed/coverage.md",
+    "target": "docs/design/mixed-coverage.md"
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [
+    {
+      "pack": "catalog/shared/mixed/assets/system-context.svg",
+      "target": "docs/architecture/assets/system-context.svg",
+      "title": "Aster boundary and external exchanges",
+      "Question": "Which parts are inside Aster and what crosses its boundary?",
+      "Model view": "Example::SystemContext",
+      "Companions": "The external interface table and component-composition example.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "AsterHub is inside the dashed boundary; Operator and WeatherService are outside, with readings leaving and calibration commands entering.",
+      "Limits": "The view shows context and exchange direction, not internal components, protocols, or deployment nodes.",
+      "language": "en"
+    },
+    {
+      "pack": "catalog/shared/mixed/assets/interaction-flow.svg",
+      "target": "docs/design/assets/interaction-flow.svg",
+      "title": "Aster current-reading request and response",
+      "Question": "In what order do request, validation, response, and timeout occur?",
+      "Model view": "Example::InteractionFlow",
+      "Companions": "The operation-contract and alternate-flow tables.",
+      "Status": "renderable-now; designed-only",
+      "Reading": "Controller sends ReadRequest, Sensor validates the request, then returns ReadingResponse; the dashed timeout path returns no reading.",
+      "Limits": "The view is fictional and omits transport encoding, authentication, and precise timeout duration.",
+      "language": "en"
+    }
+  ]
+}

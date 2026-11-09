@@ -1,0 +1,46 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-index",
+  "name": "sample-flow-zh",
+  "layer": null,
+  "template_id": "generic-flow-index",
+  "metadata": {
+    "title": "虚构 sample-flow 流程索引（仅设计）",
+    "status": "虚构示例；仅设计",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "D13710",
+      "content": "sample-flow 是用于说明文档分工的虚构流程，其目标是验证请求并记录评审决定。读者应通过以下三个链接分别阅读行为定义、实现分配和视图适用性，而不是在索引页查找全部细节。",
+      "fields": {
+        "flow_scope": "虚构 sample-flow 负责验证请求并记录一项评审决定，不包含真实执行历史。",
+        "navigation_links": "[流程定义](definition.md)、[实现分配](implementation.md) 和 [视图与适用性](views.md)。"
+      }
+    },
+    "trace": {
+      "anchor": "D13711",
+      "content": "Example 仅提供背景边界，计划用例仅说明后续验证方向。索引页不声称流程模型实现、需求批准或任何执行结果。",
+      "fields": {
+        "model_elements": "Example 包仅提供参与者背景，并未声明 sample-flow 的模型实现。",
+        "requirements_links": "需求分配仍待作者评审，本示例不宣称已批准需求。",
+        "verification_links": "计划用例覆盖空计划、重复阶段和首阶段初始化，均未执行。",
+        "unresolved_items": "并发语义、持久恢复和真实需求分配仍超出本虚构索引。"
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-index/zh-CN/example.md",
+  "language": "zh-CN"
+}

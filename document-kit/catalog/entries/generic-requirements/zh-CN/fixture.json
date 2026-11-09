@@ -1,0 +1,66 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "requirements",
+  "name": "sensor-generic-requirements-zh",
+  "template_id": "generic-requirements",
+  "metadata": {
+    "title": "虚构 Aster 传感器监测需求",
+    "status": "虚构示例",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "R10100",
+      "content": "Aster 是虚构的温室传感器集线器。本需求集合规定周期性采样和单次温度读数导出，旨在解决人工记录缺乏连续性的问题；执行器控制不属于产品边界，因此不在本文扩展为控制需求。",
+      "fields": {
+        "system_boundary": "Aster 集线器负责本地探头采样、有效性检查和读数导出；温室执行器、天气预报及灌溉决策均位于系统边界之外。"
+      }
+    },
+    "requirements": {
+      "anchor": "R10101",
+      "content": "集线器应每 60 秒采样一次，以 UTC 记录时间戳，并且仅在数值通过有效性检查后导出读数。该义务保证外部控制器能够比较不同时刻和不同集线器的数据，同时避免损坏数值进入后续决策。",
+      "fields": {
+        "normative_statements": "系统应以 60 秒为周期采样，以 UTC 记录时间戳，拒绝 NaN 和无穷大，并在导出中断期间保留最后的有效读数。",
+        "rationale": "稳定周期和可信时间戳是横向比较测量结果的前提，保留最后有效值则可降低短时通信中断对可见性的影响，而不会把旧值伪装成新测量。"
+      }
+    },
+    "acceptance": {
+      "anchor": "R10102",
+      "content": "以下均为虚构示例的计划验收条件，尚无观察结果。周期、无效输入和中断用例分别从空缓存和 T0 = 2026-01-01T00:00:00Z 开始，避免注入故障与周期观测相互混淆。",
+      "fields": {
+        "measurable_conditions": "周期用例在 T0+60(i+1) 秒注入 20.0+i/10 摄氏度，i=0..9；应得到十个样本，相邻间隔为 60±0.1 秒，UTC 时间戳必须逐项等于相应虚拟时钟时刻。无效输入用例在 T0+60 秒注入 NaN，应拒绝该值且缓存仍为空。中断用例在 T0+60 秒接受 20.0，随即断开导出连接至 T0+180 秒，期间不提供新样本；T0+90 秒和 T0+150 秒的本地最新值查询均应保留 20.0 及 2026-01-01T00:01:00Z。",
+        "verification_method": "采用虚拟 UTC 时钟、脚本探头和记录器。逐项比较时间戳与 T0+60(i+1)，核对相邻采样间隔；在独立 NaN 用例中检查拒绝结果和缓存状态，并在两次中断期间的本地查询中比较值与原始时间戳。这些比较仅为计划，不构成执行证据。"
+      }
+    },
+    "trace": {
+      "anchor": "R10103",
+      "content": "Example::Sensor 与 Example::Controller 标识采样需求及预期读取行为的模型参与者。后续读取管线设计负责分配有效性检查和导出职责，本文不据此宣称任何实现已经存在。",
+      "fields": {
+        "model_elements": "Example::Sensor 和 Example::Controller 是本虚构需求在模型中的来源元素，用于定位采样主体和读取方。",
+        "design_links": "Aster 读取管线设计拥有有效性检查、缓存和导出行为的分配；该链接仅指向设计责任，不构成实现证据。"
+      }
+    },
+    "limits": {
+      "anchor": "R10104",
+      "content": "本示例没有规定探头精度、硬件调度抖动或安全部署参数，因而不能据此推断真实设备满足计量、实时性或网络安全要求。这些问题需要在实际项目中另行分析和验收。",
+      "fields": {
+        "unresolved_items": "探头校准限值、真实调度器抖动、身份认证机制和生产数据保留期限仍待实际项目决策。"
+      }
+    }
+  },
+  "expected_document": "catalog/entries/generic-requirements/zh-CN/example.md",
+  "layer": null,
+  "language": "zh-CN"
+}

@@ -1,0 +1,69 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-design-review-zh",
+  "template_id": "design-review",
+  "metadata": {
+    "title": "虚构 Aster 模型与设计评审计划",
+    "status": "虚构示例",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V11600",
+      "content": "本评审计划检查模型与设计是否真正解释 Aster 的边界、交互、数据含义和证据限制，不预先宣布通过。评审对象包括 system-context、interaction-flow、data-model 和 operation-contract 的指定修订。",
+      "fields": {
+        "requirements_links": "采样周期、最新有效值、边界所有权和不得虚构读数的需求提供评审依据。",
+        "design_links": "system-context、interaction-flow、data-model 和 operation-contract 文档构成被评审制品集合。"
+      }
+    },
+    "questions": {
+      "anchor": "V11601",
+      "content": "评审者需要判断每个参与者是否位于正确边界、每幅图是否对应指定视图、不变量是否可检验，以及虚构内容是否与证据明确区分。这些问题不能由文件存在性检查回答。",
+      "fields": {
+        "review_questions": "边界与交换方向是否正确，图形与模型视图和正文是否一致，所有权与错误是否精确，限制是否如实披露？",
+        "methods": "采用模型到文档检查、图形到 SVG 比较、需求到设计追踪和独立语义判断。"
+      }
+    },
+    "inputs": {
+      "anchor": "V11602",
+      "content": "评审输入包括模型与文档的精确哈希、两幅共享 SVG、来源记录以及区分结构发现和语义判断的覆盖清单。任何后续字节变化都要求重新绑定评审修订。",
+      "fields": {
+        "inputs": "Example 模型、选定文档和图形、来源清单、制品哈希以及关注点和省略项覆盖清单。",
+        "procedure": "逐项检查关注点，记录证据和分歧，将图块解读与可见几何和模型视图比较，再独立形成结论。",
+        "expected_results": "每个关注点都有带证据的判断及发现，或明确的无发现结论，所有残余限制仍然可见。"
+      }
+    },
+    "criteria": {
+      "anchor": "V11603",
+      "content": "只有独立评审者确认制品有用、技术连贯、可追踪且不存在未处理的保真缺陷时，才允许形成通过结论。作者提供的结构检查输出不能替代该判断。",
+      "fields": {
+        "pass_criteria": "不存在未关闭的阻塞性语义发现，图形与模型视图一致，每项判断均标识权限和被审哈希。",
+        "trace_matrix": "边界映射到背景评审，顺序映射到交互评审，语义映射到数据评审，保真度映射到 SVG 评审，证据映射到哈希评审。"
+      }
+    },
+    "limits": {
+      "anchor": "V11604",
+      "content": "计划本身不是评审，也不提供独立结论。原创性、用户理解和工程正确性仍需要超出结构检查的真实判断与证据。",
+      "fields": {
+        "unexecuted_cases": "在指定评审者评估所标识制品修订之前，独立评审始终保持计划状态。",
+        "residual_risks": "清单不能在没有真实评审判断的情况下证明原创性、用户适用性或工程正确性。"
+      }
+    }
+  },
+  "expected_document": "catalog/entries/design-review/zh-CN/example.md",
+  "layer": null,
+  "language": "zh-CN"
+}

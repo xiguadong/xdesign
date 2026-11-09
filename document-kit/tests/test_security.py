@@ -382,7 +382,7 @@ class SecurityTests(unittest.TestCase):
         self.assertTrue(check_documents(target)["ok"])
 
     def test_doc14_reviewer_markdown_rendering_cases_are_rejected(self) -> None:
-        renderer = REPO / "cache/docs-site/venv/bin/python"
+        renderer = Path(os.environ.get("XDESIGN_DOC_KIT_DOCS_PYTHON", str(REPO / "cache/docs-site/venv/bin/python")))
         if not renderer.is_file():
             self.skipTest("repository MkDocs renderer is unavailable")
         from xdesign_doc_kit.catalog import _markdown_security_findings
@@ -507,7 +507,7 @@ class SecurityTests(unittest.TestCase):
                 with self.assertRaises(DocumentKitError) as rejected:
                     get_contract(pack)
                 self.assertEqual(rejected.exception.code, "unsafe-url")
-        renderer = REPO / "cache/docs-site/venv/bin/python"
+        renderer = Path(os.environ.get("XDESIGN_DOC_KIT_DOCS_PYTHON", str(REPO / "cache/docs-site/venv/bin/python")))
         if not renderer.is_file():
             self.skipTest("repository MkDocs renderer is unavailable")
         from xdesign_doc_kit.catalog import _markdown_security_findings

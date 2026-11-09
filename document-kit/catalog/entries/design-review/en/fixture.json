@@ -1,0 +1,69 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-design-review",
+  "template_id": "design-review",
+  "metadata": {
+    "title": "Aster model and design review plan",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V100",
+      "content": "The review plan examines whether the model and design actually explain Aster's boundary, interactions, data meaning, and evidence limits; it does not predeclare a pass.",
+      "fields": {
+        "requirements_links": "Cadence, latest-valid, boundary ownership, and no-fabricated-reading requirements provide the review basis.",
+        "design_links": "System-context, interaction-flow, data-model, and operation-contract documents are the artifacts under review."
+      }
+    },
+    "questions": {
+      "anchor": "V101",
+      "content": "Reviewers ask whether each actor is correctly placed, every figure matches its named view, invariants are testable, and fictional content is distinguished from evidence.",
+      "fields": {
+        "review_questions": "Are boundary and exchange direction correct, do figures match model views and prose, are ownership and errors precise, and are limits honest?",
+        "methods": "Use model-to-document inspection, figure-to-SVG comparison, requirement-to-design tracing, and independent semantic judgment."
+      }
+    },
+    "inputs": {
+      "anchor": "V102",
+      "content": "Reviewers receive exact model and document hashes, both SVGs, source records, and a checklist that separates structural findings from unresolved judgments.",
+      "fields": {
+        "inputs": "Example model, selected documents and figures, reviewed source list, artifact hashes, and the concern/omission coverage list.",
+        "procedure": "Inspect each concern, record evidence and disagreements, compare figure readings to visible geometry and model views, then issue a separate verdict.",
+        "expected_results": "Every concern has a documented judgment with findings or an explicit no-finding result and all residual limitations remain visible."
+      }
+    },
+    "criteria": {
+      "anchor": "V103",
+      "content": "A pass is allowed only when the independent reviewer finds the scenario artifacts useful, technically coherent, traceable, and free of unaddressed fidelity defects.",
+      "fields": {
+        "pass_criteria": "No unresolved blocking semantic finding; every figure and model view agrees and every judgment identifies its authority and assessed hashes.",
+        "trace_matrix": "Boundary maps to context review, ordering to interaction review, meaning to data review, fidelity to SVG review, and evidence to hash review."
+      }
+    },
+    "limits": {
+      "anchor": "V104",
+      "content": "The plan itself is not the review and supplies no independent verdict; originality and user comprehension require additional evidence beyond structure.",
+      "fields": {
+        "unexecuted_cases": "The independent review is planned until a named reviewer evaluates the identified artifact revision.",
+        "residual_risks": "A checklist cannot prove originality, user usefulness, or engineering correctness without the reviewer's actual judgment."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/design-review/en/example.md",
+  "layer": null,
+  "language": "en"
+}

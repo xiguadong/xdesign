@@ -1,0 +1,69 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-verification-test-plan-zh",
+  "template_id": "verification-test-plan",
+  "metadata": {
+    "title": "虚构 Aster 中断与采样周期测试计划",
+    "status": "虚构示例",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V11500",
+      "content": "本计划检验 60 秒采样周期和控制器中断期间的最新有效值行为，不记录任何执行结果，也不以评审代替测试。被测对象仅限于 Collector、RingBuffer、Exporter 及其可控时钟接口。",
+      "fields": {
+        "requirements_links": "采样周期和最新有效值需求定义这些计划用例的可观察验收依据。",
+        "design_links": "Collector、RingBuffer、Exporter 和虚拟时钟接口标识被测单元及其协作边界。"
+      }
+    },
+    "methods": {
+      "anchor": "V11501",
+      "content": "确定性演示将驱动十二个样本和一次两分钟中断，并记录每个被接受值和每次导出响应。该方法通过受控时序排除真实调度抖动，以便单独检验周期逻辑和 FIFO 边界。",
+      "fields": {
+        "methods": "采用计划演示、FIFO 边界分析和精确输出比较，不以单纯代码检查代替行为执行。",
+        "environment": "使用虚拟 UTC 时间、内存缓存、脚本化有效探头和可控控制器连接标志。"
+      }
+    },
+    "cases": {
+      "anchor": "V11502",
+      "content": "本计划用例从虚拟 UTC 时刻 T0 = 2026-01-01T00:00:00Z、空缓存和已连接的控制器开始。在 T0+60n 秒注入 20.0+(n-1)/10 摄氏度，n=1..12。先处理第 10 次 tick，再于 T0+600 秒立即断开连接；断开期间继续处理第 11 和第 12 次 tick，仅在 T0+720 秒的第 12 次 tick 处理完成后重连。\n\n| 观察时刻 | 计划判据 |\n| --- | --- |\n| T0+601 秒，中断期间查询 | 不产生远程 Reading 响应；缓存保留 20.0..20.9 及原始 UTC 时间戳。 |\n| T0+661 秒，第 11 次 tick 后查询 | 不产生远程 Reading 响应；本地缓存保留 20.1..21.0。 |\n| 第 12 次 tick 后、重连前检查 | 缓存保留 20.2..21.1，时间戳为 T0+180..720，步长 60 秒。 |\n| T0+721 秒，重连后远程查询 | 返回 21.1 和原始时间戳 2026-01-01T00:12:00Z，历史不变。 |",
+      "fields": {
+        "inputs": "严格采用用例表的初始状态、十二组 tick 与数值、第 10 次 tick 后断开、第 12 次 tick 后重连及规定查询。",
+        "procedure": "按规定顺序施加事件，记录每次 tick 和缓存状态，发出两次中断查询及恢复查询，再依表比较原始时间戳和响应抑制。",
+        "expected_results": "十二个时间戳依次相差 60 秒，缓存保留 20.2–21.1，最终导出仅返回 21.1 及其原始 UTC 时间戳。"
+      }
+    },
+    "criteria": {
+      "anchor": "V11503",
+      "content": "通过要求采样周期、保留值及顺序、故障期间导出抑制和恢复后的最新值响应均精确符合预期。上述内容均是计划判定条件，不是本例已经观察到的结果。",
+      "fields": {
+        "pass_criteria": "不得遗漏时钟步长，十项保留值必须恰为 20.2–21.1，中断期间不得导出，恢复后只能返回 21.1。",
+        "trace_matrix": "周期需求映射到时钟记录，FIFO 映射到保留历史，最新有效值映射到恢复响应，只读导出映射到时间戳不变性。"
+      }
+    },
+    "limits": {
+      "anchor": "V11504",
+      "content": "本计划不测量真实调度抖动、物理传感器精度、网络行为或多控制器并发。确定性模拟未覆盖的条件必须作为残余风险保留。",
+      "fields": {
+        "unexecuted_cases": "本虚构文档中的全部用例均未执行，不提供任何转录或观察结果。",
+        "residual_risks": "确定性模拟不能证明嵌入式时序、硬件故障、传输安全或生产负载行为。"
+      }
+    }
+  },
+  "expected_document": "catalog/entries/verification-test-plan/zh-CN/example.md",
+  "layer": null,
+  "language": "zh-CN"
+}

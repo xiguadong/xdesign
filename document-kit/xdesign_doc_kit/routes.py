@@ -192,10 +192,14 @@ def validate_family(profile, children):
                 k: v[1] if isinstance(v, tuple) else v
                 for k, v in c["resources"].items()
             }
+            historical = {
+                ("xdesign-sysml-docs", "1.0.0"): "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6",
+                ("xdesign-sysml-docs", "1.1.0"): "e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef",
+            }
             if (
-                key != ("xdesign-sysml-docs", "1.0.0")
-                or pack["contract_sha256"]
-                != "1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6"
+                key not in historical
+                or pack["contract_sha256"] != historical[key]
+                or previous["contract_sha256"] != historical[key]
                 or closure(previous) != closure(pack)
             ):
                 raise _error(

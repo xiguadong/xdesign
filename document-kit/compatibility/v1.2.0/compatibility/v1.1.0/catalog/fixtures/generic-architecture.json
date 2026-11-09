@@ -1,0 +1,60 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "architecture",
+  "name": "sensor-generic-architecture",
+  "template_id": "generic-architecture",
+  "metadata": {
+    "title": "Aster sensor hub architecture",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "context": {
+      "anchor": "B100",
+      "content": "The fictional Aster hub sits between one local probe and the external controller. It validates samples but does not choose irrigation actions.",
+      "fields": {
+        "system_boundary": "The hub owns sampling, validation, short-term buffering, and export; probe hardware and controller decisions are outside.",
+        "external_actors": "The local probe supplies readings and the external controller requests and receives validated readings."
+      }
+    },
+    "composition": {
+      "anchor": "B101",
+      "content": "A collector validates each sample, a ring buffer retains the latest ten valid readings, and an exporter answers controller requests.",
+      "fields": {
+        "parts": "Collector, UTC clock, ten-entry ring buffer, and export adapter are the only parts in this worked architecture.",
+        "relationships": "Collector writes validated readings to the buffer; exporter reads but never mutates buffered history; the clock supplies UTC timestamps."
+      }
+    },
+    "behavior": {
+      "anchor": "B102",
+      "content": "Startup initializes an empty buffer, periodic operation appends valid samples, and an export outage leaves collection running without discarding history.",
+      "fields": {
+        "interactions": "Probe samples enter the collector, valid readings move to the buffer, and controller queries trigger export of the newest reading.",
+        "states": "Empty, collecting, and degraded-export states explain startup, normal sampling, and temporary controller unavailability."
+      }
+    },
+    "constraints": {
+      "anchor": "B103",
+      "content": "The buffer is deliberately bounded and export is read-only to prevent a slow controller from mutating sensor history or exhausting memory.",
+      "fields": {
+        "constraints": "Retain exactly ten valid readings, use UTC at every boundary, reject non-finite values, and never block collection on export.",
+        "design_rationale": "A small read-only history is sufficient for the example and isolates sampling reliability from controller behavior."
+      }
+    },
+    "trace": {
+      "anchor": "B104",
+      "content": "The architecture traces to Example::Sensor, Example::Controller, the stated sampling requirements, and a planned buffer/export verification case.",
+      "fields": {
+        "model_elements": "Example::Sensor and Example::Controller are the fictional model participants for composition and exchange.",
+        "requirements_links": "The 60-second sampling and latest-valid-reading requirements own the observable behavior.",
+        "verification_links": "Planned buffer-capacity and export-outage cases cover the main architectural constraints."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/generic-architecture.md"
+}

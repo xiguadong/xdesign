@@ -112,4 +112,15 @@ package XDesignTraceability {
        authoring design is allocated and reviewed; planned verification links live
        in XDesignVerification::StructuredDocumentKitVerification. */
 
+    /* R22 has proposed design satisfiers only. These links do not establish a
+       bilingual implementation, an executed BDK case or semantic acceptance. */
+    satisfy documentKitCatalogHasCoherentResourceLayout by BilingualDocumentKitDesign::BilingualCatalogLayout;
+    satisfy documentKitSupportsCompleteChineseAndEnglish by BilingualDocumentKitDesign::BilingualVariantLibrary;
+    satisfy documentTemplateLanguageSelectionIsDeterministic by BilingualDocumentKitDesign::BilingualLanguageResolver;
+    satisfy documentTemplateLanguageIdentityIsPersistent by BilingualDocumentKitDesign::BilingualIdentityResolver;
+    satisfy documentTemplateLanguageSurfacesAreShared by BilingualDocumentKitDesign::BilingualConsumerContract;
+    satisfy chineseTemplatesUseScholarlyEngineeringProse by BilingualDocumentKitDesign::BilingualScholarlyProseContract;
+    satisfy bilingualDocumentKitPreservesCompatibility by BilingualDocumentKitDesign::BilingualCompatibilityResolver;
+    satisfy bilingualDocumentKitEvidenceIsReviewable by BilingualDocumentKitDesign::BilingualValidationBoundary;
+
 }

@@ -14,16 +14,21 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-KIT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(KIT))
+DISTRIBUTION = Path(__file__).resolve().parents[1]
+KIT = DISTRIBUTION / "compatibility/v1.2.0"
+sys.path.insert(0, str(DISTRIBUTION))
 from xdesign_doc_kit import *
 from xdesign_doc_kit import core
 from xdesign_doc_kit.catalog import load_catalog_contract
 from xdesign_doc_kit.compatibility import marker, registry_entry
 
+from _release_support import select_release
+for _name in ("get_contract", "plan_document", "create_document", "update_section", "attach_figure", "check_documents"):
+    globals()[_name] = select_release(globals()[_name], KIT)
+
 CACHE = Path(
     os.environ.get(
-        "XDESIGN_DOC_KIT_TEST_CACHE", KIT.parent / "cache/document-kit-structured-tests"
+        "XDESIGN_DOC_KIT_TEST_CACHE", DISTRIBUTION.parent / "cache/document-kit-structured-tests"
     )
 )
 CACHE.mkdir(parents=True, exist_ok=True)

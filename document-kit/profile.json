@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "profile_id": "xdesign-sysml-docs",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "rules_file": "RULES.md",
   "skill_file": "SKILL.md",
   "rule_ids": [
@@ -30,305 +30,31 @@
     "requirements": {
       "path_template": "docs/requirements/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-requirements.md",
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and scope",
-          "required_fields": [
-            "system_boundary"
-          ]
-        },
-        {
-          "key": "requirements",
-          "heading": "2. Requirements",
-          "required_fields": [
-            "normative_statements",
-            "rationale"
-          ]
-        },
-        {
-          "key": "acceptance",
-          "heading": "3. Acceptance conditions",
-          "required_fields": [
-            "measurable_conditions",
-            "verification_method"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "4. Model and design trace",
-          "required_fields": [
-            "model_elements",
-            "design_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-requirements"
     },
     "architecture": {
       "path_template": "docs/architecture/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-architecture.md",
-      "required_sections": [
-        {
-          "key": "context",
-          "heading": "1. Context and boundary",
-          "required_fields": [
-            "system_boundary",
-            "external_actors"
-          ]
-        },
-        {
-          "key": "composition",
-          "heading": "2. Composition and responsibilities",
-          "required_fields": [
-            "parts",
-            "relationships"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "3. Behavior and lifecycle",
-          "required_fields": [
-            "interactions",
-            "states"
-          ]
-        },
-        {
-          "key": "constraints",
-          "heading": "4. Constraints and decisions",
-          "required_fields": [
-            "constraints",
-            "design_rationale"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links"
-          ]
-        }
-      ],
       "default_template_id": "generic-architecture"
     },
     "design": {
       "path_template": "docs/design/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-design.md",
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and allocation",
-          "required_fields": [
-            "design_subject",
-            "requirements_links"
-          ]
-        },
-        {
-          "key": "structure",
-          "heading": "2. Structure and interfaces",
-          "required_fields": [
-            "components",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "3. Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "constraints"
-          ]
-        },
-        {
-          "key": "rationale",
-          "heading": "4. Decisions and rationale",
-          "required_fields": [
-            "chosen_design",
-            "tradeoffs"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "5. Implementation projection and verification",
-          "required_fields": [
-            "source_projection",
-            "verification_links",
-            "model_elements"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "6. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-design"
     },
     "interface": {
       "path_template": "docs/interfaces/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-interface.md",
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "1. Purpose and participants",
-          "required_fields": [
-            "boundary",
-            "participants"
-          ]
-        },
-        {
-          "key": "contract",
-          "heading": "2. Interface contract",
-          "required_fields": [
-            "operations",
-            "data_shapes"
-          ]
-        },
-        {
-          "key": "errors",
-          "heading": "3. Errors and invariants",
-          "required_fields": [
-            "error_behavior",
-            "invariants"
-          ]
-        },
-        {
-          "key": "compatibility",
-          "heading": "4. Versioning and compatibility",
-          "required_fields": [
-            "version_policy",
-            "compatibility_policy"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "5. Model and verification trace",
-          "required_fields": [
-            "model_elements",
-            "verification_links"
-          ]
-        }
-      ],
       "default_template_id": "generic-interface"
     },
     "verification": {
       "path_template": "docs/verification/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-verification.md",
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "1. Scope and basis",
-          "required_fields": [
-            "requirements_links",
-            "design_links"
-          ]
-        },
-        {
-          "key": "methods",
-          "heading": "2. Methods and environment",
-          "required_fields": [
-            "methods",
-            "environment"
-          ]
-        },
-        {
-          "key": "cases",
-          "heading": "3. Verification cases",
-          "required_fields": [
-            "inputs",
-            "procedure",
-            "expected_results"
-          ]
-        },
-        {
-          "key": "criteria",
-          "heading": "4. Acceptance criteria and trace",
-          "required_fields": [
-            "pass_criteria",
-            "trace_matrix"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "5. Status and limits",
-          "required_fields": [
-            "unexecuted_cases",
-            "residual_risks"
-          ]
-        }
-      ],
       "default_template_id": "generic-verification"
     },
     "api-design": {
       "path_template": "docs/design/api/{layer}/{name}.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-api-design.md",
-      "required_sections": [
-        {
-          "key": "purpose",
-          "heading": "Purpose and boundary",
-          "required_fields": [
-            "api_identity",
-            "api_kind",
-            "layer",
-            "purpose"
-          ]
-        },
-        {
-          "key": "contract",
-          "heading": "Declaration and contract",
-          "required_fields": [
-            "declaration",
-            "inputs",
-            "outputs",
-            "errors",
-            "side_effects"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "invariants",
-            "constraints"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "Trace and verification",
-          "required_fields": [
-            "model_realization_or_reason",
-            "source_projection",
-            "requirements_links",
-            "design_links",
-            "verification_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-api-design",
       "selector_kind": "api",
       "allowed_layers": [
@@ -344,130 +70,24 @@
     "flow-index": {
       "path_template": "docs/design/flows/{name}/index.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-flow-index.md",
-      "required_sections": [
-        {
-          "key": "scope",
-          "heading": "Scope and navigation",
-          "required_fields": [
-            "flow_scope",
-            "navigation_links"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "Status and trace",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links",
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-flow-index",
       "selector_kind": "flow"
     },
     "flow-definition": {
       "path_template": "docs/design/flows/{name}/definition.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-flow-definition.md",
-      "required_sections": [
-        {
-          "key": "stages",
-          "heading": "1. Stages and gates",
-          "required_fields": [
-            "stages",
-            "transitions",
-            "exit_gates"
-          ]
-        },
-        {
-          "key": "behavior",
-          "heading": "2. Behavior and constraints",
-          "required_fields": [
-            "behavior",
-            "invariants"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "3. Trace and verification",
-          "required_fields": [
-            "model_elements",
-            "requirements_links",
-            "verification_links"
-          ]
-        }
-      ],
       "default_template_id": "generic-flow-definition",
       "selector_kind": "flow"
     },
     "flow-implementation": {
       "path_template": "docs/design/flows/{name}/implementation.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-flow-implementation.md",
-      "required_sections": [
-        {
-          "key": "allocation",
-          "heading": "1. Allocation",
-          "required_fields": [
-            "components",
-            "interfaces"
-          ]
-        },
-        {
-          "key": "projection",
-          "heading": "2. Behavior and source projection",
-          "required_fields": [
-            "behavior",
-            "source_projection",
-            "constraints"
-          ]
-        },
-        {
-          "key": "trace",
-          "heading": "3. Verification and limits",
-          "required_fields": [
-            "model_elements",
-            "verification_links",
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-flow-implementation",
       "selector_kind": "flow"
     },
     "flow-views": {
       "path_template": "docs/design/flows/{name}/views.md",
       "filename_pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-      "template": "catalog/templates/generic-flow-views.md",
-      "required_sections": [
-        {
-          "key": "coverage",
-          "heading": "1. Coverage and applicability",
-          "required_fields": [
-            "view_coverage",
-            "applicability_reasons"
-          ]
-        },
-        {
-          "key": "views",
-          "heading": "2. Views and references",
-          "required_fields": [
-            "model_views",
-            "figure_references",
-            "verification_links"
-          ]
-        },
-        {
-          "key": "limits",
-          "heading": "3. Status and limits",
-          "required_fields": [
-            "unresolved_items"
-          ]
-        }
-      ],
       "default_template_id": "generic-flow-views",
       "selector_kind": "flow"
     }
@@ -524,15 +144,6 @@
   },
   "figure_block": {
     "required": "when_model_figure_embedded",
-    "template": "templates/figure-block.md",
-    "ordered_fields": [
-      "Question",
-      "Model view",
-      "Companions",
-      "Status",
-      "Reading",
-      "Limits"
-    ],
     "field_tokens": {
       "Question": "question",
       "Model view": "model_view",
@@ -553,11 +164,15 @@
     ],
     "label_format": "Figure <section-id>-<ordinal>",
     "asset_directory": "assets",
-    "asset_extension": ".svg"
+    "asset_extension": ".svg",
+    "templates": {
+      "en": "templates/figure-block.en.md",
+      "zh-CN": "templates/figure-block.zh-CN.md"
+    }
   },
   "validation": {
     "template_scope": "managed_documents_only",
-    "managed_marker": "<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} contract={contract_sha256} digest-version={contract_digest_version} -->",
+    "managed_marker": "<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} language={language} contract={contract_sha256} digest-version={contract_digest_version} -->",
     "no_placeholder_acceptance": true,
     "placeholder_patterns": [
       "\\{\\{[^}]+\\}\\}",
@@ -571,9 +186,10 @@
   },
   "catalog": {
     "manifest": "catalog/manifest.json",
-    "sources": "catalog/sources.json",
-    "routing_guide": "catalog/routing.md",
-    "mixed_fixture": "catalog/mixed/fixture.json"
+    "sources": "catalog/shared/sources.json",
+    "routing_guide": "catalog/shared/routing.md",
+    "mixed_fixture": "catalog/shared/mixed/fixture.json",
+    "entry_root": "catalog/entries"
   },
   "compatibility_packs": [
     {
@@ -589,6 +205,20 @@
       "root": "compatibility/v1.1.0",
       "contract_sha256": "e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef",
       "contract_digest_version": "2"
+    },
+    {
+      "profile_id": "xdesign-sysml-docs",
+      "version": "1.2.0",
+      "root": "compatibility/v1.2.0",
+      "contract_sha256": "a4ab976f05769bff34f3b6d3acd0de1dafb728dcf372d099fc3ac938758cf698",
+      "contract_digest_version": "2"
     }
-  ]
+  ],
+  "language_policy": {
+    "supported_ids": [
+      "en",
+      "zh-CN"
+    ],
+    "default": "en"
+  }
 }

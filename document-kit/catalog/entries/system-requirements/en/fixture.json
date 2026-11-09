@@ -1,0 +1,66 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "requirements",
+  "name": "sensor-system-requirements",
+  "template_id": "system-requirements",
+  "metadata": {
+    "title": "Aster remote monitoring capability requirements",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "R100",
+      "content": "Aster introduces a new remote monitoring capability for a greenhouse that previously used manual readings. The goal is continuous visibility, not a narrow change to an existing interface.",
+      "fields": {
+        "system_boundary": "The capability includes local sensing, buffering, and remote reading; irrigation control and long-term analytics are separate systems."
+      }
+    },
+    "requirements": {
+      "anchor": "R101",
+      "content": "The capability shall sample once per minute, retain the latest ten valid readings during connectivity loss, and expose current and recent values to an authorized controller.",
+      "fields": {
+        "normative_statements": "Provide 60-second sampling, UTC timestamps, ten-reading outage history, latest-reading queries, and explicit invalid-data rejection.",
+        "rationale": "Operators need trustworthy current conditions and a small outage history without turning the hub into a control or analytics platform."
+      }
+    },
+    "acceptance": {
+      "anchor": "R102",
+      "content": "Capability acceptance combines a scheduled sampling demonstration, an outage demonstration, and an authorized-query demonstration with measurable outputs.",
+      "fields": {
+        "measurable_conditions": "From empty history and fake UTC T0 = 2026-01-01T00:00:00Z, inject value 20.0+(n-1)/10 at T0+60n seconds, n=1..60. Require all 59 adjacent intervals to be 60±0.1 seconds, all timestamps to equal T0+60n in UTC, and 60 accepted samples in the hour. Disconnect after tick 58 and reconnect just after tick 60 while collection continues; authorized latest/history queries after reconnection must return latest 25.9 at 2026-01-01T01:00:00Z and ordered samples n=51..60 (25.0..25.9) with original timestamps. In an independent reset case inject NaN at T0+60; reject it and return NOT_READY with empty history.",
+        "verification_method": "Drive the declared schedule with a fake UTC clock and scripted probe; record each accepted tick and compare exact timestamp, cadence and total count. Inspect the retained history and authorized latest/history responses after reconnection, then separately test invalid rejection from a reset state. All criteria remain unexecuted."
+      }
+    },
+    "trace": {
+      "anchor": "R103",
+      "content": "The new capability decomposes into context, composition, interaction, data, operation, and verification artifacts rather than duplicating those details here.",
+      "fields": {
+        "model_elements": "Example::Sensor, Example::Controller, and Example::WeatherService identify the new capability's participants.",
+        "design_links": "Aster system-context and reading-pipeline designs own realization; the requirements retain only their observable goals and constraints."
+      }
+    },
+    "limits": {
+      "anchor": "R104",
+      "content": "Enrollment, authorization mechanics, multi-year retention, and actuator safety requirements need separate analysis before a real capability is approved.",
+      "fields": {
+        "unresolved_items": "Controller enrollment, credential management, long-term storage, and actuator safety are outside this worked capability example."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/system-requirements/en/example.md",
+  "layer": null,
+  "language": "en"
+}

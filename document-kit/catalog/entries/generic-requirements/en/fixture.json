@@ -1,0 +1,66 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "requirements",
+  "name": "sensor-generic-requirements",
+  "template_id": "generic-requirements",
+  "metadata": {
+    "title": "Aster sensor monitoring requirements",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "R100",
+      "content": "Aster is a fictional greenhouse sensor hub. The requirements cover periodic sampling and export of one temperature reading while leaving actuator control outside the product boundary.",
+      "fields": {
+        "system_boundary": "The Aster hub samples its local probe and exports readings; greenhouse actuators and weather prediction are external."
+      }
+    },
+    "requirements": {
+      "anchor": "R101",
+      "content": "The hub shall sample every 60 seconds, timestamp each sample in UTC, and export a reading only after validation. Timely delivery matters because irrigation decisions consume the data.",
+      "fields": {
+        "normative_statements": "Sample at 60-second intervals, record UTC timestamps, reject non-finite values, and preserve the latest valid reading during export outages.",
+        "rationale": "Predictable cadence and validated timestamps let the external controller compare independent sensor hubs without accepting corrupt readings."
+      }
+    },
+    "acceptance": {
+      "anchor": "R102",
+      "content": "All criteria below are planned for this fictional example. Cadence, invalid-input and outage cases run independently from an empty buffer at T0 = 2026-01-01T00:00:00Z; no result has been observed.",
+      "fields": {
+        "measurable_conditions": "Cadence case: inject 20.0+i/10 Celsius at T0+60(i+1) seconds for i=0..9; ten samples must have adjacent intervals 60±0.1 seconds and UTC timestamps exactly equal to those fake-clock instants. Invalid case: inject NaN at T0+60 seconds; reject it and retain empty history. Outage case: accept 20.0 at T0+60 seconds, disconnect export immediately afterwards until T0+180 seconds, and supply no further samples; local latest queries at T0+90 and T0+150 seconds must retain 20.0 and 2026-01-01T00:01:00Z.",
+        "verification_method": "Use a fake UTC clock, scripted probe and recorder. Compare every timestamp with T0+60(i+1), compare adjacent cadence intervals, inspect rejection and buffer state in the independent NaN case, and compare the value and original timestamp in both local outage queries. These are planned comparisons, not executed evidence."
+      }
+    },
+    "trace": {
+      "anchor": "R103",
+      "content": "Example::Sensor and Example::Controller identify the model participants for the sampling requirement and its intended sampling design.",
+      "fields": {
+        "model_elements": "Example::Sensor and Example::Controller provide the fictional source elements for the sampling requirement.",
+        "design_links": "The Aster reading-pipeline design owns validation and export behavior; no implementation result is asserted here."
+      }
+    },
+    "limits": {
+      "anchor": "R104",
+      "content": "Probe accuracy, hardware timing jitter, and security deployment settings are not specified by this small fictional requirements example.",
+      "fields": {
+        "unresolved_items": "Probe calibration limits, real scheduler jitter, authentication, and production retention remain for the actual project to decide."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/generic-requirements/en/example.md",
+  "layer": null,
+  "language": "en"
+}

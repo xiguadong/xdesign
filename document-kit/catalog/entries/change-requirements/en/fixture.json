@@ -1,0 +1,68 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "requirements",
+  "name": "sensor-change-requirements",
+  "template_id": "change-requirements",
+  "metadata": {
+    "title": "Aster sampling interval change requirements",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "change": {
+      "anchor": "R100",
+      "content": "The existing Aster hub samples every 60 seconds. The proposed change samples every 30 seconds during a heat alert while preserving the normal cadence and existing reader contract.",
+      "fields": {
+        "current_behavior": "Normal operation samples at 60-second intervals and exports the same Reading shape to all controllers.",
+        "proposed_behavior": "An active heat alert samples at 30-second intervals; alert end restores 60 seconds without changing Reading fields or query semantics."
+      }
+    },
+    "impact": {
+      "anchor": "R101",
+      "content": "The change affects cadence requirement R-SAMPLE-60 and scheduler capacity, but not validation, buffering, data shape, or latest-reading errors.",
+      "fields": {
+        "impacted_items": "R-SAMPLE-60, scheduler load, heat-alert state, and the cadence verification case require revision; interface and schema requirements do not.",
+        "rationale": "Faster heat-response decisions need more samples, while limiting the delta to cadence avoids destabilizing existing consumers."
+      }
+    },
+    "compatibility": {
+      "anchor": "R102",
+      "content": "Existing controllers see only more frequent values and require no migration. The default remains 60 seconds until an authorized alert is active.",
+      "fields": {
+        "compatibility_constraints": "Keep Reading fields, query operation, UTC format, and latest-valid errors unchanged; the heat-alert rate must be optional and disabled by default.",
+        "migration_notes": "Deploy with alert mode off, enable it per hub through reviewed configuration, and retain 60-second behavior for unconfigured hubs."
+      }
+    },
+    "acceptance": {
+      "anchor": "R103",
+      "content": "Acceptance compares the old and new cadence in one controlled session and checks that an old controller can parse every response without modification.",
+      "fields": {
+        "measurable_conditions": "Alert mode yields 30±0.1-second samples, exit restores 60±0.1 seconds, and all responses retain the original required fields and errors.",
+        "verification_method": "Demonstrate alert entry/exit with fake time and run the unchanged version 1 controller contract checks."
+      }
+    },
+    "trace": {
+      "anchor": "R104",
+      "content": "The supplied model declares Example::Sensor as a participant only. Cadence, heat-alert state, Reading and query changes are proposed language-side designs without current SysML realization; the minimal model cannot establish those behaviors.",
+      "fields": {
+        "model_elements": "Example::Sensor is the supplied participant. Cadence, heat-alert, Reading and query concepts are proposed language-side design, not declarations in example.sysml.",
+        "unresolved_items": "Battery impact, alert authorization, and the acceptable sustained alert duration require further review."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/change-requirements/en/example.md",
+  "layer": null,
+  "language": "en"
+}

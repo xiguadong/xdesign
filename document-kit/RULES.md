@@ -1,6 +1,6 @@
 # SysML documentation authoring contract
 
-> Contract: `xdesign-sysml-docs` 1.2.0. The adjacent `profile.json` is the
+> Contract: `xdesign-sysml-docs` 1.3.0. The adjacent `profile.json` is the
 > machine-readable route and template contract. Rule IDs below are stable within
 > this version. A project pins the version it uses and reviews any upgrade.
 
@@ -73,7 +73,7 @@ Use a status from `profile.json`. The question says what the view answers; the
 reading explains the visible elements and relationships; the limits name what
 the figure cannot establish. Review the final SVG for readability and source
 fidelity after rendering.
-The exact embed and blockquote syntax is in `templates/figure-block.md`.
+The exact embed and blockquote syntax is in the selected language's `profile.json` `figure_block.templates` declaration.
 Its primary status is one of `renderable-now`, `planned`,
 `table-substitute`, or `external-tool`; `designed-only` and
 `implemented` are separate software-claim qualifiers.
@@ -162,4 +162,31 @@ headings; definition, implementation and views have distinct decimal sections.
 Every page supplies its own metadata and readable model sources. Optional figures
 still require supplied assets and complete figure blocks. Neither a failed
 publication nor a selected-document check implies whole-project acceptance.
-The original 1.0 and 1.1 closures remain selectable without migration.
+The original 1.0, 1.1 and 1.2 closures remain selectable without migration.
+
+
+## Bilingual resource and identity rules
+
+Select one declared `en` or `zh-CN` variant. All 21 entries retain their engineering
+class, ordered section/field keys and checks in both languages. The manifest owns
+localized headings and labels; stable field keys, routes, anchors, API layers,
+model names and status tokens keep their meanings. Chinese templates guide
+connected, objective reasoning about the problem and boundary, rationale,
+method/design, evidence/verification and limits as appropriate to the class.
+Neither language may add, omit or weaken engineering obligations. Unsupported
+citations and invented model, implementation, test or review results are forbidden.
+Fictional examples and planned cases must retain that status.
+
+Plan/create omission means `en`; exact `zh-CN` selects Chinese. Prose and locale do
+not select or convert a variant. A new marker and registry include language and
+digest version 3. Updates preserve effective identity and registry bytes; an
+optional language assertion must agree. Missing/unsupported/disagreeing persisted
+language is a registry defect. An occupied route never converts language.
+Historical packs remain immutable and language-less. Select the current pack for
+mixed old/new checks and updates; original packs may reject a foreign registry.
+
+Read `catalog/shared/routing.md`, the selected entry guide and `API.md` before
+writing. The complete resource tree and original nested compatibility packs are
+part of the selected contract digest. No prose detector, fallback translation or
+automatic migration supplies missing resources or identity. Structural checks
+leave scholarly quality and English equivalence explicitly unevaluated.

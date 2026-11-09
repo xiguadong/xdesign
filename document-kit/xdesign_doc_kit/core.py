@@ -58,6 +58,9 @@ def _contract(profile_root: str | Path | None = None) -> dict[str, Any]:
         raise _error("invalid-profile", "Profile must be a JSON object")
     if profile.get("schema_version") in ("1.1", "1.2"):
         return load_catalog_contract(root, _contract)
+    if profile.get("schema_version") == "1.3":
+        from .bilingual import load_bilingual_contract
+        return load_bilingual_contract(root, _contract)
     if profile.get("schema_version") != "1.0":
         raise _error("invalid-profile", "Unsupported profile schema")
     for key in ("profile_id", "version", "rules_file", "document_classes", "project",
@@ -220,9 +223,22 @@ def _legacy_get_contract(profile_root: str | Path | None = None) -> dict[str, An
     if contract["profile"]["schema_version"] in ("1.1", "1.2"):
         for entry_id, entry in contract["entries_by_id"].items():
             templates[entry_id] = contract["resources"][entry["template"]].decode("utf-8")
-    return {"ok": True, **_identity(contract), "profile": contract["profile"],
-            "rules": contract["rules"], "templates": templates,
-            "catalog": catalog, "semantic_review_required": True}
+    result = {"ok": True, **_identity(contract), "profile": contract["profile"],
+              "rules": contract["rules"], "templates": templates,
+              "catalog": catalog, "semantic_review_required": True}
+    if contract["profile"]["schema_version"] == "1.3":
+        for entry_id, entry in contract["entries_by_id"].items():
+            path = entry["variants"]["en"]["resources"]["template"]
+            templates[entry_id] = contract["resources"][path].decode("utf-8")
+        result.update({
+            "templates": templates,
+            "language_policy": contract["profile"]["language_policy"],
+            "figure_templates": contract["figure_templates"],
+            "resource_index": contract["resource_index"],
+            "shared_resource_index": contract["shared_resource_index"],
+            "resource_bytes": contract["resource_bytes"],
+        })
+    return result
 
 
 def _validate_expected_contract_request(expected: str | None) -> None:
@@ -370,6 +386,7 @@ def _document_parts(contract: Mapping[str, Any], target: Path, document_class: s
     values["model_sources"] = _model_sources(target, contract["profile"], metadata["model_sources"], known_models)
     values.update({"profile_id": effective["profile_id"], "version": effective["version"],
                    "document_class": document_class, "template_id": effective["template_id"],
+                   "language": effective.get("language", ""),
                    "contract_sha256": effective["contract_sha256"],
                    "contract_digest_version": effective["contract_digest_version"]})
     anchors: list[str] = []
@@ -425,7 +442,8 @@ def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
         raise _error("registry-mismatch", "Registry shape is invalid", "DOC-002", relative)
     paths: set[str] = set()
     required = {"path", "class", "profile_id", "version", "contract_sha256"}
-    allowed = {*required, "template_id", "contract_digest_version"}
+    allowed = {*required, "template_id", "contract_digest_version", "language"}
+    digest_versions = ("1", "2", "3") if contract["profile"]["schema_version"] == "1.3" else ("1", "2")
     for entry in data["entries"]:
         if not isinstance(entry, dict) or not required.issubset(entry) or not set(entry).issubset(allowed) \
                 or any(not isinstance(entry[key], str) or not entry[key] for key in required) \
@@ -433,10 +451,13 @@ def _load_registry(target: Path, contract: Mapping[str, Any]) -> dict[str, Any]:
                 or ("template_id" in entry and entry["template_id"] is not None
                     and not isinstance(entry["template_id"], str)) \
                 or ("contract_digest_version" in entry
-                    and entry["contract_digest_version"] not in ("1", "2")):
+                    and entry["contract_digest_version"] not in digest_versions) \
+                or ("language" in entry and (not isinstance(entry["language"], str) or not entry["language"])) \
+                or ("language" in entry and entry.get("contract_digest_version") != "3") \
+                or (entry.get("contract_digest_version") == "3" and contract["profile"]["schema_version"] != "1.3"):
             raise _error("registry-mismatch", "Registry entry is invalid", "DOC-002", relative)
         path = _safe_rel(entry["path"], "Registered document")
-        if contract["profile"]["schema_version"] == "1.2" and not entry["path"].startswith(contract["profile"]["project"]["docs_root"] + "/"):
+        if contract["profile"]["schema_version"] in ("1.2", "1.3") and not entry["path"].startswith(contract["profile"]["project"]["docs_root"] + "/"):
             raise _error("registry-mismatch", "Registered path is outside docs_root", "DOC-002", relative)
         if path.as_posix() in paths:
             raise _error("registry-mismatch", "Duplicate registry document", "DOC-002", relative)
@@ -679,7 +700,6 @@ def _content_security_findings(relative: str, text: str, expected_marker: str) -
 def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
                       contract: Mapping[str, Any], target: Path,
                       known_models: list[str], effective: Mapping[str, Any]) -> list[dict[str, Any]]:
-    document_class = spec["document_class"]
     lines = _masked_lines(text)
     findings: list[dict[str, Any]] = []
     expected_marker = marker(effective)
@@ -696,7 +716,14 @@ def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
     if [heading for _, heading in h2] != expected:
         findings.append(diagnostic("DOC-002", "section-headings", relative,
                                    "H2 headings differ from the required ordered chapters", h2[0][0] if h2 else None))
-    metadata = re.search(r"^> Status: (.+?) \| Revision: (.+?) \| Model sources: (.+)$", text, re.M)
+    if effective["contract_digest_version"] == "3":
+        from .bilingual import metadata_policy
+        labels = metadata_policy(contract, effective)
+    else:
+        labels = {"Status": "Status", "Revision": "Revision", "Model sources": "Model sources"}
+    metadata_pattern = (rf"^> {re.escape(labels['Status'])}: (.+?) \| {re.escape(labels['Revision'])}: (.+?) \| "
+                        rf"{re.escape(labels['Model sources'])}: (.+)$")
+    metadata = re.search(metadata_pattern, text, re.M)
     if metadata is None or not metadata.group(1).strip() or not metadata.group(2).strip():
         findings.append(diagnostic("DOC-002", "missing-metadata", relative,
                                    "Status, revision, or model sources are missing"))
@@ -742,7 +769,11 @@ def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
         end_positions = [offset for offset, line in enumerate(block) if line.strip() == end_marker]
         field_area = block[:start_positions[0]] if start_positions else block
         for field in section["required_fields"]:
-            label = field.replace("_", " ").capitalize()
+            if effective["contract_digest_version"] == "3":
+                from .bilingual import field_label
+                label = field_label(spec, key, field)
+            else:
+                label = field.replace("_", " ").capitalize()
             field_lines = [(heading_line + offset + 1, line) for offset, line in enumerate(field_area)
                            if line.startswith(f"**{label}:**")]
             if len(field_lines) != 1 or not field_lines[0][1].split("**", 2)[-1].strip():
@@ -754,7 +785,7 @@ def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
                 or not "\n".join(block[start_positions[0] + 1:end_positions[0]]).strip()):
             findings.append(diagnostic("DOC-003", "empty-content", relative,
                                        f"Section {key} prose is empty or boundaries are damaged", heading_line))
-    findings.extend(_figure_findings(target, relative, text, contract, managed=True))
+    findings.extend(_figure_findings(target, relative, text, contract, managed=True, effective=effective))
     decision_findings = diagram_decision_findings(text, spec)
     for finding in decision_findings:
         finding["file"] = relative
@@ -763,11 +794,19 @@ def _managed_findings(relative: str, text: str, spec: Mapping[str, Any],
 
 
 def _figure_findings(target: Path, relative: str, text: str,
-                     contract: Mapping[str, Any], managed: bool) -> list[dict[str, Any]]:
+                     contract: Mapping[str, Any], managed: bool,
+                     effective: Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     lines = _masked_lines(text)
     figure_numbers: set[str] = set()
     seen_assets: set[str] = set()
+    if effective is not None and effective["contract_digest_version"] == "3":
+        from .bilingual import figure_policy
+        policy = figure_policy(contract, effective)
+    else:
+        policy = contract["profile"]["figure_block"]
+    figure_label = policy.get("figure_label", "Figure")
+    title_pattern = re.compile(rf"^>\s*\*\*{re.escape(figure_label)}\s+([A-Z][0-9]+)-([0-9]+)\s+—\s+(.+?)\.\*\*\s*$")
     for number, line in enumerate(lines, 1):
         image = IMAGE.fullmatch(line)
         if image is None:
@@ -794,7 +833,7 @@ def _figure_findings(target: Path, relative: str, text: str,
             findings.append(diagnostic("DOC-005", "duplicate-figure", relative,
                                        f"Repeated figure asset: {asset}", number))
         seen_assets.add(asset)
-        title = (FIGURE_TITLE.fullmatch(lines[number + 1].rstrip())
+        title = (title_pattern.fullmatch(lines[number + 1].rstrip())
                  if number + 1 < len(lines) and not lines[number].strip() else None)
         if title is None:
             findings.append(diagnostic("DOC-005", "figure-block", relative,
@@ -824,17 +863,18 @@ def _figure_findings(target: Path, relative: str, text: str,
             if field:
                 values[field.group(1)] = field.group(2).strip()
                 ordered_seen.append(field.group(1))
-        ordered = contract["profile"]["figure_block"]["ordered_fields"]
+        ordered = policy["ordered_fields"]
         if any(not values.get(field) for field in ordered) or ordered_seen != ordered:
             findings.append(diagnostic("DOC-005", "figure-block", relative,
                                        "Figure block has empty or missing required fields", number))
-        status = values.get("Status", "")
-        if status and status.split(";", 1)[0].strip() not in contract["profile"]["figure_block"]["statuses"]:
+        status_label = policy.get("field_labels", {}).get("Status", "Status")
+        status = values.get(status_label, "")
+        if status and status.split(";", 1)[0].strip() not in policy["statuses"]:
             findings.append(diagnostic("DOC-005", "figure-status", relative,
                                        f"Unknown primary figure status: {status}", number))
     if managed:
         for number, line in enumerate(lines, 1):
-            if FIGURE_TITLE.fullmatch(line.rstrip()) and not (number >= 3 and IMAGE.fullmatch(lines[number - 3])):
+            if title_pattern.fullmatch(line.rstrip()) and not (number >= 3 and IMAGE.fullmatch(lines[number - 3])):
                 findings.append(diagnostic("DOC-005", "figure-block", relative,
                                            "Numbered figure block has no adjacent embed", number))
     return findings
@@ -1331,7 +1371,7 @@ def _public(name, arguments):
     from . import structured
     from .io_boundary import operation, LAUNCH_PIN, LAUNCH_SCHEMA
     with operation(name):
-        structured_pack = LAUNCH_SCHEMA.get() == "1.2" or _structured_selection(arguments.get("profile_root"))
+        structured_pack = LAUNCH_SCHEMA.get() in ("1.2", "1.3") or _structured_selection(arguments.get("profile_root"))
         if structured_pack:
             request = {k:v for k,v in arguments.items() if k not in ("target_root", "profile_root")}
             structured.preflight(name, **request)
@@ -1339,11 +1379,13 @@ def _public(name, arguments):
                 structured.load(arguments.get("profile_root"))
                 return _legacy_get_contract(arguments.get("profile_root"))
             return getattr(structured, name)(**arguments)
+        if arguments.get("language") is not None:
+            raise _error("invalid-request", "Language selectors and assertions require schema 1.3")
         if arguments.get("layer") is not None or arguments.get("selection") is not None or arguments.get("decision") is not None:
-            raise _error("invalid-request", "Structured selectors and decisions require schema 1.2")
+            raise _error("invalid-request", "Structured selectors and decisions require schema 1.2 or 1.3")
         if LAUNCH_PIN.get() is not None:
             structured.load(arguments.get("profile_root"))
-        legacy_args = {k:v for k,v in arguments.items() if k not in ("layer", "selection", "decision")}
+        legacy_args = {k:v for k,v in arguments.items() if k not in ("layer", "selection", "decision", "language")}
         return globals()["_legacy_" + name](**legacy_args)
 
 
@@ -1351,24 +1393,24 @@ def get_contract(profile_root=None):
     return _public("get_contract", locals())
 
 
-def plan_document(target_root, document_class, name, profile_root=None, template_id=None, *, layer=None):
+def plan_document(target_root, document_class, name, profile_root=None, template_id=None, *, layer=None, language=None):
     return _public("plan_document", locals())
 
 
 def create_document(target_root, document_class, name, metadata, sections, profile_root=None,
-                    expected_contract_sha256=None, template_id=None, *, layer=None):
+                    expected_contract_sha256=None, template_id=None, *, layer=None, language=None):
     return _public("create_document", locals())
 
 
 def update_section(target_root, document_class, name, section_key, content, expected_sha256,
-                   fields=None, profile_root=None, expected_contract_sha256=None, *, layer=None):
+                   fields=None, profile_root=None, expected_contract_sha256=None, *, layer=None, language=None):
     return _public("update_section", locals())
 
 
 def attach_figure(target_root, document_class, name, section_key, figure, expected_sha256,
-                  profile_root=None, expected_contract_sha256=None, concern=None, *, layer=None, decision=None):
+                  profile_root=None, expected_contract_sha256=None, concern=None, *, layer=None, decision=None, language=None):
     return _public("attach_figure", locals())
 
 
-def check_documents(target_root, document_class=None, profile_root=None, *, selection=None):
+def check_documents(target_root, document_class=None, profile_root=None, *, selection=None, language=None):
     return _public("check_documents", locals())

@@ -16,8 +16,8 @@ content. Do not generate engineering claims from the template alone.
 1. Select the target project root and a pinned, checked-out `document-kit`
    profile. Read the project's `AGENTS.md` and document map, if present, to
    find owning pages and stricter local rules.
-2. Read `profile.json`, `RULES.md`, and `catalog/routing.md`. Choose the
-   generic default or an explicit `template_id`, then read that entry's guide
+2. Read `profile.json`, `RULES.md`, and `catalog/shared/routing.md`. Choose the
+   generic default or an explicit `template_id` and exact `en` or `zh-CN` language, then read that variant's guide
    and exact template resource; its example is fictional and is not evidence.
    When an MCP/CLI adapter is configured, call `get_contract`, inspect the
    catalog, and read the applicable template from the same pinned pack. Use
@@ -69,3 +69,26 @@ source projection and verification trace explicit. Use selected checks for a
 registered page and whole-project checks for the project. Record the reported
 scope and effective identity. Inspect page and registry before retrying an
 incomplete or unknown publication outcome. Never adopt a stored example.
+
+
+## Language and evidence
+
+Use `get_contract` to discover all 21 entries, 42 variants and 168 exact resources.
+Read `xdesign-doc-kit://entry/{template_id}/{language}/{resource_kind}` over MCP,
+or the Python/CLI `resource_bytes` mapping. Plan/create omission chooses `en`.
+Select `zh-CN` explicitly for Chinese; keep technical identifiers unchanged and
+write coherent class-appropriate engineering reasoning with explicit evidence
+limits. A fictional fixture is an authoring example, not an executed assessment.
+
+Language belongs to persisted identity, not the route or natural prose. Choose
+separate names for English and Chinese pages. On update/attach omit language to
+use the recorded variant, or assert the matching value. Selected check accepts
+that assertion; whole/class check rejects it. Original retained packs have no
+language arguments. Use the current pack for mixed-release projects and preserve
+all old markers and registry identities without migration.
+
+Review Chinese quality and English equivalence independently of structural checks.
+Compare normative duties, rationale, acceptance, identifiers, sources and limits
+for every entry pair. Do not fabricate a citation, model realization or passed
+assessment to complete a template. Figure captions may be localized; supplied
+SVG bytes and canonical ownership remain unchanged.

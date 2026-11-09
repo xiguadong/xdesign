@@ -577,3 +577,136 @@ operational evidence, not to this case declaration.
 
 Detailed, unexecuted procedures for every row, including the complete operation/alias matrix,
 are in [worktree store verification procedures](worktree-store.md#d120).
+
+<a id="d121"></a>
+
+## 12. Bilingual document-kit verification plan
+
+`XDesignVerification::BilingualDocumentKitVerification` traces the eight [R22 requirements](../requirements/requirements.md#r22)
+to [BDK-01 through BDK-09](requirements.md#v20). These are implementation-verification
+procedures, not executed results. Use isolated consumer roots, cache-local environments,
+caller-authored fictional engineering content and no network dependency after installation.
+Retain exact selected/effective identities, resource paths and hashes, commands, exits,
+transcripts and before/after nonwrite evidence for every case.
+
+| Case | Concrete procedure and oracle | Intended verification owner |
+| --- | --- | --- |
+| BDK-01 | Independently derive the resource inventory from the manifest, then walk the filesystem without using that walk for discovery. Compare 21 entry directories and the cartesian product of 21 IDs × `{en, zh-CN}` × four resource kinds = 168 declared resources. Require every declared path to be normalized, readable, safe, digest-covered and uniquely authoritative; every discovered current resource must have exactly one declaration. Compare shared source/model/asset references and old-closure hashes. Fault-inject missing, duplicate, conflicting and unsafe declarations before target access. | `document-kit/tests/test_bilingual.py`, catalog/security suites |
+| BDK-02 | Parameterize each adapter over omitted, explicit, unsupported, empty, malformed and conflicting language inputs. Compare omitted with explicit `en` byte-for-byte under the new pack. Assert `unknown-language` only for well-formed unsupported IDs, `invalid-request` for malformed/conflicting requests, and unchanged page/registry/outside-sentinel hashes. Repeat omission and non-null selection under original packs to prove their language-less behavior is unchanged. | `test_bilingual.py`, `test_bilingual_transports.py` |
+| BDK-03 | Materialize each of 42 canonical fixtures independently. Plan/create/check through Python, compare every section/field and actual language, then update one section per variant with its current hash and recheck. Supply declared models and only those figures selected by the fixture; test reasoned nonfigure choices. Assert new stored examples have one contract sentinel and actual language, apply only the existing in-memory contract substitution, and compare all other bytes. Build the mixed project with both languages in every class and verify its coverage list and whole-project check. | `test_bilingual.py`, existing example/acceptance suites |
+| BDK-04 | Snapshot markers/registries/identities in a mixed-language project, change the default, and perform update/attach/check without selectors. Require the recorded variant and no identity/registry rewrite. Attempt same-route second creation in the other language, supply an explicitly conflicting selector on an operation that exposes one, and independently plant missing, unsupported or disagreeing persisted language by deleting a field, replacing it with an unsupported ID, or making marker and registry identities disagree. Require respectively the existing collision refusal, `invalid-request` and `registry-mismatch`, with unchanged bytes and no language backfill on old pages. Exercise a prose-only edit whose caller prose differs from the recorded language while identity is otherwise valid: do not infer or change selected or persisted language from that prose and do not require `registry-mismatch`. Prose-language adequacy remains BDK-06's independent semantic review, not a deterministic language-detector oracle; retain BDK-03's complete same-language canonical fixture checks. | `test_bilingual.py`, compatibility suites |
+| BDK-05 | Launch a real stdio MCP server bound to each equivalent test project/pack. For all 42 variants compare Python, CLI and MCP plan/create/check routes, rendered bytes, identities, hashes and error codes. Compare the complete catalog/default/resource metadata and exact template, guide, example and fixture bytes exposed through the documented Python/CLI/MCP surfaces. Exercise update/attachment across every class and language, invalid language, stale hash, drift and redirection; a skipped MCP test is not parity evidence. | `test_bilingual_transports.py`, actual MCP suite |
+| BDK-06 | Use the rubric below for every section and field of every one of the 21 entry pairs. Maintain a per-entry terminology and normative-meaning map, citation/source resolution record and findings log. The permitted reviewer is independent of the author and records a separate judgment for each entry; all 21 are required. Mechanical terminology or placeholder scans may support, but cannot replace, this review. | Permitted semantic reviewer, revision-bound review evidence |
+| BDK-07 | Snapshot and recompute each old pack before and after the new release, including nested closures. Exercise old positional calls and old-page creation/check/update under original packs, then mixed old/new checking and updates under the new pack. Compare language-less effective identities and registry bytes, and verify original foreign-identity behavior. Run DOC-01 through DOC-15 and SDK-01 through SDK-13 with all skips disclosed. | `test_bilingual_compatibility.py`, existing compatibility/structured suites |
+| BDK-08 | In a fresh consumer with only the copied distribution and its documents, follow each transport's published bilingual example and resource-discovery instructions for every class. Require successful Chinese and English plan/create/check/update, clear default/error/compatibility explanations, and no unpublished xdesign path. Inspect that the guide presents scholarly engineering prose within the existing class/route model. | Consumer acceptance suite, `test_bilingual_transports.py` |
+| BDK-09 | Assemble the complete case/inventory matrix and exact evidence at one assessed revision. Run affected model, documentation, kit and compatibility checks; retain logs, exit codes, actual transcripts, unevaluated rules, skips and unchanged-byte proofs. Require closure of reviewer findings or explicit residual risks. Do not count requirements-stage checks as execution of this family. | Verification evidence and permitted reviewer |
+
+### 12.1 Scholarly engineering and equivalence oracle
+
+Review the Chinese resources as engineering authoring artifacts, not as a thesis template.
+Every Chinese template must guide the author toward complete, connected reasoning; every
+Chinese guide and fictional example must demonstrate that guidance in the appropriate
+class fields. Short labeled fields need not become artificial paragraphs, but their
+instructions and supplied prose must be precise, coherent and mutually consistent.
+
+| Class or role | Required class-appropriate review focus |
+| --- | --- |
+| Requirements | Problem and system boundary; testable normative statements with rationale; measurable acceptance, verification method, trace and unresolved limits. |
+| Architecture | Context and participants; part responsibilities and relationships; behavior/lifecycle; constraints, decisions, tradeoffs and evidence limits. |
+| Design and flow roles | Allocation and interfaces; ordered behavior and invariants; chosen approach and alternatives; source/model/verification projection and role-specific navigation or view applicability. |
+| Interface and API | Participants and declaration; inputs, outputs and data shapes; errors, side effects and invariants; compatibility, implementation/model rationale and limits. |
+| Verification | Requirement/design basis; method, environment and exact inputs; reproducible procedure and expected result; pass criteria, unexecuted cases and residual risks. |
+
+For each of the 21 pairs, compare the ordered section keys, required field keys, checks,
+view concerns, identifiers, routes, model/source references and acceptance conditions.
+Chinese and English need not be literal translations, but neither may weaken, add or omit
+engineering obligations. Chinese uses established technical terms consistently, states
+the logical relation between claims, avoids colloquial or promotional wording, and makes
+limitations explicit. A citation is optional; when present it must resolve through the
+source register or an inspectable local source and actually support the adjacent claim.
+Fictional examples remain labeled as such. No invented quotation, bibliography, standard,
+model realization, implementation, verification or review outcome is acceptable.
+
+### 12.2 Compatibility and evidence boundary
+
+The old 1.0.0, 1.1.0 and 1.2.0 identities have no language field and keep their exact
+resource closures and behavior. The new release's language-bearing identity applies only
+to its own documents and fixtures. A later reader must not reinterpret an old page as
+Chinese or English, and a new page must not borrow an old language-less identity. Retained
+compatibility resources are immutable historical closures, not a second current editing
+tree. Original packs may reject foreign new pages; that is retained behavior, not a defect
+to hide through migration or identity rewriting.
+
+The deterministic inventory, transport and compatibility results remain distinct from the
+permitted semantic review of Chinese quality and English equivalence. A clean compiler or
+structural check cannot establish that review, and a prose review cannot erase a failed
+structural or compatibility case. Executed results belong to revision-bound operational
+evidence; this section and its model `verify` relationships are planned coverage only.
+
+### 12.3 Design-bound source and test allocation
+
+The proposed 1.3 schema, exact resource paths, public selectors and labels are in
+[D122](../design/document-kit.md#d122) and [I23](../interfaces/document-kit-api.md#i23).
+The following allocation binds each planned case to concrete implementation and
+evidence owners. The named bilingual suites now project these obligations against the current
+1.3 root. Test-source existence is distinct from executed results and independent
+semantic acceptance.
+
+| Case | Implementation and test owner | Required evidence beyond the V20 oracle |
+| --- | --- | --- |
+| BDK-01 | `xdesign_doc_kit/catalog.py`, new `bilingual.py`; `tests/test_bilingual.py`, catalog/security suites | Independently derived 21/42/168 matrix, inverse filesystem coverage, all explicit paths/hashes, shared-reference uniqueness and no remaining current `catalog/templates`, `catalog/guides`, `catalog/examples` or `catalog/fixtures` tree |
+| BDK-02 | `bilingual.py`, `structured.py`, `__main__.py`, `mcp_server.py`; `test_bilingual.py`, `test_bilingual_transports.py` | Omitted-versus-explicit-en byte equality, unsupported/malformed/conflicting decision matrix, old-pack selector rejection and unchanged page/registry/outside hashes |
+| BDK-03 | `core.py`, `structured.py`, entry-owned fixtures; `test_bilingual.py`, existing example/acceptance suites | 42 independent create/check/update results and full-byte comparisons; the exact 20-document D122 mixed allocation with both languages in every class, two requirement template IDs and figure/table/prose coverage |
+| BDK-04 | `compatibility.py`, `core.py`, `structured.py`; `test_bilingual.py`, compatibility suites | Marker/registry/effective identity snapshots, default-change independence, selector conflict, occupied-route collision, persisted-language defects and the valid-identity prose-only counterexample |
+| BDK-05 | `__main__.py`, `mcp_server.py`, `bilingual.py`; `test_bilingual_transports.py`, actual MCP suite | Python/CLI/MCP results for all 42, all 168 indexed resource hashes and exact bytes, actual stdio transcripts, update/attachment for every class/language, drift/redirection negatives and no skipped-MCP substitution |
+| BDK-06 | All 21 entry-owned language pairs; permitted independent reviewer | One complete review record per entry with section/field judgments, terminology and normative maps, citation resolutions, findings, corrections and residual risks; no sample or prose-mirroring shortcut |
+| BDK-07 | `compatibility.py`, `catalog.py`, exact retained closures; `test_bilingual_compatibility.py`, DOC/SDK suites | Original digests and byte comparisons, nested duplicate rules, old positional calls and old-only registry behavior, mixed old/new checks/updates under 1.3, language-less preservation and every skip |
+| BDK-08 | Complete copied distribution, README/RULES/SKILL/API; consumer acceptance and `test_bilingual_transports.py` | Fresh-consumer installation, both languages in all ten classes, resource discovery/reads, hash-guarded update and no unpublished xdesign-only instruction |
+| BDK-09 | Implementation-verification evidence and permitted reviewer | One assessed revision binding all case logs, input/output hashes, 21 review records, compiler limits, failures, skips and residual risks |
+
+The exact old-digest oracles are v1.0.0
+`1fc588f652dec5e36504b9a2c9046539857094177cdfb790d88626174d2926a6`,
+v1.1.0 `e2b827c6e929f4a8d03344a91ca72f2eb837962e916d5e7f0487e315e1440cef`,
+and v1.2.0 `a4ab976f05769bff34f3b6d3acd0de1dafb728dcf372d099fc3ac938758cf698`.
+The 1.2.0 value is the inspected current-root digest before any reorganization;
+the new 1.3 digest cannot be known until its product bytes exist. BDK-07 compares
+all copies against their canonical relative paths and bytes, including v1 copies
+nested under 1.1.0 and 1.2.0, without treating those immutable copies as current
+editable resources.
+
+### 12.4 Per-entry scholarly review record
+
+Authoring and independent checking follow the run's explicit user role binding;
+the user selected Codex `gpt-6.1-sol` with `ultra` effort for the continuation.
+The author cannot supply the independent judgment for the same entry. Each of the
+21 entry IDs receives one revision-bound review record with exactly these logical
+contents (serialization indentation/key order is an evidence-format choice):
+
+| Member | Required content |
+| --- | --- |
+| Identity and authority | `template_id`, assessed source revision and contract digest, author identity, reviewer identity, reviewer authority and an independence attestation |
+| Resource binding | Four English and four Chinese declared paths and their exact SHA-256 values, plus section/field key equivalence results |
+| Section judgments | One record for every ordered section and every required field covering Chinese precision/coherence, class-specific problem/context, rationale, method/design, evidence/verification and limitations as appropriate, and English equivalence |
+| Citation and fiction review | Every citation's source-register or local-source resolution and support for the adjacent claim; explicit fictional/planned status and absence of invented model, implementation, test or review claims |
+| Disposition | Findings, corrections and rechecks, `passed` or `failed` entry judgment, unresolved items and residual risks; acceptance requires 21 passed records |
+
+A terminology/normative-meaning map accompanies each record and compares IDs,
+routes, checks, view concerns, model/source identities, normative statements,
+rationale, acceptance conditions and limitations. It does not require word-for-word
+translation. Mechanical scans may identify missing declarations or placeholders,
+but cannot decide scholarly quality, citation adequacy or semantic equivalence.
+A deterministic test must not assert mirrored Chinese/English prose as a
+substitute for this review.
+
+### 12.5 Requirement-to-evidence closure
+
+`BilingualDocumentKitVerification` retains the eight planned `verify` links. The
+R22 design `satisfy` links added by this allocation identify
+`BilingualCatalogLayout`, `BilingualVariantLibrary`,
+`BilingualLanguageResolver`, `BilingualIdentityResolver`,
+`BilingualConsumerContract`, `BilingualScholarlyProseContract`,
+`BilingualCompatibilityResolver`, and `BilingualValidationBoundary` respectively.
+These are defined design satisfiers, not implemented-product claims. BDK-09 fails
+closed if any required variant, case, real MCP transcript, retained closure,
+nonwrite proof or one of the 21 independent judgments is absent at the assessed
+revision.

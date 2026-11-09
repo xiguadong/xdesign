@@ -1,0 +1,77 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "document_class": "design",
+  "name": "sensor-state-machine",
+  "template_id": "state-machine",
+  "metadata": {
+    "title": "Aster sampling lifecycle state machine",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "purpose": {
+      "anchor": "D100",
+      "content": "The lifecycle model distinguishes stopped, ready, sampling, and fault states so event handling and recovery are explicit rather than implied by a linear procedure.",
+      "fields": {
+        "design_subject": "AsterHub lifecycle states, events, guards, transitions, terminal behavior, and fault recovery.",
+        "requirements_links": "Continuous sampling, explicit invalid-data handling, and latest-valid retention requirements drive the lifecycle."
+      }
+    },
+    "states": {
+      "anchor": "D101",
+      "content": "Stopped has no collection, Ready waits for start, Sampling collects periodically, and Fault suspends acquisition while preserving history; no state view is needed for four states.",
+      "fields": {
+        "states": "Stopped, Ready, Sampling, and Fault are the meaningful states; history remains readable in every state.",
+        "invariants": "Samples are created only in Sampling, Fault never clears history, and Stopped never emits a new timestamp.",
+        "diagram_decisions": "[{\"concern\":\"lifecycle-states\",\"applies\":true,\"choice\":\"table\",\"rationale\":\"Four states and their guards are clearer in a transition table than a diagram.\",\"asset\":null,\"model_view\":null}]"
+      }
+    },
+    "events": {
+      "anchor": "D102",
+      "content": "Events are initialize, start, stop, tick, probeFault, reset and shutdown. The transition table defines accepted source states and guards. Every unlisted pair or failed guard is rejected with no state, resource or history change; terminal shutdown rejects every event.",
+      "fields": {
+        "events": "initialize acquires lifecycle resources without clearing history; start enables collection; stop pauses; tick samples; probeFault faults; reset requests recovery; shutdown releases resources.",
+        "guards": "initialize requires Stopped and available resources; start requires Ready; tick requires Sampling and a working probe; probeFault requires Sampling and detected failure; reset requires Fault and successful self-test; shutdown requires Stopped."
+      }
+    },
+    "transitions": {
+      "anchor": "D103",
+      "content": "The planned transition table is the complete event oracle. Initial state is Stopped with empty history and no acquired lifecycle resources. Existing retained history is preserved across reinitialization.\n\n| Source | Event / guard | Target and action | History effect |\n| --- | --- | --- | --- |\n| Stopped | initialize / resources available | Ready; acquire resources | Preserve |\n| Ready | start / true | Sampling; enable ticks | Preserve |\n| Sampling | tick / probe working | Sampling; validate and append | Append valid value, FIFO if full; invalid leaves unchanged |\n| Sampling | probeFault / failure detected | Fault; suspend ticks | Preserve |\n| Fault | reset / self-test passes | Sampling; resume next fresh tick | Preserve |\n| Any nonterminal | stop / true | Stopped; disable ticks | Preserve |\n| Stopped | shutdown / true | Terminal; release resources | Preserve |\n| Any | Unlisted event or failed guard | Reject; no state or resource change | Preserve |\n| Terminal | Any event | Reject; remain terminal | Preserve |",
+      "fields": {
+        "transitions": "Stopped to Ready on initialize, Ready to Sampling on start, Sampling to Fault on probeFault, Fault to Sampling on reset, and any to Stopped on stop.",
+        "terminal_states": "Shutdown from Stopped is terminal and releases resources without producing another reading or clearing retained history."
+      }
+    },
+    "recovery": {
+      "anchor": "D104",
+      "content": "A failed self-test keeps Fault active and raises an explicit maintenance status; a successful reset resumes cadence with a fresh timestamp, never a backdated value.",
+      "fields": {
+        "recovery_behavior": "Run self-test before reset, remain in Fault on failure, and resume with the next fresh sample after success.",
+        "constraints": "No automatic history deletion, no fabricated recovery sample, and no tick processing while Fault is active."
+      }
+    },
+    "projection": {
+      "anchor": "D105",
+      "content": "The projection is a transition-table test matrix covering illegal events, guard failure, recovery, terminal shutdown, and history preservation.",
+      "fields": {
+        "source_projection": "LifecycleController and ProbeSelfTest are intended units; transitions are evaluated against an explicit event log.",
+        "verification_links": "Illegal-tick, failed-reset, successful-reset, stop, shutdown, and history-retention cases are planned checks."
+      }
+    }
+  },
+  "expected_document": "catalog/entries/state-machine/en/example.md",
+  "layer": null,
+  "language": "en"
+}

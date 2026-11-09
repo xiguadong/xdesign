@@ -1,0 +1,54 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-definition",
+  "name": "sample-flow-zh",
+  "layer": null,
+  "template_id": "generic-flow-definition",
+  "metadata": {
+    "title": "虚构 sample-flow 流程定义（仅设计）",
+    "status": "虚构示例；仅设计",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "stages": {
+      "anchor": "D13820",
+      "content": "| 阶段 | 后续阶段与退出依据 |\n| --- | --- |\n| Prepare | 请求可读取且完整后才能进入 Review |\n| Review | 记录指定调用方的明确判断后才能结束 |\n\nPrepare 收集并验证请求，Review 评估完整性并记录明确决定。仅有输入存在不能证明评审已经完成。",
+      "fields": {
+        "stages": "Prepare 收集并验证请求，Review 评估完整性并记录决定。",
+        "transitions": "Prepare 仅在请求可读取且完整后进入 Review；Review 仅在记录指定调用方的明确判断后结束。",
+        "exit_gates": "Prepare 要求请求可读取且完整；Review 要求指定调用方提供明确判断。"
+      }
+    },
+    "behavior": {
+      "anchor": "D13821",
+      "content": "工厂初始化是前提。流程随后仅在退出门满足时按声明阶段推进；初始化本身不构成完成。",
+      "fields": {
+        "behavior": "验证 Plan 并构造首阶段 Run，随后按顺序执行阶段输入检查和受门控约束的转换。",
+        "invariants": "无效 Plan 不产生 Run；Prepare 未完成不得进入 Review；未记录判断不得完成流程。"
+      }
+    },
+    "trace": {
+      "anchor": "D13822",
+      "content": "Example 提供背景边界，需求分配仍待评审，计划用例用于覆盖空计划、重复阶段和首阶段初始化。当前定义不声明流程实现或执行证据。",
+      "fields": {
+        "model_elements": "Example 包仅提供参与者背景，并未声明 sample-flow 的模型实现。",
+        "requirements_links": "需求分配仍待作者评审，本示例不宣称已批准需求。",
+        "verification_links": "计划检查覆盖空计划、重复阶段、首阶段初始化、未完成 Prepare 的拒绝路径，以及缺少已记录门控判断时拒绝完成的路径，均未执行。"
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-definition/zh-CN/example.md",
+  "language": "zh-CN"
+}

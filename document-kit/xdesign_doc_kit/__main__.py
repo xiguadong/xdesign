@@ -50,6 +50,8 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--class", dest="document_class")
             command.add_argument("--name")
             command.add_argument("--layer")
+        if name != "get-contract":
+            command.add_argument("--language", action="append")
         if name in ("plan-document", "create-document"):
             command.add_argument("--template-id")
         if name == "attach-figure":
@@ -61,6 +63,10 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--section", required=True)
     try:
         args = parser.parse_args(argv)
+        if getattr(args, "language", None) is not None:
+            if len(args.language) != 1:
+                raise _InvocationError("--language may be supplied at most once")
+            args.language = args.language[0]
     except _InvocationError as error:
         print(json.dumps(DocumentKitError("invalid-request", str(error)).as_dict(),
                          ensure_ascii=False, sort_keys=True))
@@ -68,39 +74,46 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.operation in ("create-document", "update-section", "attach-figure"):
             payload = _input(args.input)
-            if _structured_selection(args.profile_root):
-                required, optional = {
-                    "create-document": ({"metadata", "sections"}, set()),
-                    "update-section": ({"content", "expected_sha256"}, {"fields"}),
-                    "attach-figure": ({"figure", "expected_sha256"}, {"decision"}),
-                }[args.operation]
-                if not required.issubset(payload) or not set(payload).issubset(required | optional):
-                    raise DocumentKitError("invalid-request", "JSON payload keys differ from the operation contract")
+            required, optional = {
+                "create-document": ({"metadata", "sections"}, set()),
+                "update-section": ({"content", "expected_sha256"}, {"fields"}),
+                "attach-figure": ({"figure", "expected_sha256"}, {"decision"}),
+            }[args.operation]
+            if not required.issubset(payload) or not set(payload).issubset(required | optional):
+                raise DocumentKitError("invalid-request", "JSON payload keys differ from the operation contract")
         if args.operation == "get-contract":
             result = get_contract(args.profile_root)
         elif args.operation == "plan-document":
             result = plan_document(args.target_root, args.document_class, args.name,
-                                   args.profile_root, template_id=args.template_id, layer=args.layer)
+                                   args.profile_root, template_id=args.template_id, layer=args.layer,
+                                   language=args.language)
         elif args.operation == "create-document":
             payload = _input(args.input)
             result = create_document(args.target_root, args.document_class, args.name,
                                      payload.get("metadata"), payload.get("sections"), args.profile_root,
-                                     template_id=args.template_id, layer=args.layer, expected_contract_sha256=args.expected_contract_sha256)
+                                     template_id=args.template_id, layer=args.layer,
+                                     expected_contract_sha256=args.expected_contract_sha256, language=args.language)
         elif args.operation == "update-section":
             payload = _input(args.input)
             result = update_section(args.target_root, args.document_class, args.name,
                                     args.section, payload.get("content"), payload.get("expected_sha256"),
-                                    payload.get("fields"), args.profile_root, expected_contract_sha256=args.expected_contract_sha256, layer=args.layer)
+                                    payload.get("fields"), args.profile_root,
+                                    expected_contract_sha256=args.expected_contract_sha256, layer=args.layer,
+                                    language=args.language)
         elif args.operation == "attach-figure":
             payload = _input(args.input)
             result = attach_figure(args.target_root, args.document_class, args.name,
                                    args.section, payload.get("figure"), payload.get("expected_sha256"),
-                                   args.profile_root, concern=args.concern, layer=args.layer, decision=payload.get("decision"), expected_contract_sha256=args.expected_contract_sha256)
+                                   args.profile_root, concern=args.concern, layer=args.layer,
+                                   decision=payload.get("decision"),
+                                   expected_contract_sha256=args.expected_contract_sha256, language=args.language)
         else:
-            if args.name is None and args.layer is not None or args.name is not None and args.document_class is None:
-                raise DocumentKitError("invalid-request", "Selected check needs --class and --name; --layer requires --name")
+            if args.name is None and (args.layer is not None or args.language is not None) \
+                    or args.name is not None and args.document_class is None:
+                raise DocumentKitError("invalid-request", "Selected check needs --class and --name; --layer and --language require --name")
             selection = None if args.name is None else dict(document_class=args.document_class, name=args.name, layer=args.layer)
-            result = check_documents(args.target_root, args.document_class, args.profile_root, selection=selection)
+            result = check_documents(args.target_root, args.document_class, args.profile_root,
+                                     selection=selection, language=args.language)
     except DocumentKitError as error:
         result = error.as_dict()
     print(json.dumps(result, ensure_ascii=False, sort_keys=True))

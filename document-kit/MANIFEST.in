@@ -1,0 +1,6 @@
+include README.md RULES.md SKILL.md API.md profile.json
+recursive-include catalog *.json *.md *.sysml *.svg
+recursive-include templates *.md
+recursive-include compatibility *.json *.md *.sysml *.svg
+recursive-include tests *.py
+global-exclude __pycache__ *.py[cod]

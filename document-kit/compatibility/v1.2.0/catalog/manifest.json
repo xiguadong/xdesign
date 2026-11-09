@@ -1,0 +1,1984 @@
+{
+  "schema_version": "1.2",
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.2.0",
+  "entries": [
+    {
+      "template_id": "generic-requirements",
+      "document_class": "requirements",
+      "title": "Requirements document",
+      "scenario": "General requirements contract",
+      "when_to_use": [
+        "When the generic requirements chapter structure fits"
+      ],
+      "when_not_to_use": [
+        "When a scenario-specific structure is clearer"
+      ],
+      "required_inputs": [
+        "Document class and slug",
+        "Model sources",
+        "Caller content"
+      ],
+      "dependencies": [
+        "Wish or product goals and model elements that own the behavior",
+        "Planned verification cases and downstream design links"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and scope",
+          "required_fields": [
+            "system_boundary"
+          ]
+        },
+        {
+          "key": "requirements",
+          "heading": "2. Requirements",
+          "required_fields": [
+            "normative_statements",
+            "rationale"
+          ]
+        },
+        {
+          "key": "acceptance",
+          "heading": "3. Acceptance conditions",
+          "required_fields": [
+            "measurable_conditions",
+            "verification_method"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "4. Model and design trace",
+          "required_fields": [
+            "model_elements",
+            "design_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-requirements.md",
+      "guide": "catalog/guides/generic-requirements.md",
+      "example": "catalog/examples/generic-requirements.md",
+      "fixture": "catalog/fixtures/generic-requirements.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-architecture",
+      "document_class": "architecture",
+      "title": "Architecture document",
+      "scenario": "General architecture contract",
+      "when_to_use": [
+        "When the generic architecture chapter structure fits"
+      ],
+      "when_not_to_use": [
+        "When a scenario-specific structure is clearer"
+      ],
+      "required_inputs": [
+        "Document class and slug",
+        "Model sources",
+        "Caller content"
+      ],
+      "dependencies": [
+        "Requirements being allocated and model parts and exchanges",
+        "Downstream interface and verification documents"
+      ],
+      "required_sections": [
+        {
+          "key": "context",
+          "heading": "1. Context and boundary",
+          "required_fields": [
+            "system_boundary",
+            "external_actors"
+          ]
+        },
+        {
+          "key": "composition",
+          "heading": "2. Composition and responsibilities",
+          "required_fields": [
+            "parts",
+            "relationships"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "3. Behavior and lifecycle",
+          "required_fields": [
+            "interactions",
+            "states"
+          ]
+        },
+        {
+          "key": "constraints",
+          "heading": "4. Constraints and decisions",
+          "required_fields": [
+            "constraints",
+            "design_rationale"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-architecture.md",
+      "guide": "catalog/guides/generic-architecture.md",
+      "example": "catalog/examples/generic-architecture.md",
+      "fixture": "catalog/fixtures/generic-architecture.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-design",
+      "document_class": "design",
+      "title": "Design document",
+      "scenario": "General design contract",
+      "when_to_use": [
+        "When the generic design chapter structure fits"
+      ],
+      "when_not_to_use": [
+        "When a scenario-specific structure is clearer"
+      ],
+      "required_inputs": [
+        "Document class and slug",
+        "Model sources",
+        "Caller content"
+      ],
+      "dependencies": [
+        "Approved requirements and architecture",
+        "Intended source units and verification links"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and allocation",
+          "required_fields": [
+            "design_subject",
+            "requirements_links"
+          ]
+        },
+        {
+          "key": "structure",
+          "heading": "2. Structure and interfaces",
+          "required_fields": [
+            "components",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "3. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "constraints"
+          ]
+        },
+        {
+          "key": "rationale",
+          "heading": "4. Decisions and rationale",
+          "required_fields": [
+            "chosen_design",
+            "tradeoffs"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "5. Implementation projection and verification",
+          "required_fields": [
+            "source_projection",
+            "verification_links",
+            "model_elements"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "6. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-design.md",
+      "guide": "catalog/guides/generic-design.md",
+      "example": "catalog/examples/generic-design.md",
+      "fixture": "catalog/fixtures/generic-design.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-interface",
+      "document_class": "interface",
+      "title": "Interface document",
+      "scenario": "General interface contract",
+      "when_to_use": [
+        "When the generic interface chapter structure fits"
+      ],
+      "when_not_to_use": [
+        "When a scenario-specific structure is clearer"
+      ],
+      "required_inputs": [
+        "Document class and slug",
+        "Model sources",
+        "Caller content"
+      ],
+      "dependencies": [
+        "Owning design and exchanged model elements",
+        "Normal, error, and compatibility test cases"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and participants",
+          "required_fields": [
+            "boundary",
+            "participants"
+          ]
+        },
+        {
+          "key": "contract",
+          "heading": "2. Interface contract",
+          "required_fields": [
+            "operations",
+            "data_shapes"
+          ]
+        },
+        {
+          "key": "errors",
+          "heading": "3. Errors and invariants",
+          "required_fields": [
+            "error_behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "compatibility",
+          "heading": "4. Versioning and compatibility",
+          "required_fields": [
+            "version_policy",
+            "compatibility_policy"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Model and verification trace",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-interface.md",
+      "guide": "catalog/guides/generic-interface.md",
+      "example": "catalog/examples/generic-interface.md",
+      "fixture": "catalog/fixtures/generic-interface.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-verification",
+      "document_class": "verification",
+      "title": "Verification document",
+      "scenario": "General verification contract",
+      "when_to_use": [
+        "When the generic verification chapter structure fits"
+      ],
+      "when_not_to_use": [
+        "When a scenario-specific structure is clearer"
+      ],
+      "required_inputs": [
+        "Document class and slug",
+        "Model sources",
+        "Caller content"
+      ],
+      "dependencies": [
+        "Identified requirements and testable designs",
+        "Execution transcripts and independent review judgments"
+      ],
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "1. Scope and basis",
+          "required_fields": [
+            "requirements_links",
+            "design_links"
+          ]
+        },
+        {
+          "key": "methods",
+          "heading": "2. Methods and environment",
+          "required_fields": [
+            "methods",
+            "environment"
+          ]
+        },
+        {
+          "key": "cases",
+          "heading": "3. Verification cases",
+          "required_fields": [
+            "inputs",
+            "procedure",
+            "expected_results"
+          ]
+        },
+        {
+          "key": "criteria",
+          "heading": "4. Acceptance criteria and trace",
+          "required_fields": [
+            "pass_criteria",
+            "trace_matrix"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unexecuted_cases",
+            "residual_risks"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-verification.md",
+      "guide": "catalog/guides/generic-verification.md",
+      "example": "catalog/examples/generic-verification.md",
+      "fixture": "catalog/fixtures/generic-verification.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "system-requirements",
+      "document_class": "requirements",
+      "title": "Define a new system or major capability",
+      "scenario": "Use for goals, scope, functional and quality requirements, not a narrow delta",
+      "when_to_use": [
+        "Use for goals, scope, functional and quality requirements, not a narrow delta"
+      ],
+      "when_not_to_use": [
+        "A narrow delta to existing behavior; use change-requirements"
+      ],
+      "required_inputs": [
+        "Capability goals, stakeholders, and system boundary",
+        "Functional and quality requirements with rationale and model sources",
+        "Measurable acceptance conditions, verification methods, trace, and limits"
+      ],
+      "dependencies": [
+        "Wish, stakeholder goals, and existing model context",
+        "Downstream context, architecture, and verification artifacts"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and scope",
+          "required_fields": [
+            "system_boundary"
+          ]
+        },
+        {
+          "key": "requirements",
+          "heading": "2. Requirements",
+          "required_fields": [
+            "normative_statements",
+            "rationale"
+          ]
+        },
+        {
+          "key": "acceptance",
+          "heading": "3. Acceptance conditions",
+          "required_fields": [
+            "measurable_conditions",
+            "verification_method"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "4. Model and design trace",
+          "required_fields": [
+            "model_elements",
+            "design_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/system-requirements.md",
+      "guide": "catalog/guides/system-requirements.md",
+      "example": "catalog/examples/system-requirements.md",
+      "fixture": "catalog/fixtures/system-requirements.json",
+      "sources": [
+        {
+          "source_id": "REQ42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "change-requirements",
+      "document_class": "requirements",
+      "title": "Change existing behavior compatibly",
+      "scenario": "Use for current/proposed behavior, impact and acceptance, not greenfield scope",
+      "when_to_use": [
+        "Use for current/proposed behavior, impact and acceptance, not greenfield scope"
+      ],
+      "when_not_to_use": [
+        "Greenfield scope with no existing behavior; use system-requirements"
+      ],
+      "required_inputs": [
+        "Current behavior, baseline requirements, and model sources",
+        "Proposed delta, affected requirements, compatibility and migration constraints",
+        "Measurable acceptance for new and retained behavior"
+      ],
+      "dependencies": [
+        "Existing requirements, current model, consumer contracts, and release policy",
+        "Regression and new-behavior verification cases"
+      ],
+      "required_sections": [
+        {
+          "key": "change",
+          "heading": "1. Change summary",
+          "required_fields": [
+            "current_behavior",
+            "proposed_behavior"
+          ]
+        },
+        {
+          "key": "impact",
+          "heading": "2. Affected requirements",
+          "required_fields": [
+            "impacted_items",
+            "rationale"
+          ]
+        },
+        {
+          "key": "compatibility",
+          "heading": "3. Compatibility and migration",
+          "required_fields": [
+            "compatibility_constraints",
+            "migration_notes"
+          ]
+        },
+        {
+          "key": "acceptance",
+          "heading": "4. Acceptance conditions",
+          "required_fields": [
+            "measurable_conditions",
+            "verification_method"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Trace and limits",
+          "required_fields": [
+            "model_elements",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/change-requirements.md",
+      "guide": "catalog/guides/change-requirements.md",
+      "example": "catalog/examples/change-requirements.md",
+      "fixture": "catalog/fixtures/change-requirements.json",
+      "sources": [
+        {
+          "source_id": "REQ42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "OPENSPEC",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "system-context",
+      "document_class": "architecture",
+      "title": "Establish system boundary and external interactions",
+      "scenario": "Use for actors, external systems and exchanged information, not internal decomposition",
+      "when_to_use": [
+        "Use for actors, external systems and exchanged information, not internal decomposition"
+      ],
+      "when_not_to_use": [
+        "Internal part decomposition alone or runtime node allocation without external context"
+      ],
+      "required_inputs": [
+        "Boundary ownership, external actors, and model sources",
+        "Information flows, interface participants, and external-failure behavior",
+        "Context diagram decision, constraints, rationale, and trace"
+      ],
+      "dependencies": [
+        "Capability scope, external model participants, and exchange definitions",
+        "Component-composition and operation-contract documents for internal details"
+      ],
+      "required_sections": [
+        {
+          "key": "boundary",
+          "heading": "1. Context and boundary",
+          "required_fields": [
+            "system_boundary",
+            "external_actors",
+            "diagram_decisions"
+          ]
+        },
+        {
+          "key": "interfaces",
+          "heading": "2. External interfaces",
+          "required_fields": [
+            "information_flows",
+            "interface_participants"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "3. Interactions and lifecycle",
+          "required_fields": [
+            "interactions",
+            "states"
+          ]
+        },
+        {
+          "key": "constraints",
+          "heading": "4. Constraints and decisions",
+          "required_fields": [
+            "constraints",
+            "design_rationale"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/system-context.md",
+      "guide": "catalog/guides/system-context.md",
+      "example": "catalog/examples/system-context.md",
+      "fixture": "catalog/fixtures/system-context.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "ARC42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "C4",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": [
+        {
+          "concern": "system-boundary",
+          "section_key": "boundary",
+          "applicability": "expected",
+          "trigger": "",
+          "alternatives": [
+            "figure",
+            "table",
+            "prose"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "component-composition",
+      "document_class": "architecture",
+      "title": "Explain internal parts and their relationships",
+      "scenario": "Use for responsibilities, parts, connections and refinement, not context alone",
+      "when_to_use": [
+        "Use for responsibilities, parts, connections and refinement, not context alone"
+      ],
+      "when_not_to_use": [
+        "External context alone or runtime node allocation without internal components"
+      ],
+      "required_inputs": [
+        "Internal part inventory, responsibilities, and model sources",
+        "Relationships, interfaces, lifecycle behavior, and composition decision",
+        "Constraints, rationale, and model/verification trace"
+      ],
+      "dependencies": [
+        "System context, requirements, and internal model parts",
+        "Interaction and verification artifacts that consume the allocation"
+      ],
+      "required_sections": [
+        {
+          "key": "context",
+          "heading": "1. Context and boundary",
+          "required_fields": [
+            "system_boundary",
+            "external_actors"
+          ]
+        },
+        {
+          "key": "parts",
+          "heading": "2. Parts and responsibilities",
+          "required_fields": [
+            "parts",
+            "responsibilities",
+            "diagram_decisions"
+          ]
+        },
+        {
+          "key": "relationships",
+          "heading": "3. Relationships and interfaces",
+          "required_fields": [
+            "relationships",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "4. Behavior and lifecycle",
+          "required_fields": [
+            "interactions",
+            "states"
+          ]
+        },
+        {
+          "key": "constraints",
+          "heading": "5. Constraints and decisions",
+          "required_fields": [
+            "constraints",
+            "design_rationale"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "6. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/component-composition.md",
+      "guide": "catalog/guides/component-composition.md",
+      "example": "catalog/examples/component-composition.md",
+      "fixture": "catalog/fixtures/component-composition.json",
+      "sources": [
+        {
+          "source_id": "ARC42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "C4",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": [
+        {
+          "concern": "component-structure",
+          "section_key": "parts",
+          "applicability": "expected",
+          "trigger": "",
+          "alternatives": [
+            "figure",
+            "table",
+            "prose"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "interaction-flow",
+      "document_class": "design",
+      "title": "Describe significant runtime interactions",
+      "scenario": "Use for participants, ordering and alternate flows, not static data or a pure calculation",
+      "when_to_use": [
+        "Use for participants, ordering and alternate flows, not static data or a pure calculation"
+      ],
+      "when_not_to_use": [
+        "Static data alone or a simple pure calculation; use data-model or concise prose"
+      ],
+      "required_inputs": [
+        "Interaction purpose, requirements, participants, and interfaces",
+        "Ordered main flow, alternate/error flows, and behavior constraints",
+        "Interaction diagram decision and source/verification projection"
+      ],
+      "dependencies": [
+        "Operation and architecture responsibilities plus model participants",
+        "Data contracts and executable verification cases"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and allocation",
+          "required_fields": [
+            "design_subject",
+            "requirements_links"
+          ]
+        },
+        {
+          "key": "participants",
+          "heading": "2. Participants and interfaces",
+          "required_fields": [
+            "participants",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "flow",
+          "heading": "3. Main interaction flow",
+          "required_fields": [
+            "interactions",
+            "ordering",
+            "diagram_decisions"
+          ]
+        },
+        {
+          "key": "alternates",
+          "heading": "4. Alternate flows and errors",
+          "required_fields": [
+            "alternate_flows",
+            "error_behavior"
+          ]
+        },
+        {
+          "key": "constraints",
+          "heading": "5. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "constraints"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "6. Projection and verification",
+          "required_fields": [
+            "source_projection",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/interaction-flow.md",
+      "guide": "catalog/guides/interaction-flow.md",
+      "example": "catalog/examples/interaction-flow.md",
+      "fixture": "catalog/fixtures/interaction-flow.json",
+      "sources": [
+        {
+          "source_id": "ARC42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "GITHUB-DOCS",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": [
+        {
+          "concern": "interaction-ordering",
+          "section_key": "flow",
+          "applicability": "conditional",
+          "trigger": "Multiple participants or meaningful timing and ordering",
+          "alternatives": [
+            "figure",
+            "table",
+            "prose",
+            "not-applicable"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "state-machine",
+      "document_class": "design",
+      "title": "Specify lifecycle states and transitions",
+      "scenario": "Use for states, events, guards and recovery, not stateless or one-way procedures",
+      "when_to_use": [
+        "Use for states, events, guards and recovery, not stateless or one-way procedures"
+      ],
+      "when_not_to_use": [
+        "Stateless behavior or a one-way linear procedure; use interaction-flow or prose"
+      ],
+      "required_inputs": [
+        "Lifecycle states, invariants, events, and guards",
+        "Transitions, terminal states, recovery behavior, and constraints",
+        "State diagram decision and source/verification projection"
+      ],
+      "dependencies": [
+        "Lifecycle requirements, model events, and design responsibilities",
+        "Operation contracts and transition verification cases"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and allocation",
+          "required_fields": [
+            "design_subject",
+            "requirements_links"
+          ]
+        },
+        {
+          "key": "states",
+          "heading": "2. States and invariants",
+          "required_fields": [
+            "states",
+            "invariants",
+            "diagram_decisions"
+          ]
+        },
+        {
+          "key": "events",
+          "heading": "3. Events and guards",
+          "required_fields": [
+            "events",
+            "guards"
+          ]
+        },
+        {
+          "key": "transitions",
+          "heading": "4. Transitions and lifecycle",
+          "required_fields": [
+            "transitions",
+            "terminal_states"
+          ]
+        },
+        {
+          "key": "recovery",
+          "heading": "5. Recovery and constraints",
+          "required_fields": [
+            "recovery_behavior",
+            "constraints"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "6. Projection and verification",
+          "required_fields": [
+            "source_projection",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/state-machine.md",
+      "guide": "catalog/guides/state-machine.md",
+      "example": "catalog/examples/state-machine.md",
+      "fixture": "catalog/fixtures/state-machine.json",
+      "sources": [
+        {
+          "source_id": "ARC42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "GITHUB-DOCS",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": [
+        {
+          "concern": "lifecycle-states",
+          "section_key": "states",
+          "applicability": "conditional",
+          "trigger": "Multiple meaningful states and event-driven transitions",
+          "alternatives": [
+            "figure",
+            "table",
+            "prose",
+            "not-applicable"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "data-model",
+      "document_class": "design",
+      "title": "Define entities, relationships and invariants",
+      "scenario": "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing",
+      "when_to_use": [
+        "Use for fields, ownership, persistence or exchanged meaning, not interaction sequencing"
+      ],
+      "when_not_to_use": [
+        "Interaction sequencing or interface error behavior; use interaction-flow or operation-contract"
+      ],
+      "required_inputs": [
+        "Entity and field definitions with model sources",
+        "Relationships, ownership, lifecycle, invariants, and data decision",
+        "Persistence or exchange meaning and verification projection"
+      ],
+      "dependencies": [
+        "Domain requirements, model elements, and persistence/exchange responsibilities",
+        "Serialized data contracts and operation flows"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and allocation",
+          "required_fields": [
+            "design_subject",
+            "requirements_links"
+          ]
+        },
+        {
+          "key": "entities",
+          "heading": "2. Entities and fields",
+          "required_fields": [
+            "entities",
+            "fields"
+          ]
+        },
+        {
+          "key": "relationships",
+          "heading": "3. Relationships and ownership",
+          "required_fields": [
+            "relationships",
+            "ownership",
+            "diagram_decisions"
+          ]
+        },
+        {
+          "key": "invariants",
+          "heading": "4. Invariants and lifecycle",
+          "required_fields": [
+            "invariants",
+            "lifecycle"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "5. Projection and verification",
+          "required_fields": [
+            "source_projection",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/data-model.md",
+      "guide": "catalog/guides/data-model.md",
+      "example": "catalog/examples/data-model.md",
+      "fixture": "catalog/fixtures/data-model.json",
+      "sources": [
+        {
+          "source_id": "SPECD",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": [
+        {
+          "concern": "data-relationships",
+          "section_key": "relationships",
+          "applicability": "conditional",
+          "trigger": "Relationships are not clear from the schema alone",
+          "alternatives": [
+            "figure",
+            "table",
+            "prose",
+            "not-applicable"
+          ]
+        }
+      ]
+    },
+    {
+      "template_id": "operation-contract",
+      "document_class": "interface",
+      "title": "Specify an operation request, response and errors",
+      "scenario": "Use for a command, query, endpoint or tool operation, not schema alone",
+      "when_to_use": [
+        "Use for a command, query, endpoint or tool operation, not schema alone"
+      ],
+      "when_not_to_use": [
+        "A data schema with no operation behavior; use data-contract"
+      ],
+      "required_inputs": [
+        "Operation boundary, participants, request and response shapes",
+        "Error behavior, invariants, and version/compatibility policy",
+        "Model interaction and verification trace"
+      ],
+      "dependencies": [
+        "Operation design responsibility, data contract, and model interaction",
+        "Orchestration and executable interface tests"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and participants",
+          "required_fields": [
+            "boundary",
+            "participants"
+          ]
+        },
+        {
+          "key": "operation",
+          "heading": "2. Operation contract",
+          "required_fields": [
+            "operations",
+            "data_shapes"
+          ]
+        },
+        {
+          "key": "errors",
+          "heading": "3. Errors and invariants",
+          "required_fields": [
+            "error_behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "compatibility",
+          "heading": "4. Versioning and compatibility",
+          "required_fields": [
+            "version_policy",
+            "compatibility_policy"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Model and verification trace",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/operation-contract.md",
+      "guide": "catalog/guides/operation-contract.md",
+      "example": "catalog/examples/operation-contract.md",
+      "fixture": "catalog/fixtures/operation-contract.json",
+      "sources": [
+        {
+          "source_id": "GOOD-DOCS",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "data-contract",
+      "document_class": "interface",
+      "title": "Specify exchanged or persisted data shapes",
+      "scenario": "Use for schema, validation, required fields and compatibility, not operation orchestration",
+      "when_to_use": [
+        "Use for schema, validation, required fields and compatibility, not operation orchestration"
+      ],
+      "when_not_to_use": [
+        "Operation orchestration or domain behavior; use operation-contract or interaction-flow"
+      ],
+      "required_inputs": [
+        "Schema, required fields, types, units, and participants",
+        "Validation, invariants, and version/compatibility policy",
+        "Semantic data model and verification trace"
+      ],
+      "dependencies": [
+        "Semantic data model, serialization format, and consumer versions",
+        "Operation contracts and interoperability tests"
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "1. Purpose and participants",
+          "required_fields": [
+            "boundary",
+            "participants"
+          ]
+        },
+        {
+          "key": "schema",
+          "heading": "2. Data contract",
+          "required_fields": [
+            "data_shapes",
+            "required_fields"
+          ]
+        },
+        {
+          "key": "validation",
+          "heading": "3. Validation and invariants",
+          "required_fields": [
+            "validation_rules",
+            "invariants"
+          ]
+        },
+        {
+          "key": "compatibility",
+          "heading": "4. Versioning and compatibility",
+          "required_fields": [
+            "version_policy",
+            "compatibility_policy"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "5. Model and verification trace",
+          "required_fields": [
+            "model_elements",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/data-contract.md",
+      "guide": "catalog/guides/data-contract.md",
+      "example": "catalog/examples/data-contract.md",
+      "fixture": "catalog/fixtures/data-contract.json",
+      "sources": [
+        {
+          "source_id": "SPECD",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "GOOD-DOCS",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "verification-test-plan",
+      "document_class": "verification",
+      "title": "Plan executable verification and analysis",
+      "scenario": "Use for inputs, environment, procedure and pass criteria, not executed-result claims",
+      "when_to_use": [
+        "Use for inputs, environment, procedure and pass criteria, not executed-result claims"
+      ],
+      "when_not_to_use": [
+        "Recording an executed result or relying only on inspection; use evidence or design-review"
+      ],
+      "required_inputs": [
+        "Requirement/design basis and testable units or interfaces",
+        "Methods, environment, exact inputs, procedures, and expected results",
+        "Measurable pass criteria, trace, and unexecuted/residual limits"
+      ],
+      "dependencies": [
+        "Testable requirements, identified units/interfaces, fixtures and drivers",
+        "Later execution logs and evidence records"
+      ],
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "1. Scope and basis",
+          "required_fields": [
+            "requirements_links",
+            "design_links"
+          ]
+        },
+        {
+          "key": "methods",
+          "heading": "2. Methods and environment",
+          "required_fields": [
+            "methods",
+            "environment"
+          ]
+        },
+        {
+          "key": "cases",
+          "heading": "3. Verification cases",
+          "required_fields": [
+            "inputs",
+            "procedure",
+            "expected_results"
+          ]
+        },
+        {
+          "key": "criteria",
+          "heading": "4. Acceptance criteria and trace",
+          "required_fields": [
+            "pass_criteria",
+            "trace_matrix"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unexecuted_cases",
+            "residual_risks"
+          ]
+        }
+      ],
+      "template": "catalog/templates/verification-test-plan.md",
+      "guide": "catalog/guides/verification-test-plan.md",
+      "example": "catalog/examples/verification-test-plan.md",
+      "fixture": "catalog/fixtures/verification-test-plan.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "REQ42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "design-review",
+      "document_class": "verification",
+      "title": "Plan inspection and semantic design review",
+      "scenario": "Use for model meaning, design adequacy and source fidelity, not a premature pass",
+      "when_to_use": [
+        "Use for model meaning, design adequacy and source fidelity, not a premature pass"
+      ],
+      "when_not_to_use": [
+        "Claiming a review has passed before independent judgment; retain a planned review instead"
+      ],
+      "required_inputs": [
+        "Requirement/design basis and semantic review questions",
+        "Exact model/document/figure hashes, source records, and review procedure",
+        "Expected judgments, acceptance criteria, and unexecuted/residual limits"
+      ],
+      "dependencies": [
+        "Identified artifacts, coverage list, source records, and reviewer authority",
+        "Later independent review verdict and evidence"
+      ],
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "1. Scope and basis",
+          "required_fields": [
+            "requirements_links",
+            "design_links"
+          ]
+        },
+        {
+          "key": "questions",
+          "heading": "2. Review questions and methods",
+          "required_fields": [
+            "review_questions",
+            "methods"
+          ]
+        },
+        {
+          "key": "inputs",
+          "heading": "3. Inputs and procedure",
+          "required_fields": [
+            "inputs",
+            "procedure",
+            "expected_results"
+          ]
+        },
+        {
+          "key": "criteria",
+          "heading": "4. Acceptance criteria and trace",
+          "required_fields": [
+            "pass_criteria",
+            "trace_matrix"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "5. Status and limits",
+          "required_fields": [
+            "unexecuted_cases",
+            "residual_risks"
+          ]
+        }
+      ],
+      "template": "catalog/templates/design-review.md",
+      "guide": "catalog/guides/design-review.md",
+      "example": "catalog/examples/design-review.md",
+      "fixture": "catalog/fixtures/design-review.json",
+      "sources": [
+        {
+          "source_id": "ARC42",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        },
+        {
+          "source_id": "GITHUB-DOCS",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "diagram-decisions",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-api-design",
+      "document_class": "api-design",
+      "title": "Api Design",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the api-design responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "purpose",
+          "heading": "Purpose and boundary",
+          "required_fields": [
+            "api_identity",
+            "api_kind",
+            "layer",
+            "purpose"
+          ]
+        },
+        {
+          "key": "contract",
+          "heading": "Declaration and contract",
+          "required_fields": [
+            "declaration",
+            "inputs",
+            "outputs",
+            "errors",
+            "side_effects"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Trace and verification",
+          "required_fields": [
+            "model_realization_or_reason",
+            "source_projection",
+            "requirements_links",
+            "design_links",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-api-design.md",
+      "guide": "catalog/guides/generic-api-design.md",
+      "example": "catalog/examples/generic-api-design.md",
+      "fixture": "catalog/fixtures/generic-api-design.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-index",
+      "document_class": "flow-index",
+      "title": "Flow Index",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-index responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "scope",
+          "heading": "Scope and navigation",
+          "required_fields": [
+            "flow_scope",
+            "navigation_links"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "Status and trace",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-index.md",
+      "guide": "catalog/guides/generic-flow-index.md",
+      "example": "catalog/examples/generic-flow-index.md",
+      "fixture": "catalog/fixtures/generic-flow-index.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-definition",
+      "document_class": "flow-definition",
+      "title": "Flow Definition",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-definition responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "stages",
+          "heading": "1. Stages and gates",
+          "required_fields": [
+            "stages",
+            "transitions",
+            "exit_gates"
+          ]
+        },
+        {
+          "key": "behavior",
+          "heading": "2. Behavior and constraints",
+          "required_fields": [
+            "behavior",
+            "invariants"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Trace and verification",
+          "required_fields": [
+            "model_elements",
+            "requirements_links",
+            "verification_links"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-definition.md",
+      "guide": "catalog/guides/generic-flow-definition.md",
+      "example": "catalog/examples/generic-flow-definition.md",
+      "fixture": "catalog/fixtures/generic-flow-definition.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-implementation",
+      "document_class": "flow-implementation",
+      "title": "Flow Implementation",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-implementation responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "allocation",
+          "heading": "1. Allocation",
+          "required_fields": [
+            "components",
+            "interfaces"
+          ]
+        },
+        {
+          "key": "projection",
+          "heading": "2. Behavior and source projection",
+          "required_fields": [
+            "behavior",
+            "source_projection",
+            "constraints"
+          ]
+        },
+        {
+          "key": "trace",
+          "heading": "3. Verification and limits",
+          "required_fields": [
+            "model_elements",
+            "verification_links",
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-implementation.md",
+      "guide": "catalog/guides/generic-flow-implementation.md",
+      "example": "catalog/examples/generic-flow-implementation.md",
+      "fixture": "catalog/fixtures/generic-flow-implementation.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    },
+    {
+      "template_id": "generic-flow-views",
+      "document_class": "flow-views",
+      "title": "Flow Views",
+      "scenario": "generic",
+      "when_to_use": [
+        "Author the flow-views responsibility at its canonical route."
+      ],
+      "when_not_to_use": [
+        "Do not use this page for executed results or a different flow role."
+      ],
+      "required_inputs": [
+        "Caller metadata, context model sources, allocated anchors and all section fields."
+      ],
+      "dependencies": [
+        "Readable context model; local link targets where cited."
+      ],
+      "required_sections": [
+        {
+          "key": "coverage",
+          "heading": "1. Coverage and applicability",
+          "required_fields": [
+            "view_coverage",
+            "applicability_reasons"
+          ]
+        },
+        {
+          "key": "views",
+          "heading": "2. Views and references",
+          "required_fields": [
+            "model_views",
+            "figure_references",
+            "verification_links"
+          ]
+        },
+        {
+          "key": "limits",
+          "heading": "3. Status and limits",
+          "required_fields": [
+            "unresolved_items"
+          ]
+        }
+      ],
+      "template": "catalog/templates/generic-flow-views.md",
+      "guide": "catalog/guides/generic-flow-views.md",
+      "example": "catalog/examples/generic-flow-views.md",
+      "fixture": "catalog/fixtures/generic-flow-views.json",
+      "sources": [
+        {
+          "source_id": "DPR",
+          "copying_decision": "not-copied",
+          "copying_review": null
+        }
+      ],
+      "checks": [
+        "route",
+        "headings",
+        "fields",
+        "anchors",
+        "placeholders",
+        "links",
+        "model-locators",
+        "figure-blocks",
+        "sources",
+        "license",
+        "markdown-security",
+        "fixtures"
+      ],
+      "view_concerns": []
+    }
+  ]
+}

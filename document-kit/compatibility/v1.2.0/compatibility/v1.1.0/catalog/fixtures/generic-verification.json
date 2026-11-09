@@ -1,0 +1,60 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.1.0",
+  "contract_digest_version": "2",
+  "models": [{"pack": "catalog/mixed/mbse/model/example.sysml", "target": "mbse/model/example.sysml"}],
+  "figures": [],
+  "document_class": "verification",
+  "name": "sensor-generic-verification",
+  "template_id": "generic-verification",
+  "metadata": {
+    "title": "Aster sampling verification plan",
+    "status": "fictional-example",
+    "revision": "1",
+    "model_sources": ["mbse/model/example.sysml"]
+  },
+  "sections": {
+    "scope": {
+      "anchor": "V100",
+      "content": "The plan evaluates sampling cadence, invalid-input rejection, and latest-valid behavior for the fictional Aster hub; no case is claimed executed.",
+      "fields": {
+        "requirements_links": "The 60-second sampling, invalid-value rejection, UTC, and latest-valid requirements are the acceptance basis.",
+        "design_links": "The reading-pipeline design supplies validator, ring buffer, and exporter responsibilities to test."
+      }
+    },
+    "methods": {
+      "anchor": "V101",
+      "content": "A fake clock drives timestamps, a scripted probe supplies finite and non-finite values, and a recording exporter captures controller-visible results.",
+      "fields": {
+        "methods": "Use demonstration with deterministic inputs, boundary-value analysis for cadence, and inspection of exported reading order.",
+        "environment": "Run in an isolated test process with fake UTC clock, in-memory buffer, and no physical sensor or network controller."
+      }
+    },
+    "cases": {
+      "anchor": "V102",
+      "content": "Cases cover ten scheduled samples, NaN input, the eleventh valid sample, empty export, and a two-minute controller outage.",
+      "fields": {
+        "inputs": "Sixty-second clock ticks, readings 20.0 through 20.9 Celsius, one NaN, and one additional 21.0 sample.",
+        "procedure": "Drive each case from an empty buffer, record validation and exports, then compare timestamps, values, order, and error results.",
+        "expected_results": "Cadence remains 60±0.1 seconds, NaN is rejected, FIFO retains the newest ten, empty returns NOT_READY, and outage preserves latest valid."
+      }
+    },
+    "criteria": {
+      "anchor": "V103",
+      "content": "Every planned case must match its exact value, timestamp, ordering, and error expectations with no unreviewed tolerance beyond the stated cadence bound.",
+      "fields": {
+        "pass_criteria": "All ten valid samples pass, invalid input never reaches the buffer, eviction is FIFO, and all exported values equal their scripted inputs.",
+        "trace_matrix": "Sampling maps to cadence case, validation to NaN case, FIFO to eviction case, and latest-valid to empty/outage cases."
+      }
+    },
+    "limits": {
+      "anchor": "V104",
+      "content": "Hardware jitter, concurrent access, physical probe accuracy, and real network behavior remain outside this fictional plan.",
+      "fields": {
+        "unexecuted_cases": "All cases are planned; no command, observation, or executed outcome is asserted by this example.",
+        "residual_risks": "A deterministic fake-clock plan cannot establish embedded timing, hardware calibration, security, or production reliability."
+      }
+    }
+  },
+  "expected_document": "catalog/examples/generic-verification.md"
+}

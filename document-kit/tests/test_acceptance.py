@@ -17,11 +17,12 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-KIT = Path(__file__).resolve().parents[1]
-REPO = KIT.parent
+DISTRIBUTION = Path(__file__).resolve().parents[1]
+KIT = DISTRIBUTION / "compatibility/v1.2.0"
+REPO = DISTRIBUTION.parent
 CACHE = REPO / "cache" / "document-kit-acceptance"
 CACHE = Path(os.environ.get("XDESIGN_DOC_KIT_TEST_CACHE", str(CACHE)))
-sys.path.insert(0, str(KIT))
+sys.path.insert(0, str(DISTRIBUTION))
 
 from xdesign_doc_kit.core import (  # noqa: E402
     DocumentKitError,
@@ -33,6 +34,10 @@ from xdesign_doc_kit.core import (  # noqa: E402
     update_section,
 )
 
+
+from _release_support import select_release
+for _name in ("get_contract", "plan_document", "create_document", "update_section", "attach_figure", "check_documents"):
+    globals()[_name] = select_release(globals()[_name], KIT)
 
 def payload(document_class="requirements", start=100):
     spec = get_contract()["profile"]["document_classes"][document_class]

@@ -1,0 +1,54 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-implementation",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-implementation",
+  "metadata": {
+    "title": "Fictional flow implementation example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "allocation": {
+      "anchor": "D2030",
+      "content": "Controller owns state and gate enforcement; Reviewer supplies a judgment without request-mutation access. Separating these permissions prevents review logic from bypassing stage conditions.",
+      "fields": {
+        "components": "Controller initiates work and maintains flow state and gates. Reviewer supplies a judgment and cannot mutate the request.",
+        "interfaces": "Controller passes a request identifier to Reviewer only in Review after readable, complete Prepare input; Reviewer returns a judgment that Controller records before completion. The interface grants no request-mutation access."
+      }
+    },
+    "projection": {
+      "anchor": "D2031",
+      "content": "Source allocation is planned and subject to implementation review.",
+      "fields": {
+        "behavior": "Validate Plan and construct initial Run; Controller then checks Prepare input, advances to Review only after its gate, invokes Reviewer in Review, records the designated judgment and completes only after that gate.",
+        "source_projection": "src/example/factory.rs is a proposed implementation location, not an existing artifact.",
+        "constraints": "The caller serializes access; concurrency is outside this example."
+      }
+    },
+    "trace": {
+      "anchor": "D2032",
+      "content": "The context model and planned cases are review inputs, not proof of implementation.",
+      "fields": {
+        "model_elements": "Package Example supplies participant context only; it declares no sample-flow realization.",
+        "verification_links": "Planned checks cover empty plans, repeated stages, first-stage initialization and invalid judgment-interface calls outside Review or without complete Prepare; verify no request mutation and no completion without a recorded judgment. None has executed.",
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-implementation/en/example.md",
+  "language": "en"
+}

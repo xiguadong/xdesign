@@ -1,0 +1,52 @@
+{
+  "profile_id": "xdesign-sysml-docs",
+  "version": "1.3.0",
+  "contract_digest_version": "3",
+  "document_class": "flow-views",
+  "name": "sample-flow",
+  "layer": null,
+  "template_id": "generic-flow-views",
+  "metadata": {
+    "title": "Fictional flow views example",
+    "status": "designed-only",
+    "revision": "1",
+    "model_sources": [
+      "mbse/model/example.sysml"
+    ]
+  },
+  "sections": {
+    "coverage": {
+      "anchor": "D2040",
+      "content": "View applicability is decided by the author and remains subject to review.",
+      "fields": {
+        "view_coverage": "The stage table in definition.md#d2020 (Chinese: definition.md#d13820) owns stage order and exit conditions; responsibility prose in implementation.md#d2030 (Chinese: implementation.md#d13930) owns Controller/Reviewer allocation.",
+        "applicability_reasons": "A sequence figure is optional when interaction timing needs discussion; this example has no timing claim."
+      }
+    },
+    "views": {
+      "anchor": "D2041",
+      "content": "There is no figure to validate in this fictional input.",
+      "fields": {
+        "model_views": "Not applicable: package Example supplies participant context but declares no rendered sample-flow view.",
+        "figure_references": "Not applicable: this example uses prose and a stage table, without an SVG.",
+        "verification_links": "Planned review compares the referenced definition stage table with its stage/transition/gate fields for order and coverage, then compares implementation responsibility prose with Controller state/gate ownership and Reviewer permissions. Check that neither completion before judgment nor Reviewer mutation is allowed. SVG fidelity is inapplicable because no SVG is selected; no review has executed."
+      }
+    },
+    "limits": {
+      "anchor": "D2042",
+      "content": "The status is designed-only; no acceptance result is supplied.",
+      "fields": {
+        "unresolved_items": "Concurrency and durable recovery remain outside the fictional example."
+      }
+    }
+  },
+  "models": [
+    {
+      "pack": "catalog/shared/mixed/mbse/model/example.sysml",
+      "target": "mbse/model/example.sysml"
+    }
+  ],
+  "figures": [],
+  "expected_document": "catalog/entries/generic-flow-views/en/example.md",
+  "language": "en"
+}

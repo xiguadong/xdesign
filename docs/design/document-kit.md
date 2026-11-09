@@ -12,12 +12,13 @@ view concerns, template, guide, example, fixture, and source usage. The same
 selected entry drives planning, rendering, updating, and checking. Caller content
 supplies all engineering claims; templates never invent them.
 
-The current root pack is immutable 1.1.0 with five generic defaults and eleven scenarios.
-A derived 1.1 profile may change inventory under its own identity and digest.
-The exact bundled inventory does not constrain derived profiles. A byte-exact
-v1 pack under `compatibility/v1.0.0/` preserves original class behavior and the
-accepted digest. Later releases retain prior 1.1 packs at selectable roots and
-require a new version for every changed resource set.
+The current root pack is immutable 1.2.0 with 21 entries across ten classes: the
+16 earlier flat-class entries and five structured entries. The earlier 1.1.0 pack
+has five generic defaults and eleven scenarios. A derived profile may change
+inventory under its own identity and digest. The exact bundled inventory does not
+constrain derived profiles. Byte-exact v1 and 1.1.0 packs under `compatibility/`
+preserve original class behavior and accepted digests. Later releases retain prior
+packs at selectable roots and require a new version for every changed resource set.
 
 ## 2. Operations and invariants
 
@@ -280,30 +281,30 @@ isolated digest-provider seam. CLI and MCP adapters add optional selection and
 figure concern, the catalog, and second-template resources without a zero-provider
 or example-comparison path.
 
-The 1.1.0 bundled profile keeps five flat classes. Its flow-specific and per-API
-routes need a reviewed derived profile; the later [structured release](#d115) is
-a separate designed contract. No new SysML template catalog, migration tool,
-remote retrieval, code evaluation, main Rust stage CLI, or store feature is
-introduced. [DocumentKitVerification](../verification/design.md#d114) defines
-acceptance. Current implementation status and executed results belong to wish and
-review records; this design does not establish implementation or engineering acceptance.
+The retained 1.1.0 bundled profile keeps five flat classes. Its flow-specific and
+per-API routes need a reviewed derived profile; the current [structured release](#d115)
+is a separate contract. No new SysML template catalog, migration tool, remote
+retrieval, code evaluation, main Rust stage CLI, or store feature is introduced.
+[DocumentKitVerification](../verification/design.md#d114) defines acceptance.
+Current implementation status and executed results belong to wish and review
+records; this design does not establish engineering acceptance.
 
 <a id="d115"></a>
 
 ## 9. Structured document release design
 
-This section proposes a design for the [structured requirements](../requirements/requirements.md#r20)
-in `XDesignDetailedDesign::StructuredDocumentKitDesign`. The requirements retain
-their proposed status in the accepted requirements-stage artifacts;
-`mbse/model/traceability.sysml` asserts no `satisfy` links for these eight requirements.
-Formal satisfaction links and requirement-status changes remain pending. The
-design-owned mapping below identifies the intended implementation responsibilities
-without changing that requirement baseline or claiming implementation or acceptance.
-The exact public shapes,
-errors and examples are in the [structured interaction contract](../interfaces/document-kit-api.md#i21);
+This section records the design allocation for the [structured requirements](../requirements/requirements.md#r20)
+in `XDesignDetailedDesign::StructuredDocumentKitDesign`. Schema 1.2.0 and its
+21-entry catalog are present in the current `document-kit/` source. The R20
+requirements retain their proposed requirement-baseline status, and
+`mbse/model/traceability.sysml` still asserts no `satisfy` links for those eight
+requirements; this bilingual assignment does not change that boundary. The
+mapping below identifies design responsibilities without asserting SDK execution
+or engineering acceptance. The exact public shapes, errors and examples are in
+the [structured interaction contract](../interfaces/document-kit-api.md#i21);
 [SDK-01 through SDK-13](../verification/requirements.md#v19) and the
 [implementation verification plan](../verification/design.md#d116) define the
-future evidence. No existing figure selection changes.
+required evidence. No existing figure selection changes.
 
 | Requirement | Proposed design owner in `StructuredDocumentKitDesign` |
 | --- | --- |
@@ -326,7 +327,7 @@ obligations; this design does not assume that an earlier stage can be reopened.
 
 ### 9.1 Release, routes and template ownership
 
-The next bundled contract is `xdesign-sysml-docs@1.2.0`, schema `1.2`, with digest
+The current bundled contract is `xdesign-sysml-docs@1.2.0`, schema `1.2`, with digest
 version `"2"`. It retains the five schema 1.1 classes, paths, generic defaults,
 16 template IDs, section/field/view contracts and old positional calls. It adds
 five classes, each with exactly one generic default. A class and its validated
@@ -615,3 +616,370 @@ stdio MCP tests rather than treating a skipped optional adapter test as parity.
 The independent semantic review covers engineering content, links, model meaning,
 figure fidelity and applicability, as well as source/license adequacy; mechanical
 checks and compiler reports do not establish these judgments.
+
+<a id="d122"></a>
+
+## 10. Bilingual release and entry-owned catalog design
+
+`XDesignDetailedDesign::BilingualDocumentKitDesign` answers the accepted [R22
+requirements](../requirements/requirements.md#r22) with the
+`xdesign-sysml-docs@1.3.0`, schema `1.3`, digest-version `"3"` release. The eight
+new `satisfy` links in `mbse/model/traceability.sysml` identify only the following
+design responsibilities. They allocate responsibility; implementation is projected in `document-kit/`,
+while BDK execution and semantic acceptance require separate evidence.
+
+| R22 requirement | Defined design satisfier | Planned evidence |
+| --- | --- | --- |
+| `documentKitCatalogHasCoherentResourceLayout` | `BilingualCatalogLayout` | BDK-01, BDK-07, BDK-09 |
+| `documentKitSupportsCompleteChineseAndEnglish` | `BilingualVariantLibrary` | BDK-01, BDK-03, BDK-05, BDK-06 |
+| `documentTemplateLanguageSelectionIsDeterministic` | `BilingualLanguageResolver` | BDK-02 through BDK-05 |
+| `documentTemplateLanguageIdentityIsPersistent` | `BilingualIdentityResolver` | BDK-02, BDK-04, BDK-05, BDK-07 |
+| `documentTemplateLanguageSurfacesAreShared` | `BilingualConsumerContract` | BDK-03, BDK-05, BDK-08 |
+| `chineseTemplatesUseScholarlyEngineeringProse` | `BilingualScholarlyProseContract` | BDK-03, BDK-06, BDK-09 |
+| `bilingualDocumentKitPreservesCompatibility` | `BilingualCompatibilityResolver` | BDK-02, BDK-04, BDK-07, BDK-09 |
+| `bilingualDocumentKitEvidenceIsReviewable` | `BilingualValidationBoundary` | BDK-01 through BDK-09 |
+
+The [public contract](../interfaces/document-kit-api.md#i23) owns exact operation
+and resource shapes and the initial English/Chinese label matrix. The
+[verification design](../verification/design.md#d121) owns executable procedures
+and review oracles. This section allocates the resource and software design.
+
+### 10.1 Exact current tree and authoritative discovery
+
+The current 1.2 root has 21 entries and digest
+`a4ab976f05769bff34f3b6d3acd0de1dafb728dcf372d099fc3ac938758cf698`.
+Implementation first copies its complete distribution to
+`compatibility/v1.2.0/`, retaining its nested compatibility directories and exact
+bytes, and only then constructs the new root. The 1.3 current-resource tree is:
+
+```text
+document-kit/
+├── profile.json
+├── README.md
+├── RULES.md
+├── SKILL.md
+├── API.md
+├── pyproject.toml
+├── catalog/
+│   ├── manifest.json
+│   ├── entries/
+│   │   ├── generic-requirements/
+│   │   │   ├── en/      {template.md, guide.md, example.md, fixture.json}
+│   │   │   └── zh-CN/   {template.md, guide.md, example.md, fixture.json}
+│   │   └── <one identical role layout for each of the other 20 IDs>/
+│   └── shared/
+│       ├── sources.json
+│       ├── routing.md
+│       └── mixed/
+│           ├── fixture.json
+│           ├── coverage.md
+│           ├── mbse/model/example.sysml
+│           └── assets/{system-context.svg, interaction-flow.svg}
+├── templates/
+│   ├── figure-block.en.md
+│   └── figure-block.zh-CN.md
+├── compatibility/
+│   ├── v1.0.0/                 # existing exact closure
+│   ├── v1.1.0/                 # existing exact closure, including nested v1
+│   └── v1.2.0/                 # exact current closure, including its nested packs
+└── xdesign_doc_kit/            # existing Python package plus bilingual.py
+```
+
+The 21 directory names are exactly `generic-requirements`,
+`generic-architecture`, `generic-design`, `generic-interface`,
+`generic-verification`, `system-requirements`, `change-requirements`,
+`system-context`, `component-composition`, `interaction-flow`, `state-machine`,
+`data-model`, `operation-contract`, `data-contract`, `verification-test-plan`,
+`design-review`, `generic-api-design`, `generic-flow-index`,
+`generic-flow-definition`, `generic-flow-implementation`, and `generic-flow-views`.
+Each contains exactly `en/` and `zh-CN/`; each variant contains exactly the four
+shown role files. This yields 21 directories, 42 variants and 168 variant
+resources. No current `catalog/templates/`, `catalog/guides/`,
+`catalog/examples/`, or `catalog/fixtures/` tree remains.
+
+`profile.catalog` has exactly `manifest`, `sources`, `routing_guide`,
+`mixed_fixture`, and `entry_root`, with values `catalog/manifest.json`,
+`catalog/shared/sources.json`, `catalog/shared/routing.md`,
+`catalog/shared/mixed/fixture.json`, and `catalog/entries`. The manifest explicitly
+binds every resource role and language to the conventional path above. The loader
+constructs the expected path only to compare it with the declaration; it does not
+enumerate a directory to discover a contract. Duplicate paths, duplicate
+role/language bindings, cross-entry or cross-language paths, missing or additional
+current resources, unsafe normalization and symlink components fail before target
+access. A test-only filesystem walk checks the inverse coverage and is never a
+runtime discovery mechanism. Shared paths referenced by several variants are read
+and hashed once.
+
+The current English resources supply the initial semantic content, not a second
+editable tree. Their new 1.3 markers, fixture identity and paths change with the
+release. Chinese resources are independently authored in the same entry-owned
+locations. Retained files under `compatibility/` are never edited to make them
+match current resources, and no symlink or generated synchronization process makes
+one tree stand in for another.
+
+### 10.2 Schema and variant data structures
+
+`profile.json` retains the 1.2 project, route, anchor and validation policies except
+where this schema explicitly changes them. Its exact bilingual additions are:
+
+| Declaration | Required representation |
+| --- | --- |
+| Release | `schema_version="1.3"`, `profile_id="xdesign-sysml-docs"`, `version="1.3.0"` |
+| `language_policy` | Exactly `supported_ids` and `default`; values `["en","zh-CN"]` and `"en"`. IDs are case-sensitive and ordered; the default must occur once in the list. |
+| `document_classes` | The existing ten routes and `default_template_id` values. Schema 1.3 removes duplicate class-level `template` and `required_sections`; planning resolves the default entry's `en` variant. Selector kind, layer and reserved-name rules are unchanged. |
+| `figure_block` | Stable field tokens, statuses, qualifiers, asset rules and `templates={"en":"templates/figure-block.en.md","zh-CN":"templates/figure-block.zh-CN.md"}`. Localized labels are variant data, not new status values. |
+| `validation.managed_marker` | `<!-- document-kit: profile={profile_id}@{version} class={document_class} template={template_id} language={language} contract={contract_sha256} digest-version={contract_digest_version} -->` |
+| `compatibility_packs` | Exactly the three descriptors for 1.0.0/digest-version 1, 1.1.0/digest-version 2 and 1.2.0/digest-version 2 at the roots above. |
+
+The manifest has exactly `schema_version`, `profile_id`, `version`, and `entries`.
+An entry has exactly `template_id`, `document_class`, `sources`, `checks`, and
+`variants`; `variants` has exactly the two keys `en` and `zh-CN`. Source usages,
+copying reviews, source records, check IDs and route semantics retain their 1.2
+meaning. Each variant has exactly:
+
+| Member | Contract |
+| --- | --- |
+| Selection prose | `title`, `scenario`, `when_to_use`, `when_not_to_use`, `required_inputs`, `dependencies`, with their existing nonempty string/list shapes |
+| Structure | `required_sections`, an ordered array of objects with exactly `key`, `heading`, `required_fields`, and `field_labels` |
+| Localized field labels | `field_labels` is an object whose keys and order equal `required_fields`; every value is a nonempty label distinct within that section. Stable field keys remain the caller/API keys. |
+| View concerns | `view_concerns`, with the existing members and alternatives. `concern`, `section_key`, `applicability`, and `alternatives` are machine-equivalent across variants; only the explanatory `trigger` may be localized. |
+| Four resources | `resources`, an object with exactly `template`, `guide`, `example`, and `fixture`, each the exact normalized path in section 10.1 |
+
+The two variants of an entry must have identical `template_id`, class, ordered
+section keys, ordered required field keys, checks, concern machine fields, anchor
+policy and model-source rules. Headings, labels and explanatory prose may differ
+only as the declared language requires. A heading retains its existing decimal or
+natural form. The initial exhaustive Chinese heading/field allocation is normative
+in [I23](../interfaces/document-kit-api.md#i23); an implementation may not invent a
+missing label or silently reuse English. The validator compares template tokens,
+headings and labels with the selected variant rather than deriving labels from
+field keys.
+
+Each isolated fixture has exactly `profile_id`, `version`,
+`contract_digest_version`, `language`, `document_class`, `name`, `layer`,
+`template_id`, `metadata`, `sections`, `models`, `figures`, and
+`expected_document`. The first three identity values are
+`xdesign-sysml-docs`, `1.3.0`, and `"3"`; `language` equals its manifest variant
+and its `expected_document` is that same variant's `example.md`. The other shapes
+retain 1.2 behavior, including a string `layer` only for API selections and null
+elsewhere. Canonical fixture input still has no actual or sentinel contract digest
+or expected-digest key.
+
+The mixed fixture has the existing top-level `profile_id`, `version`,
+`contract_digest_version`, `documents`, `coverage`, `models`, and `figures`. Each
+`documents[]` item adds required `language` to the existing class/name/layer,
+template, caller content and expected-example fields. Each shared figure-input
+record also adds `language`, allowing two localized metadata records to reference
+one language-neutral SVG `pack` path without copying the SVG. The external
+acceptance manifest remains exactly `expected_contract_sha256`, `fixture_path`,
+and `fixture_sha256`; language is evidenced by the fixture path and parsed fixture,
+not by adding a fourth manifest field.
+
+### 10.3 Language selection and deterministic rejection
+
+`BilingualLanguageResolver` treats a supplied language as a selector only for new
+plan/create operations and language-addressed resource reads. Omission selects the
+profile default `en`; omission never consults locale, environment, filename,
+content, neighboring documents or system defaults. A well-formed unsupported ID
+returns the new stable `unknown-language` code. For this contract, well-formed
+selector syntax is `[A-Za-z]{2,3}(?:[-_][A-Za-z0-9]{2,8})*`, so `zh`, `en-US`,
+`ZH-CN`, and `zh_CN` are well-formed but unsupported. Empty or non-string values,
+whitespace, non-ASCII text, repeated/leading/trailing separators, overlong pieces,
+and conflicting selector channels are `invalid-request`. Only exact `en` and
+`zh-CN` select resources; there is no alias normalization or fallback.
+
+Update, attachment and selected-document check expose an optional language
+**assertion**, not a reselection mechanism. Omission uses the persisted effective
+variant; a supplied value must equal it. A conflicting assertion is
+`invalid-request`. Whole-project/class-filter checks reject a non-null language as
+`invalid-request` rather than treating it as a filter. Route selection remains the
+existing three-key class/name/layer object; language never enters or changes a
+route.
+
+Under any selected original 1.0/1.1/1.2 pack, every supplied language selector or
+assertion is `invalid-request`, including an unsupported ID; omission retains the
+old behavior. The adapters reject a language member smuggled into a create/update/
+attach payload or route-selection object instead of silently ignoring it. MCP
+binding redirection is rejected before language processing. New-pack request shape
+and route validation precede full pack loading; update/attachment retain the
+existing ownership/readability/stale-hash precedence before effective-identity and
+language-assertion checks.
+
+A second create in another language at the same occupied route returns
+`document-exists` when the destination file exists, or `registry-mismatch` when
+only the registry owns that path. It never converts or overwrites the existing
+page. Arbitrary caller prose is not scanned to infer or mutate language. A
+prose-only edit with otherwise valid identity has no required identity-mismatch
+rejection; translation adequacy is exclusively BDK-06 semantic review.
+
+### 10.4 Marker, registry and effective identity
+
+A schema 1.3 effective identity has exactly the six existing fields plus
+`language`. New plan/create/update/attach responses include top-level `language`
+and the seven-field `effective_identity`; checks expose the same per-path identity
+and `scope.language` (the selected assertion or null). `route_selection` keeps its
+existing three fields. Top-level selected-pack results identify `version=1.3.0`
+and digest version `"3"`, while old pages retain their own six-field or v1
+language-less identity.
+
+The marker is the exact profile declaration in section 10.2 with actual nonzero
+values. Registry `schema_version` remains 1 and a new entry has the existing seven
+keys plus required `language`. The new loader requires language for digest-version
+3 entries, forbids it for effective old entries, and compares marker, registry and
+resolved variant before any write. Missing, unsupported or disagreeing persisted
+language is `registry-mismatch`, not `unknown-language`. An old language-less
+identity is never backfilled; a new identity may not borrow an old language-less
+marker or registry entry.
+
+When the 1.3 pack is selected, whole-project and selected checks resolve exact
+1.0.0, 1.1.0, 1.2.0 and 1.3.0 entries independently. Update/attachment under the
+new selected pack can therefore change an old page under its effective old
+contract while preserving its marker and registry identity. Supplying a language
+assertion for such an old effective page is `invalid-request`. Original packs keep
+their old loader behavior: a foreign language key, digest-version 3 or new identity
+may make a mixed registry/check fail as `registry-mismatch`; the design does not
+weaken that rejection or silently patch retained behavior. Old positional calls
+and old-page operations remain valid in their supported old-only registries, and
+the new pack supplies the supported mixed-project path.
+
+### 10.5 Localized rendering, checking and figures
+
+`BilingualDocumentOperations` binds one `BilingualResourceVariant` to the existing
+renderer and validator. The selected variant supplies exact H2 headings, metadata
+labels, field labels, figure template and figure-field labels. Stable section keys,
+field keys, content-boundary comments, anchors, routes, model paths, diagram
+concern IDs, JSON decision keys, choice tokens, API layer values and status tokens
+remain unchanged. The ASCII Markdown delimiter `:**` and metadata separators are
+serialization syntax, not an English fallback. `change_fields`, section lookup,
+API-layer comparison and diagram-decision lookup use declared labels instead of
+hard-coded English text.
+
+The Python `figure` input retains its existing keys `asset`, `title`, `Question`,
+`Model view`, `Companions`, `Status`, `Reading`, and `Limits` for every language.
+The Chinese renderer emits `图 <anchor>-<ordinal>` and labels `问题`, `模型视图`,
+`配套材料`, `状态`, `解读`, and `限制`; English retains `Figure` and the original
+six labels. Metadata uses `状态`, `修订`, and `模型来源` in Chinese and the
+original English labels in English. Primary figure statuses and software-claim
+qualifiers remain the existing machine tokens. `figure_number`, asset naming,
+canonical SVG ownership, duplicate detection and six-field validation are
+language-independent. Shared SVG bytes are not translated or copied; figure
+captions and block prose are variant-owned. Source fidelity, readability and
+translation quality remain separate judgments.
+
+The structural checker establishes declaration/path binding, exact selected
+labels/headings, complete caller fields, marker/registry identity and same-language
+fixture/example references. It does not infer natural prose language or claim that
+translations are equivalent. `unevaluated_checks` explicitly adds Chinese
+scholarly quality and English semantic equivalence to the existing compiler,
+engineering-adequacy and figure-readability limits.
+
+### 10.6 Shared consumer and resource surfaces
+
+The six public names and old positional parameters are unchanged. Schema 1.3 adds
+keyword-only `language=None` to plan/create/update/attach and an optional language
+assertion to selected check; CLI adds `--language` to the corresponding operations,
+and MCP adds equivalent optional arguments. `get_contract` returns the complete
+language policy, variant catalog and all four exact resource-byte kinds, with the
+existing template projection explicitly using default `en` when language is
+omitted. No seventh public authoring operation is introduced.
+
+MCP retains contract/rules/catalog and both existing template URI forms, whose
+omitted language is `en` under 1.3. The canonical language-addressed form is
+`xdesign-doc-kit://entry/{template_id}/{language}/{resource_kind}` with
+`resource_kind` exactly `template`, `guide`, `example`, or `fixture`; an additional
+three-component language-addressed template form is specified in I23 for symmetry
+with the retained URIs. Every read resolves only the manifest declaration and
+returns exact bytes. Examples are readable examples, never selectable templates.
+[I23](../interfaces/document-kit-api.md#i23) is the single exact signature, result,
+resource-index, error-envelope and discovery contract for Python, JSON CLI and
+real stdio MCP.
+
+### 10.7 Complete fixtures and scholarly authoring allocation
+
+Every one of the 42 isolated fixtures uses complete same-language metadata,
+section prose, field values, model inputs and applicable figure decisions. The
+acceptance comparator independently asserts actual language in stored and created
+marker/registry identities, substitutes only the first marker's contract sentinel
+in memory, and compares every other byte. It never treats an English expected
+example as the target of a Chinese fixture.
+
+The single mixed project has 20 documents so every class occurs in both languages
+and requirements also uses two template IDs:
+
+| Class | `en` document | `zh-CN` document and figure/alternative |
+| --- | --- | --- |
+| requirements | `generic-requirements` | `system-requirements` |
+| architecture | `system-context`, figure | `system-context`, reasoned table |
+| design | `interaction-flow`, figure | `interaction-flow`, reasoned prose |
+| interface | `operation-contract` | `operation-contract` |
+| verification | `verification-test-plan` | `verification-test-plan` |
+| api-design | `generic-api-design` | `generic-api-design` |
+| flow-index | `generic-flow-index` | `generic-flow-index` |
+| flow-definition | `generic-flow-definition` | `generic-flow-definition` |
+| flow-implementation | `generic-flow-implementation` | `generic-flow-implementation` |
+| flow-views | `generic-flow-views` | `generic-flow-views` |
+
+`catalog/shared/mixed/coverage.md` maps these selections and reasoned omissions,
+including the entries not instantiated in the mixed root. This retains expected
+and conditional concerns, figure/table/prose alternatives and two IDs in one
+original class without requiring all 42 variants in the mixed project; BDK-03
+requires all 42 independently.
+
+The future Chinese author is the Kimi runner selected by the wish. The author
+works entry by entry from the English engineering obligations, uses the I23
+terminology allocation, and applies D121's class-specific rubric to template
+instructions, guides, examples and fixture prose. Chinese text states the problem
+and boundary, justifies decisions, explains method/design and evidence, and names
+limitations with precise, objective, connected prose. It does not replace classes
+with thesis chapters, add unverifiable citations or upgrade fictional/planned
+claims into implementation or review results. English resources retain equivalent
+normative meaning without literal back-translation.
+
+A checker independent of the author reviews every section and field of all 21
+pairs, records per-entry terminology/normative maps and citation resolutions, and
+corrects findings before acceptance. Mechanical same-language and placeholder
+checks support but cannot replace that review. No deterministic test compares
+Chinese and English prose by mirrored wording.
+
+### 10.8 Source and verification projection
+
+The allocation follows the actual schema-1.2 extension points rather than
+introducing a parallel engine:
+
+| Design responsibility | Concrete source or verification owner |
+| --- | --- |
+| `BilingualCatalogLayout`, `BilingualVariantLibrary` | `profile.json`, `catalog/manifest.json`, entry-owned resources, `catalog/shared/`; schema/closure loading in `xdesign_doc_kit/catalog.py`; variant selection and resource indexing in new `xdesign_doc_kit/bilingual.py` |
+| `BilingualLanguageResolver` | `bilingual.py` selector/default/resource functions; `structured.py` plan/preflight and operation integration; unchanged route grammar in `routes.py` |
+| `BilingualIdentityResolver` | `compatibility.py` identity/marker/registry/effective resolution; `core.py` rendering values and registry loading; `structured.py` assertions |
+| Localized renderer/check/figures | `core.py`, `structured.py`, `catalog.py`, and the two declared figure-block templates |
+| `BilingualCompatibilityResolver` | `compatibility.py` digest-version 3 and recursive resolution, `catalog.py` descriptors/closure/sentinel validation, exact `compatibility/v1.0.0/`, `v1.1.0/`, `v1.2.0/` |
+| `BilingualConsumerContract` | unchanged exports in `__init__.py`; `__main__.py` JSON CLI; `mcp_server.py` bound tools/resources; distributed `README.md`, `RULES.md`, `SKILL.md`, `API.md`; `pyproject.toml` remains the Python package manifest with no new runtime dependency |
+| `BilingualValidationBoundary` | new `tests/test_bilingual.py`, `test_bilingual_transports.py`, `test_bilingual_compatibility.py`; affected existing catalog/core/security/example/compatibility/structured/acceptance/MCP suites; [D121](../verification/design.md#d121) |
+| `BilingualScholarlyProseContract` | all 21 `zh-CN` and `en` variant sets plus independent revision-bound per-entry review evidence, not a production prose classifier |
+
+The supported distribution remains the complete copied/pinned directory selected
+by `profile_root`, including Python source, consumer documentation, all declared
+current resources and every retained closure. Package installation does not move
+that selected resource root into `importlib.resources` or create another editable
+copy. Implementation adds `document-kit/MANIFEST.in` as the reviewed
+source-distribution file list so a source archive contains the same complete
+closure; BDK-08 installs/copies that distribution into
+a fresh consumer and recomputes its digest before use. No network retrieval or new
+MCP dependency is needed beyond the existing extra.
+
+### 10.9 Release sequence and limits
+
+Implementation is bounded into: (1) freeze and verify the 1.2 closure; (2) copy the
+three immutable old closures and create entry-owned English paths; (3) implement
+schema/variant/identity and adapter support; (4) author/review all Chinese pairs;
+(5) build isolated/mixed fixtures and run all BDK/DOC/SDK evidence. The evidence
+implementation plan decomposes these into smaller reviewable units and assigns
+acceptance oracles to each file.
+
+The 1.3 contract digest is deliberately unspecified until those exact product
+bytes exist. The design has not moved a catalog file, edited a product resource,
+implemented `bilingual.py`, executed a product BDK case or obtained the 21
+independent prose judgments. Existing SimpleFlow figures, gates and class/name/
+layer routes are unchanged; no locale inference, automatic migration, remote
+retrieval, parallel editable catalog, new diagram or flow/controller change is
+introduced.

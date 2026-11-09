@@ -148,6 +148,21 @@ package XDesignArchitecture {
         part mcp : DocumentMcpBoundary;
     }
 
+    part def BilingualDocumentKitRelease :> PortableDocumentKit {
+        @XDesignCommon::DocSection { document = "docs/architecture/document-kit.md"; section = "B35"; }
+        doc /* Proposed schema 1.3 release allocation over the existing four
+           boundaries, not a fifth component or a second documentation authority.
+           One current entry-owned catalog supplies English and Chinese variants;
+           immutable compatibility closures remain selectable historical inputs.
+           The target project and its registry retain their existing ownership. */
+        attribute schemaVersion : String;
+        attribute releaseVersion : String;
+        attribute supportedLanguages : String [2];
+        attribute defaultLanguage : String;
+        attribute entryPackageRoot : String;
+        attribute retainedClosureRoots : String [3];
+    }
+
     part def Checkpoint {
         @XDesignCommon::DocSection { document = "docs/design/adapters.md"; section = "F02"; }
         doc /* Reusable gate definition, independent of a particular wish.

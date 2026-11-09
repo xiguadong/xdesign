@@ -13,6 +13,7 @@ import unittest
 
 from test_structured import (
     KIT,
+    DISTRIBUTION,
     CACHE,
     fixture,
     materialize,
@@ -48,7 +49,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
             self.projects.append(p)
         self.env = {
             **os.environ,
-            "PYTHONPATH": str(KIT),
+            "PYTHONPATH": str(DISTRIBUTION),
             "PYTHONDONTWRITEBYTECODE": "1",
             "TMPDIR": str(CACHE),
         }
@@ -61,7 +62,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
     def cli(self, project, operation, args, payload=None, pack=KIT, mode=None, code=0):
         cmd = [sys.executable]
         if mode:
-            cmd += [str(KIT / "tests/_fault_driver.py"), mode, "cli"]
+            cmd += [str(DISTRIBUTION / "tests/_fault_driver.py"), mode, "cli"]
         else:
             cmd += ["-m", "xdesign_doc_kit"]
         cmd += [operation.replace("_", "-"), "--profile-root", str(pack)]
@@ -80,7 +81,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
             cmd += ["--input", json.dumps(payload)]
         r = subprocess.run(
             cmd,
-            env={**self.env, "PYTHONPATH": str(pack)},
+            env={**self.env, "PYTHONPATH": str(DISTRIBUTION)},
             text=True,
             capture_output=True,
         )
@@ -93,13 +94,13 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
 
     def server(self, project, pack=KIT, mode=None):
         args = (
-            [str(KIT / "tests/_fault_driver.py"), mode, "mcp"]
+            [str(DISTRIBUTION / "tests/_fault_driver.py"), mode, "mcp"]
             if mode
             else ["-m", "xdesign_doc_kit.mcp_server"]
         )
         args += ["--project-root", str(project), "--profile", str(pack)]
         return StdioServerParameters(
-            command=sys.executable, args=args, env={**self.env, "PYTHONPATH": str(pack)}
+            command=sys.executable, args=args, env={**self.env, "PYTHONPATH": str(DISTRIBUTION)}
         )
 
     async def call(self, client, name, args):
@@ -357,7 +358,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
             with self.subTest(mode=mode):
                 try:
                     with fault(mode):
-                        getattr(core, operation)(projects[0], **request)
+                        getattr(core, operation)(projects[0], **request, profile_root=KIT)
                 except DocumentKitError as e:
                     py = e.as_dict()
                 else:
@@ -395,7 +396,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
                         self.assertTrue(
                             (p / "docs/design/api/core/create-run.md").is_file()
                         )
-                        self.assertFalse(core.check_documents(p)["ok"])
+                        self.assertFalse(core.check_documents(p, profile_root=KIT)["ok"])
                 else:
                     self.assertEqual(outcome["publication_state"], "none")
                     for p, b in zip(projects, before):
@@ -491,7 +492,7 @@ class StructuredTransportTests(unittest.IsolatedAsyncioTestCase):
                 with self.subTest(operation=operation, mode=mode):
                     try:
                         with fault(mode):
-                            getattr(core, operation)(projects[0], **request)
+                            getattr(core, operation)(projects[0], **request, profile_root=KIT)
                     except DocumentKitError as e:
                         py = e.as_dict()
                     else:

@@ -1,0 +1,76 @@
+<!-- document-kit: profile=xdesign-sysml-docs@1.3.0 class=design template=generic-design language=zh-CN contract=0000000000000000000000000000000000000000000000000000000000000000 digest-version=3 -->
+# 虚构 Aster 读取管线设计
+
+> 状态: 虚构示例 | 修订: 1 | 模型来源: `mbse/model/example.sysml`
+
+<a id="D10300"></a>
+
+## 1. 目的与分配
+
+**设计对象:** 从探头输入到控制器响应的读取管线，包括统一有效性检查、UTC 时间戳和有界历史缓存。
+
+**需求链接:** 60 秒采样、UTC 记录、拒绝无效值以及中断期间保留最新有效读数的需求共同驱动本设计。
+
+<!-- document-kit:content:purpose:start -->
+本设计为虚构 Aster 集线器分配验证、缓冲和导出职责，目标是在控制器中断时仍能保留最新有效读数。设计范围止于读取管线，不扩展到灌溉控制或长期分析。
+<!-- document-kit:content:purpose:end -->
+
+<a id="D10301"></a>
+
+## 2. 结构与接口
+
+**组成要素:** ProbeValidator、UtcClock、RingBuffer 和 ReadLatestExporter 构成设计所需的最小内部结构。
+
+**接口:** 验证器接收 ProbeSample，缓存接收 Reading，导出器返回 Reading 或 NOT_READY，且不暴露任何缓存修改操作。
+
+<!-- document-kit:content:structure:start -->
+ProbeValidator 返回带 UTC 时间戳的 Reading 或明确错误，RingBuffer 仅接受有效读数，ReadLatestExporter 只提供 readLatest。该接口划分使无效值在写入前被拦截，并防止读取方改变历史。
+<!-- document-kit:content:structure:end -->
+
+<a id="D10302"></a>
+
+## 3. 行为与约束
+
+**行为:** 处理顺序为验证、记录 UTC 时间、追加缓存；导出返回最新有效值或 NOT_READY，控制器故障不改变既有历史。
+
+**约束:** NaN 和无穷大不得通过验证，缓存容量固定为十项，导出不得改变读数顺序、时间戳或数值。
+
+<!-- document-kit:content:behavior:start -->
+无效样本在写入前被丢弃，第十一个有效样本触发最旧项淘汰，空缓存返回 NOT_READY 而不是虚构读数。上述顺序保证错误不会被后续读取方重复处理，也保证历史含义稳定。
+<!-- document-kit:content:behavior:end -->
+
+<a id="D10303"></a>
+
+## 4. 决策与依据
+
+**选定设计:** 采用单点验证、十项 FIFO 环形缓存和只读导出器，以明确所有权和故障隔离。
+
+**权衡:** 有界缓存简化容量证明并降低内存风险，但不能回答长期趋势问题；无限历史方案被放弃，因为其资源边界不符合本例约束。
+
+<!-- document-kit:content:rationale:start -->
+集中验证避免每个读取方重复实现错误处理，环形缓存则以主动丢弃旧值为代价换取确定的内存上界。该选择适用于短期查询，不应被表述为适用于所有历史分析的最佳方案。
+<!-- document-kit:content:rationale:end -->
+
+<a id="D10304"></a>
+
+## 5. 实现映射与验证
+
+**源码映射:** ProbeValidator、RingBuffer 和 ReadLatestExporter 是预期实现单元，测试应通过其公开契约观察行为。
+
+**验证链接:** 计划检查包括无效值拒绝、FIFO 淘汰、空缓存 NOT_READY 以及中断期间最新有效值保持。
+
+**模型元素:** Example::Sensor 和 Example::Controller 分别对应设计中的数据提供边界和查询边界。
+
+<!-- document-kit:content:projection:start -->
+预期源码单元包括验证器、缓存和导出器，计划测试覆盖容量、无效输入、空缓存和控制器中断。这些名称表示实现分配与验证设计，不表示仓库中已经存在相应代码或通过记录。
+<!-- document-kit:content:projection:end -->
+
+<a id="D10305"></a>
+
+## 6. 状态与限制
+
+**未决事项:** 线程安全、持久存储、传输安全和部署配置仍待独立设计决策。
+
+<!-- document-kit:content:limits:start -->
+本例不讨论并发访问、重启后的持久化或生产传输协议，因此不能从当前设计推断线程安全、持久恢复或网络安全性质。相关决策需要在补充需求和威胁分析后单独形成。
+<!-- document-kit:content:limits:end -->
